@@ -42,6 +42,13 @@ const getTscBinPath = () => {
   return resolve(repoRoot, 'node_modules/typescript/bin/tsc');
 };
 
+const readFileSystemDirectory = (directory: string) => {
+  return readdirSync(directory, { withFileTypes: true }).map((entry) => ({
+    isDirectory: entry.isDirectory(),
+    path: resolve(directory, entry.name),
+  }));
+};
+
 const readDirectoryRecursive = (directory: string): string[] => {
   if (!existsSync(directory)) {
     return [];
@@ -56,13 +63,6 @@ const readDirectoryRecursive = (directory: string): string[] => {
 
     return [entry.path];
   });
-};
-
-const readFileSystemDirectory = (directory: string) => {
-  return readdirSync(directory, { withFileTypes: true }).map((entry) => ({
-    isDirectory: entry.isDirectory(),
-    path: resolve(directory, entry.name),
-  }));
 };
 
 export const isApiRouteTypesInputFile = (filePath: string): boolean => {
@@ -746,21 +746,6 @@ const extractApiRouteTupleItems = (declarationText: string): string[] => {
   throw new Error('Unable to extract generated apiRoutes tuple items');
 };
 
-const createApiRouteControllerUnion = (declarationText: string): string => {
-  const routeItems = extractApiRouteTupleItems(declarationText);
-  const routeControllers = routeItems.map((routeItem) => {
-    const startMarker = 'ApiRoute<';
-
-    if (!routeItem.startsWith(startMarker) || !routeItem.endsWith('>')) {
-      throw new Error(`Unexpected generated route item: ${routeItem}`);
-    }
-
-    return simplifyApiRouteController(routeItem.slice(startMarker.length, -1));
-  });
-
-  return `export type ApiRouteController =\n${routeControllers.map((routeController) => `  | ${routeController}`).join('\n')};`;
-};
-
 const simplifyOperationType = (operationType: string): string => {
   const properties: string[] = [];
 
@@ -837,6 +822,21 @@ const simplifyApiRouteController = (routeController: string): string => {
   }
 
   return `ApiController<${path}, ${method}, ${simplifyOperationType(operation)}>`;
+};
+
+const createApiRouteControllerUnion = (declarationText: string): string => {
+  const routeItems = extractApiRouteTupleItems(declarationText);
+  const routeControllers = routeItems.map((routeItem) => {
+    const startMarker = 'ApiRoute<';
+
+    if (!routeItem.startsWith(startMarker) || !routeItem.endsWith('>')) {
+      throw new Error(`Unexpected generated route item: ${routeItem}`);
+    }
+
+    return simplifyApiRouteController(routeItem.slice(startMarker.length, -1));
+  });
+
+  return `export type ApiRouteController =\n${routeControllers.map((routeController) => `  | ${routeController}`).join('\n')};`;
 };
 
 const replaceInlineTypeImports = (

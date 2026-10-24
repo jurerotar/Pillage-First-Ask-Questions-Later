@@ -88,11 +88,11 @@ describe('localization completeness check for assets.json', () => {
       expect(
         getMissingKeys(itemDefinitionKeys, localizedItemKeys),
         'Missing ITEMS keys',
-      ).toEqual([]);
+      ).toStrictEqual([]);
       expect(
         getUnexpectedKeys(itemDefinitionKeys, localizedItemKeys),
         'Unexpected ITEMS keys',
-      ).toEqual([]);
+      ).toStrictEqual([]);
     });
 
     test('items should have NAME, NAME_other and DESCRIPTION set', () => {

@@ -56,6 +56,14 @@ const getTargetVillageFromRow = (row: {
   };
 };
 
+const getMerchantCapacityFromStatsRow = (
+  row: z.infer<typeof marketplaceVillageMerchantStatsSchema>,
+) => {
+  const effects = z.array(apiEffectSchema).parse(JSON.parse(row.effectsJson));
+
+  return calculateComputedEffect('merchantCapacity', effects, row.tileId).total;
+};
+
 const getVillageMerchantStatsFromRow = (
   row: z.infer<typeof marketplaceVillageMerchantStatsSchema>,
 ) => {
@@ -76,14 +84,6 @@ const getVillageMerchantStatsFromRow = (
     marketplaceLevel: row.marketplaceLevel,
     usedMerchantAmount: row.usedMerchantAmount,
   };
-};
-
-const getMerchantCapacityFromStatsRow = (
-  row: z.infer<typeof marketplaceVillageMerchantStatsSchema>,
-) => {
-  const effects = z.array(apiEffectSchema).parse(JSON.parse(row.effectsJson));
-
-  return calculateComputedEffect('merchantCapacity', effects, row.tileId).total;
 };
 
 export const getMarketplaceVillage = (
@@ -135,15 +135,15 @@ export const getMarketplaceVillageWithTargetByTileId = (
   };
 };
 
+export const getTotalResourceAmount = (resources: Resources) => {
+  return resources.wood + resources.clay + resources.iron + resources.wheat;
+};
+
 export const getMerchantAmount = (
   resources: Resources,
   merchantCapacity: number,
 ) => {
   return Math.ceil(getTotalResourceAmount(resources) / merchantCapacity);
-};
-
-export const getTotalResourceAmount = (resources: Resources) => {
-  return resources.wood + resources.clay + resources.iron + resources.wheat;
 };
 
 export const getMerchantMovementDurationByVillageId = (

@@ -71,7 +71,7 @@ describe('map-controllers', () => {
     const tiles = getTiles(database, createControllerArgs<'/tiles'>({}));
 
     for (const id of [village.tile_id, oasisId]) {
-      expect(tiles[id - 1]?.ownerVillage).toEqual({
+      expect(tiles[id - 1]?.ownerVillage).toStrictEqual({
         id: village.id,
         name,
         slug: '',
@@ -242,7 +242,7 @@ describe('map-controllers', () => {
     );
 
     expect(troops.length).toBeGreaterThan(0);
-    expect(troops).toEqual(
+    expect(troops).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           tileId: tileWithAnimalsTileId,
@@ -270,7 +270,7 @@ describe('map-controllers', () => {
     );
 
     expect(bonuses.length).toBeGreaterThan(0);
-    expect(bonuses).toEqual(
+    expect(bonuses).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           resource: expect.any(String),

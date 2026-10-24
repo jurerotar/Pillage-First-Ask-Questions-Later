@@ -127,7 +127,7 @@ describe('hero-auction-controllers', () => {
     })!;
 
     expect(boughtItemAmount).toBe(listing.amount);
-    expect(silverAmount).toBe(1000000 - listing.price);
+    expect(silverAmount).toBe(1_000_000 - listing.price);
     expect(listingStillExists).toBe(0);
     expect(activeListingAmount).toBe(100);
   });

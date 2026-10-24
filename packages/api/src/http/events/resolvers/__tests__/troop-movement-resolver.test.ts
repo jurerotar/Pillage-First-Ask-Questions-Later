@@ -134,8 +134,8 @@ describe(oasisOccupationMovementResolver, () => {
         villageId,
         originTileId,
         targetTileId,
-        startsAt: resolvesAt - 1_000,
-        duration: 1_000,
+        startsAt: resolvesAt - 1000,
+        duration: 1000,
         resolvesAt,
         troops: [
           {
@@ -278,7 +278,7 @@ describe(adventureMovementResolver, () => {
       }),
     })!;
 
-    expect(report).toEqual({
+    expect(report).toStrictEqual({
       village_id: villageId,
       timestamp: mockEvent.resolvesAt,
       report_type: 'adventure',
@@ -410,7 +410,7 @@ describe(adventureMovementResolver, () => {
       }),
     });
 
-    expect(report).toEqual({
+    expect(report).toStrictEqual({
       adventure_id: 6,
       item_id: null,
       item_amount: null,
@@ -1310,7 +1310,7 @@ describe(attackMovementResolver, () => {
       schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
     })!;
 
-    const resolvesAt = 5_500;
+    const resolvesAt = 5500;
 
     database.exec({
       sql: `
@@ -1336,7 +1336,7 @@ describe(attackMovementResolver, () => {
 
     const mockEvent = createTroopMovementAttackEventMock({
       id: 4,
-      startsAt: 5_000,
+      startsAt: 5000,
       duration: 500,
       villageId,
       originTileId,
@@ -1504,7 +1504,7 @@ describe(attackMovementResolver, () => {
       schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
     })!;
 
-    const resolvesAt = 5_500;
+    const resolvesAt = 5500;
 
     database.exec({
       sql: `
@@ -1546,7 +1546,7 @@ describe(attackMovementResolver, () => {
 
     const mockEvent = createTroopMovementAttackEventMock({
       id: 6,
-      startsAt: 5_000,
+      startsAt: 5000,
       duration: 500,
       villageId,
       originTileId,
@@ -1676,7 +1676,7 @@ describe(raidMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const resolvesAt = 7_500;
+    const resolvesAt = 7500;
 
     database.exec({
       sql: `
@@ -1692,7 +1692,7 @@ describe(raidMovementResolver, () => {
 
     const mockEvent = createTroopMovementRaidEventMock({
       id: 5,
-      startsAt: 7_000,
+      startsAt: 7000,
       duration: 500,
       villageId,
       originTileId,
@@ -1864,7 +1864,7 @@ describe(raidMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const resolvesAt = 7_500;
+    const resolvesAt = 7500;
 
     database.exec({
       sql: `
@@ -1918,7 +1918,7 @@ describe(raidMovementResolver, () => {
 
     const mockEvent = createTroopMovementRaidEventMock({
       id: 7,
-      startsAt: 7_000,
+      startsAt: 7000,
       duration: 500,
       villageId,
       originTileId,
@@ -1974,7 +1974,7 @@ describe(raidMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const resolvesAt = 7_500;
+    const resolvesAt = 7500;
 
     database.exec({
       sql: `
@@ -2041,7 +2041,7 @@ describe(raidMovementResolver, () => {
 
     const mockEvent = createTroopMovementRaidEventMock({
       id: 8,
-      startsAt: 7_000,
+      startsAt: 7000,
       duration: 500,
       villageId,
       originTileId,

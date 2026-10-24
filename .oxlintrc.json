@@ -85,6 +85,9 @@
       }
     ],
     "unicorn/no-null": "off",
+    "unicorn/no-useless-undefined": "off",
+    "unicorn/no-array-callback-reference": "off",
+    "unicorn/prefer-number-coercion": "off",
     "unicorn/prefer-global-this": "off",
     "unicorn/no-await-expression-member": "off",
     "unicorn/require-post-message-target-origin": "off",
@@ -117,6 +120,7 @@
         }
       }
     ],
+    "vitest/valid-expect": ["error", { "maxArgs": 2 }],
     "vitest/prefer-called-once": "off",
     "vitest/valid-title": "off",
     "vitest/no-importing-vitest-globals": "off",

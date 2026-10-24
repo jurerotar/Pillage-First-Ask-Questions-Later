@@ -203,12 +203,16 @@ export const createDbFacade = (
           }
 
           statement.reset();
+
+          return;
         },
       });
 
       if (row !== undefined) {
         return z.parse(schema, row);
       }
+
+      return;
     },
 
     selectObjects: ({ sql, bind, schema }) => {

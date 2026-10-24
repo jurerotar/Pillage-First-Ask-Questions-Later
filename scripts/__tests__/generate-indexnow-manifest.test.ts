@@ -10,11 +10,11 @@ describe('getPublicPathsForFiles', () => {
       getPublicPathsForFiles([
         'apps/web/app/(public)/(frequently-asked-questions)/mdx/frequently-asked-questions.mdx',
       ]),
-    ).toEqual(['/frequently-asked-questions']);
+    ).toStrictEqual(['/frequently-asked-questions']);
   });
 
   test('maps changelog changes to latest updates', () => {
-    expect(getPublicPathsForFiles(['CHANGELOG.md'])).toEqual([
+    expect(getPublicPathsForFiles(['CHANGELOG.md'])).toStrictEqual([
       '/latest-updates',
     ]);
   });
@@ -22,12 +22,12 @@ describe('getPublicPathsForFiles', () => {
   test('queues every public URL when shared public UI changes', () => {
     expect(
       getPublicPathsForFiles(['apps/web/app/(public)/components/footer.tsx']),
-    ).toEqual([...PUBLIC_PATHS]);
+    ).toStrictEqual([...PUBLIC_PATHS]);
   });
 
   test('ignores changes that do not affect indexable public pages', () => {
-    expect(getPublicPathsForFiles(['packages/api/src/db/database.ts'])).toEqual(
-      [],
-    );
+    expect(
+      getPublicPathsForFiles(['packages/api/src/db/database.ts']),
+    ).toStrictEqual([]);
   });
 });

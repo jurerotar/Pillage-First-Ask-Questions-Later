@@ -107,7 +107,7 @@ const expectAtMostOneActiveConstructionPerLane = (
     }),
   });
 
-  expect(violations).toEqual([]);
+  expect(violations).toStrictEqual([]);
 };
 
 const expectScheduledLevelsToBeConsecutive = (
@@ -175,7 +175,7 @@ const expectScheduledLevelsToBeConsecutive = (
     }),
   });
 
-  expect(violations).toEqual([]);
+  expect(violations).toStrictEqual([]);
 };
 
 describe('scheduled building upgrade controllers', () => {
@@ -263,7 +263,7 @@ describe('scheduled building upgrade controllers', () => {
       }),
     });
 
-    expect(counts).toEqual({
+    expect(counts).toStrictEqual({
       scheduled: 1,
       active: 1,
     });
@@ -426,7 +426,7 @@ describe('scheduled building upgrade controllers', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       buildingId: 'WAREHOUSE',
       level: 0,
       scheduled: 1,
@@ -456,7 +456,7 @@ describe('scheduled building upgrade controllers', () => {
       }),
     );
 
-    expect(result.map(({ buildingFieldId }) => buildingFieldId)).toEqual([
+    expect(result.map(({ buildingFieldId }) => buildingFieldId)).toStrictEqual([
       2, 1,
     ]);
   });
@@ -490,7 +490,7 @@ describe('scheduled building upgrade controllers', () => {
         database,
         createControllerArgs({ path: { villageId: villageId.toString() } }),
       ).map(({ buildingFieldId }) => buildingFieldId),
-    ).toEqual([1, 2]);
+    ).toStrictEqual([1, 2]);
   });
 
   test('rejects reordering higher levels before lower levels', async () => {
@@ -631,7 +631,7 @@ describe('scheduled building upgrade controllers', () => {
       createControllerArgs({ path: { villageId: villageId.toString() } }),
     );
 
-    expect(remaining).toEqual([
+    expect(remaining).toStrictEqual([
       expect.objectContaining({
         buildingFieldId: activeField.fieldId,
         level: activeField.level + 2,
@@ -712,7 +712,7 @@ describe('scheduled building upgrade controllers', () => {
       }),
     });
 
-    expect(remaining).toEqual([
+    expect(remaining).toStrictEqual([
       { buildingFieldId: 2, level: 1 },
       { buildingFieldId: 1, level: 1 },
     ]);

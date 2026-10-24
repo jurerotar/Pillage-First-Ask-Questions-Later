@@ -69,73 +69,6 @@ const renderInlineMarkdown = (text: string): ReactNode[] => {
 
 const releases = parseChangelogFromMarkdown(changelogRaw);
 
-export const ChangelogRenderer = () => {
-  if (!releases.length) {
-    return null;
-  }
-
-  return (
-    <>
-      {releases.map((release) => (
-        <section
-          key={release.version}
-          id={makeSectionId(release.version)}
-          style={{ position: 'relative' }}
-        >
-          {import.meta.env.DEV && (
-            <CopyReleaseButton text={buildReleaseMarkdown(release)} />
-          )}
-          <h2 className="group">
-            Version {release.version}
-            <CopySectionLinkButton
-              sectionId={makeSectionId(release.version)}
-              sectionType="release"
-            />
-          </h2>
-          <h4>
-            {release.date.toLocaleDateString('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-            })}
-          </h4>
-
-          {groupOrder.map((tag) => {
-            const items = release.groups[tag] ?? [];
-
-            if (!items.length) {
-              return null;
-            }
-
-            if (tag === 'Breaking') {
-              return (
-                <Alert
-                  key={tag}
-                  variant="error"
-                >
-                  {items[0]}
-                </Alert>
-              );
-            }
-
-            const Block = tagToBlock[tag] ?? TechnicalImprovementBlock;
-
-            return (
-              <Block key={tag}>
-                <ul>
-                  {items.map((item) => (
-                    <li key={item}>{renderInlineMarkdown(item)}</li>
-                  ))}
-                </ul>
-              </Block>
-            );
-          })}
-        </section>
-      ))}
-    </>
-  );
-};
-
 const buildReleaseMarkdown = (release: ChangelogEntry): string => {
   const lines: string[] = [];
 
@@ -208,4 +141,71 @@ const buildReleaseMarkdown = (release: ChangelogEntry): string => {
   }
 
   return lines.join('\n');
+};
+
+export const ChangelogRenderer = () => {
+  if (!releases.length) {
+    return null;
+  }
+
+  return (
+    <>
+      {releases.map((release) => (
+        <section
+          key={release.version}
+          id={makeSectionId(release.version)}
+          style={{ position: 'relative' }}
+        >
+          {import.meta.env.DEV && (
+            <CopyReleaseButton text={buildReleaseMarkdown(release)} />
+          )}
+          <h2 className="group">
+            Version {release.version}
+            <CopySectionLinkButton
+              sectionId={makeSectionId(release.version)}
+              sectionType="release"
+            />
+          </h2>
+          <h4>
+            {release.date.toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </h4>
+
+          {groupOrder.map((tag) => {
+            const items = release.groups[tag] ?? [];
+
+            if (!items.length) {
+              return null;
+            }
+
+            if (tag === 'Breaking') {
+              return (
+                <Alert
+                  key={tag}
+                  variant="error"
+                >
+                  {items[0]}
+                </Alert>
+              );
+            }
+
+            const Block = tagToBlock[tag] ?? TechnicalImprovementBlock;
+
+            return (
+              <Block key={tag}>
+                <ul>
+                  {items.map((item) => (
+                    <li key={item}>{renderInlineMarkdown(item)}</li>
+                  ))}
+                </ul>
+              </Block>
+            );
+          })}
+        </section>
+      ))}
+    </>
+  );
 };

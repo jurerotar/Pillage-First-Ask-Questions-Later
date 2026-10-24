@@ -174,6 +174,21 @@ type UnitOverviewProps = {
   showUnitLevel?: boolean;
 };
 
+export const UnitImprovementLevel = () => {
+  const { unitId } = use(UnitCardContext);
+  const { t } = useTranslation();
+  const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
+
+  const ongoingUpgradeCount = unitVirtualLevel - unitLevel;
+
+  return (
+    <Text className="text-warning font-medium text-sm">
+      {t('level {{unitLevel}}', { unitLevel })}
+      {ongoingUpgradeCount > 0 && <span> (+ {ongoingUpgradeCount})</span>}
+    </Text>
+  );
+};
+
 export const UnitOverview = ({ showUnitLevel = false }: UnitOverviewProps) => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
@@ -189,21 +204,6 @@ export const UnitOverview = ({ showUnitLevel = false }: UnitOverviewProps) => {
         {showUnitLevel && <UnitImprovementLevel />}
       </div>
     </section>
-  );
-};
-
-export const UnitImprovementLevel = () => {
-  const { unitId } = use(UnitCardContext);
-  const { t } = useTranslation();
-  const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
-
-  const ongoingUpgradeCount = unitVirtualLevel - unitLevel;
-
-  return (
-    <Text className="text-warning font-medium text-sm">
-      {t('level {{unitLevel}}', { unitLevel })}
-      {ongoingUpgradeCount > 0 && <span> (+ {ongoingUpgradeCount})</span>}
-    </Text>
   );
 };
 

@@ -125,9 +125,9 @@ describe('oasis-animal-finder-controllers', () => {
       }),
     );
 
-    expect(result.find((oasis) => oasis.tileId === tileId)?.animals).toEqual(
-      [],
-    );
+    expect(
+      result.find((oasis) => oasis.tileId === tileId)?.animals,
+    ).toStrictEqual([]);
   });
 
   test('getOasesWithAnimals should return oases with requested animals', async () => {

@@ -5,8 +5,8 @@ import type {
   BattleDamagedBuilding,
   BattleType,
 } from '@pillage-first/types/models/battle';
-import type { BattleReportSummary } from '@pillage-first/types/models/report';
 import {
+  type BattleReportSummary,
   type movementReportUnitSchema,
   reportSchema,
 } from '@pillage-first/types/models/report';

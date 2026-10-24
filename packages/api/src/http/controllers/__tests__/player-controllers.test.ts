@@ -288,7 +288,7 @@ describe('player-controllers', () => {
     );
 
     expect(troops.length).toBeGreaterThan(0);
-    expect(troops).toEqual(
+    expect(troops).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           tileId: village.tile_id,
@@ -447,7 +447,7 @@ describe('player-controllers', () => {
       }),
     );
 
-    expect(legionnaireResult).toEqual({
+    expect(legionnaireResult).toStrictEqual({
       atHome: 3,
       inTransit: 6,
       stationedAway: 4,
@@ -460,7 +460,7 @@ describe('player-controllers', () => {
       }),
     );
 
-    expect(praetorianResult).toEqual({
+    expect(praetorianResult).toStrictEqual({
       atHome: 0,
       inTransit: 2,
       stationedAway: 8,
@@ -598,10 +598,9 @@ describe('player-controllers', () => {
     expect(result).toHaveLength(1);
     expect(result[0].village.tileId).toBe(targetTileId);
     expect(result[0].troops).toHaveLength(2);
-    expect(result[0].troops.map(({ unitId }) => unitId).toSorted()).toEqual([
-      'LEGIONNAIRE',
-      'PRAETORIAN',
-    ]);
+    expect(
+      result[0].troops.map(({ unitId }) => unitId).toSorted(),
+    ).toStrictEqual(['LEGIONNAIRE', 'PRAETORIAN']);
   });
 
   test('renameVillage should rename a village', async () => {
@@ -616,7 +615,7 @@ describe('player-controllers', () => {
     renameVillage(
       database,
       createControllerArgs<'/villages/:villageId', 'patch'>({
-        path: { villageId: villageId },
+        path: { villageId },
         body: { name: 'New Village Name' },
       }),
     );
@@ -1551,7 +1550,9 @@ describe('player-controllers', () => {
       }),
     })!;
 
-    expect(remainingTroops).toEqual([{ unit_id: 'LEGIONNAIRE', amount: 4 }]);
+    expect(remainingTroops).toStrictEqual([
+      { unit_id: 'LEGIONNAIRE', amount: 4 },
+    ]);
     expect(returnEvent.troop_count).toBe(1);
     expect(returnEvent.unit_id).toBe('LEGIONNAIRE');
     expect(returnEvent.amount).toBe(3);

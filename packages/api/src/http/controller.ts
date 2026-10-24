@@ -178,6 +178,45 @@ type SuccessResponseFor<TOperation> = TOperation extends {
       : unknown
     : undefined;
 
+const normalizeControllerOperation = <
+  TOperation extends ControllerOperationConfig,
+>(
+  operation: TOperation,
+): NormalizeControllerOperation<TOperation> => {
+  const { response, ...rest } = operation;
+  const normalizedRequestBody =
+    rest.requestBody instanceof z.ZodType
+      ? {
+          content: {
+            'application/json': {
+              schema: rest.requestBody,
+            },
+          },
+        }
+      : rest.requestBody;
+
+  return {
+    ...rest,
+    ...(normalizedRequestBody ? { requestBody: normalizedRequestBody } : {}),
+    responses: response
+      ? {
+          '200': {
+            description: operation.summary ?? 'OK',
+            content: {
+              'application/json': {
+                schema: response,
+              },
+            },
+          },
+        }
+      : (operation.responses ?? {
+          '204': {
+            description: operation.summary ?? 'No Content',
+          },
+        }),
+  } as NormalizeControllerOperation<TOperation>;
+};
+
 export function createController<
   const TPath extends string,
   const TOperation extends ControllerOperationConfig,
@@ -262,45 +301,6 @@ export function createController<
     return controller;
   };
 }
-
-const normalizeControllerOperation = <
-  TOperation extends ControllerOperationConfig,
->(
-  operation: TOperation,
-): NormalizeControllerOperation<TOperation> => {
-  const { response, ...rest } = operation;
-  const normalizedRequestBody =
-    rest.requestBody instanceof z.ZodType
-      ? {
-          content: {
-            'application/json': {
-              schema: rest.requestBody,
-            },
-          },
-        }
-      : rest.requestBody;
-
-  return {
-    ...rest,
-    ...(normalizedRequestBody ? { requestBody: normalizedRequestBody } : {}),
-    responses: response
-      ? {
-          '200': {
-            description: operation.summary ?? 'OK',
-            content: {
-              'application/json': {
-                schema: response,
-              },
-            },
-          },
-        }
-      : (operation.responses ?? {
-          '204': {
-            description: operation.summary ?? 'No Content',
-          },
-        }),
-  } as NormalizeControllerOperation<TOperation>;
-};
 
 export const getJsonRequestBodySchema = (
   requestBody: ControllerOperationConfig['requestBody'],

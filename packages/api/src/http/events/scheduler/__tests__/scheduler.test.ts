@@ -49,7 +49,7 @@ describe('scheduler', () => {
     scheduleNextEvent(source);
 
     expect(source.resolveEvents).toHaveBeenCalledOnce();
-    expect(processed.mock.calls).toEqual([[2], [1]]);
+    expect(processed.mock.calls).toStrictEqual([[2], [1]]);
     expect(source.resolveEvent).not.toHaveBeenCalled();
   });
 
@@ -60,7 +60,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(processed.mock.calls).toEqual([[1], [2]]);
+    expect(processed.mock.calls).toStrictEqual([[1], [2]]);
   });
 
   test('does not open a batch when no events are due', () => {
@@ -78,7 +78,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(processed.mock.calls).toEqual([[1]]);
+    expect(processed.mock.calls).toStrictEqual([[1]]);
   });
 
   test('a rescan interrupts the batch and uses the new event order', () => {
@@ -95,7 +95,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(processed.mock.calls).toEqual([[1], [3], [2]]);
+    expect(processed.mock.calls).toStrictEqual([[1], [3], [2]]);
   });
 
   test('initScheduler connects event kicks to scheduling', () => {
@@ -131,7 +131,7 @@ describe('scheduler', () => {
 
     vi.advanceTimersByTime(1000);
 
-    expect(context.source.resolveEvent.mock.calls).toEqual([[1]]);
+    expect(context.source.resolveEvent.mock.calls).toStrictEqual([[1]]);
   });
 
   test('rescans after a timer-fired event resolves', () => {
@@ -244,7 +244,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(processed.mock.calls).toEqual([[1], [3], [2]]);
+    expect(processed.mock.calls).toStrictEqual([[1], [3], [2]]);
   });
 
   test('propagates batch resolution errors', () => {
@@ -305,6 +305,6 @@ describe('scheduler', () => {
 
     vi.advanceTimersByTime(2000);
 
-    expect(context.source.resolveEvent.mock.calls).toEqual([[1], [2]]);
+    expect(context.source.resolveEvent.mock.calls).toStrictEqual([[1], [2]]);
   });
 });

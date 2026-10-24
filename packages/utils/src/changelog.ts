@@ -208,6 +208,23 @@ const groupTitle: Record<(typeof groupOrder)[number], string> = {
   UIUXImprovement: 'UI/UX improvements',
 };
 
+// Common utility to generate stable section IDs for versions
+export const makeSectionId = (version: string): string => {
+  const semverMatch = version.match(/(\d+\.\d+\.\d+)/);
+
+  if (semverMatch) {
+    const [major, minor, patch] = parseAppVersion(semverMatch[1]);
+    return `version-${major}-${minor}-${patch}`;
+  }
+
+  return `version-${version}`
+    .toLowerCase()
+    .replace(/[^a-z0-9.]+/g, '-')
+    .replace(/\.+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+};
+
 export const buildItemsFromChangelog = (
   entries: ChangelogEntry[],
   baseUrl: string,
@@ -278,19 +295,4 @@ export const buildItemsFromChangelog = (
   }
 
   return items;
-};
-
-// Common utility to generate stable section IDs for versions
-export const makeSectionId = (version: string): string => {
-  const semverMatch = version.match(/(\d+\.\d+\.\d+)/);
-  if (semverMatch) {
-    const [major, minor, patch] = parseAppVersion(semverMatch[1]);
-    return `version-${major}-${minor}-${patch}`;
-  }
-  return `version-${version}`
-    .toLowerCase()
-    .replace(/[^a-z0-9.]+/g, '-')
-    .replace(/\.+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
 };

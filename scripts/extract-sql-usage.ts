@@ -21,18 +21,6 @@ interface SourceFile {
   definitions: Map<string, string>;
 }
 
-const extractStringDefinitions = (content: string): Map<string, string> => {
-  const definitions = new Map<string, string>();
-
-  for (const constMatch of findMatches(constRegex, content)) {
-    const name = constMatch[1];
-    const value = constMatch[2].slice(1, -1);
-    definitions.set(name, value);
-  }
-
-  return definitions;
-};
-
 const findMatches = (regex: RegExp, content: string): RegExpExecArray[] => {
   const matches: RegExpExecArray[] = [];
   regex.lastIndex = 0;
@@ -46,6 +34,18 @@ const findMatches = (regex: RegExp, content: string): RegExpExecArray[] => {
   regex.lastIndex = 0;
 
   return matches;
+};
+
+const extractStringDefinitions = (content: string): Map<string, string> => {
+  const definitions = new Map<string, string>();
+
+  for (const constMatch of findMatches(constRegex, content)) {
+    const name = constMatch[1];
+    const value = constMatch[2].slice(1, -1);
+    definitions.set(name, value);
+  }
+
+  return definitions;
 };
 
 const resolveTemplate = (

@@ -111,15 +111,15 @@ test('renews expired signed URLs and resumes uploads after a failed chunk', asyn
   expect(pending.nextChunkIndex).toBe(1);
 
   await expect(uploadSharedWorld(pending, onProgress)).resolves.toBe('world');
-  expect(onProgress.mock.calls.map(([progress]) => progress.loaded)).toEqual([
-    0, 1, 2, 3, 2, 3, 4,
-  ]);
-  expect(fetch.mock.calls.map((call) => String(call[0]))).toEqual([
+  expect(
+    onProgress.mock.calls.map(([progress]) => progress.loaded),
+  ).toStrictEqual([0, 1, 2, 3, 2, 3, 4]);
+  expect(fetch.mock.calls.map((call) => String(call[0]))).toStrictEqual([
     'https://api.example.test/api/game-worlds',
     'https://api.example.test/api/game-worlds/world/upload-url',
     'https://api.example.test/new/complete',
   ]);
-  expect(uploads.map(({ url }) => url)).toEqual([
+  expect(uploads.map(({ url }) => url)).toStrictEqual([
     'https://api.example.test/old/0',
     'https://api.example.test/new/0',
     'https://api.example.test/new/1',
@@ -162,7 +162,7 @@ test('reports progress within a single chunk before the server acknowledges it',
     stages,
   );
 
-  expect(events).toEqual([
+  expect(events).toStrictEqual([
     { loaded: 0, confirmedChunks: 0 },
     { loaded: 2, confirmedChunks: 0 },
     { loaded: 4, confirmedChunks: 0 },
@@ -170,7 +170,7 @@ test('reports progress within a single chunk before the server acknowledges it',
     { loaded: 8, confirmedChunks: 0 },
   ]);
   expect(pending.nextChunkIndex).toBe(1);
-  expect(stages.mock.calls.map(([stage]) => stage)).toEqual([
+  expect(stages.mock.calls.map(([stage]) => stage)).toStrictEqual([
     'reserving',
     'uploading',
     'finalizing',
@@ -204,8 +204,8 @@ test.each([true, false])(
       onProgress,
     );
 
-    expect([...new Uint8Array(buffer)]).toEqual([1, 2, 3, 4, 5]);
-    expect(onProgress.mock.calls.map(([progress]) => progress)).toEqual([
+    expect([...new Uint8Array(buffer)]).toStrictEqual([1, 2, 3, 4, 5]);
+    expect(onProgress.mock.calls.map(([progress]) => progress)).toStrictEqual([
       { loaded: 0, total: hasTotal ? 5 : null },
       { loaded: 5, total: hasTotal ? 5 : null },
     ]);

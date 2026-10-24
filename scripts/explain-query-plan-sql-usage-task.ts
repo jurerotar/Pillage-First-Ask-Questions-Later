@@ -1,12 +1,16 @@
 ﻿import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import type { BindableValue, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
-import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+import sqlite3InitModule, {
+  type BindableValue,
+  type Sqlite3Static,
+} from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import { migrateAndSeed } from '@pillage-first/api/db';
 import { serverMock } from '@pillage-first/mocks/server';
-import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { createDbFacade } from '@pillage-first/utils/facades/database';
+import {
+  createDbFacade,
+  type DbFacade,
+} from '@pillage-first/utils/facades/database';
 
 const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
 const STATEMENTS_EXPORT_PATH = join(EXPORT_PATH, 'statements.sql');
@@ -149,7 +153,7 @@ const createSeededDbBuffer = (sqlite3: Sqlite3Static): Uint8Array => {
 
     migrateAndSeed(database, serverMock);
 
-    const cachedDb = sqlite3.capi.sqlite3_js_db_export(oo1Db.poer, 'main');
+    const cachedDb = sqlite3.capi.sqlite3_js_db_export(oo1Db.pointer!, 'main');
 
     return cachedDb;
   } finally {
@@ -163,10 +167,11 @@ const createDatabaseCopy = (
   buffer: Uint8Array,
 ): SqliteDatabase => {
   const database = new sqlite3.oo1.DB(':memory:');
+
   try {
     database.checkRc(
       sqlite3.capi.sqlite3_deserialize(
-        database.poer,
+        database.pointer!,
         'main',
         sqlite3.wasm.allocFromTypedArray(buffer),
         buffer.byteLength,
@@ -364,7 +369,7 @@ const measureExecution = (
   const instructions = (): number | null =>
     statement
       ? sqlite3.capi.sqlite3_stmt_status(
-          statement.poer,
+          statement.pointer!,
           sqlite3.capi.SQLITE_STMTSTATUS_VM_STEP,
           0,
         )
@@ -379,10 +384,10 @@ const measureExecution = (
     // report without the OO wrapper also printing their SQL to stderr.
     let result: number;
     do {
-      result = sqlite3.capi.sqlite3_step(statement.poer);
+      result = sqlite3.capi.sqlite3_step(statement.pointer!);
     } while (result === sqlite3.capi.SQLITE_ROW);
     if (result !== sqlite3.capi.SQLITE_DONE) {
-      throw new Error(sqlite3.capi.sqlite3_errmsg(database.poer));
+      throw new Error(sqlite3.capi.sqlite3_errmsg(database.pointer!));
     }
     return { vmInstructions: instructions() };
   } catch (error) {

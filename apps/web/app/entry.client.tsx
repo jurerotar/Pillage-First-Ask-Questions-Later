@@ -9,8 +9,7 @@ import type {
   UIColorScheme,
 } from '@pillage-first/types/models/preferences';
 import { reportError } from 'app/instrumentation/report-error';
-import type { AvailableLocale } from 'app/localization/i18n';
-import { i18n } from 'app/localization/i18n';
+import { type AvailableLocale, i18n } from 'app/localization/i18n';
 import { CookieProvider } from 'app/providers/cookie-provider';
 import {
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,

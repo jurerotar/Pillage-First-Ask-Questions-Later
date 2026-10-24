@@ -1,6 +1,5 @@
 import clsx from 'clsx';
-import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 
 const ErrorMessage = ({ message }: { message: ReactNode }) => {
   const [isExpanded, setIsExpanded] = useState(false);

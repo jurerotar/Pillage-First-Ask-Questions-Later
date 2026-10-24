@@ -95,6 +95,6 @@ describe('marketplace utils', () => {
     );
 
     expect(selectObject).toHaveBeenCalledTimes(1);
-    expect(statsByTileId).toEqual(statsById);
+    expect(statsByTileId).toStrictEqual(statsById);
   });
 });

@@ -42,11 +42,11 @@ describe('village-controllers', () => {
     const oases = getOccupiableOasisInRange(
       database,
       createControllerArgs<'/villages/:villageId/occupiable-oasis'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
-    expect(oases).toEqual(
+    expect(oases).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           oasis: expect.objectContaining({
@@ -72,7 +72,7 @@ describe('village-controllers', () => {
     const result = getGatherersHutExpeditions(
       database,
       createControllerArgs<'/villages/:villageId/gatherers-hut/expeditions'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
@@ -103,7 +103,7 @@ describe('village-controllers', () => {
     const stats = getTrapperCageStats(
       database,
       createControllerArgs<'/villages/:villageId/trapper-cages'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
@@ -270,7 +270,7 @@ describe('village-controllers', () => {
         }),
       });
 
-      expect(effects).toEqual([
+      expect(effects).toStrictEqual([
         {
           effect: 'barracksTrainingDuration',
           source_specifier: 19,
@@ -878,7 +878,7 @@ describe('village-controllers', () => {
         }),
       });
 
-      expect(fields).toEqual([
+      expect(fields).toStrictEqual([
         {
           field_id: 20,
           building_id: 'WAREHOUSE',
@@ -999,7 +999,7 @@ describe('village-controllers', () => {
         }),
       });
 
-      expect(effects).toEqual([
+      expect(effects).toStrictEqual([
         {
           effect: 'granaryCapacity',
           value: 4000,
@@ -1012,7 +1012,7 @@ describe('village-controllers', () => {
         },
         {
           effect: 'granaryCapacity',
-          value: 11000,
+          value: 11_000,
           source_specifier: 21,
         },
       ]);

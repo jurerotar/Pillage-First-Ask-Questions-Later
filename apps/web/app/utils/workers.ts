@@ -10,23 +10,20 @@ export const workerFactory = async <TPayload = void, TReturn = void>(
       worker.postMessage(payload, transfer);
     }
 
-    const handleMessage = (event: MessageEvent<TReturn>) => {
-      worker.removeEventListener('message', handleMessage);
-      worker.removeEventListener('error', handleError);
+    worker.onmessage = (event: MessageEvent<TReturn>) => {
+      worker.onmessage = null;
+      worker.onerror = null;
       worker.terminate();
 
       resolve(event.data);
     };
 
-    const handleError = (error: ErrorEvent) => {
-      worker.removeEventListener('message', handleMessage);
-      worker.removeEventListener('error', handleError);
+    worker.onerror = (error: ErrorEvent) => {
+      worker.onmessage = null;
+      worker.onerror = null;
       worker.terminate();
 
       reject(error);
     };
-
-    worker.addEventListener('message', handleMessage);
-    worker.addEventListener('error', handleError);
   });
 };

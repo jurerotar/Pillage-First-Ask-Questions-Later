@@ -32,7 +32,7 @@ export const useEventsByType = <T extends GameEventType>(eventType: T) => {
   const hasEvents = eventsByType.length > 0;
 
   return {
-    eventsByType: eventsByType,
+    eventsByType,
     hasEvents,
   };
 };

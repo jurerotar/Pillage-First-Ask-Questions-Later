@@ -32,7 +32,7 @@ const setup = (database: DbFacade) => {
     .mockReset()
     .mockReturnValue({ affectedVillageIds: [1], affectedTileIds: [] });
 
-  const notify = vi.fn();
+  const notify = vi.fn<NonNullable<Parameters<typeof resolveEvent>[2]>>();
 
   return { event, resolver, notify };
 };

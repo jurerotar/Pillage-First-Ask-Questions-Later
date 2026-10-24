@@ -139,10 +139,6 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
   }
 };
 
-export const initScheduler = (dataSource: SchedulerDataSource): void => {
-  registerKickCallback(() => kickSchedulerNow(dataSource));
-};
-
 export const kickSchedulerNow = (dataSource: SchedulerDataSource): void => {
   // Always mark so scheduleNextEvent loop knows something changed.
   markNeedsRescan();
@@ -171,4 +167,8 @@ export const kickSchedulerNow = (dataSource: SchedulerDataSource): void => {
     // scheduleNextEvent has internal guards for schedulingInProgress
     scheduleNextEvent(dataSource);
   }, 0);
+};
+
+export const initScheduler = (dataSource: SchedulerDataSource): void => {
+  registerKickCallback(() => kickSchedulerNow(dataSource));
 };

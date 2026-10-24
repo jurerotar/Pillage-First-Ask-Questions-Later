@@ -1,11 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { useSearchParams } from 'react-router';
-import type {
-  ReportListingFilter,
-  ReportScope,
-} from '@pillage-first/types/dtos/report';
 import {
+  type ReportListingFilter,
+  type ReportScope,
   reportFilterNameByScope,
   reportFiltersDtoSchema,
 } from '@pillage-first/types/dtos/report';

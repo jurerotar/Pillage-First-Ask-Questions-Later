@@ -105,6 +105,17 @@ type MapMarkerFormValues = {
   color: MapMarker['color'];
 };
 
+const getContrastingTextClassName = (hexColor: string) => {
+  const red = Number.parseInt(hexColor.slice(1, 3), 16);
+  const green = Number.parseInt(hexColor.slice(3, 5), 16);
+  const blue = Number.parseInt(hexColor.slice(5, 7), 16);
+  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
+
+  return luminance > 160
+    ? 'text-black hover:text-black'
+    : 'text-white hover:text-white';
+};
+
 const TileModalMarkerAction = ({
   tile,
   mapMarkersByTileId,
@@ -234,17 +245,6 @@ const TileModalMarkerAction = ({
       </PopoverContent>
     </Popover>
   );
-};
-
-const getContrastingTextClassName = (hexColor: string) => {
-  const red = Number.parseInt(hexColor.slice(1, 3), 16);
-  const green = Number.parseInt(hexColor.slice(3, 5), 16);
-  const blue = Number.parseInt(hexColor.slice(5, 7), 16);
-  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
-
-  return luminance > 160
-    ? 'text-black hover:text-black'
-    : 'text-white hover:text-white';
 };
 
 type TileModalMarkerDescriptionProps = {

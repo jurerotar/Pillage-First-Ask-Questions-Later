@@ -26,6 +26,6 @@ describe('netlify redirects', () => {
       return !redirectTargets.has(`${gamePath}/index.html`);
     });
 
-    expect(missingGamePaths).toEqual([]);
+    expect(missingGamePaths).toStrictEqual([]);
   });
 });

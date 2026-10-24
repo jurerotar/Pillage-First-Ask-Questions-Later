@@ -24,7 +24,7 @@ const SCREENSHOT_BASE_NAMES = [
 ];
 const THEMES = ['light', 'dark'];
 const PAGE_READY_TIMEOUT_MS = 60_000;
-const PAGE_SETTLE_MS = 5_000;
+const PAGE_SETTLE_MS = 5000;
 
 // Generate a timestamp for the image filenames
 const timestamp = new Date()
@@ -175,7 +175,7 @@ const generateScreenshots = async () => {
 
     // Wait for redirection to the game
     console.log('Waiting for redirection...');
-    await page.waitForURL(/\/game\/s-.*\/v-1\/resources/, { timeout: 60000 });
+    await page.waitForURL(/\/game\/s-.*\/v-1\/resources/, { timeout: 60_000 });
     console.log('Redirected to game.');
 
     // Wait for the game to load

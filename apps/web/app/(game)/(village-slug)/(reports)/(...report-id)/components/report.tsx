@@ -298,7 +298,7 @@ export const BattleParticipantTable = ({
     const troopsBefore = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountBefore }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountBefore,
       })),
     );
@@ -306,7 +306,7 @@ export const BattleParticipantTable = ({
     const troopsAfter = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountAfter }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountAfter,
       })),
     );
@@ -314,7 +314,7 @@ export const BattleParticipantTable = ({
     const troopsLost = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountBefore, amountAfter }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountBefore - amountAfter,
       })),
     );
@@ -322,7 +322,7 @@ export const BattleParticipantTable = ({
     const troopsHospitalized = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountHospitalized }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountHospitalized,
       })),
     );
@@ -330,7 +330,7 @@ export const BattleParticipantTable = ({
     const troopsImprisoned = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountImprisoned }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountImprisoned,
       })),
     );

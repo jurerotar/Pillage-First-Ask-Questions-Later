@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import { oasisByAnimalsSearchResultItemDtoSchema } from '@pillage-first/types/dtos/oasis-search';
-import type { NatureUnitId } from '@pillage-first/types/models/unit';
-import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
+import {
+  type NatureUnitId,
+  natureUnitIdSchema,
+} from '@pillage-first/types/models/unit';
 import { selectOasesByAnimalsQuery } from '../../queries/oasis-animal-finder-queries';
 import { createController } from '../controller';
 import { mapOasisWithAnimalsRowToDto } from './mappers/oasis-finder-mapper';

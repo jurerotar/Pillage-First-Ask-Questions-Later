@@ -10,7 +10,7 @@ export const useApiWorker = (serverSlug: Server['slug']) => {
       const [apiWorkerHandle] = await Promise.all([
         getApiWorkerHandle(serverSlug),
         // Minimal splash duration
-        wait(1_200),
+        wait(1200),
       ]);
 
       return apiWorkerHandle;

@@ -469,7 +469,7 @@ describe('oasis-controllers', () => {
 
     expect(remainingReinforcements).toBe(0);
     expect(occupyingVillageId).toBeNull();
-    expect(returnEvents).toEqual([
+    expect(returnEvents).toStrictEqual([
       {
         first_amount: 5,
         first_unit_id: 'LEGIONNAIRE',
