@@ -26,6 +26,8 @@
   "ignorePatterns": [".turbo", "node_modules"],
   "rules": {
     "eslint/no-await-in-loop": "warn",
+    "eslint/no-shadow": "warn",
+    "eslint/no-underscore-dangle": "off",
     "eslint/id-length": "off",
     "eslint/max-statements": "off",
     "eslint/no-ternary": "off",
@@ -169,6 +171,12 @@
     ]
   },
   "overrides": [
+    {
+      "files": ["**/vite.config.ts"],
+      "rules": {
+        "import/extensions": "off"
+      }
+    },
     {
       "files": ["**/*.config.ts"],
       "rules": {

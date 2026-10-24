@@ -170,7 +170,7 @@ type StaticTypeImport = {
 };
 
 const escapeRegExp = (value: string): string => {
-  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 };
 
 const collectInlineTypeImportNames = (

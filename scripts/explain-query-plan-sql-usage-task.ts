@@ -398,7 +398,7 @@ const measureExecution = (
 };
 
 const compactText = (value: string): string => {
-  return value.replace(/\s+/gu, ' ').trim();
+  return value.replaceAll(/\s+/gu, ' ').trim();
 };
 
 const formatResult = ({

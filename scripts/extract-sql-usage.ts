@@ -14,7 +14,7 @@ const FUNCTIONS = [
 ];
 
 const constRegex =
-  /(?:export\s+)?const\s+(\w+)\s*=\s*(`[\s\S]*?`|'[\s\S]*?'|"[\s\S]*?");/g;
+  /(?:export\s+)?const\s+(\w+)\s*=\s*(`[\s\S]*?`|'[\s\S]*?'|"[\s\S]*?");/gu;
 
 interface SourceFile {
   content: string;
@@ -53,8 +53,8 @@ const resolveTemplate = (
   definitions: Map<string, string>,
   resolving = new Set<string>(),
 ): string => {
-  return value.replace(
-    /\$\{\s*([A-Za-z_$][\w$]*)\s*\}/g,
+  return value.replaceAll(
+    /\$\{\s*([A-Za-z_$][\w$]*)\s*\}/gu,
     (match, name: string) => {
       if (resolving.has(name)) {
         return match;
@@ -142,7 +142,7 @@ const stripSqlComments = (sql: string): string => {
 };
 
 const normalizeStatement = (statement: string): string => {
-  let cleaned = stripSqlComments(statement).replace(/\s+/g, ' ').trim();
+  let cleaned = stripSqlComments(statement).replaceAll(/\s+/gu, ' ').trim();
 
   if (!cleaned.endsWith(';')) {
     cleaned += ';';
@@ -189,7 +189,7 @@ const normalizeStatement = (statement: string): string => {
       // database.func({ sql })
       const funcRegex = new RegExp(
         `(?:database|db|this)\\.${func}\\(\\s*(?:\\{\\s*sql:\\s*)?(\`[\\s\\S]*?\`|'[^']*?'|"[^"]*?"|\\w+)`,
-        'g',
+        'gu',
       );
       for (const funcMatch of findMatches(funcRegex, content)) {
         const arg = funcMatch[1];
@@ -207,7 +207,7 @@ const normalizeStatement = (statement: string): string => {
       // Handle { sql } shorthand
       const shorthandRegex = new RegExp(
         `(?:database|db|this)\\.${func}\\(\\s*\\{\\s*(\\w+)\\s*(?:,[\\s\\S]*?)?\\s*\\}`,
-        'g',
+        'gu',
       );
       for (const shorthandMatch of findMatches(shorthandRegex, content)) {
         const arg = shorthandMatch[1];

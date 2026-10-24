@@ -54,8 +54,8 @@ const findReactRouterBrowserManifest = async (): Promise<BrowserManifest> => {
   const manifestContent = await readFile(manifestFiles[0], 'utf8');
   const manifestJson = manifestContent
     .trim()
-    .replace(/^window\.__reactRouterManifest=/, '')
-    .replace(/;$/, '');
+    .replace(/^window\.__reactRouterManifest=/u, '')
+    .replace(/;$/u, '');
 
   return JSON.parse(manifestJson) as BrowserManifest;
 };
@@ -167,7 +167,7 @@ export const createSPAPagesWithPreloads: NonNullable<
       $fallback('head').append($link);
     }
 
-    const outputPath = join(clientDir, page.replace(/^\//, ''), 'index.html');
+    const outputPath = join(clientDir, page.replace(/^\//u, ''), 'index.html');
     await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, $fallback.html());
   }
@@ -181,7 +181,7 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
   for await (const svgSpriteFile of glob(
     './build/client/react-icons-sprite-*.svg',
   )) {
-    const svgSpriteName = svgSpriteFile.replace(/build[/\\]client[/\\]?/, '/');
+    const svgSpriteName = svgSpriteFile.replace(/build[/\\]client[/\\]?/u, '/');
 
     const preRenderedFileUrls =
       // @ts-expect-error: This type is dumb af

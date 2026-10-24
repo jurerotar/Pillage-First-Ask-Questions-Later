@@ -488,7 +488,7 @@ test('a rejected commit discards queued notifications', async () => {
   });
 
   expect(() => context.source.resolveEvents([1])).toThrow(
-    /FOREIGN KEY constraint failed/,
+    /FOREIGN KEY constraint failed/u,
   );
   expect(context.post).not.toHaveBeenCalled();
 });

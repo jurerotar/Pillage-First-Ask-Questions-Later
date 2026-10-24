@@ -24,7 +24,7 @@ const tagToBlock = {
 };
 
 const inlineMarkdownPattern =
-  /(<br\s*\/?>)|\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)]\(([^)]+)\)/gi;
+  /(<br\s*\/?>)|\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)/giu;
 
 const renderInlineMarkdown = (text: string): ReactNode[] => {
   const nodes: ReactNode[] = [];

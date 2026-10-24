@@ -11,7 +11,6 @@ vi.mock('@pillage-first/utils/env', () => ({
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  vi.restoreAllMocks();
 });
 
 const mockChunkUploads = (
@@ -21,26 +20,26 @@ const mockChunkUploads = (
     [];
 
   class MockXMLHttpRequest {
-    status = 0;
-    statusText = '';
-    responseText = '';
-    url = '';
-    headers = new Map<string, string>();
-    upload = {
+    public status = 0;
+    public statusText = '';
+    public responseText = '';
+    public url = '';
+    public headers = new Map<string, string>();
+    public upload = {
       onprogress: null as ((event: { loaded: number }) => void) | null,
     };
-    onload: (() => void) | null = null;
-    onerror: (() => void) | null = null;
+    public onload: (() => void) | null = null;
+    public onerror: (() => void) | null = null;
 
-    open(_method: string, url: string) {
+    public open(_method: string, url: string) {
       this.url = url;
     }
 
-    setRequestHeader(name: string, value: string) {
+    public setRequestHeader(name: string, value: string) {
       this.headers.set(name, value);
     }
 
-    send(body: Blob) {
+    public send(body: Blob) {
       const response = responses.shift();
 
       if (!response) {
@@ -180,7 +179,7 @@ test('reports progress within a single chunk before the server acknowledges it',
 test.each([true, false])(
   'reports streamed download progress with a known total: %s',
   async (hasTotal) => {
-    vi.spyOn(performance, 'now').mockReturnValue(0);
+    using _now = vi.spyOn(performance, 'now').mockReturnValue(0);
 
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
@@ -189,6 +188,7 @@ test.each([true, false])(
         controller.close();
       },
     });
+
     const fetch = vi.fn().mockResolvedValue(
       new Response(stream, {
         headers: hasTotal ? { 'content-length': '5' } : {},
@@ -216,7 +216,7 @@ test('throttles download updates while keeping progress monotonic and reporting 
   let now = 0;
   let remaining = 10;
 
-  vi.spyOn(performance, 'now').mockImplementation(() => {
+  using _now = vi.spyOn(performance, 'now').mockImplementation(() => {
     now += 40;
 
     return now;

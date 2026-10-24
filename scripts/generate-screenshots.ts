@@ -29,7 +29,7 @@ const PAGE_SETTLE_MS = 5000;
 // Generate a timestamp for the image filenames
 const timestamp = new Date()
   .toISOString()
-  .replace(/[-:T]/g, '')
+  .replaceAll(/[-:T]/gu, '')
   .split('.')[0]
   .slice(0, 14); // YYYYMMDDHHMMSS
 
@@ -175,7 +175,7 @@ const generateScreenshots = async () => {
 
     // Wait for redirection to the game
     console.log('Waiting for redirection...');
-    await page.waitForURL(/\/game\/s-.*\/v-1\/resources/, { timeout: 60_000 });
+    await page.waitForURL(/\/game\/s-.*\/v-1\/resources/u, { timeout: 60_000 });
     console.log('Redirected to game.');
 
     // Wait for the game to load
@@ -272,16 +272,16 @@ const generateScreenshots = async () => {
     let readmeContent = readFileSync(readmePath, 'utf8');
     // Map old names or timestamped names to new sequential names with timestamp
     // image-1: resources, image-2: village, image-3: map
-    readmeContent = readmeContent.replace(
-      /\/image-3(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/g,
+    readmeContent = readmeContent.replaceAll(
+      /\/image-3(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/gu,
       `/image-3$1-${timestamp}.$4`,
     );
-    readmeContent = readmeContent.replace(
-      /\/image-2(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/g,
+    readmeContent = readmeContent.replaceAll(
+      /\/image-2(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/gu,
       `/image-2$1-${timestamp}.$4`,
     );
-    readmeContent = readmeContent.replace(
-      /\/image-1(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/g,
+    readmeContent = readmeContent.replaceAll(
+      /\/image-1(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/gu,
       `/image-1$1-${timestamp}.$4`,
     );
 

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import {
@@ -43,17 +43,15 @@ import {
   returnMovementResolver,
 } from '../troop-movement-resolver';
 
-const mockRandom = (rolls: number[]): void => {
-  const remainingRolls = [...rolls];
+const mockRandom = (rolls: number[]) => {
+  const random = vi.spyOn(Math, 'random').mockReturnValue(0);
 
-  vi.spyOn(Math, 'random').mockImplementation(() => {
-    return remainingRolls.shift() ?? 0;
-  });
+  for (const roll of rolls) {
+    random.mockReturnValueOnce(roll);
+  }
+
+  return random;
 };
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
 
 const getTroopWheatProductionEffectValue = (
   database: DbFacade,
@@ -222,7 +220,7 @@ describe(adventureMovementResolver, () => {
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     });
 
-    mockRandom([0.1, 0.7, 0.75]);
+    using _random = mockRandom([0.1, 0.7, 0.75]);
 
     adventureMovementResolver(database, mockEvent);
 

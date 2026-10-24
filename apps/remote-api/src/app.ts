@@ -135,7 +135,7 @@ const parseContentRange = (
     return undefined;
   }
 
-  const match = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(header);
+  const match = /^bytes (\d+)-(\d+)\/(\d+)$/u.exec(header);
 
   if (!match) {
     return undefined;
@@ -192,9 +192,9 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
 
   app.use('/api/*', async (context, next) => {
     const path = context.req.path;
-    const reportMatch = /^\/api\/(?:admin\/)?reports\/([^/]+)/.exec(path);
-    const uploadMatch = /^\/api\/uploads\/([^/]+)/.exec(path);
-    const worldMatch = /^\/api\/game-worlds\/([^/]+)/.exec(path);
+    const reportMatch = /^\/api\/(?:admin\/)?reports\/([^/]+)/u.exec(path);
+    const uploadMatch = /^\/api\/uploads\/([^/]+)/u.exec(path);
+    const worldMatch = /^\/api\/game-worlds\/([^/]+)/u.exec(path);
     const upload = uploadMatch ? store.getUpload(uploadMatch[1]) : undefined;
     const reportId =
       reportMatch?.[1] ??
@@ -259,7 +259,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     uploadId: string,
   ): Upload | undefined => {
     const upload = store.getUpload(uploadId);
-    const expires = Number(request.url.match(/[?&]expires=(\d+)/)?.[1]);
+    const expires = Number(request.url.match(/[?&]expires=(\d+)/u)?.[1]);
     const signature = new URL(request.url).searchParams.get('signature');
 
     if (
