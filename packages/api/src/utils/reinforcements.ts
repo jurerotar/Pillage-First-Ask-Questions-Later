@@ -59,7 +59,7 @@ const toTroops = ({
 
 const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
   if (troops.length === 1) {
-    const troop = troops[0];
+    const [troop] = troops;
     const availableAmount = database.selectValue({
       sql: selectTroopAmountQuery,
       bind: {

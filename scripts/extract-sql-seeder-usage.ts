@@ -44,7 +44,7 @@ const extractStringDefinitions = (content: string): Map<string, string> => {
   const definitions = new Map<string, string>();
 
   for (const constMatch of findMatches(constRegex, content)) {
-    const name = constMatch[1];
+    const [, name] = constMatch;
     const value = constMatch[2].slice(1, -1);
     definitions.set(name, value);
   }
@@ -186,7 +186,7 @@ const normalizeStatement = (statement: string): string => {
         'gu',
       );
       for (const funcMatch of findMatches(funcRegex, content)) {
-        const arg = funcMatch[1];
+        const [, arg] = funcMatch;
         if (arg.startsWith('`') || arg.startsWith("'") || arg.startsWith('"')) {
           const sql = resolveTemplate(arg.slice(1, -1).trim(), definitions);
           sqlStatements.add(sql);
@@ -204,7 +204,7 @@ const normalizeStatement = (statement: string): string => {
         'gu',
       );
       for (const shorthandMatch of findMatches(shorthandRegex, content)) {
-        const arg = shorthandMatch[1];
+        const [, arg] = shorthandMatch;
         const sql = definitions.get(arg);
         if (sql) {
           sqlStatements.add(resolveTemplate(sql.trim(), definitions));

@@ -158,7 +158,7 @@ describe('oasis-animal-finder-controllers', () => {
     expect(lowThreshold.length).toBeGreaterThan(0);
     expect(highThreshold.length).toBeLessThanOrEqual(lowThreshold.length);
 
-    const first = lowThreshold[0];
+    const [first] = lowThreshold;
 
     expect(resourceSchema.safeParse(first.resource).success).toBe(true);
     expect(oasisBonusTypeSchema.safeParse(first.bonusType).success).toBe(true);

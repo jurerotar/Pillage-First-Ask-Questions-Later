@@ -276,7 +276,7 @@ describe('scheduler', () => {
 
   test('logs a timer-fired resolution error', () => {
     using context = setupSchedulerTest();
-    using log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    using log = vi.spyOn(console, 'error').mockReturnValue(undefined);
     const error = new Error('Database error');
     context.source.getNextEvent.mockReturnValueOnce({
       id: 1,
@@ -294,7 +294,7 @@ describe('scheduler', () => {
 
   test('continues scheduling after a timer-fired resolution error', () => {
     using context = setupSchedulerTest();
-    using _log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    using _log = vi.spyOn(console, 'error').mockReturnValue(undefined);
     context.source.getNextEvent
       .mockReturnValueOnce({ id: 1, resolvesAt: 2000 })
       .mockReturnValueOnce({ id: 2, resolvesAt: 3000 });

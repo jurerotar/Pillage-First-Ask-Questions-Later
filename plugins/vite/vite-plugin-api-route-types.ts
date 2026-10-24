@@ -37,7 +37,7 @@ export const apiRouteTypesPlugin = (): Plugin => {
     name: 'pillage-first-api-route-types',
     enforce: 'pre',
     configResolved(config) {
-      logger = config.logger;
+      ({ logger } = config);
     },
     buildStart() {
       generateApiRouteTypes({ quiet: true });

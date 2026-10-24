@@ -601,7 +601,7 @@ export const ProductionOverview = ({
     baseHeroEffectsWithServerModifier,
     baseTroopEffectsWithConsumptionModifier,
   );
-  const total = computedProductionEffect.total;
+  const { total } = computedProductionEffect;
   const summedAbsoluteBonusEffects = total - summedBaseEffects;
 
   const hasBonuses = hasAnyEffects(

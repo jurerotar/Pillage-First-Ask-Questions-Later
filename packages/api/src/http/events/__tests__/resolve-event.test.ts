@@ -105,7 +105,7 @@ test('uses the worker notification port when no notifier is supplied', async () 
   const { event } = setup(database);
   using post = vi
     .spyOn(notifications, 'postWorkerMessage')
-    .mockImplementation(() => {});
+    .mockReturnValue(undefined);
   resolveEvent(database, event.id);
 
   expect(post).toHaveBeenCalledExactlyOnceWith({
@@ -121,7 +121,7 @@ test('uses the supplied notifier instead of the worker port', async () => {
   const { event, notify } = setup(database);
   using post = vi
     .spyOn(notifications, 'postWorkerMessage')
-    .mockImplementation(() => {});
+    .mockReturnValue(undefined);
   resolveEvent(database, event.id, notify);
 
   expect(post).not.toHaveBeenCalled();

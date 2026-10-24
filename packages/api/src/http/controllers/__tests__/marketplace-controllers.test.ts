@@ -401,9 +401,7 @@ describe('marketplace-controllers', () => {
 
     const sourceVillage = getPlayerVillage(database);
     const targetVillage = createPlayerVillage(database, 'Merchant Target');
-    const merchantCapacity = merchantsMap.get(
-      sourceVillage.tribe,
-    )!.merchantCapacity;
+    const { merchantCapacity } = merchantsMap.get(sourceVillage.tribe)!;
 
     setMarketplaceLevel(database, sourceVillage.id, 1);
     setVillageResources(database, sourceVillage.tileId, {

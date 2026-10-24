@@ -202,7 +202,7 @@ export const uploadSharedWorld = async (
     },
   );
 
-  let reservation = pending.reservation;
+  let { reservation } = pending;
   const { worldId, writeToken } = reservation;
   let reportedBytes = Math.min(
     pending.nextChunkIndex * reservation.chunkSize,

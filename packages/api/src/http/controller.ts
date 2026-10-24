@@ -143,13 +143,14 @@ type JsonSchemaFor<
   TOperation,
   TStatusCode extends string,
 > = TOperation extends {
-  responses: {
-    [S in TStatusCode]: {
+  responses: Record<
+    TStatusCode,
+    {
       content: {
         'application/json': { schema: infer TSchema };
       };
-    };
-  };
+    }
+  >;
 }
   ? TSchema
   : never;

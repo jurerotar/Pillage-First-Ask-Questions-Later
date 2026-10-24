@@ -391,8 +391,7 @@ describe('village-controllers', () => {
         sql: 'SELECT id FROM villages ORDER BY id LIMIT 2',
         schema: z.number(),
       });
-      const villageId = villageIds[0];
-      const otherVillageId = villageIds[1];
+      const [villageId, otherVillageId] = villageIds;
       const eventStartsAt = 223_456_789;
 
       database.exec({

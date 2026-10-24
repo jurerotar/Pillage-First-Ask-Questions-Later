@@ -8,10 +8,10 @@ import {
 } from './scheduler-signal';
 
 export type SchedulerDataSource = {
-  getPastEventIds(now: number): GameEvent['id'][];
-  getNextEvent(now: number): Pick<GameEvent, 'id' | 'resolvesAt'> | null;
-  resolveEvent(id: GameEvent['id']): void;
-  resolveEvents(ids: Iterable<GameEvent['id']>): void;
+  getPastEventIds: (now: number) => GameEvent['id'][];
+  getNextEvent: (now: number) => Pick<GameEvent, 'id' | 'resolvesAt'> | null;
+  resolveEvent: (id: GameEvent['id']) => void;
+  resolveEvents: (ids: Iterable<GameEvent['id']>) => void;
 };
 
 let scheduledTimeout: ReturnType<typeof globalThis.setTimeout> | null = null;

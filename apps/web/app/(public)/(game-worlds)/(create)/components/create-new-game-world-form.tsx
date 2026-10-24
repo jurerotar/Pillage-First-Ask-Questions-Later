@@ -141,7 +141,7 @@ export const CreateNewGameWorldForm = () => {
         channel.port1.onmessage = (
           event: MessageEvent<CreateNewGameWorldWorkerResponse>,
         ) => {
-          const data = event.data;
+          const { data } = event;
 
           if (data.type === 'progress') {
             setCurrentStepIndex((currentIndex) => {

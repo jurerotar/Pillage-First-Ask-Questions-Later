@@ -50,7 +50,7 @@ const setup = async () => {
 
   const post = vi
     .spyOn(notifications, 'postWorkerMessage')
-    .mockImplementation(() => {});
+    .mockReturnValue(undefined);
 
   const source = createSchedulerDataSource(database);
 
@@ -295,7 +295,7 @@ test.each([2, COMMIT_BATCH_SIZE - 1, COMMIT_BATCH_SIZE, COMMIT_BATCH_SIZE + 1])(
 
 test('batch notifications are published only after commit', async () => {
   using context = await setup();
-  const transaction = context.database.transaction;
+  const { transaction } = context.database;
   let committed = false;
 
   vi.spyOn(context.database, 'transaction').mockImplementation((callback) => {
@@ -379,7 +379,7 @@ test('publishes the error notification after committing the successful prefix', 
 
   context.failOn(2, new Error('Resolver failed'));
 
-  const transaction = context.database.transaction;
+  const { transaction } = context.database;
   let committed = false;
 
   vi.spyOn(context.database, 'transaction').mockImplementation((callback) => {
@@ -439,7 +439,7 @@ test('a failed event can be retried without duplicating prior changes', async ()
 const abortTransaction = (
   database: Awaited<ReturnType<typeof prepareTestDatabase>>,
 ) => {
-  const transaction = database.transaction;
+  const { transaction } = database;
 
   vi.spyOn(database, 'transaction').mockImplementation((callback) => {
     transaction((tx) => {

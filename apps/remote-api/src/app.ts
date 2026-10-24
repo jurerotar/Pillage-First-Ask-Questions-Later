@@ -191,7 +191,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
   const reportLocks = new Map<string, Promise<void>>();
 
   app.use('/api/*', async (context, next) => {
-    const path = context.req.path;
+    const { path } = context.req;
     const reportMatch = /^\/api\/(?:admin\/)?reports\/([^/]+)/u.exec(path);
     const uploadMatch = /^\/api\/uploads\/([^/]+)/u.exec(path);
     const worldMatch = /^\/api\/game-worlds\/([^/]+)/u.exec(path);
@@ -209,10 +209,8 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     }
 
     const previous = reportLocks.get(reportId) ?? Promise.resolve();
-    let release = () => {};
-    const current = new Promise<void>((resolve) => {
-      release = resolve;
-    });
+    const { promise: current, resolve: release } =
+      Promise.withResolvers<void>();
 
     reportLocks.set(reportId, current);
     await previous;

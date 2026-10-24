@@ -150,7 +150,7 @@ const uploadWorld = async (upload: PendingUpload): Promise<void> => {
     },
   );
 
-  let reservation = upload.reservation;
+  let { reservation } = upload;
 
   while (upload.nextChunkIndex * reservation.chunkSize < world.size) {
     const chunkIndex = upload.nextChunkIndex;
