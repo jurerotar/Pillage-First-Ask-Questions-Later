@@ -43,7 +43,7 @@ describe('hero-auction-controllers', () => {
     );
   });
 
-  test('buyHeroAuctionListing should exchange silver for item and replace listing', async () => {
+  test('buyHeroAuctionListing should exchange silver for item and replenish listings after buying the highest ID', async () => {
     using database = await prepareTestDatabase();
     const heroId = getHeroId(database);
 
@@ -65,7 +65,7 @@ describe('hero-auction-controllers', () => {
       createControllerArgs<'/players/:playerId/hero/auctions/buy'>({
         path: { playerId },
       }),
-    );
+    ).toSorted((a, b) => b.id - a.id);
 
     buyHeroAuctionListing(
       database,
@@ -109,27 +109,34 @@ describe('hero-auction-controllers', () => {
       schema: z.number(),
     })!;
 
-    const listingStillExists = database.selectValue({
-      sql: `
-        SELECT COUNT(*)
-        FROM
-          hero_auction_buy_listings
-        WHERE
-          id = $id;
-      `,
-      bind: { $id: listing.id },
-      schema: z.number(),
-    })!;
-
     const activeListingAmount = database.selectValue({
       sql: 'SELECT COUNT(*) FROM hero_auction_buy_listings;',
       schema: z.number(),
     })!;
 
+    const history = getHeroAuctionHistory(
+      database,
+      createControllerArgs<'/players/:playerId/hero/auctions/history'>({
+        path: { playerId },
+      }),
+    );
+
     expect(boughtItemAmount).toBe(listing.amount);
     expect(silverAmount).toBe(1_000_000 - listing.price);
-    expect(listingStillExists).toBe(0);
     expect(activeListingAmount).toBe(100);
+    expect(
+      history.map(({ type, itemId, amount, price }) => ({
+        type,
+        itemId,
+        amount,
+        price,
+      })),
+    ).toContainEqual({
+      type: 'buy',
+      itemId: listing.itemId,
+      amount: listing.amount,
+      price: listing.price,
+    });
   });
 
   test('sellHeroAuctionItem should sell immediately for silver', async () => {
