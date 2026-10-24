@@ -18,24 +18,12 @@ const FUNCTIONS = [
 ];
 
 const constRegex =
-  /(?:export\s+)?const\s+(\w+)\s*=\s*(`[\s\S]*?`|'[\s\S]*?'|"[\s\S]*?");/g;
+  /(?:export\s+)?const\s+(\w+)\s*=\s*(`[\s\S]*?`|'[\s\S]*?'|"[\s\S]*?");/gu;
 
 interface SourceFile {
   content: string;
   definitions: Map<string, string>;
 }
-
-const extractStringDefinitions = (content: string): Map<string, string> => {
-  const definitions = new Map<string, string>();
-
-  for (const constMatch of findMatches(constRegex, content)) {
-    const name = constMatch[1];
-    const value = constMatch[2].slice(1, -1);
-    definitions.set(name, value);
-  }
-
-  return definitions;
-};
 
 const findMatches = (regex: RegExp, content: string): RegExpExecArray[] => {
   const matches: RegExpExecArray[] = [];
@@ -52,13 +40,25 @@ const findMatches = (regex: RegExp, content: string): RegExpExecArray[] => {
   return matches;
 };
 
+const extractStringDefinitions = (content: string): Map<string, string> => {
+  const definitions = new Map<string, string>();
+
+  for (const constMatch of findMatches(constRegex, content)) {
+    const [, name] = constMatch;
+    const value = constMatch[2].slice(1, -1);
+    definitions.set(name, value);
+  }
+
+  return definitions;
+};
+
 const resolveTemplate = (
   value: string,
   definitions: Map<string, string>,
   resolving = new Set<string>(),
 ): string => {
-  return value.replace(
-    /\$\{\s*([A-Za-z_$][\w$]*)\s*\}/g,
+  return value.replaceAll(
+    /\$\{\s*([A-Za-z_$][\w$]*)\s*\}/gu,
     (match, name: string) => {
       if (resolving.has(name)) {
         return match;
@@ -84,7 +84,7 @@ const stripSqlComments = (sql: string): string => {
   let isLineComment = false;
   let isBlockComment = false;
 
-  for (let index = 0; index < sql.length; index++) {
+  for (let index = 0; index < sql.length; index += 1) {
     const character = sql[index];
     const nextCharacter = sql[index + 1];
 
@@ -98,7 +98,7 @@ const stripSqlComments = (sql: string): string => {
 
     if (isBlockComment) {
       if (character === '*' && nextCharacter === '/') {
-        index++;
+        index += 1;
         isBlockComment = false;
       } else if (character === '\n') {
         result += '\n';
@@ -112,7 +112,7 @@ const stripSqlComments = (sql: string): string => {
       if (character === quotedString) {
         if (nextCharacter === quotedString) {
           result += nextCharacter;
-          index++;
+          index += 1;
         } else {
           quotedString = null;
         }
@@ -128,13 +128,13 @@ const stripSqlComments = (sql: string): string => {
     }
 
     if (character === '-' && nextCharacter === '-') {
-      index++;
+      index += 1;
       isLineComment = true;
       continue;
     }
 
     if (character === '/' && nextCharacter === '*') {
-      index++;
+      index += 1;
       isBlockComment = true;
       continue;
     }
@@ -146,7 +146,7 @@ const stripSqlComments = (sql: string): string => {
 };
 
 const normalizeStatement = (statement: string): string => {
-  let cleaned = stripSqlComments(statement).replace(/\s+/g, ' ').trim();
+  let cleaned = stripSqlComments(statement).replaceAll(/\s+/gu, ' ').trim();
 
   if (!cleaned.endsWith(';')) {
     cleaned += ';';
@@ -183,10 +183,10 @@ const normalizeStatement = (statement: string): string => {
       // database.func({ sql })
       const funcRegex = new RegExp(
         `(?:database|db|this)\\.${func}\\(\\s*(?:\\{\\s*sql:\\s*)?(\`[\\s\\S]*?\`|'[^']*?'|"[^"]*?"|\\w+)`,
-        'g',
+        'gu',
       );
       for (const funcMatch of findMatches(funcRegex, content)) {
-        const arg = funcMatch[1];
+        const [, arg] = funcMatch;
         if (arg.startsWith('`') || arg.startsWith("'") || arg.startsWith('"')) {
           const sql = resolveTemplate(arg.slice(1, -1).trim(), definitions);
           sqlStatements.add(sql);
@@ -201,10 +201,10 @@ const normalizeStatement = (statement: string): string => {
       // Handle { sql } shorthand
       const shorthandRegex = new RegExp(
         `(?:database|db|this)\\.${func}\\(\\s*\\{\\s*(\\w+)\\s*(?:,[\\s\\S]*?)?\\s*\\}`,
-        'g',
+        'gu',
       );
       for (const shorthandMatch of findMatches(shorthandRegex, content)) {
-        const arg = shorthandMatch[1];
+        const [, arg] = shorthandMatch;
         const sql = definitions.get(arg);
         if (sql) {
           sqlStatements.add(resolveTemplate(sql.trim(), definitions));
@@ -217,7 +217,7 @@ const normalizeStatement = (statement: string): string => {
     .filter((s) => s.length > 0)
     .map(normalizeStatement)
     .filter((s) => s !== ';')
-    .sort();
+    .toSorted();
 
   const output = [
     '-- Extracted Seeder SQL statements',

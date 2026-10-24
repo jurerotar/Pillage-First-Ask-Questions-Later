@@ -1,5 +1,5 @@
 import type { PRNGFunction } from 'ts-seedrandom';
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import {
   randomArrayElement,
   seededRandomArrayElement,
@@ -10,14 +10,14 @@ import {
 
 const prngFrom = (...values: number[]) => {
   let index = 0;
-  return (() => values[index++] ?? 0) as PRNGFunction;
+  return (() => {
+    const value = values[index] ?? 0;
+    index += 1;
+    return value;
+  }) as PRNGFunction;
 };
 
 describe('random utils', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   test('selects the inclusive bounds of a seeded interval', () => {
     expect(seededRandomIntFromInterval(prngFrom(0), 2, 20)).toBe(2);
     expect(seededRandomIntFromInterval(prngFrom(0.999), 2, 20)).toBe(20);
@@ -29,7 +29,7 @@ describe('random utils', () => {
     expect(seededRandomArrayElement(prngFrom(0), array)).toBe('a');
     expect(seededRandomArrayElement(prngFrom(0.999), array)).toBe('c');
 
-    vi.spyOn(Math, 'random').mockReturnValue(0.999);
+    using _random = vi.spyOn(Math, 'random').mockReturnValue(0.999);
 
     expect(randomArrayElement(array)).toBe('c');
   });

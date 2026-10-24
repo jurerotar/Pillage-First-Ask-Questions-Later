@@ -81,7 +81,7 @@ export const matchRoute = (url: string, method: string, body?: unknown) => {
   const normalizedMethod = method.toUpperCase();
 
   // Replace only leading `/me` (either end or followed by slash), preserves trailing slash if present.
-  const path = urlPath.replace(/^\/me(?=\/|$)/, `/players/${PLAYER_ID}`);
+  const path = urlPath.replace(/^\/me(?=\/|$)/u, `/players/${PLAYER_ID}`);
 
   const routeCandidates = getRouteCandidates(normalizedMethod, path);
 

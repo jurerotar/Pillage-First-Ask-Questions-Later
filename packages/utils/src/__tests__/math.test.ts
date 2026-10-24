@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import {
   calculateDistanceBetweenPoints,
   randomInt,
@@ -7,10 +7,6 @@ import {
 } from '../math';
 
 describe('math utils', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   describe(calculateDistanceBetweenPoints, () => {
     test('should calculate distance between two points', () => {
       const p1 = { x: 0, y: 0 };
@@ -29,13 +25,13 @@ describe('math utils', () => {
 
   describe(roundToNDecimalPoints, () => {
     test('should round to 2 decimal points by default', () => {
-      expect(roundToNDecimalPoints(1.234_56)).toBe(1.23);
+      expect(roundToNDecimalPoints(1.23456)).toBe(1.23);
       expect(roundToNDecimalPoints(1.235)).toBe(1.24);
     });
 
     test('should round to N decimal points', () => {
-      expect(roundToNDecimalPoints(1.234_56, 3)).toBe(1.235);
-      expect(roundToNDecimalPoints(1.234_56, 0)).toBe(1);
+      expect(roundToNDecimalPoints(1.23456, 3)).toBe(1.235);
+      expect(roundToNDecimalPoints(1.23456, 0)).toBe(1);
     });
   });
 
@@ -51,7 +47,7 @@ describe('math utils', () => {
 
   describe(randomInt, () => {
     test('should return an inclusive integer in the requested range', () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      using _random = vi.spyOn(Math, 'random').mockReturnValue(0.99);
 
       expect(randomInt(2, 20)).toBe(20);
     });

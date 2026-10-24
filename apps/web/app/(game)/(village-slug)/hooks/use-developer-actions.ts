@@ -27,7 +27,7 @@ type UpdateDeveloperSettingArgs = {
 type UpdateVillageResourcesArgs = {
   villageId: number;
   resource: Resource;
-  amount: 100 | 1000 | 10000;
+  amount: 100 | 1000 | 10_000;
   direction: 'add' | 'subtract';
 };
 

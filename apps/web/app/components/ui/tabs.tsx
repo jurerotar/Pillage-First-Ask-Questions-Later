@@ -180,7 +180,7 @@ export const TabList = ({
         }
 
         usedWidth = nextWidth;
-        count++;
+        count += 1;
       }
 
       const nextVisibleCount = Math.min(

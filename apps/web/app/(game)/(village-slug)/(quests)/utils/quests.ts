@@ -46,8 +46,8 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
     let doneQuests = 0;
     let collectedQuests = 0;
 
-    for (let i = 0; i < questsWithOrder.length; i++) {
-      const quest = questsWithOrder[i].quest;
+    for (let i = 0; i < questsWithOrder.length; i += 1) {
+      const { quest } = questsWithOrder[i];
 
       sorted[i] = quest;
 

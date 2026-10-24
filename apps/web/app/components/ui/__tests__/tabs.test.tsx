@@ -27,16 +27,16 @@ const renderTabs = (initialContainerWidth = 500) => {
       class implements ResizeObserver {
         private readonly callback: ResizeObserverCallback;
 
-        constructor(callback: ResizeObserverCallback) {
+        public constructor(callback: ResizeObserverCallback) {
           this.callback = callback;
           resizeCallbacks.add(callback);
         }
 
-        disconnect = () => {
+        public disconnect = () => {
           resizeCallbacks.delete(this.callback);
         };
-        observe = vi.fn();
-        unobserve = vi.fn();
+        public observe = vi.fn();
+        public unobserve = vi.fn();
       },
     );
 

@@ -44,7 +44,7 @@ type DevToolsConsoleProps = {
 };
 
 const RESOURCES: Resource[] = ['wood', 'clay', 'iron', 'wheat'];
-const AMOUNTS: (100 | 1000 | 10000)[] = [100, 1000, 10000];
+const AMOUNTS: (100 | 1000 | 10_000)[] = [100, 1000, 10_000];
 
 const STANDALONE_SETTINGS = [
   'isInstantUnitTravelEnabled',
@@ -82,7 +82,7 @@ export const DeveloperToolsConsole = ({
 
   const handleUpdateResource = (
     resource: Resource,
-    amount: 100 | 1000 | 10000,
+    amount: 100 | 1000 | 10_000,
     direction: 'add' | 'subtract',
   ) => {
     updateVillageResources({

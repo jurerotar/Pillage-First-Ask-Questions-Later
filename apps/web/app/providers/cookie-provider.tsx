@@ -60,7 +60,7 @@ export const CookieProvider = ({ children }: PropsWithChildren) => {
 
     updateCookies();
 
-    const cookieStore = window.cookieStore;
+    const { cookieStore } = window;
 
     if (cookieStore) {
       cookieStore.addEventListener('change', updateCookies);

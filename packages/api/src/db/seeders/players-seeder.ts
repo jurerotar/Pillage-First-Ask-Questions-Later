@@ -11,10 +11,10 @@ import { generateNpcPlayers, playerFactory } from './factories/player-factory';
 
 const slugifyPlayerName = (name: string): string => {
   return name
-    .replaceAll(/([a-z])([A-Z])/g, '$1-$2') // insert dash before capital following lowercase
+    .replaceAll(/([a-z])([A-Z])/gu, '$1-$2') // insert dash before capital following lowercase
     .toLowerCase()
-    .replaceAll(/[^a-z0-9]+/g, '-') // replace non-alphanumeric with dash
-    .replaceAll(/^-+|-+$/g, ''); // trim leading/trailing dashes
+    .replaceAll(/[^a-z0-9]+/gu, '-') // replace non-alphanumeric with dash
+    .replaceAll(/^-+|-+$/gu, ''); // trim leading/trailing dashes
 };
 
 export const playersSeeder = (database: DbFacade, server: Server): void => {

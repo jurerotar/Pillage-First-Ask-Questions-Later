@@ -196,7 +196,7 @@ describe('building resolvers', () => {
         }),
       });
 
-      expect(promoted).toEqual({
+      expect(promoted).toStrictEqual({
         fieldId: scheduledField.fieldId,
         scheduled: 0,
       });

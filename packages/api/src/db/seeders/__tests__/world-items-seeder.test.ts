@@ -76,9 +76,9 @@ describe('worldItemsSeeder', () => {
       const item = itemsByName.get(itemName)!;
 
       expect(['consumable', 'currency']).toContain(item.category);
-      expect(
-        item.category === 'consumable' || item.name === 'SILVER',
-      ).toBeTruthy();
+      expect(item.category === 'consumable' || item.name === 'SILVER').toBe(
+        true,
+      );
     }
   });
 });

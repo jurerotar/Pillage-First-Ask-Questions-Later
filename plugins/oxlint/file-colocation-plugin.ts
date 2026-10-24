@@ -91,9 +91,9 @@ const walkFiles = (directory: string): string[] => {
 };
 
 const STATIC_IMPORT_REGEX =
-  /^\s*(?:import|export)\s+(?:type\s+)?(?:[^'";]*?\s+from\s+)?['"]([^'"]+)['"]/gm;
-const DYNAMIC_IMPORT_REGEX = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
-const IMPORT_TYPE_REGEX = /\bimport\s*<[^>]*>\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+  /^\s*(?:import|export)\s+(?:type\s+)?(?:[^'";]*?\s+from\s+)?['"]([^'"]+)['"]/gmu;
+const DYNAMIC_IMPORT_REGEX = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/gu;
+const IMPORT_TYPE_REGEX = /\bimport\s*<[^>]*>\s*\(\s*['"]([^'"]+)['"]\s*\)/gu;
 
 const collectImportSpecifiers = (filePath: string): string[] => {
   const sourceText = fs.readFileSync(filePath, 'utf8');
@@ -210,7 +210,7 @@ const isDirectoryBelow = (
 };
 
 const escapeRegExp = (value: string): string => {
-  return value.replace(/[|\\{}()[\]^$+?.]/g, '\\$&');
+  return value.replaceAll(/[|\\{}()[\]^$+?.]/gu, '\\$&');
 };
 
 const globToRegExp = (glob: string): RegExp => {
@@ -236,7 +236,7 @@ const globToRegExp = (glob: string): RegExp => {
 
   pattern += '$';
 
-  return new RegExp(pattern);
+  return new RegExp(pattern, 'u');
 };
 
 const createIgnoreMatchers = (patterns: string[]): RegExp[] => {

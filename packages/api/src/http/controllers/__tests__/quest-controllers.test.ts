@@ -20,7 +20,7 @@ describe('quest-controllers', () => {
     const quests = getQuests(
       database,
       createControllerArgs<'/villages/:villageId/quests'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
@@ -46,7 +46,7 @@ describe('quest-controllers', () => {
     const { collectableQuestCount: initialCount } = getCollectableQuestCount(
       database,
       createControllerArgs<'/villages/:villageId/quests/collectables/count'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
@@ -97,7 +97,7 @@ describe('quest-controllers', () => {
     const { collectableQuestCount: finalCount } = getCollectableQuestCount(
       database,
       createControllerArgs<'/villages/:villageId/quests/collectables/count'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
@@ -131,7 +131,7 @@ describe('quest-controllers', () => {
         '/villages/:villageId/quests/:questId/collect',
         'patch'
       >({
-        path: { villageId: villageId, questId: questId },
+        path: { villageId, questId },
       }),
     );
 

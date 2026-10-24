@@ -137,7 +137,7 @@ export const DemolishBuilding = () => {
             {
               buildingName,
               currentLevel: buildingFieldToDemolish.level,
-              targetLevel: targetLevel,
+              targetLevel,
             },
           ),
         );

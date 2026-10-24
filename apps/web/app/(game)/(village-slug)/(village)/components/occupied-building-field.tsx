@@ -43,53 +43,68 @@ type OccupiedBuildingFieldProps = {
   buildingField: BuildingFieldType;
 };
 
-export const OccupiedBuildingField = ({
+type OccupiedBuildingFieldContentProps = {
+  buildingField: BuildingFieldType;
+  currentBuildingFieldBuildingEvent: BuildingEvent | undefined;
+  tab: string;
+  isHovered?: boolean;
+  onUpgrade?: () => void;
+} & AnchorHTMLAttributes<HTMLAnchorElement>;
+
+const OccupiedBuildingFieldContent = ({
   buildingField,
-}: OccupiedBuildingFieldProps) => {
+  currentBuildingFieldBuildingEvent,
+  tab,
+  isHovered = false,
+  onUpgrade = noop,
+  ...props
+}: OccupiedBuildingFieldContentProps) => {
   const { t } = useTranslation();
-  const { bookmarks } = use(VillageMapContext);
-  const { buildingEventByFieldId } = use(CurrentVillageBuildingQueueContext);
+  const { currentVillage, shouldShowBuildingNames } = use(VillageMapContext);
 
   const { id: buildingFieldId, buildingId } = buildingField;
-  const { virtualLevel } = useBuildingVirtualLevel(buildingFieldId);
-
-  const buildingDefinition = getBuildingDefinition(buildingId);
-  const isMaxLevel = buildingDefinition.maxLevel === virtualLevel;
-
-  const tab = bookmarks[buildingId] ?? 'default';
-
-  const currentBuildingFieldBuildingEvent =
-    buildingEventByFieldId.get(buildingFieldId);
-
-  const content = (
-    <OccupiedBuildingFieldContent
-      buildingField={buildingField}
-      currentBuildingFieldBuildingEvent={currentBuildingFieldBuildingEvent}
-      tab={tab}
-    />
-  );
-
-  if (isMaxLevel) {
-    const status = {
-      canUpgrade: false,
-      variant: 'blue' as const,
-      errorBag: [t("Building can't be upgraded any further")],
-    };
-
-    return (
-      <BuildingUpgradeStatusContext value={status}>
-        {content}
-      </BuildingUpgradeStatusContext>
-    );
-  }
+  const hasEvent = !!currentBuildingFieldBuildingEvent;
 
   return (
-    <OccupiedBuildingFieldActive
-      buildingField={buildingField}
-      virtualLevel={virtualLevel}
-      currentBuildingFieldBuildingEvent={currentBuildingFieldBuildingEvent}
-      tab={tab}
-    />
+    <Link
+      to={{
+        pathname: `${buildingFieldId}`,
+        search: `tab=${tab}`,
+      }}
+      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
+      data-building-field-id={buildingFieldId}
+      className={clsx(
+        buildingFieldId <= 18 &&
+          getResourceBuildingClasses({
+            buildingFieldId,
+            resourceFieldComposition: currentVillage.resourceFieldComposition,
+          }),
+        occupiedBuildingFieldClassName,
+      )}
+      {...props}
+    >
+      <div className="absolute absolute-centering">
+        <BuildingUpgradeIndicator
+          isHovered={isHovered}
+          buildingField={buildingField}
+          buildingEvent={currentBuildingFieldBuildingEvent}
+          onUpgrade={onUpgrade}
+        />
+      </div>
+      {shouldShowBuildingNames && (
+        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
+          {hasEvent && (
+            <Countdown
+              endsAt={
+                currentBuildingFieldBuildingEvent.startsAt +
+                currentBuildingFieldBuildingEvent.duration
+              }
+            />
+          )}
+          {!hasEvent && <span>{t(`BUILDINGS.${buildingId}.NAME`)}</span>}
+        </span>
+      )}
+    </Link>
   );
 };
 
@@ -157,67 +172,52 @@ const OccupiedBuildingFieldActive = ({
   );
 };
 
-type OccupiedBuildingFieldContentProps = {
-  buildingField: BuildingFieldType;
-  currentBuildingFieldBuildingEvent: BuildingEvent | undefined;
-  tab: string;
-  isHovered?: boolean;
-  onUpgrade?: () => void;
-} & AnchorHTMLAttributes<HTMLAnchorElement>;
-
-const OccupiedBuildingFieldContent = ({
+export const OccupiedBuildingField = ({
   buildingField,
-  currentBuildingFieldBuildingEvent,
-  tab,
-  isHovered = false,
-  onUpgrade = noop,
-  ...props
-}: OccupiedBuildingFieldContentProps) => {
+}: OccupiedBuildingFieldProps) => {
   const { t } = useTranslation();
-  const { currentVillage, shouldShowBuildingNames } = use(VillageMapContext);
+  const { bookmarks } = use(VillageMapContext);
+  const { buildingEventByFieldId } = use(CurrentVillageBuildingQueueContext);
 
   const { id: buildingFieldId, buildingId } = buildingField;
-  const hasEvent = !!currentBuildingFieldBuildingEvent;
+  const { virtualLevel } = useBuildingVirtualLevel(buildingFieldId);
+
+  const buildingDefinition = getBuildingDefinition(buildingId);
+  const isMaxLevel = buildingDefinition.maxLevel === virtualLevel;
+
+  const tab = bookmarks[buildingId] ?? 'default';
+
+  const currentBuildingFieldBuildingEvent =
+    buildingEventByFieldId.get(buildingFieldId);
+
+  const content = (
+    <OccupiedBuildingFieldContent
+      buildingField={buildingField}
+      currentBuildingFieldBuildingEvent={currentBuildingFieldBuildingEvent}
+      tab={tab}
+    />
+  );
+
+  if (isMaxLevel) {
+    const status = {
+      canUpgrade: false,
+      variant: 'blue' as const,
+      errorBag: [t("Building can't be upgraded any further")],
+    };
+
+    return (
+      <BuildingUpgradeStatusContext value={status}>
+        {content}
+      </BuildingUpgradeStatusContext>
+    );
+  }
 
   return (
-    <Link
-      to={{
-        pathname: `${buildingFieldId}`,
-        search: `tab=${tab}`,
-      }}
-      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
-      data-building-field-id={buildingFieldId}
-      className={clsx(
-        buildingFieldId <= 18 &&
-          getResourceBuildingClasses({
-            buildingFieldId,
-            resourceFieldComposition: currentVillage.resourceFieldComposition,
-          }),
-        occupiedBuildingFieldClassName,
-      )}
-      {...props}
-    >
-      <div className="absolute absolute-centering">
-        <BuildingUpgradeIndicator
-          isHovered={isHovered}
-          buildingField={buildingField}
-          buildingEvent={currentBuildingFieldBuildingEvent}
-          onUpgrade={onUpgrade}
-        />
-      </div>
-      {shouldShowBuildingNames && (
-        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
-          {hasEvent && (
-            <Countdown
-              endsAt={
-                currentBuildingFieldBuildingEvent.startsAt +
-                currentBuildingFieldBuildingEvent.duration
-              }
-            />
-          )}
-          {!hasEvent && <span>{t(`BUILDINGS.${buildingId}.NAME`)}</span>}
-        </span>
-      )}
-    </Link>
+    <OccupiedBuildingFieldActive
+      buildingField={buildingField}
+      virtualLevel={virtualLevel}
+      currentBuildingFieldBuildingEvent={currentBuildingFieldBuildingEvent}
+      tab={tab}
+    />
   );
 };

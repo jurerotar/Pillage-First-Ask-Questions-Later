@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
-import type {
-  ReportListingFilter,
-  ReportScope,
+import {
+  type ReportListingFilter,
+  type ReportScope,
+  reportFilterNameByScope,
 } from '@pillage-first/types/dtos/report';
-import { reportFilterNameByScope } from '@pillage-first/types/dtos/report';
 import {
   deleteReports,
   getReport,

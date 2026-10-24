@@ -165,7 +165,7 @@ export const BattleParticipantTable = ({
   participantRole,
 }: BattleParticipantTableProps) => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
 
   const report = _report as BattleReport | CombatSimulatorReportDto;
   const { canAttackerSeeFullReport, loot, totalCarryCapacity } =
@@ -182,7 +182,7 @@ export const BattleParticipantTable = ({
     const troopsBefore = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountBefore }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountBefore,
       })),
     );
@@ -190,7 +190,7 @@ export const BattleParticipantTable = ({
     const troopsAfter = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountAfter }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountAfter,
       })),
     );
@@ -198,7 +198,7 @@ export const BattleParticipantTable = ({
     const troopsLost = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountBefore, amountAfter }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountBefore - amountAfter,
       })),
     );
@@ -206,7 +206,7 @@ export const BattleParticipantTable = ({
     const troopsHospitalized = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountHospitalized }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountHospitalized,
       })),
     );
@@ -214,7 +214,7 @@ export const BattleParticipantTable = ({
     const troopsImprisoned = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountImprisoned }) => ({
-        unitId: unitId,
+        unitId,
         amount: amountImprisoned,
       })),
     );
@@ -481,7 +481,7 @@ const StatisticsRow = ({
 
 export const BattleStatisticsTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
 
   const report = _report as BattleReport | CombatSimulatorReportDto;
   const { statistics, outcome } = report.battle;
@@ -547,7 +547,7 @@ export const BattleStatisticsTable = () => {
 
 export const MovementReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as TroopMovementReport;
   const { movement } = report;
 
@@ -627,7 +627,7 @@ export const MovementReportTable = () => {
 
 export const TradeReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as TradeReport;
   const {
     originPlayerName,
@@ -869,7 +869,7 @@ export const ScoutingReportTables = () => {
 
 export const HuntingPartyReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as HuntingPartyReport;
   const troops = sortTroops(report.tribe, report.units);
 
@@ -891,7 +891,7 @@ export const HuntingPartyReportTable = () => {
 
 export const GatheringExpeditionReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as GatheringExpeditionReport;
   const troops = sortTroops(report.tribe, report.units);
 
@@ -923,7 +923,7 @@ export const GatheringExpeditionReportTable = () => {
 
 export const AdventureReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as AdventureReport;
   const { adventureId, healthBefore, healthAfter, itemId, itemAmount } = report;
   const healthDifference = healthAfter - healthBefore;
@@ -996,7 +996,7 @@ export const AdventureReportTable = () => {
 
 export const AdventureHeroTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as AdventureReport;
   const { originVillageName, originCoordinates, tribe } = report.summary;
   const troops = sortTroops(tribe, [{ unitId: 'HERO', amount: 1 }]);
@@ -1019,7 +1019,7 @@ export const AdventureHeroTable = () => {
 
 export const UnitResearchReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as UnitResearchReport;
 
   return (
@@ -1065,7 +1065,7 @@ export const UnitResearchReportTable = () => {
 
 export const UnitImprovementReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as UnitImprovementReport;
 
   return (
@@ -1117,7 +1117,7 @@ export const UnitImprovementReportTable = () => {
 
 export const VillageFoundedReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as VillageFoundedReport;
 
   return (
@@ -1172,7 +1172,7 @@ export const VillageFoundedReportTable = () => {
 
 export const ScheduledConstructionCancellationReportTable = () => {
   const { t } = useTranslation();
-  const { report: _report } = use(ReportContext)!;
+  const { report: _report } = use(ReportContext);
   const report = _report as ScheduledConstructionCancellationReport;
   const reason =
     report.reason === 'missing-resources'

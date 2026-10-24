@@ -6,38 +6,6 @@ type MapRulerCellProps = {
   layout: 'vertical' | 'horizontal';
 };
 
-export const MapRulerCell = ({
-  ariaAttributes,
-  index,
-  style,
-  layout,
-}: RowComponentProps<MapRulerCellProps>) => {
-  return (
-    <MapRulerCellContents
-      ariaAttributes={ariaAttributes}
-      index={index}
-      layout={layout}
-      style={style}
-    />
-  );
-};
-
-export const MapRulerGridCell = ({
-  ariaAttributes,
-  columnIndex,
-  style,
-  layout,
-}: CellComponentProps<MapRulerCellProps>) => {
-  return (
-    <MapRulerCellContents
-      ariaAttributes={ariaAttributes}
-      index={columnIndex}
-      layout={layout}
-      style={style}
-    />
-  );
-};
-
 type MapRulerCellContentsProps = {
   ariaAttributes:
     | RowComponentProps['ariaAttributes']
@@ -70,5 +38,37 @@ const MapRulerCellContents = ({
     >
       {cellIndex}
     </span>
+  );
+};
+
+export const MapRulerCell = ({
+  ariaAttributes,
+  index,
+  style,
+  layout,
+}: RowComponentProps<MapRulerCellProps>) => {
+  return (
+    <MapRulerCellContents
+      ariaAttributes={ariaAttributes}
+      index={index}
+      layout={layout}
+      style={style}
+    />
+  );
+};
+
+export const MapRulerGridCell = ({
+  ariaAttributes,
+  columnIndex,
+  style,
+  layout,
+}: CellComponentProps<MapRulerCellProps>) => {
+  return (
+    <MapRulerCellContents
+      ariaAttributes={ariaAttributes}
+      index={columnIndex}
+      layout={layout}
+      style={style}
+    />
   );
 };

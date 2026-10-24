@@ -83,7 +83,7 @@ describe('event-controllers', () => {
     const events = getVillageEvents(
       database,
       createControllerArgs<'/villages/:villageId/events'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
@@ -112,7 +112,7 @@ describe('event-controllers', () => {
     const events = getVillageEventsByType(
       database,
       createControllerArgs<'/villages/:villageId/events/:eventType'>({
-        path: { villageId: villageId, eventType: 'buildingLevelChange' },
+        path: { villageId, eventType: 'buildingLevelChange' },
       }),
     );
 
@@ -212,7 +212,7 @@ describe('event-controllers', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       scheduled: 0,
       promoted: 1,
     });
@@ -352,7 +352,7 @@ describe('event-controllers', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       promotedResource: 1,
       queuedVillage: 1,
     });
@@ -391,8 +391,8 @@ describe('event-controllers', () => {
           ('resourceTransfer', $unrelated_starts_at, 100, $target_village_id, $unrelated_meta);
       `,
       bind: {
-        $outgoing_starts_at: 1_000,
-        $incoming_starts_at: 2_000,
+        $outgoing_starts_at: 1000,
+        $incoming_starts_at: 2000,
         $unrelated_starts_at: 500,
         $source_village_id: sourceVillage.id,
         $target_village_id: targetVillage.id,
@@ -756,14 +756,14 @@ describe('event-controllers', () => {
     insertEvents(database, [
       createBuildingDestructionEventMock({
         startsAt: now,
-        duration: 10000,
+        duration: 10_000,
         villageId,
         buildingFieldId: 26,
         previousLevel: 10,
       }),
       createBuildingLevelChangeEventMock({
         startsAt: now,
-        duration: 10000,
+        duration: 10_000,
         villageId,
         buildingFieldId: 15,
         previousLevel: 1,
@@ -771,7 +771,7 @@ describe('event-controllers', () => {
       }),
       createBuildingLevelChangeEventMock({
         startsAt: now,
-        duration: 10000,
+        duration: 10_000,
         villageId: otherVillageId,
         buildingFieldId: 26,
         previousLevel: 5,
@@ -848,7 +848,7 @@ describe('event-controllers', () => {
     insertEvents(database, [
       createBuildingLevelChangeEventMock({
         startsAt: now,
-        duration: 10000,
+        duration: 10_000,
         villageId,
         buildingFieldId: 26,
         previousLevel: 8,

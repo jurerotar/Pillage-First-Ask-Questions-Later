@@ -32,6 +32,14 @@ const useTiles = () => {
   };
 };
 
+export const BORDER_TILES_OASIS_VARIANTS = new Set([1, 2, 3, 4]);
+
+const BORDER_TILES_OASIS_GRAPHICS = Array.from([
+  ...BORDER_TILES_OASIS_VARIANTS,
+]).map((variant) => {
+  return encodeGraphicsProperty('wood', 0, 0, 0, variant);
+});
+
 const useBorderTiles = () => {
   const { tiles } = useTiles();
   const { mapSize } = useServer();
@@ -72,14 +80,6 @@ const useBorderTiles = () => {
     borderTiles,
   };
 };
-
-export const BORDER_TILES_OASIS_VARIANTS = new Set([1, 2, 3, 4]);
-
-const BORDER_TILES_OASIS_GRAPHICS = Array.from([
-  ...BORDER_TILES_OASIS_VARIANTS,
-]).map((variant) => {
-  return encodeGraphicsProperty('wood', 0, 0, 0, variant);
-});
 
 export const useMap = () => {
   const { tiles } = useTiles();

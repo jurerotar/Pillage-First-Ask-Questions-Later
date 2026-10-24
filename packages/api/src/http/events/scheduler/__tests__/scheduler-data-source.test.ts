@@ -50,7 +50,7 @@ const setup = async () => {
 
   const post = vi
     .spyOn(notifications, 'postWorkerMessage')
-    .mockImplementation(() => {});
+    .mockReturnValue(undefined);
 
   const source = createSchedulerDataSource(database);
 
@@ -116,7 +116,7 @@ test('getPastEventIds includes events due exactly now and excludes future events
     schema: z.number(),
   });
 
-  expect(context.source.getPastEventIds(2000)).toEqual(ids.slice(0, 2));
+  expect(context.source.getPastEventIds(2000)).toStrictEqual(ids.slice(0, 2));
 });
 
 test('getPastEventIds orders by resolution time, then ID', async () => {
@@ -145,7 +145,11 @@ test('getPastEventIds orders by resolution time, then ID', async () => {
     schema: z.number(),
   });
 
-  expect(context.source.getPastEventIds(3000)).toEqual([second, third, first]);
+  expect(context.source.getPastEventIds(3000)).toStrictEqual([
+    second,
+    third,
+    first,
+  ]);
 });
 
 test('getNextEvent returns the earliest strictly future event', async () => {
@@ -174,7 +178,10 @@ test('getNextEvent returns the earliest strictly future event', async () => {
     schema: z.number(),
   });
 
-  expect(context.source.getNextEvent(1000)).toEqual({ id, resolvesAt: 2000 });
+  expect(context.source.getNextEvent(1000)).toStrictEqual({
+    id,
+    resolvesAt: 2000,
+  });
 });
 
 test('getNextEvent returns null when no future event exists', async () => {
@@ -196,7 +203,7 @@ test('single-event resolution commits its changes', async () => {
 
   context.source.resolveEvent(1);
 
-  expect(context.resolvedIds()).toEqual([1]);
+  expect(context.resolvedIds()).toStrictEqual([1]);
 });
 
 test('single-event resolution rolls back resolver changes on failure', async () => {
@@ -205,7 +212,7 @@ test('single-event resolution rolls back resolver changes on failure', async () 
   context.failOn(1, new Error('Resolver failed'));
 
   expect(() => context.source.resolveEvent(1)).toThrow();
-  expect(context.resolvedIds()).toEqual([]);
+  expect(context.resolvedIds()).toStrictEqual([]);
 });
 
 test('single-event failure restores the deleted event', async () => {
@@ -231,7 +238,7 @@ test('single-event failure restores the deleted event', async () => {
   });
 
   expect(() => context.source.resolveEvent(id)).toThrow();
-  expect(context.source.getPastEventIds(2000)).toEqual([id]);
+  expect(context.source.getPastEventIds(2000)).toStrictEqual([id]);
 });
 
 test('batch failure restores the deleted event', async () => {
@@ -257,7 +264,7 @@ test('batch failure restores the deleted event', async () => {
   });
 
   expect(() => context.source.resolveEvents([id])).toThrow();
-  expect(context.source.getPastEventIds(2000)).toEqual([id]);
+  expect(context.source.getPastEventIds(2000)).toStrictEqual([id]);
 });
 
 test('an empty batch does not open a transaction', async () => {
@@ -288,7 +295,7 @@ test.each([2, COMMIT_BATCH_SIZE - 1, COMMIT_BATCH_SIZE, COMMIT_BATCH_SIZE + 1])(
 
 test('batch notifications are published only after commit', async () => {
   using context = await setup();
-  const transaction = context.database.transaction;
+  const { transaction } = context.database;
   let committed = false;
 
   vi.spyOn(context.database, 'transaction').mockImplementation((callback) => {
@@ -317,7 +324,7 @@ test('publishes each batch before resolving the next batch', async () => {
     Array.from({ length: COMMIT_BATCH_SIZE + 1 }, (_, index) => index + 1),
   );
 
-  expect(countAtDispatch).toEqual([
+  expect(countAtDispatch).toStrictEqual([
     ...Array(COMMIT_BATCH_SIZE).fill(COMMIT_BATCH_SIZE),
     COMMIT_BATCH_SIZE + 1,
   ]);
@@ -328,9 +335,9 @@ test('publishes batch notifications in resolution order', async () => {
 
   context.source.resolveEvents([3, 1, 2]);
 
-  expect(context.post.mock.calls.map(([notification]) => notification)).toEqual(
-    [message(3), message(1), message(2)],
-  );
+  expect(
+    context.post.mock.calls.map(([notification]) => notification),
+  ).toStrictEqual([message(3), message(1), message(2)]);
 });
 
 test('consumes event IDs lazily between resolutions', async () => {
@@ -346,7 +353,7 @@ test('consumes event IDs lazily between resolutions', async () => {
 
   context.source.resolveEvents(ids());
 
-  expect(context.resolvedIds()).toEqual([1, 2]);
+  expect(context.resolvedIds()).toStrictEqual([1, 2]);
 });
 
 test('rolls back the failing event while retaining the successful prefix', async () => {
@@ -355,7 +362,7 @@ test('rolls back the failing event while retaining the successful prefix', async
   context.failOn(2, new Error('Resolver failed'));
 
   expect(() => context.source.resolveEvents([1, 2, 3])).toThrow();
-  expect(context.resolvedIds()).toEqual([1]);
+  expect(context.resolvedIds()).toStrictEqual([1]);
 });
 
 test('stops resolving events after a failure', async () => {
@@ -364,7 +371,7 @@ test('stops resolving events after a failure', async () => {
   context.failOn(2, new Error('Resolver failed'));
 
   expect(() => context.source.resolveEvents([1, 2, 3])).toThrow();
-  expect(context.resolver.mock.calls.map(([, id]) => id)).toEqual([1, 2]);
+  expect(context.resolver.mock.calls.map(([, id]) => id)).toStrictEqual([1, 2]);
 });
 
 test('publishes the error notification after committing the successful prefix', async () => {
@@ -372,7 +379,7 @@ test('publishes the error notification after committing the successful prefix', 
 
   context.failOn(2, new Error('Resolver failed'));
 
-  const transaction = context.database.transaction;
+  const { transaction } = context.database;
   let committed = false;
 
   vi.spyOn(context.database, 'transaction').mockImplementation((callback) => {
@@ -385,9 +392,9 @@ test('publishes the error notification after committing the successful prefix', 
   });
 
   expect(() => context.source.resolveEvents([1, 2])).toThrow();
-  expect(context.post.mock.calls.map(([notification]) => notification)).toEqual(
-    [message(1), message(2, 'event:error')],
-  );
+  expect(
+    context.post.mock.calls.map(([notification]) => notification),
+  ).toStrictEqual([message(1), message(2, 'event:error')]);
 });
 
 test('rethrows the original batch resolution error', async () => {
@@ -413,7 +420,7 @@ test('handles a resolver throwing undefined as a failure', async () => {
   }
 
   expect(threw).toBe(true);
-  expect(context.resolvedIds()).toEqual([]);
+  expect(context.resolvedIds()).toStrictEqual([]);
 });
 
 test('a failed event can be retried without duplicating prior changes', async () => {
@@ -426,13 +433,13 @@ test('a failed event can be retried without duplicating prior changes', async ()
   context.failOn(-1, undefined);
   context.source.resolveEvents([2, 3]);
 
-  expect(context.resolvedIds()).toEqual([1, 2, 3]);
+  expect(context.resolvedIds()).toStrictEqual([1, 2, 3]);
 });
 
 const abortTransaction = (
   database: Awaited<ReturnType<typeof prepareTestDatabase>>,
 ) => {
-  const transaction = database.transaction;
+  const { transaction } = database;
 
   vi.spyOn(database, 'transaction').mockImplementation((callback) => {
     transaction((tx) => {
@@ -450,7 +457,7 @@ test('an outer transaction failure rolls back the entire batch', async () => {
   expect(() => context.source.resolveEvents([1, 2])).toThrow(
     'Abort before commit',
   );
-  expect(context.resolvedIds()).toEqual([]);
+  expect(context.resolvedIds()).toStrictEqual([]);
 });
 
 test('an outer transaction failure discards queued notifications', async () => {
@@ -481,7 +488,7 @@ test('a rejected commit discards queued notifications', async () => {
   });
 
   expect(() => context.source.resolveEvents([1])).toThrow(
-    /FOREIGN KEY constraint failed/,
+    /FOREIGN KEY constraint failed/u,
   );
   expect(context.post).not.toHaveBeenCalled();
 });
@@ -497,5 +504,5 @@ test('a later batch failure retains previously committed batches', async () => {
   );
 
   expect(() => context.source.resolveEvents(ids)).toThrow();
-  expect(context.resolvedIds()).toEqual(ids.slice(0, COMMIT_BATCH_SIZE));
+  expect(context.resolvedIds()).toStrictEqual(ids.slice(0, COMMIT_BATCH_SIZE));
 });

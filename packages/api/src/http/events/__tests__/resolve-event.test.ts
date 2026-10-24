@@ -32,7 +32,7 @@ const setup = (database: DbFacade) => {
     .mockReset()
     .mockReturnValue({ affectedVillageIds: [1], affectedTileIds: [] });
 
-  const notify = vi.fn();
+  const notify = vi.fn<NonNullable<Parameters<typeof resolveEvent>[2]>>();
 
   return { event, resolver, notify };
 };
@@ -80,7 +80,7 @@ test('does not resolve the same event twice', async () => {
   resolveEvent(database, event.id, notify);
   resolveEvent(database, event.id, notify);
 
-  expect(resolver).toHaveBeenCalledOnce();
+  expect(resolver).toHaveBeenCalledTimes(1);
 });
 
 test('publishes the resolver affected villages and tiles on success', async () => {
@@ -105,7 +105,7 @@ test('uses the worker notification port when no notifier is supplied', async () 
   const { event } = setup(database);
   using post = vi
     .spyOn(notifications, 'postWorkerMessage')
-    .mockImplementation(() => {});
+    .mockReturnValue(undefined);
   resolveEvent(database, event.id);
 
   expect(post).toHaveBeenCalledExactlyOnceWith({
@@ -121,7 +121,7 @@ test('uses the supplied notifier instead of the worker port', async () => {
   const { event, notify } = setup(database);
   using post = vi
     .spyOn(notifications, 'postWorkerMessage')
-    .mockImplementation(() => {});
+    .mockReturnValue(undefined);
   resolveEvent(database, event.id, notify);
 
   expect(post).not.toHaveBeenCalled();

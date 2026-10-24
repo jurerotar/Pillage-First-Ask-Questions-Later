@@ -2607,7 +2607,7 @@ describe('events utils', () => {
             bind: { $tile_id: tileId },
             schema: resourcesSchema.extend({ updated_at: z.number() }),
           }),
-        ).toEqual({ ...resources, updated_at: now });
+        ).toStrictEqual({ ...resources, updated_at: now });
         expect(
           database.selectValue({
             sql: 'SELECT COUNT(*) FROM events;',
@@ -2680,7 +2680,7 @@ describe('events utils', () => {
               updated_at: z.number(),
             }),
           }),
-        ).toEqual(
+        ).toStrictEqual(
           reject
             ? { wheat: 0, updated_at: updatedAt }
             : { wheat: expected.currentWheat - 200, updated_at: now },
@@ -2973,7 +2973,7 @@ describe('events utils', () => {
       using database = await prepareTestDatabase();
 
       vi.useFakeTimers();
-      const now = 5_000;
+      const now = 5000;
       vi.setSystemTime(new Date(now));
 
       const event = createGameEventMock('troopMovementReturn', {

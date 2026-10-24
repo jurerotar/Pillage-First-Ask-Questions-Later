@@ -6,6 +6,16 @@ type ReportErrorContext = Record<
   boolean | null | number | string | undefined
 >;
 
+const toFaroContext = (
+  context: ReportErrorContext = {},
+): Record<string, string> => {
+  return Object.fromEntries(
+    Object.entries(context)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => [key, String(value)]),
+  );
+};
+
 const toError = (error: unknown, fallbackMessage: string): Error => {
   if (error instanceof Error) {
     return error;
@@ -41,16 +51,6 @@ const toError = (error: unknown, fallbackMessage: string): Error => {
   }
 
   return new Error(fallbackMessage);
-};
-
-const toFaroContext = (
-  context: ReportErrorContext = {},
-): Record<string, string> => {
-  return Object.fromEntries(
-    Object.entries(context)
-      .filter(([, value]) => value !== undefined)
-      .map(([key, value]) => [key, String(value)]),
-  );
 };
 
 export const reportError = (

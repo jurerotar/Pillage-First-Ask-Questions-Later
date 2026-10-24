@@ -41,7 +41,7 @@ export const createEvents = <T extends GameEventType>(
   createEventDtoSchema.parse(args);
 
   const sampleEvent = args as GameEvent<T>;
-  let { startsAt = null, duration = null } = sampleEvent;
+  let { startsAt, duration } = args;
   const amount = args?.amount ?? 1;
 
   validateEventCreationPrerequisites(database, sampleEvent);

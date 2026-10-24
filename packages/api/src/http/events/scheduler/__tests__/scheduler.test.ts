@@ -48,8 +48,8 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(source.resolveEvents).toHaveBeenCalledOnce();
-    expect(processed.mock.calls).toEqual([[2], [1]]);
+    expect(source.resolveEvents).toHaveBeenCalledTimes(1);
+    expect(processed.mock.calls).toStrictEqual([[2], [1]]);
     expect(source.resolveEvent).not.toHaveBeenCalled();
   });
 
@@ -60,7 +60,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(processed.mock.calls).toEqual([[1], [2]]);
+    expect(processed.mock.calls).toStrictEqual([[1], [2]]);
   });
 
   test('does not open a batch when no events are due', () => {
@@ -78,7 +78,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(processed.mock.calls).toEqual([[1]]);
+    expect(processed.mock.calls).toStrictEqual([[1]]);
   });
 
   test('a rescan interrupts the batch and uses the new event order', () => {
@@ -95,7 +95,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(processed.mock.calls).toEqual([[1], [3], [2]]);
+    expect(processed.mock.calls).toStrictEqual([[1], [3], [2]]);
   });
 
   test('initScheduler connects event kicks to scheduling', () => {
@@ -105,7 +105,7 @@ describe('scheduler', () => {
     triggerKick();
     vi.advanceTimersByTime(0);
 
-    expect(context.source.getPastEventIds).toHaveBeenCalledOnce();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
   test('does not resolve a future event before its deadline', () => {
@@ -131,7 +131,7 @@ describe('scheduler', () => {
 
     vi.advanceTimersByTime(1000);
 
-    expect(context.source.resolveEvent.mock.calls).toEqual([[1]]);
+    expect(context.source.resolveEvent.mock.calls).toStrictEqual([[1]]);
   });
 
   test('rescans after a timer-fired event resolves', () => {
@@ -156,7 +156,7 @@ describe('scheduler', () => {
 
     vi.advanceTimersByTime(0);
 
-    expect(context.source.getPastEventIds).toHaveBeenCalledOnce();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
   test('a kick clears the previous event timer', () => {
@@ -181,7 +181,7 @@ describe('scheduler', () => {
 
     vi.advanceTimersByTime(0);
 
-    expect(context.source.getPastEventIds).toHaveBeenCalledOnce();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
   test('cancellation clears the event timer', () => {
@@ -239,12 +239,12 @@ describe('scheduler', () => {
       }
       scheduleNextEvent(source);
 
-      expect(source.getPastEventIds).toHaveBeenCalledOnce();
+      expect(source.getPastEventIds).toHaveBeenCalledTimes(1);
     });
 
     scheduleNextEvent(source);
 
-    expect(processed.mock.calls).toEqual([[1], [3], [2]]);
+    expect(processed.mock.calls).toStrictEqual([[1], [3], [2]]);
   });
 
   test('propagates batch resolution errors', () => {
@@ -271,12 +271,12 @@ describe('scheduler', () => {
 
     scheduleNextEvent(context.source);
 
-    expect(context.source.getPastEventIds).toHaveBeenCalledOnce();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
   test('logs a timer-fired resolution error', () => {
     using context = setupSchedulerTest();
-    using log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    using log = vi.spyOn(console, 'error').mockReturnValue(undefined);
     const error = new Error('Database error');
     context.source.getNextEvent.mockReturnValueOnce({
       id: 1,
@@ -294,7 +294,7 @@ describe('scheduler', () => {
 
   test('continues scheduling after a timer-fired resolution error', () => {
     using context = setupSchedulerTest();
-    using _log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    using _log = vi.spyOn(console, 'error').mockReturnValue(undefined);
     context.source.getNextEvent
       .mockReturnValueOnce({ id: 1, resolvesAt: 2000 })
       .mockReturnValueOnce({ id: 2, resolvesAt: 3000 });
@@ -305,6 +305,6 @@ describe('scheduler', () => {
 
     vi.advanceTimersByTime(2000);
 
-    expect(context.source.resolveEvent.mock.calls).toEqual([[1], [2]]);
+    expect(context.source.resolveEvent.mock.calls).toStrictEqual([[1], [2]]);
   });
 });

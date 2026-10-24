@@ -62,8 +62,10 @@ export const getConfig = (): AppConfig => {
 
   try {
     new URL(publicBaseUrl);
-  } catch {
-    throw new Error('PUBLIC_BASE_URL must be an absolute URL.');
+  } catch (error) {
+    throw new Error('PUBLIC_BASE_URL must be an absolute URL.', {
+      cause: error,
+    });
   }
 
   const uploadUrlSecret = getRequiredEnvironmentVariable('UPLOAD_URL_SECRET');
