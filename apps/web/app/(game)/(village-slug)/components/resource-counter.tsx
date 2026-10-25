@@ -1,5 +1,4 @@
 import { clsx } from 'clsx';
-import { use } from 'react';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   formatNumberWithCommas,
@@ -7,7 +6,6 @@ import {
 } from '@pillage-first/utils/format';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
-import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 import { Icon } from 'app/components/icon';
 
 type ResourceCounterProps = {
@@ -20,12 +18,6 @@ export const ResourceCounter = ({
   showDetails = true,
 }: ResourceCounterProps) => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
-    use(CurrentVillageComputedEffectsContext);
-  const storage =
-    resource === 'wheat'
-      ? computedGranaryCapacityEffect.total
-      : computedWarehouseCapacityEffect.total;
 
   const {
     calculatedResourceAmount,
@@ -33,7 +25,7 @@ export const ResourceCounter = ({
     storageCapacity,
     isFull,
     hasNegativeProduction,
-  } = useCalculatedResource(resource, storage);
+  } = useCalculatedResource(resource);
 
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
 

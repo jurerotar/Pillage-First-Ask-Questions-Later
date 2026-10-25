@@ -1,26 +1,30 @@
 import { use, useSyncExternalStore } from 'react';
-import type { ResourceProductionEffectId } from '@pillage-first/types/models/effect';
 import type { Resource } from '@pillage-first/types/models/resource';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 import { CurrentVillageLiveResourcesStoreContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 
-const resourceToResourceEffectMap = new Map<
-  Resource,
-  ResourceProductionEffectId
->([
-  ['wood', 'woodProduction'],
-  ['clay', 'clayProduction'],
-  ['iron', 'ironProduction'],
-  ['wheat', 'wheatProduction'],
-]);
+export const useCalculatedResource = (resource: Resource) => {
+  const {
+    computedWarehouseCapacityEffect,
+    computedGranaryCapacityEffect,
+    hourlyWoodProduction,
+    hourlyClayProduction,
+    hourlyIronProduction,
+    hourlyWheatProduction,
+  } = use(CurrentVillageComputedEffectsContext);
 
-export const useCalculatedResource = (
-  resource: Resource,
-  storageCapacity: number,
-) => {
-  const { total: hourlyProduction } = useComputedEffect(
-    resourceToResourceEffectMap.get(resource)!,
-  );
+  const storageCapacity =
+    resource === 'wheat'
+      ? computedGranaryCapacityEffect.total
+      : computedWarehouseCapacityEffect.total;
+
+  const hourlyProduction = {
+    wood: hourlyWoodProduction,
+    clay: hourlyClayProduction,
+    iron: hourlyIronProduction,
+    wheat: hourlyWheatProduction,
+  }[resource];
+
   const liveResourcesStore = use(CurrentVillageLiveResourcesStoreContext)!;
 
   const calculatedResourceAmount = useSyncExternalStore(
@@ -33,7 +37,7 @@ export const useCalculatedResource = (
 
   return {
     calculatedResourceAmount,
-    hourlyProduction: Math.trunc(hourlyProduction),
+    hourlyProduction,
     storageCapacity: Math.trunc(storageCapacity),
     isFull,
     hasNegativeProduction,

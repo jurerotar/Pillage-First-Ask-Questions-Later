@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { resourcesSchema } from '@pillage-first/types/models/resource';
+import {
+  type Resources,
+  resourcesSchema,
+} from '@pillage-first/types/models/resource';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
@@ -48,6 +51,7 @@ export const demolishBuilding = (
 };
 
 type CalculateResourceSiteResourcesAtReturn = {
+  hourlyProduction: Resources;
   currentWood: number;
   currentIron: number;
   currentClay: number;
@@ -190,6 +194,12 @@ export const calculateResourceSiteResourcesAt = (
   });
 
   return {
+    hourlyProduction: {
+      wood: woodProduction,
+      clay: clayProduction,
+      iron: ironProduction,
+      wheat: wheatProduction,
+    },
     currentWood,
     currentIron,
     currentClay,
