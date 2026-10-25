@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, use, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -29,10 +29,12 @@ import {
 } from '@pillage-first/utils/math';
 import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-troops';
+import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
 import { useMarketplaceMerchants } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/marketplace/hooks/use-marketplace-merchants';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
@@ -49,12 +51,9 @@ import {
 } from 'app/components/ui/dialog';
 import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from 'app/components/ui/popover';
 import { Skeleton } from 'app/components/ui/skeleton';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { CookieContext } from 'app/providers/cookie-context';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -105,18 +104,7 @@ type MapMarkerFormValues = {
   color: MapMarker['color'];
 };
 
-const getContrastingTextClassName = (hexColor: string) => {
-  const red = Number.parseInt(hexColor.slice(1, 3), 16);
-  const green = Number.parseInt(hexColor.slice(3, 5), 16);
-  const blue = Number.parseInt(hexColor.slice(5, 7), 16);
-  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
-
-  return luminance > 160
-    ? 'text-black hover:text-black'
-    : 'text-white hover:text-white';
-};
-
-const TileModalMarkerAction = ({
+const TileModalMarker = ({
   tile,
   mapMarkersByTileId,
   createMapMarker,
@@ -124,8 +112,6 @@ const TileModalMarkerAction = ({
 }: TileModalProps & TileModalMarkerProps) => {
   const { t } = useTranslation();
   const marker = mapMarkersByTileId.get(tile.id);
-  const label = marker ? t('Edit map marker') : t('Create map marker');
-  const [isOpen, setIsOpen] = useState(false);
   const form = useForm<MapMarkerFormValues>({
     defaultValues: {
       description: '',
@@ -148,102 +134,69 @@ const TileModalMarkerAction = ({
       description: description.trim(),
       color,
     });
-
-    form.reset();
-    setIsOpen(false);
   });
 
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={setIsOpen}
+    <form
+      className="flex flex-col gap-4"
+      onSubmit={onSubmit}
     >
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={label}
-          className={clsx(
-            'absolute top-1.5 right-12 rounded-xs',
-            marker && getContrastingTextClassName(marker.color),
-          )}
-          size="icon"
-          style={marker ? { backgroundColor: marker.color } : undefined}
-          title={label}
-          variant={marker ? 'ghost' : 'outline'}
-        >
-          <Icon
-            className="size-4"
-            shouldShowTooltip={false}
-            type="mapMarker"
-          />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-72"
-        side="bottom"
-      >
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={onSubmit}
-        >
-          <div className="flex flex-col gap-2">
-            <Label htmlFor={`map-marker-description-${tile.id}`}>
-              {t('Description')}
-            </Label>
-            <Input
-              id={`map-marker-description-${tile.id}`}
-              maxLength={120}
-              placeholder={t('Map marker description')}
-              {...form.register('description')}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={`map-marker-description-${tile.id}`}>
+          {t('Description')}
+        </Label>
+        <Input
+          id={`map-marker-description-${tile.id}`}
+          maxLength={120}
+          placeholder={t('Map marker description')}
+          {...form.register('description')}
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">{t('Color')}</span>
+        <div className="flex flex-wrap gap-2">
+          {mapMarkerColorPresets.map((markerColor) => (
+            <button
+              aria-pressed={color === markerColor}
+              aria-label={t('{{color}} marker', {
+                color: markerColor,
+              })}
+              className={clsx(
+                'size-8 rounded-full border border-border outline-none transition-all focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+                color === markerColor && 'ring-2 ring-ring ring-offset-2',
+              )}
+              key={markerColor}
+              onClick={() =>
+                form.setValue('color', markerColor, {
+                  shouldDirty: true,
+                })
+              }
+              style={{ backgroundColor: markerColor }}
+              type="button"
             />
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">{t('Color')}</span>
-            <div className="flex gap-2">
-              {mapMarkerColorPresets.map((markerColor) => (
-                <button
-                  aria-label={t('{{color}} marker', {
-                    color: markerColor,
-                  })}
-                  className={clsx(
-                    'size-8 rounded-full border border-border outline-none transition-all focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-                    color === markerColor && 'ring-2 ring-ring ring-offset-2',
-                  )}
-                  key={markerColor}
-                  onClick={() =>
-                    form.setValue('color', markerColor, {
-                      shouldDirty: true,
-                    })
-                  }
-                  style={{ backgroundColor: markerColor }}
-                  type="button"
-                />
-              ))}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              className="flex-1"
-              type="submit"
-            >
-              {marker ? t('Update map marker') : t('Create map marker')}
-            </Button>
-            {marker && (
-              <Button
-                onClick={() => {
-                  deleteMapMarker({ tileId: tile.id });
-                  setIsOpen(false);
-                }}
-                type="button"
-                variant="destructive"
-              >
-                {t('Delete')}
-              </Button>
-            )}
-          </div>
-        </form>
-      </PopoverContent>
-    </Popover>
+          ))}
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button
+          className="w-fit"
+          type="submit"
+        >
+          {marker ? t('Update map marker') : t('Create map marker')}
+        </Button>
+        {marker && (
+          <Button
+            onClick={() => {
+              deleteMapMarker({ tileId: tile.id });
+            }}
+            type="button"
+            variant="destructive"
+          >
+            {t('Delete')}
+          </Button>
+        )}
+      </div>
+    </form>
   );
 };
 
@@ -396,17 +349,8 @@ const OasisTileModal = ({
   const _canAttackOrRaid =
     isOccupiable && (!isOccupied || tile.owner.id !== PLAYER_ID);
 
-  const title = (() => {
-    if (!isOccupiable) {
-      return t('Wilderness');
-    }
-    return isOccupied ? t('Occupied oasis') : t('Unoccupied oasis');
-  })();
-
   return (
     <DialogHeader>
-      <DialogTitle>{title}</DialogTitle>
-      <TileModalLocation tile={tile} />
       <DialogDescription>
         {!isOccupiable && t('This is an un-occupiable oasis.')}
         {isOccupiable && (
@@ -574,8 +518,6 @@ const OccupiableTileModal = ({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>{t('Abandoned valley')}</DialogTitle>
-        <TileModalLocation tile={tile} />
         <TileModalResources tile={tile} />
         <DialogDescription>
           {t(
@@ -654,7 +596,7 @@ const OccupiedOccupiableTileModal = ({
 
   const { owner, ownerVillage } = tile;
   const { id: playerId } = owner;
-  const { name: villageName, slug: villageSlug } = ownerVillage;
+  const { slug: villageSlug } = ownerVillage;
 
   const isOwnedByPlayer = playerId === PLAYER_ID;
   const isNpcVillage = owner.faction !== 'player';
@@ -662,8 +604,6 @@ const OccupiedOccupiableTileModal = ({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>{villageName}</DialogTitle>
-        <TileModalLocation tile={tile} />
         <TileModalResources tile={tile} />
         <DialogDescription>
           {isOwnedByPlayer
@@ -715,6 +655,57 @@ const OccupiedOccupiableTileModal = ({
   );
 };
 
+const TileModalReports = ({ tile }: TileModalProps) => {
+  const { t } = useTranslation();
+  const { locale } = use(CookieContext);
+  const { reports } = useReports();
+  const tileReports = reports
+    .filter((report) => {
+      if (report.type !== 'battle' && report.type !== 'scouting') {
+        return false;
+      }
+
+      const { x, y } = report.summary.targetCoordinates;
+      return x === tile.coordinates.x && y === tile.coordinates.y;
+    })
+    .sort((a, b) => b.timestamp - a.timestamp || b.id - a.id)
+    .slice(0, 10);
+
+  if (tileReports.length === 0) {
+    return <Text>{t('No reports found yet.')}</Text>;
+  }
+
+  return (
+    <ul className="flex flex-col divide-y divide-border">
+      {tileReports.map((report) => (
+        <li key={report.id}>
+          <Link
+            className="flex gap-2 py-2 text-sm hover:bg-accent"
+            to={`../reports/${report.id}`}
+          >
+            <Icon
+              className="size-4 shrink-0"
+              type={report.outcome}
+            />
+            <span className="flex min-w-0 flex-col gap-1">
+              <Text variant="link">{getReportSubject(report, t)}</Text>
+              <time
+                className="text-xs text-muted-foreground"
+                dateTime={new Date(report.timestamp).toISOString()}
+              >
+                {new Date(report.timestamp).toLocaleString(locale, {
+                  dateStyle: 'short',
+                  timeStyle: 'short',
+                })}
+              </time>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+};
+
 export const TileDialog = ({
   tile,
   mapMarkersByTileId,
@@ -725,75 +716,91 @@ export const TileDialog = ({
   onReinforceVillage,
   onSendResources,
 }: TileDialogProps) => {
-  if (!tile) {
+  const { t } = useTranslation();
+  if (!tile || (!isOasisTile(tile) && !isOccupiableTile(tile))) {
     return null;
   }
-
-  if (isOasisTile(tile)) {
-    return (
-      <DialogContent>
-        <TileModalMarkerAction
-          createMapMarker={createMapMarker}
-          deleteMapMarker={deleteMapMarker}
-          mapMarkersByTileId={mapMarkersByTileId}
-          tile={tile}
-        />
-        <OasisTileModal
-          tile={tile}
-          onAttackOrRaid={onAttackOrRaid}
-          onReinforceVillage={onReinforceVillage}
-        />
-        <TileModalMarkerDescription
-          mapMarkersByTileId={mapMarkersByTileId}
-          tile={tile}
-        />
-      </DialogContent>
-    );
-  }
-
-  if (isOccupiedOccupiableTile(tile)) {
-    return (
-      <DialogContent>
-        <TileModalMarkerAction
-          createMapMarker={createMapMarker}
-          deleteMapMarker={deleteMapMarker}
-          mapMarkersByTileId={mapMarkersByTileId}
-          tile={tile}
-        />
-        <OccupiedOccupiableTileModal
-          tile={tile}
-          onAttackOrRaid={onAttackOrRaid}
-          onReinforceVillage={onReinforceVillage}
-          onSendResources={onSendResources}
-        />
-        <TileModalMarkerDescription
-          mapMarkersByTileId={mapMarkersByTileId}
-          tile={tile}
-        />
-      </DialogContent>
-    );
-  }
-
-  if (isOccupiableTile(tile)) {
-    return (
-      <DialogContent>
-        <TileModalMarkerAction
-          createMapMarker={createMapMarker}
-          deleteMapMarker={deleteMapMarker}
-          mapMarkersByTileId={mapMarkersByTileId}
-          tile={tile}
-        />
-        <OccupiableTileModal
-          tile={tile}
-          onFoundNewVillage={onFoundNewVillage}
-        />
-        <TileModalMarkerDescription
-          mapMarkersByTileId={mapMarkersByTileId}
-          tile={tile}
-        />
-      </DialogContent>
-    );
-  }
-
-  return null;
+  const hasReports =
+    isOccupiedOccupiableTile(tile) || isOccupiableOasisTile(tile);
+  const title = (() => {
+    if (isOasisTile(tile)) {
+      if (!isOccupiableOasisTile(tile)) {
+        return t('Wilderness');
+      }
+      return isOccupiedOasisTile(tile)
+        ? t('Occupied oasis')
+        : t('Unoccupied oasis');
+    }
+    return isOccupiedOccupiableTile(tile)
+      ? tile.ownerVillage.name
+      : t('Abandoned valley');
+  })();
+  return (
+    <DialogContent aria-describedby={undefined}>
+      <DialogHeader className="pr-6">
+        <DialogTitle>{title}</DialogTitle>
+        <TileModalLocation tile={tile} />
+      </DialogHeader>
+      <Tabs
+        key={tile.id}
+        defaultValue="general"
+        className="min-w-0"
+      >
+        <TabList aria-label={t('Tile information')}>
+          <Tab value="general">{t('General')}</Tab>
+          <Tab value="marker">{t('Map marker')}</Tab>
+          {hasReports && <Tab value="reports">{t('Reports')}</Tab>}
+        </TabList>
+        <TabPanel
+          value="general"
+          className="flex flex-col gap-4 border-0 p-0 pt-2"
+        >
+          {isOasisTile(tile) ? (
+            <OasisTileModal
+              tile={tile}
+              onAttackOrRaid={onAttackOrRaid}
+              onReinforceVillage={onReinforceVillage}
+            />
+          ) : isOccupiedOccupiableTile(tile) ? (
+            <OccupiedOccupiableTileModal
+              tile={tile}
+              onAttackOrRaid={onAttackOrRaid}
+              onReinforceVillage={onReinforceVillage}
+              onSendResources={onSendResources}
+            />
+          ) : (
+            <OccupiableTileModal
+              tile={tile}
+              onFoundNewVillage={onFoundNewVillage}
+            />
+          )}
+          <TileModalMarkerDescription
+            mapMarkersByTileId={mapMarkersByTileId}
+            tile={tile}
+          />
+        </TabPanel>
+        <TabPanel
+          value="marker"
+          className="border-0 p-0 pt-2"
+        >
+          <TileModalMarker
+            createMapMarker={createMapMarker}
+            deleteMapMarker={deleteMapMarker}
+            mapMarkersByTileId={mapMarkersByTileId}
+            tile={tile}
+          />
+        </TabPanel>
+        {hasReports && (
+          <TabPanel
+            value="reports"
+            className="border-0 p-0 pt-2"
+          >
+            <Suspense fallback={<Skeleton className="h-24 w-full" />}>
+              <TileModalReports tile={tile} />
+            </Suspense>
+          </TabPanel>
+        )}
+      </Tabs>
+    </DialogContent>
+  );
 };
