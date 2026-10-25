@@ -418,6 +418,8 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     context.header('Content-Length', String(upload.expectedBytes));
     context.header('X-World-Size', String(upload.expectedBytes));
 
+    store.recordDownload(upload.id);
+
     return context.body(
       Readable.toWeb(
         createReadStream(getUploadPaths(config, upload).completed),
@@ -444,7 +446,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
       await removeUploadFiles(config, upload);
     }
 
-    store.deleteWorld(worldId);
+    store.deleteWorld(worldId, 'imported');
 
     return context.body(null, 204);
   });
@@ -790,6 +792,10 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     };
   };
 
+  app.get('/api/admin/statistics', (context) =>
+    context.json(store.getStatistics()),
+  );
+
   app.get('/api/admin/reports', (context) =>
     context.json({ reports: store.listReports().map(getAdminReport) }),
   );
@@ -840,6 +846,10 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     }
 
     const path = getUploadPaths(config, upload).completed;
+
+    if (context.req.method !== 'HEAD') {
+      store.recordDownload(upload.id);
+    }
 
     context.header(
       'Content-Disposition',
