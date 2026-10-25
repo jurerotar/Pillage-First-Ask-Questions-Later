@@ -42,18 +42,15 @@ import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from 'app/components/ui/dialog';
 import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from 'app/components/ui/popover';
 import { Skeleton } from 'app/components/ui/skeleton';
 
 type TileModalResourcesProps = {
@@ -105,17 +102,6 @@ type MapMarkerFormValues = {
   color: MapMarker['color'];
 };
 
-const getContrastingTextClassName = (hexColor: string) => {
-  const red = Number.parseInt(hexColor.slice(1, 3), 16);
-  const green = Number.parseInt(hexColor.slice(3, 5), 16);
-  const blue = Number.parseInt(hexColor.slice(5, 7), 16);
-  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
-
-  return luminance > 160
-    ? 'text-black hover:text-black'
-    : 'text-white hover:text-white';
-};
-
 const TileModalMarkerAction = ({
   tile,
   mapMarkersByTileId,
@@ -153,12 +139,14 @@ const TileModalMarkerAction = ({
     setIsOpen(false);
   });
 
+  // Nested Dialog (not Popover): modal Dialog sets pointer-events:none on body,
+  // so portaled Popovers inherit it and become unclickable regardless of z-index.
   return (
-    <Popover
+    <Dialog
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      <PopoverTrigger asChild>
+      <DialogTrigger asChild>
         <Button
           aria-label={label}
           className={clsx(
@@ -176,12 +164,14 @@ const TileModalMarkerAction = ({
             type="mapMarker"
           />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-72"
-        side="bottom"
+      </DialogTrigger>
+      <DialogContent
+        aria-describedby={undefined}
+        className="sm:max-w-sm"
       >
+        <DialogHeader>
+          <DialogTitle>{label}</DialogTitle>
+        </DialogHeader>
         <form
           className="flex flex-col gap-4"
           onSubmit={onSubmit}
@@ -242,9 +232,20 @@ const TileModalMarkerAction = ({
             )}
           </div>
         </form>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
+};
+
+const getContrastingTextClassName = (hexColor: string) => {
+  const red = Number.parseInt(hexColor.slice(1, 3), 16);
+  const green = Number.parseInt(hexColor.slice(3, 5), 16);
+  const blue = Number.parseInt(hexColor.slice(5, 7), 16);
+  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
+
+  return luminance > 160
+    ? 'text-black hover:text-black'
+    : 'text-white hover:text-white';
 };
 
 type TileModalMarkerDescriptionProps = {
