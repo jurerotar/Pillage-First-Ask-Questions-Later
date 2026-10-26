@@ -1,16 +1,13 @@
 import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import type { VillageStorageResourceDto } from '@pillage-first/types/dtos/village';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import {
-  type Resource,
-  resourceSchema,
-} from '@pillage-first/types/models/resource';
+import type { Resource, Resources } from '@pillage-first/types/models/resource';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
 
 export type StorageDelivery = {
   source: keyof VillageStorageResourceDto['incoming'];
   arrivesAt: number;
-  resources: number[];
+  resources: Resources;
 };
 
 export type StorageDeliveryEvent = GameEvent<
@@ -25,7 +22,7 @@ export const getStorageDeliveries = (
 
   for (const event of events) {
     let source: StorageDelivery['source'];
-    let resources: number[];
+    let resources: Resources;
 
     switch (event.type) {
       case 'gatherersHutGatheringTrip': {
@@ -34,22 +31,29 @@ export const getStorageDeliveries = (
           troopAmount += troop.amount;
         }
         source = 'gathering';
-        resources = calculateGatherersHutGatheringResources(troopAmount);
+        const [wood, clay, iron, wheat] =
+          calculateGatherersHutGatheringResources(troopAmount);
+        resources = { wood, clay, iron, wheat };
         break;
       }
       case 'resourceTransfer': {
-        const { wood, clay, iron, wheat } = event.resources;
         source = 'marketplace';
-        resources = [wood, clay, iron, wheat];
+        resources = event.resources;
         break;
       }
-      case 'troopMovementReturn':
+      case 'troopMovementReturn': {
+        if (!event.loot) {
+          continue;
+        }
+
+        const [wood, clay, iron, wheat] = event.loot;
         source = 'troops';
-        resources = event.loot ?? [];
+        resources = { wood, clay, iron, wheat };
         break;
+      }
     }
 
-    if (!resources.some((amount) => amount > 0)) {
+    if (!Object.values(resources).some((amount) => amount > 0)) {
       continue;
     }
 
@@ -75,7 +79,6 @@ export const getStorageBoundaryTime = (
 ): number | null => {
   const rate = hourlyProduction / 3_600_000;
   const isDepleting = rate < 0;
-  const resourceIndex = resourceSchema.options.indexOf(resource);
   let amount = Math.min(capacity, Math.max(0, stored));
   let time = now;
 
@@ -110,10 +113,7 @@ export const getStorageBoundaryTime = (
       timestamp: delivery.arrivesAt,
     });
 
-    amount = Math.min(
-      capacity,
-      currentAmount + delivery.resources[resourceIndex],
-    );
+    amount = Math.min(capacity, currentAmount + delivery.resources[resource]);
 
     // Deliveries save whole units and restart production at their arrival time.
     time = delivery.arrivesAt;

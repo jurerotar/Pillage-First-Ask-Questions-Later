@@ -64,7 +64,7 @@ export const getVillageStorage = createController(
       const incoming = { gathering: 0, marketplace: 0, troops: 0 };
 
       for (const delivery of deliveries) {
-        incoming[delivery.source] += delivery.resources[index];
+        incoming[delivery.source] += delivery.resources[resource];
       }
 
       const boundary = getStorageBoundaryTime(

@@ -11,7 +11,7 @@ const hour = 3_600_000;
 const delivery = (arrivesAt: number, amount: number): StorageDelivery => ({
   source: 'marketplace',
   arrivesAt,
-  resources: [amount, amount, amount, amount],
+  resources: { wood: amount, clay: amount, iron: amount, wheat: amount },
 });
 
 describe('storage boundary forecasts', () => {
@@ -83,7 +83,7 @@ describe('storage boundary forecasts', () => {
           {
             source: 'marketplace',
             arrivesAt: hour / 2,
-            resources: [0, 1, 0, 0],
+            resources: { wood: 0, clay: 1, iron: 0, wheat: 0 },
           },
         ],
         0,
@@ -200,13 +200,21 @@ describe('incoming storage deliveries', () => {
         { ...gathering, troops: [] },
       ]),
     ).toEqual([
-      { source: 'gathering', arrivesAt: hour, resources: [10, 10, 10, 10] },
+      {
+        source: 'gathering',
+        arrivesAt: hour,
+        resources: { wood: 10, clay: 10, iron: 10, wheat: 10 },
+      },
       {
         source: 'marketplace',
         arrivesAt: hour,
-        resources: [100, 200, 300, 400],
+        resources: { wood: 100, clay: 200, iron: 300, wheat: 400 },
       },
-      { source: 'troops', arrivesAt: hour, resources: [10, 20, 30, 40] },
+      {
+        source: 'troops',
+        arrivesAt: hour,
+        resources: { wood: 10, clay: 20, iron: 30, wheat: 40 },
+      },
     ]);
   });
 });
