@@ -104,6 +104,7 @@ import {
   deleteReports,
   getReport,
   getReports,
+  getTileReports,
   updateReports,
 } from './controllers/report-controllers';
 import { getReputations } from './controllers/reputation-controllers';
@@ -266,6 +267,7 @@ export const apiRoutes = [
 
   // Reports
   createRoute(getReports),
+  createRoute(getTileReports),
   createRoute(getReport),
   createRoute(updateReports),
   createRoute(deleteReports),

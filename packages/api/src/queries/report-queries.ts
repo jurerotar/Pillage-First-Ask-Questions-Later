@@ -1,4 +1,4 @@
-export const selectReportListingsQuery = `
+const selectReportListingsBaseQuery = `
   SELECT
     r.id,
     r.village_id,
@@ -168,6 +168,31 @@ export const selectReportListingsQuery = `
   LEFT JOIN building_ids scheduled_construction_bi ON scheduled_construction_bi.id = sccr.building_id
   LEFT JOIN villages scheduled_construction_v ON scheduled_construction_v.id = sccr.village_id
   LEFT JOIN tiles scheduled_construction_t ON scheduled_construction_t.id = scheduled_construction_v.tile_id
+`;
+
+export const selectTileReportListingsQuery = `
+  WITH tile_reports AS (
+    SELECT r.id AS id, r.timestamp AS timestamp
+    FROM battle_reports b
+    JOIN reports r ON r.id = b.report_id
+    JOIN villages v ON v.id = r.village_id
+    WHERE b.target_tile_id = $tile_id AND v.player_id = $player_id
+    UNION ALL
+    SELECT r.id AS id, r.timestamp AS timestamp
+    FROM scouting_reports sr
+    JOIN reports r ON r.id = sr.report_id
+    JOIN villages v ON v.id = r.village_id
+    WHERE sr.target_tile_id = $tile_id AND v.player_id = $player_id
+    ORDER BY timestamp DESC, id DESC
+    LIMIT 10
+  )
+  ${selectReportListingsBaseQuery}
+  JOIN tile_reports ON tile_reports.id = r.id
+  ORDER BY r.timestamp DESC, r.id DESC;
+`;
+
+export const selectReportListingsQuery = `
+  ${selectReportListingsBaseQuery}
   WHERE
     ($scope != 'village' OR r.village_id = $village_id)
     AND (

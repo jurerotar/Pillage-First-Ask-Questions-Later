@@ -34,8 +34,8 @@ import { useMarketplaceMerchants } from 'app/(game)/(village-slug)/(village)/(..
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
+import { useTileReports } from 'app/(game)/(village-slug)/hooks/use-tile-reports';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
@@ -658,18 +658,7 @@ const OccupiedOccupiableTileModal = ({
 const TileModalReports = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
   const { locale } = use(CookieContext);
-  const { reports } = useReports();
-  const tileReports = reports
-    .filter((report) => {
-      if (report.type !== 'battle' && report.type !== 'scouting') {
-        return false;
-      }
-
-      const { x, y } = report.summary.targetCoordinates;
-      return x === tile.coordinates.x && y === tile.coordinates.y;
-    })
-    .sort((a, b) => b.timestamp - a.timestamp || b.id - a.id)
-    .slice(0, 10);
+  const { reports: tileReports } = useTileReports(tile.id);
 
   if (tileReports.length === 0) {
     return <Text>{t('No reports found yet.')}</Text>;
