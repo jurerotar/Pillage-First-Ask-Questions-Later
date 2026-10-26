@@ -189,7 +189,7 @@ export const CombatSimulatorDefenderControlsRow = ({
                       <LevelInputPopover
                         id="combat-simulator-defender-trap-count"
                         label={trapCountLabel}
-                        max={400}
+                        max={10_000}
                         value={state.defender.village.trapCount}
                         onValueChange={setDefenderTrapCount}
                       />

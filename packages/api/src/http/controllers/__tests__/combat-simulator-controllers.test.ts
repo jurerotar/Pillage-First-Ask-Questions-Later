@@ -33,7 +33,7 @@ const createState = (): CombatSimulatorState => {
       tribe: 'gauls',
       troops: [{ unitId: 'PHALANX', amount: 50, smithyImprovementLevel: 0 }],
       heroStats,
-      village: { wallLevel: 20, residenceLevel: 20, trapCount: 400 },
+      village: { wallLevel: 20, residenceLevel: 20, trapCount: 1200 },
       reinforcements: [
         {
           id: 'reinforcement-1',

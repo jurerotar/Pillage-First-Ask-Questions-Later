@@ -405,7 +405,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
         ...prevState.defender,
         village: {
           ...prevState.defender.village,
-          trapCount: clampInteger(trapCount, 0, 400),
+          trapCount: clampInteger(trapCount, 0, 10_000),
         },
       },
     }));

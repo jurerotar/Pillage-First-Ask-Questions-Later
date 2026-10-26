@@ -92,7 +92,7 @@ export const combatSimulatorStateSchema = z.strictObject({
     village: z.strictObject({
       wallLevel: improvementLevelSchema,
       residenceLevel: improvementLevelSchema,
-      trapCount: z.int().min(0).max(400),
+      trapCount: z.int().min(0).max(10_000),
     }),
     reinforcements: z.array(
       participantSchema.omit({ heroStats: true }).extend({
