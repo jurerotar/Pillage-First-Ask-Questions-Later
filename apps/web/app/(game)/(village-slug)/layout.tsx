@@ -627,8 +627,8 @@ const TopNavigation = ({
     <header className="flex flex-col w-full px-safe-or-2 pb-1 lg:px-safe lg:py-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200 dark:from-muted/60 dark:via-card dark:to-muted/60">
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
-          <div className="hidden lg:flex w-full bg-muted py-1 px-2">
-            <nav className="hidden lg:flex justify-between container mx-auto">
+          <div className="hidden lg:flex w-full bg-muted py-1">
+            <nav className="hidden lg:flex justify-between container mx-auto px-2">
               <ul className="flex gap-1">
                 <li>
                   <DesktopTopRowItem
@@ -722,7 +722,7 @@ const TopNavigation = ({
               </ul>
             </nav>
           </div>
-          <div className="flex justify-between container mx-2 xl:mx-auto">
+          <div className="flex justify-between container mx-auto px-2">
             <div className="flex flex-1 items-center gap-2">
               <Suspense fallback={null}>
                 <VillageSelect />
