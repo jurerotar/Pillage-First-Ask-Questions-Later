@@ -151,4 +151,30 @@ describe(Tabs, () => {
       expect(result.queryByRole('button', { name: 'More' })).toBeNull();
     });
   });
+
+  test('keeps the overflow menu interactive inside a modal dialog', () => {
+    using result = renderTabs(220, true);
+
+    fireEvent.click(result.getByRole('button', { name: 'More' }));
+
+    const inventory = result.getByRole('button', { name: 'Inventory' });
+    const menu = inventory.closest<HTMLElement>(
+      '[data-slot="popover-content"]',
+    );
+    expect(menu).not.toBeNull();
+    expect(menu!.style.pointerEvents).toBe('auto');
+    expect(
+      result.getByRole('dialog', { name: 'Tile information' }).contains(menu),
+    ).toBe(false);
+
+    fireEvent.click(inventory);
+
+    expect(result.getByText('Inventory panel').hasAttribute('hidden')).toBe(
+      false,
+    );
+    expect(result.queryByRole('button', { name: 'Inventory' })).toBeNull();
+    expect(
+      result.getByRole('dialog', { name: 'Tile information' }),
+    ).not.toBeNull();
+  });
 });
