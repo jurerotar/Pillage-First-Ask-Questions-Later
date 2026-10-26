@@ -183,6 +183,10 @@ export const selectTroopMovementsByTileIdQuery = `
         )
       )
     )
+    AND NOT (
+      JSON_EXTRACT(e.meta, '$.targetTileId') = $tile_id
+      AND JSON_EXTRACT(e.meta, '$.scoutingTarget') IS NOT NULL
+    )
   ORDER BY e.resolves_at ASC;
 `;
 
@@ -226,6 +230,10 @@ export const selectTroopMovementStatsByTileIdQuery = `
             AND v2.id = e.village_id
         )
       )
+    )
+    AND NOT (
+      JSON_EXTRACT(e.meta, '$.targetTileId') = $tile_id
+      AND JSON_EXTRACT(e.meta, '$.scoutingTarget') IS NOT NULL
     )
   GROUP BY movement_type;
 `;

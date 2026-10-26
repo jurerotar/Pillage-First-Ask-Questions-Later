@@ -2,7 +2,10 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type { GameEventType } from '@pillage-first/types/models/game-event';
+import type {
+  GameEventType,
+  ScoutingTarget,
+} from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   cancelTroopMovement,
@@ -73,6 +76,7 @@ describe('troop-movement-controllers', () => {
       startsAt: number;
       duration: number;
       originalMovementType?: GameEventType;
+      scoutingTarget?: ScoutingTarget;
     },
   ) =>
     database.selectValue({
@@ -99,6 +103,9 @@ describe('troop-movement-controllers', () => {
           ],
           ...(args.originalMovementType
             ? { originalMovementType: args.originalMovementType }
+            : {}),
+          ...(args.scoutingTarget
+            ? { scoutingTarget: args.scoutingTarget }
             : {}),
         }),
       },
@@ -165,11 +172,113 @@ describe('troop-movement-controllers', () => {
     expect(result[0]).toMatchObject({
       originatingVillageId: currentVillage.id,
       targetTileId: targetVillage.tile_id,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 3,
+          tileId: currentVillage.tile_id,
+          sourceTileId: currentVillage.tile_id,
+        },
+      ],
     });
     expect(result[1]).toMatchObject({
       originatingVillageId: targetVillage.id,
       targetTileId: currentVillage.tile_id,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 3,
+          tileId: targetVillage.tile_id,
+          sourceTileId: targetVillage.tile_id,
+        },
+      ],
     });
+  });
+
+  test('getVillageTroopMovements should hide incoming scouting and keep outgoing scouting', async () => {
+    using database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events' });
+
+    const currentVillage = getPlayerVillage(database);
+    const otherVillage = createVillage(database, 'Scout Target');
+
+    insertTroopMovementEvent(database, {
+      type: 'troopMovementAttack',
+      villageId: otherVillage.id,
+      originTileId: otherVillage.tile_id,
+      targetTileId: currentVillage.tile_id,
+      startsAt: 1000,
+      duration: 500,
+      scoutingTarget: 'resources',
+    });
+
+    insertTroopMovementEvent(database, {
+      type: 'troopMovementAttack',
+      villageId: otherVillage.id,
+      originTileId: otherVillage.tile_id,
+      targetTileId: currentVillage.tile_id,
+      startsAt: 1500,
+      duration: 500,
+    });
+
+    insertTroopMovementEvent(database, {
+      type: 'troopMovementRaid',
+      villageId: currentVillage.id,
+      originTileId: currentVillage.tile_id,
+      targetTileId: otherVillage.tile_id,
+      startsAt: 2000,
+      duration: 500,
+      scoutingTarget: 'defensiveStructures',
+    });
+
+    const result = getVillageTroopMovements(
+      database,
+      createControllerArgs<'/tiles/:tileId/troop-movements'>({
+        path: { tileId: currentVillage.tile_id },
+      }),
+    );
+
+    expect(result).toHaveLength(2);
+    expect(
+      result.map(({ type, originatingVillageId }) => ({
+        type,
+        originatingVillageId,
+      })),
+    ).toStrictEqual([
+      {
+        type: 'troopMovementAttack',
+        originatingVillageId: otherVillage.id,
+      },
+      {
+        type: 'troopMovementRaid',
+        originatingVillageId: currentVillage.id,
+      },
+    ]);
+
+    const stats = getVillageTroopMovementStats(
+      database,
+      createControllerArgs<'/tiles/:tileId/troop-movements/stats'>({
+        path: { tileId: currentVillage.tile_id },
+      }),
+    );
+
+    expect(stats).toStrictEqual(
+      expect.arrayContaining([
+        {
+          type: 'offensiveMovementIncoming',
+          count: 1,
+          earliestResolvesAt: 2000,
+        },
+        {
+          type: 'offensiveMovementOutgoing',
+          count: 1,
+          earliestResolvesAt: 2500,
+        },
+      ]),
+    );
+    expect(
+      stats.find((stat) => stat.type === 'offensiveMovementIncoming')?.count,
+    ).toBe(1);
   });
 
   test('getVillageTroopMovementStats should group movements by direction and purpose', async () => {
