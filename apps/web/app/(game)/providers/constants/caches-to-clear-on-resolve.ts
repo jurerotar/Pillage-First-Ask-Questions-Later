@@ -264,7 +264,6 @@ export const cachesToClearOnResolve: Handlers = {
     return affectedVillageIds.flatMap((villageId) => [
       [culturePointsCacheKey, villageId],
       [eventsCacheKey, 'culturePointsCelebration', villageId],
-      [eventsHistoryCacheKey, villageId],
     ]);
   },
 };

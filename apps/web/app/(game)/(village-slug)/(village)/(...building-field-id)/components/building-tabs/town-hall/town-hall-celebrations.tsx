@@ -15,13 +15,13 @@ import {
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useCulturePoints } from 'app/(game)/(village-slug)/hooks/use-culture-points';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
+import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import {
   culturePointsCacheKey,
@@ -52,7 +52,7 @@ const CelebrationPanel = ({
     'culturePointsCelebration',
   );
   const { createEvent } = useCreateEvent('culturePointsCelebration');
-  const liveResources = use(CurrentVillageLiveResourcesContext);
+  const liveResources = use(CurrentVillageLiveResourcesSnapshotContext);
 
   const cost = CULTURE_POINTS_CELEBRATION_COSTS[celebrationType];
   const limit = CULTURE_POINTS_CELEBRATION_LIMITS[celebrationType];
@@ -67,7 +67,7 @@ const CelebrationPanel = ({
     townHallLevel,
     serverSpeed,
   });
-  const { hasEnoughResources, errorBag } = useHasEnoughResources(cost);
+  const { hasEnoughResources, errorBag } = useResourceAvailability(cost);
   const activeCelebration = celebrationEvents[0];
   const isLargeCelebrationLocked =
     celebrationType === 'large' && townHallLevel < 10;
