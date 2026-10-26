@@ -1,9 +1,11 @@
 import { clsx } from 'clsx';
+import { useTranslation } from 'react-i18next';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   formatNumberWithCommas,
   truncateToShortForm,
 } from '@pillage-first/utils/format';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
 import { Icon } from 'app/components/icon';
@@ -17,6 +19,7 @@ export const ResourceCounter = ({
   resource,
   showDetails = true,
 }: ResourceCounterProps) => {
+  const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   const {
@@ -25,6 +28,7 @@ export const ResourceCounter = ({
     storageCapacity,
     isFull,
     hasNegativeProduction,
+    storageLimitAt,
   } = useCalculatedResource(resource);
 
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
@@ -54,7 +58,7 @@ export const ResourceCounter = ({
           </span>
         </span>
       </div>
-      <div className="relative flex h-2 lg:h-2.5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
+      <div className="relative flex h-4 lg:h-5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
         <div
           className={clsx(
             isFull || hasNegativeProduction
@@ -67,6 +71,18 @@ export const ResourceCounter = ({
             transform: `scaleX(${storagePercentage / 100})`,
           }}
         />
+        <span className="absolute inset-0 flex items-center justify-center gap-1 whitespace-nowrap text-[10px] lg:text-xs leading-none font-medium tabular-nums text-black [text-shadow:0_0_2px_white,0_0_2px_white]">
+          {storageLimitAt !== null ? (
+            <Countdown endsAt={storageLimitAt} />
+          ) : (
+            <>
+              <span className="sr-only">
+                {isFull ? t('Full') : t('No production')}
+              </span>
+              <span aria-hidden>—</span>
+            </>
+          )}
+        </span>
       </div>
       <div
         aria-hidden={!showDetails}
