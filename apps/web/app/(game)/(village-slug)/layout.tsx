@@ -67,18 +67,18 @@ import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from 'app/components/ui/dropdown-menu';
+import {
   Popover,
   PopoverClose,
   PopoverContent,
   PopoverTrigger,
 } from 'app/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from 'app/components/ui/select';
 import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -560,53 +560,53 @@ const VillageSelect = () => {
   }, [playerVillages, preferences.villageSort]);
 
   return (
-    <Select
-      onValueChange={(value) => {
-        void navigateToVillage(value);
-      }}
-      value={currentVillage.slug}
-    >
-      <SelectTrigger
+    <DropdownMenu>
+      <DropdownMenuTrigger
         title={t('Village select')}
         aria-label={t('Village select')}
         className="flex flex-1"
       >
-        <SelectValue>{currentVillageLabel}</SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {sortedPlayerVillages.map(
-          ({ slug, name, id, coordinates, resourceFieldComposition }) => {
-            const { x, y } = coordinates;
-            const formattedId = `${x}|${y}`;
-            const resources = parseResourcesFromRFC(resourceFieldComposition);
-            const textValue = `${name} (${formattedId}) | ${resources.join('-')}`;
+        <span className="truncate">{currentVillageLabel}</span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuRadioGroup value={currentVillage.slug}>
+          {sortedPlayerVillages.map(
+            ({ slug, name, id, coordinates, resourceFieldComposition }) => {
+              const { x, y } = coordinates;
+              const formattedId = `${x}|${y}`;
+              const resources = parseResourcesFromRFC(resourceFieldComposition);
+              const textValue = `${name} (${formattedId}) | ${resources.join('-')}`;
 
-            return (
-              <SelectItem
-                key={id}
-                textValue={textValue}
-                value={slug}
-              >
-                <Text
-                  as="span"
-                  className="flex min-w-0 flex-col gap-0.5 text-xs sm:text-sm"
+              return (
+                <DropdownMenuRadioItem
+                  key={id}
+                  textValue={textValue}
+                  value={slug}
+                  onSelect={() => {
+                    void navigateToVillage(slug);
+                  }}
                 >
-                  <span className="truncate font-medium">
-                    {name} ({formattedId})
-                  </span>
-                  <span className="inline-flex gap-2 text-muted-foreground">
-                    <Resources
-                      iconClassName="size-3.5"
-                      resources={resources}
-                    />
-                  </span>
-                </Text>
-              </SelectItem>
-            );
-          },
-        )}
-      </SelectContent>
-    </Select>
+                  <Text
+                    as="span"
+                    className="flex min-w-0 flex-col gap-0.5 text-xs sm:text-sm"
+                  >
+                    <span className="truncate font-medium">
+                      {name} ({formattedId})
+                    </span>
+                    <span className="inline-flex gap-2 text-muted-foreground">
+                      <Resources
+                        iconClassName="size-3.5"
+                        resources={resources}
+                      />
+                    </span>
+                  </Text>
+                </DropdownMenuRadioItem>
+              );
+            },
+          )}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

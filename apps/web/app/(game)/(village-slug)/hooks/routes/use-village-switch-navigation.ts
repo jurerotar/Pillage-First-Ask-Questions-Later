@@ -78,6 +78,9 @@ export const useVillageSwitchNavigation = () => {
   const navigateToVillage = useCallback(
     async (villageSlug: string) => {
       if (villageSlug === currentVillage.slug) {
+        if (pathname === `${getVillageBasePath(villageSlug)}/map`) {
+          await navigate(pathname);
+        }
         return;
       }
 
