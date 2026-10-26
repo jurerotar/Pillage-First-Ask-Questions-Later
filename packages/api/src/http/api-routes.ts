@@ -126,6 +126,7 @@ import {
 import { getTrapperCageStats } from './controllers/trapper-controllers';
 import {
   cancelTroopMovement,
+  getTileTroopMovements,
   getVillageTroopMovementStats,
   getVillageTroopMovements,
   validateTroopMovement,
@@ -290,6 +291,7 @@ export const apiRoutes = [
   createRoute(getTileLoyalty),
 
   // Troop Movements
+  createRoute(getTileTroopMovements),
   createRoute(getVillageTroopMovements),
   createRoute(getVillageTroopMovementStats),
   createRoute(validateTroopMovement),

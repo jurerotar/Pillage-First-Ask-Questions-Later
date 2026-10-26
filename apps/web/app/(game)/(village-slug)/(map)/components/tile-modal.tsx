@@ -31,11 +31,13 @@ import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-troops';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
 import { useMarketplaceMerchants } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/marketplace/hooks/use-marketplace-merchants';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useTileReports } from 'app/(game)/(village-slug)/hooks/use-tile-reports';
+import { useTileTroopMovements } from 'app/(game)/(village-slug)/hooks/use-tile-troop-movements';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
@@ -53,6 +55,7 @@ import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { useIntl } from 'app/hooks/use-intl';
 import { CookieContext } from 'app/providers/cookie-context';
 
 type TileModalResourcesProps = {
@@ -655,6 +658,81 @@ const OccupiedOccupiableTileModal = ({
   );
 };
 
+const TileModalMovements = ({ tile }: TileModalProps) => {
+  const { t } = useTranslation();
+  const intl = useIntl();
+  const { troopMovements: movements } = useTileTroopMovements(tile.id);
+
+  const labels = {
+    troopMovementReinforcements: t('Reinforcements'),
+    troopMovementRelocation: t('Troop relocation'),
+    troopMovementReturn: t('Returning troops'),
+    troopMovementFindNewVillage: t('Settlers'),
+    troopMovementAttack: t('Attack'),
+    troopMovementRaid: t('Raid'),
+    troopMovementOasisOccupation: t('Oasis occupation'),
+  };
+
+  if (movements.length === 0) {
+    return <Text>{t('No troop movements involving this tile.')}</Text>;
+  }
+
+  return (
+    <ul className="flex max-h-[min(20rem,50dvh)] flex-col divide-y divide-border overflow-y-auto overscroll-contain">
+      {movements.map((movement) => {
+        const isIncoming = movement.targetTileId === tile.id;
+        const isOffensive =
+          movement.type === 'troopMovementAttack' ||
+          movement.type === 'troopMovementRaid' ||
+          movement.type === 'troopMovementOasisOccupation';
+        const icon =
+          movement.type === 'troopMovementFindNewVillage'
+            ? 'findNewVillage'
+            : isOffensive
+              ? isIncoming
+                ? 'offensiveMovementIncoming'
+                : 'offensiveMovementOutgoing'
+              : isIncoming
+                ? 'deploymentIncoming'
+                : 'deploymentOutgoing';
+
+        return (
+          <li
+            key={movement.id}
+            className="flex shrink-0 items-center gap-2 py-2 text-sm"
+          >
+            <Icon
+              type={icon}
+              className="size-4 shrink-0"
+              shouldShowTooltip={false}
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <Text className="font-medium">{labels[movement.type]}</Text>
+              <Text className="text-muted-foreground">
+                {movement.originName} ({movement.originCoordinates.x}|
+                {movement.originCoordinates.y}){' → '}
+                {movement.targetName} ({movement.targetCoordinates.x}|
+                {movement.targetCoordinates.y})
+              </Text>
+              <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 tabular-nums">
+                <span>
+                  {t('Arrives in')} <Countdown endsAt={movement.resolvesAt} />
+                </span>
+                <time
+                  dateTime={new Date(movement.resolvesAt).toISOString()}
+                  className="text-muted-foreground"
+                >
+                  {intl.dateTime.format(movement.resolvesAt)}
+                </time>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+
 const TileModalReports = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
   const { locale } = use(CookieContext);
@@ -738,6 +816,7 @@ export const TileDialog = ({
         <TabList aria-label={t('Tile information')}>
           <Tab value="general">{t('General')}</Tab>
           <Tab value="marker">{t('Map marker')}</Tab>
+          <Tab value="movements">{t('Movements')}</Tab>
           {hasReports && <Tab value="reports">{t('Reports')}</Tab>}
         </TabList>
         <TabPanel
@@ -778,6 +857,14 @@ export const TileDialog = ({
             mapMarkersByTileId={mapMarkersByTileId}
             tile={tile}
           />
+        </TabPanel>
+        <TabPanel
+          value="movements"
+          className="border-0 p-0 pt-2"
+        >
+          <Suspense fallback={<Skeleton className="h-24 w-full" />}>
+            <TileModalMovements tile={tile} />
+          </Suspense>
         </TabPanel>
         {hasReports && (
           <TabPanel
