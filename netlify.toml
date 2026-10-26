@@ -1,19 +1,21 @@
 [build]
-command = "npm run inject-graphics && turbo run build && node scripts/generate-indexnow-manifest.ts"
+command = "npm run inject-graphics && npm run build --workspace=@pillage-first/web && node scripts/generate-indexnow-manifest.ts"
 publish = "apps/web/build/client"
 image = "ubuntu-24.04"
 
 # build envs
 [build.environment]
 NODE_VERSION = "24.22.1"
+NPM_VERSION = "12.0.1"
+NPM_FLAGS = "--workspace=@pillage-first/web --include-workspace-root=false --no-audit --no-fund"
 
 # branch-deploy
 [context.branch-deploy]
-command = "npm run inject-graphics && turbo run build:dev"
+command = "npm run inject-graphics && npm run build:dev --workspace=@pillage-first/web"
 
 # deploy-preview
 [context.deploy-preview]
-command = "npm run inject-graphics && turbo run build:dev"
+command = "npm run inject-graphics && npm run build:dev --workspace=@pillage-first/web"
 
 [[edge_functions]]
 path = "/api/discord-members"
