@@ -4,10 +4,12 @@ import {
   act,
   cleanup,
   fireEvent,
+  type RenderOptions,
   render,
   waitFor,
 } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
+import { Dialog, DialogContent, DialogTitle } from 'app/components/ui/dialog';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const tabWidths = new Map([
@@ -17,7 +19,10 @@ const tabWidths = new Map([
   ['auctions', 90],
 ]);
 
-const renderTabs = (initialContainerWidth = 500) => {
+const renderTabs = (
+  initialContainerWidth = 500,
+  wrapper?: RenderOptions['wrapper'],
+) => {
   let containerWidth = initialContainerWidth;
   const resizeCallbacks = new Set<ResizeObserverCallback>();
 
@@ -67,6 +72,7 @@ const renderTabs = (initialContainerWidth = 500) => {
       <TabPanel value="adventures">Adventures panel</TabPanel>
       <TabPanel value="auctions">Auctions panel</TabPanel>
     </Tabs>,
+    { wrapper },
   );
 
   return {
@@ -153,7 +159,14 @@ describe(Tabs, () => {
   });
 
   test('keeps the overflow menu interactive inside a modal dialog', () => {
-    using result = renderTabs(220, true);
+    using result = renderTabs(220, ({ children }) => (
+      <Dialog defaultOpen>
+        <DialogContent aria-describedby={undefined}>
+          <DialogTitle>Tile information</DialogTitle>
+          {children}
+        </DialogContent>
+      </Dialog>
+    ));
 
     fireEvent.click(result.getByRole('button', { name: 'More' }));
 
