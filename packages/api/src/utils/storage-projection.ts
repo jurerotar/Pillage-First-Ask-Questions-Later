@@ -5,6 +5,7 @@ import {
   type Resource,
   resourceSchema,
 } from '@pillage-first/types/models/resource';
+import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
 
 export type StorageDelivery = {
   source: keyof VillageStorageResourceDto['incoming'];
@@ -101,12 +102,20 @@ export const getStorageBoundaryTime = (
       return boundary;
     }
 
+    const { currentAmount } = calculateCurrentAmount({
+      lastKnownResourceAmount: amount,
+      lastUpdatedAt: time,
+      hourlyProduction,
+      storageCapacity: capacity,
+      timestamp: delivery.arrivesAt,
+    });
+
     amount = Math.min(
       capacity,
-      Math.max(0, amount + rate * (delivery.arrivesAt - time)) +
-        delivery.resources[resourceIndex],
+      currentAmount + delivery.resources[resourceIndex],
     );
 
+    // Deliveries save whole units and restart production at their arrival time.
     time = delivery.arrivesAt;
   }
 

@@ -209,6 +209,7 @@ describe('village storage endpoint', () => {
       troops: 50,
     });
     expect(result.resources[0].fullAt).toBe(now + hour);
-    expect(result.resources[3].emptyAt).toBe(now - 30_000 + 7.6 * hour);
+    // The arrivals discard the unfinished consumption tick and restart at now + hour.
+    expect(result.resources[3].emptyAt).toBe(now + 7.6 * hour);
   });
 });

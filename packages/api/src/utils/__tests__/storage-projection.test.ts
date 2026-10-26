@@ -47,6 +47,50 @@ describe('storage boundary forecasts', () => {
     ).toBe(hour);
   });
 
+  test('discards unfinished production when a delivery arrives between ticks', () => {
+    expect(
+      getStorageBoundaryTime('wood', 0, 2, 1, [delivery(hour / 2, 1)], 0),
+    ).toBe(1.5 * hour);
+  });
+
+  test('discards unfinished wheat consumption when a delivery arrives between ticks', () => {
+    expect(
+      getStorageBoundaryTime('wheat', 1, 10, -1, [delivery(hour / 2, 1)], 0),
+    ).toBe(2.5 * hour);
+  });
+
+  test('restarts production at each delivery between ticks', () => {
+    expect(
+      getStorageBoundaryTime(
+        'wood',
+        0,
+        3,
+        1,
+        [delivery(hour / 2, 1), delivery(0.75 * hour, 1)],
+        0,
+      ),
+    ).toBe(1.75 * hour);
+  });
+
+  test('restarts production even when a delivery only contains another resource', () => {
+    expect(
+      getStorageBoundaryTime(
+        'wood',
+        0,
+        2,
+        1,
+        [
+          {
+            source: 'marketplace',
+            arrivesAt: hour / 2,
+            resources: [0, 1, 0, 0],
+          },
+        ],
+        0,
+      ),
+    ).toBe(2.5 * hour);
+  });
+
   test('has no fill timer without production or sufficient deliveries', () => {
     expect(
       getStorageBoundaryTime('wood', 200, 1000, 0, [delivery(hour, 100)], 0),
