@@ -4,6 +4,7 @@ import {
   updateBookmark,
 } from './controllers/bookmark-controllers';
 import {
+  adjustCulturePoints,
   adjustVillageLoyalty,
   getDeveloperSettings,
   incrementHeroAdventurePoints,
@@ -155,6 +156,7 @@ export const apiRoutes = [
   createRoute(getDeveloperSettings),
   createRoute(updateDeveloperSettings),
   createRoute(updateVillageResources),
+  createRoute(adjustCulturePoints),
   createRoute(spawnHeroItem),
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),

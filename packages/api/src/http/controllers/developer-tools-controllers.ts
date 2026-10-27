@@ -5,10 +5,12 @@ import { developerSettingsSchema } from '@pillage-first/types/models/developer-s
 import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
+import { addPlayerCulturePoints } from '../../utils/culture-points';
 import { onHeroDeath } from '../../utils/hero';
 import { adjustLoyalty, createLoyaltyIncreaseEvent } from '../../utils/loyalty';
 import {
   addResourceSiteResourcesAt,
+  getVillagePlayerId,
   getVillageTileId,
   subtractResourceSiteResourcesAt,
 } from '../../utils/village';
@@ -248,6 +250,32 @@ export const updateVillageResources = createController(
   }
 
   subtractResourceSiteResourcesAt(database, tileId, now, () => resources);
+});
+
+export const adjustCulturePoints = createController(
+  '/developer-settings/:villageId/culture-points',
+  'patch',
+  {
+    summary: 'Adjust player culture points',
+    requestParams: {
+      path: z.strictObject({ villageId: z.coerce.number() }),
+    },
+    requestBody: z.strictObject({
+      amount: z.union([
+        z.literal(-10_000),
+        z.literal(-1_000),
+        z.literal(1_000),
+        z.literal(10_000),
+      ]),
+    }),
+  },
+)(({ database, path: { villageId }, body: { amount } }) => {
+  addPlayerCulturePoints(
+    database,
+    amount,
+    Date.now(),
+    getVillagePlayerId(database, villageId),
+  );
 });
 
 export const incrementHeroAdventurePoints = createController(

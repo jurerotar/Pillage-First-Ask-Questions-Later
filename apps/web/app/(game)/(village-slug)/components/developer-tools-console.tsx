@@ -66,6 +66,7 @@ export const DeveloperToolsConsole = ({
     incrementHeroAdventurePoints,
     killHero,
     adjustLoyalty,
+    adjustCulturePoints,
   } = useDeveloperActions();
   const { hero, isHeroAlive, isHeroHome } = useHero();
   const { available: adventurePoints } = useHeroAdventures();
@@ -455,6 +456,25 @@ export const DeveloperToolsConsole = ({
                         </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </SectionContent>
+
+              <Separator orientation="horizontal" />
+
+              <SectionContent>
+                <Text as="h3">{t('Culture points')}</Text>
+                <div className="flex flex-wrap gap-2">
+                  {([-10_000, -1_000, 1_000, 10_000] as const).map((amount) => (
+                    <Button
+                      key={amount}
+                      size="sm"
+                      variant={amount < 0 ? 'destructive' : 'default'}
+                      onClick={() => adjustCulturePoints({ amount })}
+                    >
+                      {amount > 0 ? '+' : ''}
+                      {amount / 1_000}k
+                    </Button>
                   ))}
                 </div>
               </SectionContent>

@@ -1,62 +1,26 @@
 import { useTranslation } from 'react-i18next';
-import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
-import { useCulturePoints } from 'app/(game)/(village-slug)/hooks/use-culture-points';
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { useCulturePointsProgress } from 'app/(game)/(village-slug)/hooks/use-culture-points-progress';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Progress } from 'app/components/ui/progress';
 
-const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-
 export const ResidenceExpansion = () => {
   const { t } = useTranslation();
-  const { culturePoints, culturePointsUpdatedAt } = useCulturePoints();
-  const { server } = useServer();
-  const now = useCountdown();
-  const { playerCulturePointsProduction: dailyProduction } = culturePoints;
-
-  const availableCulturePoints =
-    culturePoints.culturePoints +
-    (Math.max(0, now - culturePointsUpdatedAt) * dailyProduction) /
-      DAY_IN_MILLISECONDS;
-  let availableVillageCount = 1;
-
-  while (
-    calculateCulturePointsRequirementForVillageCount(
-      availableVillageCount + 1,
-      server.configuration.culturePointsRequirementSpeed,
-    ) <= availableCulturePoints
-  ) {
-    availableVillageCount += 1;
-  }
-
-  const previousRequirement = calculateCulturePointsRequirementForVillageCount(
+  const {
+    culturePoints,
+    dailyProduction,
+    availableCulturePoints,
     availableVillageCount,
-    server.configuration.culturePointsRequirementSpeed,
-  );
-  const nextRequirement = calculateCulturePointsRequirementForVillageCount(
-    availableVillageCount + 1,
-    server.configuration.culturePointsRequirementSpeed,
-  );
-  const progress =
-    nextRequirement > previousRequirement
-      ? Math.min(
-          100,
-          Math.max(
-            0,
-            ((availableCulturePoints - previousRequirement) /
-              (nextRequirement - previousRequirement)) *
-              100,
-          ),
-        )
-      : 100;
+    previousRequirement,
+    nextRequirement,
+    progress,
+  } = useCulturePointsProgress();
 
   return (
     <Section>
