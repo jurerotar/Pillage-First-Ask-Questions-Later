@@ -1,13 +1,12 @@
 import { clsx } from 'clsx';
-import { use } from 'react';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   formatNumberWithCommas,
   truncateToShortForm,
 } from '@pillage-first/utils/format';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
-import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 import { Icon } from 'app/components/icon';
 
 type ResourceCounterProps = {
@@ -20,12 +19,6 @@ export const ResourceCounter = ({
   showDetails = true,
 }: ResourceCounterProps) => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
-    use(CurrentVillageComputedEffectsContext);
-  const storage =
-    resource === 'wheat'
-      ? computedGranaryCapacityEffect.total
-      : computedWarehouseCapacityEffect.total;
 
   const {
     calculatedResourceAmount,
@@ -33,7 +26,8 @@ export const ResourceCounter = ({
     storageCapacity,
     isFull,
     hasNegativeProduction,
-  } = useCalculatedResource(resource, storage);
+    storageLimitAt,
+  } = useCalculatedResource(resource);
 
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
 
@@ -62,12 +56,12 @@ export const ResourceCounter = ({
           </span>
         </span>
       </div>
-      <div className="relative flex h-2 lg:h-2.5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
+      <div className="relative flex h-2 lg:h-5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
         <div
           className={clsx(
             isFull || hasNegativeProduction
-              ? 'bg-[linear-gradient(#ff9696,#ff9696_40%,#a60000)] border-[#a60000]'
-              : 'bg-[linear-gradient(#c7e94f,#c7e94f_40%,#506d00)] border-[#506d00]',
+              ? 'bg-resource-bar-red border-resource-bar-red-border'
+              : 'bg-resource-bar-green border-resource-bar-green-border',
             calculatedResourceAmount !== 0 && 'border',
             'flex w-full h-full rounded-xs origin-left transition-transform',
           )}
@@ -75,6 +69,9 @@ export const ResourceCounter = ({
             transform: `scaleX(${storagePercentage / 100})`,
           }}
         />
+        <span className="absolute inset-0 flex items-center justify-center gap-1 whitespace-nowrap text-[6px] lg:text-xs leading-none font-medium tabular-nums text-black">
+          {storageLimitAt !== null && <Countdown endsAt={storageLimitAt} />}
+        </span>
       </div>
       <div
         aria-hidden={!showDetails}

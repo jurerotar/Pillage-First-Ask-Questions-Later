@@ -190,6 +190,38 @@ export const selectTroopMovementsByTileIdQuery = `
   ORDER BY e.resolves_at ASC;
 `;
 
+export const selectTileTroopMovementsQuery = `
+  SELECT
+    e.id, e.type, e.resolves_at AS resolvesAt,
+    origin_v.name AS originName,
+    JSON_OBJECT('x', origin.x, 'y', origin.y) AS originCoordinates,
+    target.id AS targetTileId, target_v.name AS targetName,
+    JSON_OBJECT('x', target.x, 'y', target.y) AS targetCoordinates
+  FROM events e
+  JOIN villages source_v ON source_v.id = e.village_id
+  JOIN tiles origin ON origin.id = JSON_EXTRACT(e.meta, '$.originTileId')
+  JOIN tiles target ON target.id = JSON_EXTRACT(e.meta, '$.targetTileId')
+  LEFT JOIN villages origin_v ON origin_v.tile_id = origin.id
+  LEFT JOIN villages target_v ON target_v.tile_id = target.id
+  WHERE e.type IN (
+    'troopMovementReinforcements', 'troopMovementRelocation',
+    'troopMovementReturn', 'troopMovementFindNewVillage',
+    'troopMovementAttack', 'troopMovementRaid', 'troopMovementOasisOccupation'
+  )
+    AND (origin.id = $tile_id OR target.id = $tile_id)
+    AND e.starts_at <= $now AND e.resolves_at > $now
+    AND (
+      source_v.player_id = $player_id
+      OR target_v.player_id = $player_id
+      OR EXISTS (
+        SELECT 1 FROM oasis o
+        JOIN villages ov ON ov.id = o.village_id
+        WHERE o.tile_id = target.id AND ov.player_id = $player_id
+      )
+    )
+  ORDER BY e.resolves_at, e.id;
+`;
+
 export const selectTroopMovementStatsByTileIdQuery = `
   SELECT
     CASE

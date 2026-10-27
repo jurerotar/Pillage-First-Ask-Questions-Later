@@ -41,6 +41,10 @@ const BuildingStats = lazyWithRetry(async () => ({
     .BuildingStats,
 }));
 
+const Storage = lazyWithRetry(async () => ({
+  default: (await import('./building-tabs/storage/storage')).Storage,
+}));
+
 const ResourceProductionOverview = lazyWithRetry(async () => ({
   default: (
     await import(
@@ -221,10 +225,16 @@ const resourceProductionBuildingIds = new Set<Building['id']>([
   'WHEAT_FIELD',
 ]);
 
+const storageTabs = new Map([['storage', Storage]]);
+
 const buildingDetailsTabMap = new Map<
   Building['id'],
   Map<string, LazyExoticComponent<() => JSX.Element>>
 >([
+  ['WAREHOUSE', storageTabs],
+  ['GRANARY', storageTabs],
+  ['GREAT_WAREHOUSE', storageTabs],
+  ['GREAT_GRANARY', storageTabs],
   ['WOODCUTTER', resourceProductionTabs],
   ['CLAY_PIT', resourceProductionTabs],
   ['IRON_MINE', resourceProductionTabs],
@@ -316,6 +326,7 @@ const buildingDetailsTabMap = new Map<
 // t('cages')
 // t('heal')
 // t('production-overview')
+// t('storage')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
