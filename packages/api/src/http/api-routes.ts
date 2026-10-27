@@ -104,6 +104,7 @@ import {
   deleteReports,
   getReport,
   getReports,
+  getTileReports,
   updateReports,
 } from './controllers/report-controllers';
 import { getReputations } from './controllers/reputation-controllers';
@@ -122,9 +123,11 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from './controllers/statistics-controllers';
+import { getVillageStorage } from './controllers/storage-controllers';
 import { getTrapperCageStats } from './controllers/trapper-controllers';
 import {
   cancelTroopMovement,
+  getTileTroopMovements,
   getVillageTroopMovementStats,
   getVillageTroopMovements,
   validateTroopMovement,
@@ -224,6 +227,7 @@ export const apiRoutes = [
   // Villages
   createRoute(getVillageBySlug),
   createRoute(getVillageCulturePoints),
+  createRoute(getVillageStorage),
   createRoute(getGatherersHutExpeditions),
   createRoute(getStationedTroopsByTile),
   createRoute(getVillageUnitCount),
@@ -268,6 +272,7 @@ export const apiRoutes = [
 
   // Reports
   createRoute(getReports),
+  createRoute(getTileReports),
   createRoute(getReport),
   createRoute(updateReports),
   createRoute(deleteReports),
@@ -290,6 +295,7 @@ export const apiRoutes = [
   createRoute(getTileLoyalty),
 
   // Troop Movements
+  createRoute(getTileTroopMovements),
   createRoute(getVillageTroopMovements),
   createRoute(getVillageTroopMovementStats),
   createRoute(validateTroopMovement),

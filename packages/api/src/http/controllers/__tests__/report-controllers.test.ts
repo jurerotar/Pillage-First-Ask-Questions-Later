@@ -10,6 +10,7 @@ import {
   deleteReports,
   getReport,
   getReports,
+  getTileReports,
   updateReports,
 } from '../report-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -189,6 +190,121 @@ const prepareReportsTestDatabase = async () => {
 };
 
 describe('report-controllers', () => {
+  test('lists only player battle and scouting reports targeting the tile, independent of report filters', async () => {
+    using database = await prepareReportsTestDatabase();
+    const tileId = database.selectValue({
+      sql: 'SELECT target_tile_id FROM battle_reports WHERE report_id = 1;',
+      schema: z.number(),
+    })!;
+
+    database.execMulti({
+      sql: `
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        SELECT 7, village_id, 2000,
+          (SELECT id FROM report_type_ids WHERE report_type = 'scouting'),
+          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'scoutAttackerNoLoss')
+        FROM reports WHERE id = 1;
+
+        INSERT INTO scouting_reports (
+          report_id, origin_tile_id, target_tile_id, perspective, successful, scouting_target
+        )
+        SELECT 7, origin_tile_id, target_tile_id, 'attacker', 1, 'resources'
+        FROM battle_reports WHERE report_id = 1;
+
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        SELECT 8, (SELECT id FROM villages WHERE player_id != 1 LIMIT 1), 3000, type_id, report_outcome_id
+        FROM reports WHERE id = 1;
+
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        SELECT 9, village_id, 4000, type_id, report_outcome_id
+        FROM reports WHERE id = 1;
+
+        INSERT INTO battle_reports (
+          report_id, origin_tile_id, target_tile_id, is_raid,
+          loot_wood, loot_clay, loot_iron, loot_wheat,
+          can_attacker_see_full_report, attacker_points, defender_points
+        )
+        SELECT r.id, b.origin_tile_id,
+          CASE WHEN r.id = 9 THEN b.origin_tile_id ELSE b.target_tile_id END,
+          b.is_raid, b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
+          b.can_attacker_see_full_report, b.attacker_points, b.defender_points
+        FROM reports r CROSS JOIN battle_reports b
+        WHERE r.id IN (8, 9) AND b.report_id = 1;
+      `,
+    });
+
+    setActiveReportFilters(database, []);
+
+    expect(getReports(database, createControllerArgs<'/reports'>({}))).toEqual(
+      [],
+    );
+
+    const reports = getTileReports(
+      database,
+      createControllerArgs<'/tiles/:tileId/reports'>({ path: { tileId } }),
+    );
+
+    expect(reports.map(({ id, type }) => ({ id, type }))).toEqual([
+      { id: 7, type: 'scouting' },
+      { id: 1, type: 'battle' },
+    ]);
+    expect(reports[1].tags).toContain('read');
+    expect(reports[0].tags).not.toContain('read');
+  });
+
+  test('limits tile reports to ten, ordered by timestamp then id descending', async () => {
+    using database = await prepareReportsTestDatabase();
+    const tileId = database.selectValue({
+      sql: 'SELECT target_tile_id FROM battle_reports WHERE report_id = 1;',
+      schema: z.number(),
+    })!;
+
+    database.execMulti({
+      sql: `
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        SELECT value, r.village_id, CASE WHEN value = 10 THEN 3000 ELSE 2000 END,
+          r.type_id, r.report_outcome_id
+        FROM json_each('[10,11,12,13,14,15,16,17,18,19,20,21]')
+        CROSS JOIN reports r WHERE r.id = 1;
+
+        INSERT INTO battle_reports (
+          report_id, origin_tile_id, target_tile_id, is_raid,
+          loot_wood, loot_clay, loot_iron, loot_wheat,
+          can_attacker_see_full_report, attacker_points, defender_points
+        )
+        SELECT r.id, b.origin_tile_id, b.target_tile_id,
+          b.is_raid, b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
+          b.can_attacker_see_full_report, b.attacker_points, b.defender_points
+        FROM reports r CROSS JOIN battle_reports b
+        WHERE r.id >= 10 AND b.report_id = 1;
+      `,
+    });
+
+    const reports = getTileReports(
+      database,
+      createControllerArgs<'/tiles/:tileId/reports'>({ path: { tileId } }),
+    );
+
+    expect(reports.map(({ id }) => id)).toEqual([
+      10, 21, 20, 19, 18, 17, 16, 15, 14, 13,
+    ]);
+  });
+
+  test('returns an empty list for tiles without matching reports', async () => {
+    using database = await prepareReportsTestDatabase();
+    const tileId = database.selectValue({
+      sql: 'SELECT origin_tile_id FROM battle_reports WHERE report_id = 1;',
+      schema: z.number(),
+    })!;
+
+    expect(
+      getTileReports(
+        database,
+        createControllerArgs<'/tiles/:tileId/reports'>({ path: { tileId } }),
+      ),
+    ).toEqual([]);
+  });
+
   test('should list reports and filter by one or multiple report types', async () => {
     using database = await prepareReportsTestDatabase();
 

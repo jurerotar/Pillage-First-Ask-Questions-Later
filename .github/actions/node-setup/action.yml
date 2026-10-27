@@ -1,10 +1,10 @@
 runs:
   using: "composite"
   steps:
-    - name: Setup Node.js LTS
+    - name: Setup Node.js
       uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
-        node-version: 'lts/*'
+        node-version: "24.22.1"
         package-manager-cache: false
         registry-url: https://registry.npmjs.org
 
