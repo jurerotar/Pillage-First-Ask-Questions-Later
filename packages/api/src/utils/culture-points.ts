@@ -7,6 +7,7 @@ import {
   calculateCulturePointsRequirementForVillageCount,
 } from '@pillage-first/game-assets/utils/culture-points';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { culturePointsRequirementSpeedSchema } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { getVillagePlayerId } from './village';
 
@@ -148,8 +149,8 @@ export const getPlayerCulturePointsRequirementContext = (
   database: DbFacade,
   playerId = PLAYER_ID,
 ) => {
-  const { villageCount, culturePointsRequirementSpeed } = database.selectObject(
-    {
+  const { villageCount, pendingVillageCount, culturePointsRequirementSpeed } =
+    database.selectObject({
       sql: `
       SELECT
         (
@@ -157,6 +158,13 @@ export const getPlayerCulturePointsRequirementContext = (
           FROM villages
           WHERE player_id = $player_id
         ) AS villageCount,
+        (
+          SELECT COUNT(*)
+          FROM events e
+            JOIN villages v ON v.id = e.village_id
+          WHERE v.player_id = $player_id
+            AND e.type = 'troopMovementFindNewVillage'
+        ) AS pendingVillageCount,
         culture_points_requirement_speed AS culturePointsRequirementSpeed
       FROM servers
       LIMIT 1;
@@ -164,16 +172,10 @@ export const getPlayerCulturePointsRequirementContext = (
       bind: { $player_id: playerId },
       schema: z.strictObject({
         villageCount: z.number(),
-        culturePointsRequirementSpeed: z.union([
-          z.literal(1),
-          z.literal(2),
-          z.literal(3),
-          z.literal(4),
-          z.literal(5),
-        ]),
+        pendingVillageCount: z.number(),
+        culturePointsRequirementSpeed: culturePointsRequirementSpeedSchema,
       }),
-    },
-  )!;
+    })!;
 
   return {
     villageCount,
@@ -184,7 +186,7 @@ export const getPlayerCulturePointsRequirementContext = (
       ),
     nextVillageCulturePointsRequirement:
       calculateCulturePointsRequirementForVillageCount(
-        villageCount + 1,
+        villageCount + pendingVillageCount + 1,
         culturePointsRequirementSpeed,
       ),
   };
