@@ -1,5 +1,4 @@
 import { clsx } from 'clsx';
-import { useTranslation } from 'react-i18next';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   formatNumberWithCommas,
@@ -19,7 +18,6 @@ export const ResourceCounter = ({
   resource,
   showDetails = true,
 }: ResourceCounterProps) => {
-  const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   const {
@@ -71,17 +69,8 @@ export const ResourceCounter = ({
             transform: `scaleX(${storagePercentage / 100})`,
           }}
         />
-        <span className="absolute inset-0 flex items-center justify-center gap-1 whitespace-nowrap text-[10px] lg:text-xs leading-none font-medium tabular-nums text-black [text-shadow:0_0_2px_white,0_0_2px_white]">
-          {storageLimitAt !== null ? (
-            <Countdown endsAt={storageLimitAt} />
-          ) : (
-            <>
-              <span className="sr-only">
-                {isFull ? t('Full') : t('No production')}
-              </span>
-              <span aria-hidden>—</span>
-            </>
-          )}
+        <span className="absolute inset-0 flex items-center justify-center gap-1 whitespace-nowrap text-[10px] lg:text-xs leading-none font-medium tabular-nums text-black">
+          {storageLimitAt !== null && <Countdown endsAt={storageLimitAt} />}
         </span>
       </div>
       <div
