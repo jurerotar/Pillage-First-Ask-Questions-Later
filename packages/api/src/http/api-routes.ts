@@ -123,6 +123,7 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from './controllers/statistics-controllers';
+import { getVillageStorage } from './controllers/storage-controllers';
 import { getTrapperCageStats } from './controllers/trapper-controllers';
 import {
   cancelTroopMovement,
@@ -224,6 +225,7 @@ export const apiRoutes = [
 
   // Villages
   createRoute(getVillageBySlug),
+  createRoute(getVillageStorage),
   createRoute(getGatherersHutExpeditions),
   createRoute(getStationedTroopsByTile),
   createRoute(getVillageUnitCount),

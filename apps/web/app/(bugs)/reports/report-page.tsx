@@ -63,7 +63,12 @@ export const ReportPage = ({ token }: { token: string }) => {
       </div>
       <h2 className="text-xl font-semibold leading-tight">{report.title}</h2>
       <span
-        className={`inline-block rounded px-2 py-0.5 text-sm ${report.status === 'open' ? 'bg-blue-500/15 text-blue-600 dark:text-blue-300' : 'bg-green-500/15 text-green-700 dark:text-green-300'}`}
+        className={clsx(
+          'inline-block rounded px-2 py-0.5 text-sm',
+          report.status === 'open'
+            ? 'bg-blue-500/15 text-blue-600 dark:text-blue-300'
+            : 'bg-green-500/15 text-green-700 dark:text-green-300',
+        )}
       >
         {report.status}
       </span>
@@ -195,3 +200,5 @@ export const ReportPage = ({ token }: { token: string }) => {
     </section>
   );
 };
+
+import { clsx } from 'clsx';
