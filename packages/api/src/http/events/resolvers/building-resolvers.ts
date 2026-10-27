@@ -40,6 +40,7 @@ export const buildingLevelChangeResolver: Resolver<
   const tileId = getVillageTileId(database, villageId);
 
   updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+
   updatePlayerCulturePointsAt(
     database,
     resolvesAt,
@@ -209,6 +210,7 @@ export const buildingDestructionResolver: Resolver<
   const tileId = getVillageTileId(database, villageId);
 
   updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+
   updatePlayerCulturePointsAt(
     database,
     resolvesAt,

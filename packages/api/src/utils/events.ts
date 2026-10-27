@@ -104,7 +104,7 @@ import { assertBuildingConstructionRequirementsAreMet } from './building-require
 import {
   addPlayerCulturePoints,
   calculateCulturePointsCelebrationReward,
-  updatePlayerCulturePointsAt,
+  calculatePlayerCulturePointsProduction,
 } from './culture-points';
 import {
   getMarketplaceVillage,
@@ -1088,13 +1088,26 @@ export const runEventCreationSideEffects = (
 
   if (isCulturePointsCelebrationEvent(event)) {
     const playerId = getVillagePlayerId(database, event.villageId);
+
+    const production = calculatePlayerCulturePointsProduction(
+      database,
+      playerId,
+    );
+
     const reward = calculateCulturePointsCelebrationReward(
       database,
       event.villageId,
       event.celebrationType,
+      production,
     );
 
-    addPlayerCulturePoints(database, reward, event.startsAt, playerId);
+    addPlayerCulturePoints(
+      database,
+      reward,
+      event.startsAt,
+      playerId,
+      production,
+    );
   }
 };
 
@@ -1843,16 +1856,6 @@ export const getEventStartTime = (
 
   if (isTradeRouteEvent(event)) {
     return event.startsAt ?? Date.now();
-  }
-
-  if (isCulturePointsCelebrationEvent(event)) {
-    updatePlayerCulturePointsAt(
-      database,
-      Date.now(),
-      getVillagePlayerId(database, event.villageId),
-    );
-
-    return Date.now();
   }
 
   return Date.now();

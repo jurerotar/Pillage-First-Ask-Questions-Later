@@ -125,16 +125,23 @@ export const getVillageCulturePoints = createController(
   const now = Date.now();
   const playerId = getVillagePlayerId(database, villageId);
 
-  const culturePoints = updatePlayerCulturePointsAt(database, now, playerId)!;
+  const playerCulturePointsProduction = calculatePlayerCulturePointsProduction(
+    database,
+    playerId,
+  );
+
+  const culturePoints = updatePlayerCulturePointsAt(
+    database,
+    now,
+    playerId,
+    playerCulturePointsProduction,
+  )!;
 
   return villageCulturePointsDtoSchema.parse({
     culturePoints,
     currentVillageCulturePointsProduction:
       calculateVillageCulturePointsProduction(database, villageId),
-    playerCulturePointsProduction: calculatePlayerCulturePointsProduction(
-      database,
-      playerId,
-    ),
+    playerCulturePointsProduction,
     ...getPlayerCulturePointsRequirementContext(database, playerId),
   });
 });

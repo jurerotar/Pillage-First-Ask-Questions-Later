@@ -9,7 +9,6 @@ import {
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { culturePointsRequirementSpeedSchema } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { getVillagePlayerId } from './village';
 
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
@@ -81,9 +80,8 @@ export const updatePlayerCulturePointsAt = (
   database: DbFacade,
   timestamp: number,
   playerId = PLAYER_ID,
+  production = calculatePlayerCulturePointsProduction(database, playerId),
 ): number | undefined => {
-  const production = calculatePlayerCulturePointsProduction(database, playerId);
-
   return database.selectValue({
     sql: `
       UPDATE culture_points
@@ -111,8 +109,9 @@ export const addPlayerCulturePoints = (
   culturePoints: number,
   timestamp: number,
   playerId = PLAYER_ID,
+  production?: number,
 ): void => {
-  updatePlayerCulturePointsAt(database, timestamp, playerId);
+  updatePlayerCulturePointsAt(database, timestamp, playerId, production);
 
   database.exec({
     sql: `
@@ -131,13 +130,15 @@ export const calculateCulturePointsCelebrationReward = (
   database: DbFacade,
   villageId: number,
   celebrationType: CulturePointsCelebrationType,
+  playerProduction: number,
 ): number => {
-  const playerId = getVillagePlayerId(database, villageId);
+  let production: number;
 
-  const production =
-    celebrationType === 'small'
-      ? calculateVillageCulturePointsProduction(database, villageId)
-      : calculatePlayerCulturePointsProduction(database, playerId);
+  if (celebrationType === 'small') {
+    production = calculateVillageCulturePointsProduction(database, villageId);
+  } else {
+    production = playerProduction;
+  }
 
   return Math.min(
     production,
