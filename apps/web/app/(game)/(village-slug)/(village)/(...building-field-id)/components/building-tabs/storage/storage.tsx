@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { VillageStorageResourceDto } from '@pillage-first/types/dtos/village';
@@ -18,10 +19,11 @@ import { Text } from 'app/components/text';
 const granaryBuildingIds = new Set(['GRANARY', 'GREAT_GRANARY']);
 
 const segmentColors = {
-  stored: 'bg-emerald-500',
-  gathering: 'bg-sky-500',
-  marketplace: 'bg-amber-500',
-  troops: 'bg-violet-500',
+  stored: 'bg-resource-bar-green',
+  gathering: 'bg-linear-to-b from-sky-300 via-sky-300 via-40% to-sky-700',
+  marketplace:
+    'bg-linear-to-b from-amber-300 via-amber-300 via-40% to-amber-700',
+  troops: 'bg-linear-to-b from-violet-300 via-violet-300 via-40% to-violet-700',
 };
 
 const StorageResource = ({
@@ -38,6 +40,14 @@ const StorageResource = ({
     isFull,
     hasNegativeProduction,
   } = useCalculatedResource(resource);
+
+  const colors = {
+    ...segmentColors,
+    stored:
+      resource === 'wheat' && hasNegativeProduction
+        ? 'bg-resource-bar-red'
+        : segmentColors.stored,
+  };
 
   const segments = [
     { source: 'stored', label: t('Stored'), amount: stored },
@@ -115,7 +125,7 @@ const StorageResource = ({
             <div
               key={source}
               title={`${label}: ${formatNumber(amount)}`}
-              className={segmentColors[source]}
+              className={colors[source]}
               style={{ width: `${width}%` }}
             />
           );
@@ -129,9 +139,7 @@ const StorageResource = ({
               key={source}
               className="flex items-center gap-1.5"
             >
-              <span
-                className={`size-2.5 rounded-full ${segmentColors[source]}`}
-              />
+              <span className={clsx('size-2.5 rounded-full', colors[source])} />
               {label}: {formatNumber(amount)}
             </span>
           ))}

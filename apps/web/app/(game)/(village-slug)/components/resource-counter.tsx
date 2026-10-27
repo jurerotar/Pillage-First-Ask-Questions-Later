@@ -60,8 +60,8 @@ export const ResourceCounter = ({
         <div
           className={clsx(
             isFull || hasNegativeProduction
-              ? 'bg-[linear-gradient(#ff9696,#ff9696_40%,#a60000)] border-[#a60000]'
-              : 'bg-[linear-gradient(#c7e94f,#c7e94f_40%,#506d00)] border-[#506d00]',
+              ? 'bg-resource-bar-red border-resource-bar-red-border'
+              : 'bg-resource-bar-green border-resource-bar-green-border',
             calculatedResourceAmount !== 0 && 'border',
             'flex w-full h-full rounded-xs origin-left transition-transform',
           )}
