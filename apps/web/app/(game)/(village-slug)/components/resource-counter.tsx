@@ -56,7 +56,7 @@ export const ResourceCounter = ({
           </span>
         </span>
       </div>
-      <div className="relative flex h-4 lg:h-5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
+      <div className="relative flex h-2 lg:h-5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
         <div
           className={clsx(
             isFull || hasNegativeProduction
@@ -69,7 +69,7 @@ export const ResourceCounter = ({
             transform: `scaleX(${storagePercentage / 100})`,
           }}
         />
-        <span className="absolute inset-0 flex items-center justify-center gap-1 whitespace-nowrap text-[10px] lg:text-xs leading-none font-medium tabular-nums text-black">
+        <span className="absolute inset-0 flex items-center justify-center gap-1 whitespace-nowrap text-[6px] lg:text-xs leading-none font-medium tabular-nums text-black">
           {storageLimitAt !== null && <Countdown endsAt={storageLimitAt} />}
         </span>
       </div>
