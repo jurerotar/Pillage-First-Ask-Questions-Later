@@ -55,6 +55,7 @@ export const cachesToClearOnResolve: Handlers = {
   },
   buildingLevelChange: ({ affectedVillageIds }) => {
     return [
+      [culturePointsCacheKey],
       [currentVillageCacheKey],
       [effectsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
@@ -67,6 +68,7 @@ export const cachesToClearOnResolve: Handlers = {
   },
   buildingDestruction: ({ affectedVillageIds }) => {
     return [
+      [culturePointsCacheKey],
       [currentVillageCacheKey],
       [effectsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
@@ -121,6 +123,7 @@ export const cachesToClearOnResolve: Handlers = {
   },
   troopMovementFindNewVillage: ({ affectedVillageIds }) => {
     return [
+      [culturePointsCacheKey],
       [currentVillageCacheKey],
       [villageListingCacheKey],
       [tilesCacheKey],
@@ -261,9 +264,13 @@ export const cachesToClearOnResolve: Handlers = {
     ];
   },
   culturePointsCelebration: ({ affectedVillageIds }) => {
-    return affectedVillageIds.flatMap((villageId) => [
-      [culturePointsCacheKey, villageId],
-      [eventsCacheKey, 'culturePointsCelebration', villageId],
-    ]);
+    return [
+      [culturePointsCacheKey],
+      ...affectedVillageIds.map((villageId) => [
+        eventsCacheKey,
+        'culturePointsCelebration',
+        villageId,
+      ]),
+    ];
   },
 };

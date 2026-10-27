@@ -144,7 +144,7 @@ const CelebrationPanel = ({
           createEvent({
             celebrationType,
             cachesToClearImmediately: [
-              [culturePointsCacheKey, currentVillage.id],
+              [culturePointsCacheKey],
               [currentVillageCacheKey, currentVillage.slug],
               [playersCacheKey],
             ],
