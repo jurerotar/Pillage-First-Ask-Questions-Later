@@ -12,10 +12,8 @@ export const useCulturePointsProgress = () => {
 
   const availableCulturePoints =
     culturePoints.culturePoints +
-    ((Math.max(0, now - culturePointsUpdatedAt) * dailyProduction) / 24) *
-      60 *
-      60 *
-      1000;
+    (Math.max(0, now - culturePointsUpdatedAt) * dailyProduction) /
+      (24 * 60 * 60 * 1000);
 
   let availableVillageCount = 1;
 
