@@ -62,7 +62,7 @@ export const useReports = (scope: ReportScope = 'global') => {
         body: reportIds,
       });
     },
-    onSuccess: (_data, { reportIds }, _onMutateResult, context) => {
+    onSuccess: async (_data, { reportIds }, _onMutateResult, context) => {
       const deletedReportIds = new Set(reportIds);
 
       context.client.setQueriesData<ReportListingDto[]>(
@@ -78,6 +78,8 @@ export const useReports = (scope: ReportScope = 'global') => {
           exact: true,
         });
       }
+
+      await invalidateQueries(context, [[reportListingsCacheKey, 'tile']]);
 
       toast.success(
         reportIds.length === 1
