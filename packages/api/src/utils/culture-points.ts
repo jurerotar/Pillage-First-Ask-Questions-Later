@@ -89,7 +89,7 @@ export const updatePlayerCulturePointsAt = (
       UPDATE culture_points
       SET
         culture_points = culture_points + (
-          $production * MAX(0, $timestamp - culture_points_updated_at) / $day
+          1.0 * $production * MAX(0, $timestamp - culture_points_updated_at) / $day
         ),
         culture_points_updated_at = MAX(culture_points_updated_at, $timestamp)
       WHERE

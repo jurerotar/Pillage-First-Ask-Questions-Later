@@ -13,11 +13,13 @@ import {
 import { selectTribeByVillageId } from '../../../queries/village-queries';
 import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
 import { createEvents } from '../../../utils/create-event';
+import { updatePlayerCulturePointsAt } from '../../../utils/culture-points';
 import { updateOasisEffectsForVillage } from '../../../utils/oasis';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
 import { promoteNextScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
   demolishBuilding,
+  getVillagePlayerId,
   getVillageTileId,
   updateResourceSiteResourcesAt,
 } from '../../../utils/village';
@@ -38,6 +40,11 @@ export const buildingLevelChangeResolver: Resolver<
   const tileId = getVillageTileId(database, villageId);
 
   updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+  updatePlayerCulturePointsAt(
+    database,
+    resolvesAt,
+    getVillagePlayerId(database, villageId),
+  );
 
   database.exec({
     sql: `
@@ -202,6 +209,11 @@ export const buildingDestructionResolver: Resolver<
   const tileId = getVillageTileId(database, villageId);
 
   updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+  updatePlayerCulturePointsAt(
+    database,
+    resolvesAt,
+    getVillagePlayerId(database, villageId),
+  );
 
   // Remove building field
   demolishBuilding(database, villageId, buildingFieldId);
