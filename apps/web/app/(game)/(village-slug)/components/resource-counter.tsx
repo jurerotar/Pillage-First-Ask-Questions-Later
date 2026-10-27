@@ -41,7 +41,7 @@ export const ResourceCounter = ({
     : truncateToShortForm(hourlyProduction);
 
   return (
-    <div className="flex w-full flex-col gap-1">
+    <div className="flex w-full flex-col gap-0.5">
       <div className="flex w-full items-center justify-between">
         <Icon
           className="size-4 lg:size-6"
@@ -56,20 +56,20 @@ export const ResourceCounter = ({
           </span>
         </span>
       </div>
-      <div className="relative flex h-4 lg:h-5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
+      <div className="relative flex h-3 lg:h-5.5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
         <div
           className={clsx(
             isFull || hasNegativeProduction
               ? 'bg-resource-bar-red border-resource-bar-red-border'
               : 'bg-resource-bar-green border-resource-bar-green-border',
             calculatedResourceAmount !== 0 && 'border',
-            'flex w-full h-full rounded-xs origin-left transition-transform',
+            'h-full shrink-0 rounded-[max(0px,calc(var(--radius-xs)-1px))] transition-[width]',
           )}
           style={{
-            transform: `scaleX(${storagePercentage / 100})`,
+            width: `${Math.min(100, Math.max(0, storagePercentage))}%`,
           }}
         />
-        <span className="absolute inset-0 flex items-center justify-center gap-1 whitespace-nowrap text-[10px] lg:text-xs leading-none font-medium tabular-nums text-black">
+        <span className="absolute inset-0 flex items-center justify-center gap-1 whitespace-nowrap text-[9px] lg:text-xs leading-none font-medium tabular-nums text-black">
           {storageLimitAt !== null && <Countdown endsAt={storageLimitAt} />}
         </span>
       </div>
