@@ -2829,7 +2829,8 @@ describe('events utils', () => {
         },
       });
 
-      const selectValue = vi.spyOn(database, 'selectValue');
+      using selectValue = vi.spyOn(database, 'selectValue');
+
       createEvents<'huntersLodgeHunt'>(database, {
         type: 'huntersLodgeHunt',
         villageId,
@@ -2843,8 +2844,6 @@ describe('events utils', () => {
             selectResourceSiteResourcesRelevantEffectsByTileIdQuery,
         ),
       ).toHaveLength(1);
-
-      selectValue.mockRestore();
 
       const event = database.selectObject({
         sql: `
