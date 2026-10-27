@@ -126,14 +126,14 @@ describe('storage boundary forecasts', () => {
     ).toBe(hour);
   });
 
-  test('sorts arrivals and ignores elapsed events', () => {
+  test('ignores elapsed events in ordered arrivals', () => {
     expect(
       getStorageBoundaryTime(
         'wheat',
         300,
         1000,
         -100,
-        [delivery(3 * hour, 100), delivery(0, 900), delivery(2 * hour, 100)],
+        [delivery(0, 900), delivery(2 * hour, 100), delivery(3 * hour, 100)],
         hour,
       ),
     ).toBe(6 * hour);
@@ -148,6 +148,39 @@ describe('storage boundary forecasts', () => {
 });
 
 describe('incoming storage deliveries', () => {
+  test('orders deliveries by arrival time before projecting resources', () => {
+    const transfer: GameEvent<'resourceTransfer'> = {
+      id: 1,
+      villageId: 1,
+      startsAt: 0,
+      duration: 3 * hour,
+      resolvesAt: 3 * hour,
+      type: 'resourceTransfer',
+      originTileId: 10,
+      targetTileId: 20,
+      targetVillageId: 2,
+      resources: { wood: 100, clay: 100, iron: 100, wheat: 100 },
+      merchantAmount: 1,
+      repeatRemaining: 0,
+      repeatResources: { wood: 100, clay: 100, iron: 100, wheat: 100 },
+    };
+    const events = [
+      transfer,
+      { ...transfer, id: 2, duration: 2 * hour, resolvesAt: 2 * hour },
+    ];
+
+    const deliveries = getStorageDeliveries(events);
+
+    expect(deliveries.map(({ arrivesAt }) => arrivesAt)).toEqual([
+      2 * hour,
+      3 * hour,
+    ]);
+    expect(
+      getStorageBoundaryTime('wheat', 300, 1000, -100, deliveries, hour),
+    ).toBe(6 * hour);
+    expect(events[0]).toBe(transfer);
+  });
+
   test('converts scoped events and excludes empty loads and uncommitted merchant repeats', () => {
     const base = {
       id: 1,

@@ -64,17 +64,15 @@ export const getStorageDeliveries = (
     });
   }
 
-  return deliveries;
+  return deliveries.toSorted((a, b) => a.arrivesAt - b.arrivesAt);
 };
 
-// Follow production between deliveries so late arrivals cannot prevent an
-// earlier depletion, and surplus deliveries cannot exceed storage capacity.
 export const getStorageBoundaryTime = (
   resource: Resource,
   stored: number,
   capacity: number,
   hourlyProduction: number,
-  deliveries: StorageDelivery[],
+  deliveries: readonly StorageDelivery[],
   now: number,
 ): number | null => {
   const rate = hourlyProduction / 3_600_000;
@@ -94,11 +92,11 @@ export const getStorageBoundaryTime = (
     return rate > 0 ? time + (capacity - amount) / rate : null;
   };
 
-  const upcoming = deliveries
-    .filter((delivery) => delivery.arrivesAt > now)
-    .toSorted((a, b) => a.arrivesAt - b.arrivesAt);
+  for (const delivery of deliveries) {
+    if (delivery.arrivesAt <= now) {
+      continue;
+    }
 
-  for (const delivery of upcoming) {
     const boundary = boundaryTime();
 
     if (boundary !== null && boundary <= delivery.arrivesAt) {

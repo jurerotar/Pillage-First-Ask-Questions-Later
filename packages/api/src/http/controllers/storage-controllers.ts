@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { villageStorageDtoSchema } from '@pillage-first/types/dtos/village';
-import { resourceSchema } from '@pillage-first/types/models/resource';
+import {
+  type Resources,
+  resourceSchema,
+} from '@pillage-first/types/models/resource';
 import { selectVillageStorageDeliveriesQuery } from '../../queries/storage-queries';
 import {
   getStorageBoundaryTime,
@@ -39,25 +42,25 @@ export const getVillageStorage = createController(
     rows.map(mapEventRowToTypedEvent) as StorageDeliveryEvent[],
   );
 
-  const storedAmounts = [
-    site.currentWood,
-    site.currentClay,
-    site.currentIron,
-    site.currentWheat,
-  ];
+  const storedAmounts: Resources = {
+    wood: site.currentWood,
+    clay: site.currentClay,
+    iron: site.currentIron,
+    wheat: site.currentWheat,
+  };
 
-  const effectiveUpdates = [
-    site.lastEffectiveWoodUpdate,
-    site.lastEffectiveClayUpdate,
-    site.lastEffectiveIronUpdate,
-    site.lastEffectiveWheatUpdate,
-  ];
+  const effectiveUpdates: Resources = {
+    wood: site.lastEffectiveWoodUpdate,
+    clay: site.lastEffectiveClayUpdate,
+    iron: site.lastEffectiveIronUpdate,
+    wheat: site.lastEffectiveWheatUpdate,
+  };
 
   return {
     calculatedAt,
-    resources: resourceSchema.options.map((resource, index) => {
-      const stored = storedAmounts[index];
-      const lastEffectiveUpdate = effectiveUpdates[index];
+    resources: resourceSchema.options.map((resource) => {
+      const stored = storedAmounts[resource];
+      const lastEffectiveUpdate = effectiveUpdates[resource];
       const capacity =
         resource === 'wheat' ? site.granaryCapacity : site.warehouseCapacity;
       const hourlyProduction = site.hourlyProduction[resource];
