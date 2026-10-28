@@ -1,6 +1,6 @@
 ## Version 0.4.76
 
-#### Oct 27, 2026
+#### Oct 28, 2026
 
 - [Feature] Implemented culture points. Buildings now produce culture points, which are required to found new villages.
   You can view your culture point production and expansion progress in the Residence, with a progress indicator also
