@@ -7,12 +7,10 @@
   available in the village header.
 - [Feature] Implemented Town Hall celebrations. You're now able to hold small and large celebrations to acquire
   additional culture points. Large celebrations require Town Hall level 10.
-- [Feature] Added a Storage tab to Warehouses and Granaries. It displays stored resources, incoming deliveries and
+- [UIUXImprovement] Added a Storage tab to Warehouses and Granaries. It displays stored resources, incoming deliveries and
   countdowns until storage is full or empty, taking incoming resources into account.
-- [Feature] Added resource bar countdowns, showing how long it will take for storage to fill or run out.
-- [Feature] Added the ability to center the map on a village through the village selector dropdown.
-- [Feature] Rebalanced quest resource rewards. Higher milestone rewards now scale more gradually, and resource rewards
-  are capped at 10,000.
+- [UIUXImprovement] Added resource bar countdowns, showing how long it will take for storage to fill or run out.
+- [UIUXImprovement] Added the ability to center the map on a village through the village selector dropdown.
 - [UIUXImprovement] Reworked map tile details into tabs, with separate sections for general information, map markers,
   troop movements and reports.
 - [UIUXImprovement] Reworked developer tools into tabs to simplify navigation, and added culture point controls.
