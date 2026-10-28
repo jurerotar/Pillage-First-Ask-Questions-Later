@@ -224,7 +224,7 @@ const TroopMovementsContent = () => {
   return (
     <aside
       className={clsx(
-        areMobileDetailsVisible ? 'top-29' : 'top-25',
+        areMobileDetailsVisible ? 'top-28.5' : 'top-24.5',
         'flex flex-col gap-1 lg:gap-2 fixed left-safe lg:top-40 z-20 transition-[left,top] ease-out',
       )}
     >

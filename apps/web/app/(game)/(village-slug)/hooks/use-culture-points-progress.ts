@@ -36,6 +36,19 @@ export const useCulturePointsProgress = () => {
     server.configuration.culturePointsRequirementSpeed,
   );
 
+  const nextRequirementAt =
+    dailyProduction > 0
+      ? culturePointsUpdatedAt +
+        Math.ceil(
+          ((nextRequirement - culturePoints.culturePoints) *
+            24 *
+            60 *
+            60 *
+            1000) /
+            dailyProduction,
+        )
+      : null;
+
   const progress =
     nextRequirement > previousRequirement
       ? Math.min(
@@ -56,6 +69,7 @@ export const useCulturePointsProgress = () => {
     availableVillageCount,
     previousRequirement,
     nextRequirement,
+    nextRequirementAt,
     progress,
   };
 };

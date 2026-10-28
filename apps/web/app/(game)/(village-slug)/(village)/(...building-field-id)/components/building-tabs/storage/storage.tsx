@@ -111,7 +111,7 @@ const StorageResource = ({
         aria-valuetext={segments
           .map(({ label, amount }) => `${label}: ${formatNumber(amount)}`)
           .join(', ')}
-        className="flex h-2 overflow-hidden rounded-full bg-muted"
+        className="flex h-2.5 overflow-hidden rounded-xs border border-[#b8b2a9] bg-muted shadow-inner"
       >
         {segments.map(({ source, label, amount }) => {
           const width = Math.min(

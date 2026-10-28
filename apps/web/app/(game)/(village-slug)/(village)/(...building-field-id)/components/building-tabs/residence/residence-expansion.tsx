@@ -5,6 +5,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCulturePointsProgress } from 'app/(game)/(village-slug)/hooks/use-culture-points-progress';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
@@ -19,6 +20,7 @@ export const ResidenceExpansion = () => {
     availableCulturePoints,
     availableVillageCount,
     nextRequirement,
+    nextRequirementAt,
     progress,
   } = useCulturePointsProgress();
 
@@ -53,12 +55,22 @@ export const ResidenceExpansion = () => {
               {t('{{percent}}% filled', { percent: progress.toFixed(1) })}
             </span>
           </div>
-          <Progress
-            value={progress}
-            aria-label={t('Culture points progress')}
-            aria-valuetext={`${formatNumber(Math.floor(availableCulturePoints))} / ${formatNumber(nextRequirement)}`}
-            className="h-2 rounded-full bg-muted [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)]"
-          />
+          <div className="relative">
+            <Progress
+              value={progress}
+              aria-label={t('Culture points progress')}
+              aria-valuetext={`${formatNumber(Math.floor(availableCulturePoints))} / ${formatNumber(nextRequirement)}`}
+              className="h-2.5 rounded-xs border border-[#b8b2a9] bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)]"
+            />
+            {nextRequirementAt !== null && (
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center whitespace-nowrap text-[9px] lg:text-xs leading-none font-medium tabular-nums text-black">
+                <Countdown
+                  endsAt={nextRequirementAt}
+                  aria-label={t('Time remaining')}
+                />
+              </span>
+            )}
+          </div>
         </div>
         <dl className="grid grid-cols-2 gap-2">
           <div className="flex flex-col">
