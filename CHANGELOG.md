@@ -1,171 +1,193 @@
+## Version 0.4.76
+
+#### Oct 28, 2026
+
+- [Feature] Implemented culture points. Buildings now produce culture points, which are required to found new villages.
+  You can view your culture point production and expansion progress in the Residence, with a progress indicator also
+  available in the village header.
+- [Feature] Implemented Town Hall celebrations. You're now able to hold small and large celebrations to acquire
+  additional culture points. Large celebrations require Town Hall level 10.
+- [UIUXImprovement] Added a Storage tab to Warehouses and Granaries. It displays stored resources, incoming deliveries and
+  countdowns until storage is full or empty, taking incoming resources into account.
+- [UIUXImprovement] Added resource bar countdowns, showing how long it will take for storage to fill or run out.
+- [UIUXImprovement] Added the ability to center the map on a village through the village selector dropdown.
+- [UIUXImprovement] Reworked map tile details into tabs, with separate sections for general information, map markers,
+  troop movements and reports.
+- [UIUXImprovement] Reworked developer tools into tabs to simplify navigation, and added culture point controls.
+- [UIUXImprovement] Frequently asked questions now show a shortened preview, with an option to expand the full answer.
+- [BugFix] Fixed an issue where a failed database initialization could cause game world storage to be cleared.
+- [BugFix] Fixed troop lists growing too tall and hiding other UI elements.
+- [BugFix] Fixed redundant leading zeroes in unit and resource selector inputs.
+- [BugFix] Fixed desktop village header alignment and mobile resource section border radius.
+
 ## Version 0.4.75
 
 #### Oct 20, 2026
 
-* [Feature] Added cross-device game world sharing. Upload a game world and open its link or scan its QR code on another
+- [Feature] Added cross-device game world sharing. Upload a game world and open its link or scan its QR code on another
   device to import it. Shared copies can be imported once and are deleted after import or 24 hours.
-* [Feature] Added an optional contact field to bug reports, allowing you to leave a Discord username or email address
+- [Feature] Added an optional contact field to bug reports, allowing you to leave a Discord username or email address
   for follow-up questions.
-* [Feature] Added a notification when a new app version is available, with an option to refresh and update.
-* [BugFix] Fixed troop movements overlapping the construction queue on mobile.
-* [BugFix] Fixed village resource displays not updating correctly after changing hero attributes or resource production.
-* [BugFix] Fixed crashes when browser translation extensions modify select controls and building cards.
-* [BugFix] Fixed scheduled construction cancellation reports crashing when building allowances are unlimited.
-* [BugFix] Fixed cached app instances incorrectly reporting game worlds as outdated when opened with a newer app
+- [Feature] Added a notification when a new app version is available, with an option to refresh and update.
+- [BugFix] Fixed troop movements overlapping the construction queue on mobile.
+- [BugFix] Fixed village resource displays not updating correctly after changing hero attributes or resource production.
+- [BugFix] Fixed crashes when browser translation extensions modify select controls and building cards.
+- [BugFix] Fixed scheduled construction cancellation reports crashing when building allowances are unlimited.
+- [BugFix] Fixed cached app instances incorrectly reporting game worlds as outdated when opened with a newer app
   version. The app now prompts you to refresh and load the latest version.
 
 ## Version 0.4.74
 
 #### Oct 14, 2026
 
-* [BugFix] Fixed an incorrectly displayed unit training cost in Great Barracks and Great Stable.
-* [BugFix] Fixed an issue where internal game state updates would run in incorrect order, which resulted in players
+- [BugFix] Fixed an incorrectly displayed unit training cost in Great Barracks and Great Stable.
+- [BugFix] Fixed an issue where internal game state updates would run in incorrect order, which resulted in players
   having their resource amount calculated incorrectly.
-* [BugFix] Fixed an issue where creating thousands of events at once could fail due to a database limit.
-* [BugFix] Fixed unit improvements being applied to other players' units.
-* [BugFix] Fixed Oasis Animal Finder including occupied oasis and counting reinforcing troops as capturable animals.
-* [Performance] Improved execution time of event resolvers (by over 90% in some cases), greatly speeding up game world
+- [BugFix] Fixed an issue where creating thousands of events at once could fail due to a database limit.
+- [BugFix] Fixed unit improvements being applied to other players' units.
+- [BugFix] Fixed Oasis Animal Finder including occupied oasis and counting reinforcing troops as capturable animals.
+- [Performance] Improved execution time of event resolvers (by over 90% in some cases), greatly speeding up game world
   initialization.
-* [Performance] Improved query performance for effect lookups (~60%), map loading, marketplace offers, rankings and
+- [Performance] Improved query performance for effect lookups (~60%), map loading, marketplace offers, rankings and
   oasis searches.
-* [Performance] Improved processing of queued game events by batching database writes, speeding up game world catch-up
+- [Performance] Improved processing of queued game events by batching database writes, speeding up game world catch-up
   after time away.
 
 ## Version 0.4.73
 
 #### Oct 8, 2026
 
-* [BugFix] Fixed global hunting quests losing progress when hunting reports are deleted.
-* [Performance] Improved village resource monitoring by sharing resource calculations and reducing unnecessary
+- [BugFix] Fixed global hunting quests losing progress when hunting reports are deleted.
+- [Performance] Improved village resource monitoring by sharing resource calculations and reducing unnecessary
   updates to resource availability checks.
-* [Performance] Improved map marker lookup performance when displaying map tiles and tile details.
-* [Performance] Developer tools now load only when opened, avoiding unnecessary initialization during normal gameplay.
-* [Performance] Reduced unnecessary responsive layout subscription updates.
+- [Performance] Improved map marker lookup performance when displaying map tiles and tile details.
+- [Performance] Developer tools now load only when opened, avoiding unnecessary initialization during normal gameplay.
+- [Performance] Reduced unnecessary responsive layout subscription updates.
 
 ## Version 0.4.72
 
 #### Oct 7, 2026
 
-* [Feature] Added in-game bug reporting. Your current game world and browser details are attached automatically,
+- [Feature] Added in-game bug reporting. Your current game world and browser details are attached automatically,
   and you'll receive a confirmation once the report has been submitted.
-* [Feature] Added village sorting preferences. You can now sort the village select alphabetically or by population,
+- [Feature] Added village sorting preferences. You can now sort the village select alphabetically or by population,
   in ascending or descending order.
-* [Feature] Buildings no longer require free crop to construct or upgrade. Removed the free crop display from the
+- [Feature] Buildings no longer require free crop to construct or upgrade. Removed the free crop display from the
   village header.
-* [UIUXImprovement] Added building instance numbers to the construction list, making it easier to tell which instance
+- [UIUXImprovement] Added building instance numbers to the construction list, making it easier to tell which instance
   of a building you're about to construct.
-* [BugFix] Fixed an issue where scheduling multiple upgrades of a new building could cancel its scheduled construction.
-* [BugFix] Fixed building cards throwing an error when viewing an empty building field.
-* [BugFix] Fixed custom icon styling.
+- [BugFix] Fixed an issue where scheduling multiple upgrades of a new building could cancel its scheduled construction.
+- [BugFix] Fixed building cards throwing an error when viewing an empty building field.
+- [BugFix] Fixed custom icon styling.
 
 ## Version 0.4.71
 
 #### Sep 28, 2026
 
-* [Feature] Replaced the Event log page with report-based records for unit research, unit improvements, village founding
+- [Feature] Replaced the Event log page with report-based records for unit research, unit improvements, village founding
   and scheduled construction cancellations. These events now appear in Reports alongside other village activity.
-* [UIUXImprovement] Reworked report, auction, marketplace and troop movement filters into popover multi-select controls.
+- [UIUXImprovement] Reworked report, auction, marketplace and troop movement filters into popover multi-select controls.
   Report filters are now preserved between sessions, meaning you won't have to re-select them every time.
 
 ## Version 0.4.70
 
 #### Sep 28 2026
 
-* [Feature] When training units, you'll now be able to see how many units of the same type you already own.
-* [BugFix] Added missing database indexes, which weren't created due to a bug in database client.
-* [BugFix] Fixed an issue where units in village troop list weren't properly sorted.
-* [TechnicalImprovement] Removed Recharts from game world overview page, dropping total size by ~ 300 kb.
+- [Feature] When training units, you'll now be able to see how many units of the same type you already own.
+- [BugFix] Added missing database indexes, which weren't created due to a bug in database client.
+- [BugFix] Fixed an issue where units in village troop list weren't properly sorted.
+- [TechnicalImprovement] Removed Recharts from game world overview page, dropping total size by ~ 300 kb.
 
 ## Version 0.4.69
 
 #### Sep 20, 2026
 
-* [Feature] Added repeated resource transfers. When sending resources from the Marketplace, you can now repeat the same
+- [Feature] Added repeated resource transfers. When sending resources from the Marketplace, you can now repeat the same
   merchant transfer up to 5 times. Follow-up transfers start after merchants return, and the repeat chain stops if the
   village no longer has enough resources.
-* [Feature] Added total outbound and inbound resource summaries to the merchant movement table.
-* [UIUXImprovement] Reworked Hunter's Lodge party size selection to use radio buttons.
-* [BugFix] Fixed Oasis Bonus Finder select label.
+- [Feature] Added total outbound and inbound resource summaries to the merchant movement table.
+- [UIUXImprovement] Reworked Hunter's Lodge party size selection to use radio buttons.
+- [BugFix] Fixed Oasis Bonus Finder select label.
 
 ## Version 0.4.68
 
 #### Sep 19, 2026
 
-* [Feature] Added a set of new resource combination icons. We now have custom icons for 50% oasis bonuses and 25% + 25%
+- [Feature] Added a set of new resource combination icons. We now have custom icons for 50% oasis bonuses and 25% + 25%
   resource + wheat bonuses.
-* [Feature] Added scheduled buildings resource cost preview to building construction list.
-* [UIUXImprovement] Reworked Oasis Bonus Finder. It now shows oasis occupation status and bonuses more accurately.
-* [BugFix] Fixed a modal overflow on confirming Gatherer's Hut expeditions.
-* [BugFix] Fixed React Query cache getting garbage collected over longer playing sessions, resulting in an error.
+- [Feature] Added scheduled buildings resource cost preview to building construction list.
+- [UIUXImprovement] Reworked Oasis Bonus Finder. It now shows oasis occupation status and bonuses more accurately.
+- [BugFix] Fixed a modal overflow on confirming Gatherer's Hut expeditions.
+- [BugFix] Fixed React Query cache getting garbage collected over longer playing sessions, resulting in an error.
 
 ## Version 0.4.67
 
 #### Sep 17, 2026
 
-* [Feature] Added quest progression meters. Quest groups now show how many steps have been completed and which step is
+- [Feature] Added quest progression meters. Quest groups now show how many steps have been completed and which step is
   currently active.
-* [UIUXImprovement] Reworked the mobile construction queue into a vertical expanded layout with a visible queue counter.
-* [BugFix] Fixed browser notifications throwing an Illegal constructor error when service worker notifications are not
+- [UIUXImprovement] Reworked the mobile construction queue into a vertical expanded layout with a visible queue counter.
+- [BugFix] Fixed browser notifications throwing an Illegal constructor error when service worker notifications are not
   available.
-* [BugFix] Fixed device discovery and game world imports failing when WebRTC peer connections cannot be created.
-* [TechnicalImprovement] Reworked Waterworks effects, improving hot-path queries by ~ 4%.
-* [TechnicalImprovement] Removed deprecated scheduled building construction resolver code.
+- [BugFix] Fixed device discovery and game world imports failing when WebRTC peer connections cannot be created.
+- [TechnicalImprovement] Reworked Waterworks effects, improving hot-path queries by ~ 4%.
+- [TechnicalImprovement] Removed deprecated scheduled building construction resolver code.
 
 ## Version 0.4.66
 
 #### Sep 16, 2026
 
-* [Feature] Heroes will now be able to acquire items from adventures.
-* [Feature] Reworked hero items and artefacts.
-* [Feature] Implemented hero item auctions. You're now able to buy and sell hero items.
-* [Feature] Added previous/next report and previous/next unread report navigation buttons.
-* [UIUXImprovement] Improved landscape orientation layouts.
-* [UIUXImprovement] Updated the public layout with safer viewport offsets.
-* [BugFix] Fixed outdated game worlds being enterable from server cards.
-* [BugFix] Fixed read reports being included in unread report cache queries.
-* [BugFix] Fixed building overview bookmarks not being clickable.
-* [BugFix] Fixed Firefox storage error detection for browsers that block OPFS writes.
+- [Feature] Heroes will now be able to acquire items from adventures.
+- [Feature] Reworked hero items and artefacts.
+- [Feature] Implemented hero item auctions. You're now able to buy and sell hero items.
+- [Feature] Added previous/next report and previous/next unread report navigation buttons.
+- [UIUXImprovement] Improved landscape orientation layouts.
+- [UIUXImprovement] Updated the public layout with safer viewport offsets.
+- [BugFix] Fixed outdated game worlds being enterable from server cards.
+- [BugFix] Fixed read reports being included in unread report cache queries.
+- [BugFix] Fixed building overview bookmarks not being clickable.
+- [BugFix] Fixed Firefox storage error detection for browsers that block OPFS writes.
 
 ## Version 0.4.65
 
 #### Sep 13, 2026
 
-* [UIUXImprovement] Updated scout and scouting report icons.
-* [BugFix] Fixed an issue where browser notifications could get stuck waiting for service worker readiness.
-* [BugFix] Fixed browser storage availability checks so game world creation detects browsers that block OPFS writes.
+- [UIUXImprovement] Updated scout and scouting report icons.
+- [BugFix] Fixed an issue where browser notifications could get stuck waiting for service worker readiness.
+- [BugFix] Fixed browser storage availability checks so game world creation detects browsers that block OPFS writes.
 
 ## Version 0.4.64
 
 #### Sep 10, 2026
 
-* [Feature] World items are no longer displayed on the map. Instead, you'll be able to scout NPC villages to figure out
+- [Feature] World items are no longer displayed on the map. Instead, you'll be able to scout NPC villages to figure out
   which villages carry lootable items.
-* [BugFix] Fixed an issue where hero speed wasn't taken into account when calculating troop movement duration.
+- [BugFix] Fixed an issue where hero speed wasn't taken into account when calculating troop movement duration.
 
 ## Version 0.4.63
 
 #### Sep 8, 2026
 
-* [Feature] Added healing cost and duration details to the Hospital wounded troop training section.
-* [Feature] Wheat fields no longer require free crop to upgrade.
-* [UIUXImprovement] Updated cavalry icons.
-* [UIUXImprovement] Cleaned up building and unit cards by removing section borders and combining cost and duration
+- [Feature] Added healing cost and duration details to the Hospital wounded troop training section.
+- [Feature] Wheat fields no longer require free crop to upgrade.
+- [UIUXImprovement] Updated cavalry icons.
+- [UIUXImprovement] Cleaned up building and unit cards by removing section borders and combining cost and duration
   details into a single section.
-* [UIUXImprovement] Building field tooltips now highlight missing resources.
-* [BugFix] Fixed missing report and player detail routes so unavailable records don't throw an error.
+- [UIUXImprovement] Building field tooltips now highlight missing resources.
+- [BugFix] Fixed missing report and player detail routes so unavailable records don't throw an error.
 
 ## Version 0.4.62
 
 #### Sep 1, 2026
 
-* [Feature] Added Hunter's Lodge quests for capturing animals.
-* [Feature] Added Gatherer's Hut quests for total resources gathered through gathering expeditions.
+- [Feature] Added Hunter's Lodge quests for capturing animals.
+- [Feature] Added Gatherer's Hut quests for total resources gathered through gathering expeditions.
 
 ## Version 0.4.61
 
 #### Aug 31, 2026
 
-* [UIUXImprovement] Made the mobile village header collapsible, allowing resource details to be hidden when you need
+- [UIUXImprovement] Made the mobile village header collapsible, allowing resource details to be hidden when you need
   more space for the current view. You can collapse or expand the header by clicking on it. Since clicking on the header
   previously took you to Production Overview, we have now moved it to resource production building tabs.
 
@@ -173,21 +195,21 @@
 
 #### Aug 29, 2026
 
-* [Feature] Smithy's upgrade tables were moved to a new Unit upgrade table tab. This tab displays level, upgrade cost,
+- [Feature] Smithy's upgrade tables were moved to a new Unit upgrade table tab. This tab displays level, upgrade cost,
   upgrade duration and attributes tables.
-* [UIUXImprovement] Restyled tabs across the app with a cleaner segmented appearance and added a "More" popover for tabs
+- [UIUXImprovement] Restyled tabs across the app with a cleaner segmented appearance and added a "More" popover for tabs
   that do not fit in the available space.
 
 ## Version 0.4.59
 
 #### Aug 27, 2026
 
-* [UIUXImprovement] Highlighted missing resources in cost displays.
-* [UIUXImprovement] Removed breadcrumbs to reduce UI bloat.
-* [BugFix] Fixed horizontally scrollable tables hijacking clicks on buttons and links.
-* [BugFix] Fixed resource availability estimates showing a ready time when resource production is negative or a missing
+- [UIUXImprovement] Highlighted missing resources in cost displays.
+- [UIUXImprovement] Removed breadcrumbs to reduce UI bloat.
+- [BugFix] Fixed horizontally scrollable tables hijacking clicks on buttons and links.
+- [BugFix] Fixed resource availability estimates showing a ready time when resource production is negative or a missing
   resource cannot grow.
-* [BugFix] Fixed mobile touch interactions causing hero resource production dropdowns to close immediately, village
+- [BugFix] Fixed mobile touch interactions causing hero resource production dropdowns to close immediately, village
   building fields to queue upgrades while scrolling, and long-pressed building fields to sometimes queue duplicate
   upgrades.
 
@@ -195,93 +217,93 @@
 
 #### Aug 23, 2026
 
-* [UIUXImprovement] Player pages now show occupied oasis in the village list.
-* [BugFix] Fixed NPC oasis occupation seeding so villages occupy oasis based on their Hero's Mansion level, allowing
+- [UIUXImprovement] Player pages now show occupied oasis in the village list.
+- [BugFix] Fixed NPC oasis occupation seeding so villages occupy oasis based on their Hero's Mansion level, allowing
   villages with sufficient Hero's Mansion levels to occupy multiple oasis.
-* [Performance] Updated database indexes to improve query performance.
+- [Performance] Updated database indexes to improve query performance.
 
 ## Version 0.4.57
 
 #### Aug 21, 2026
 
-* [BugFix] Fixed an issue where some already scheduled troop return movements could fail to resolve.
-* [UIUXImprovement] Reworked map filters into an expandable control to reduce UI clutter.
+- [BugFix] Fixed an issue where some already scheduled troop return movements could fail to resolve.
+- [UIUXImprovement] Reworked map filters into an expandable control to reduce UI clutter.
 
 ## Version 0.4.56
 
 #### Aug 21, 2026
 
-* [BugFix] Fixed an issue where scheduled building construction would allow resource fields to be queued even when
+- [BugFix] Fixed an issue where scheduled building construction would allow resource fields to be queued even when
   warehouse or granary capacity was too low to ever afford the upgrade.
-* [BugFix] Fixed an issue where troop list wasn't showing up.
+- [BugFix] Fixed an issue where troop list wasn't showing up.
 
 ## Version 0.4.55
 
 #### Aug 20, 2026
 
-* [Feature] As part of preparatory work for attacks and raids, added a resource replenishment functionality to oasis.
-* [UIUXImprovement] Added a splash screen while the game is loading.
-* [UIUXImprovement] Preferences cleanup. Only usable preference settings are now visible.
-* [Performance] Optimized villages seeder, reducing its execution time by ~ 60%.
-* [Performance] Optimized effects seeder, reducing its execution time by ~ 50%.
-* [Performance] Removed guaranteed croppers seeder by reimplementing its functionality as part of tiles generation. This
+- [Feature] As part of preparatory work for attacks and raids, added a resource replenishment functionality to oasis.
+- [UIUXImprovement] Added a splash screen while the game is loading.
+- [UIUXImprovement] Preferences cleanup. Only usable preference settings are now visible.
+- [Performance] Optimized villages seeder, reducing its execution time by ~ 60%.
+- [Performance] Optimized effects seeder, reducing its execution time by ~ 50%.
+- [Performance] Removed guaranteed croppers seeder by reimplementing its functionality as part of tiles generation. This
   reduced game world creation time by ~ 15%.
-* [Performance] Removed unnecessary database indexes.
-* [Performance] Dropped support for migrating older game worlds. Only last 20 minor versions are now supported. This
+- [Performance] Removed unnecessary database indexes.
+- [Performance] Dropped support for migrating older game worlds. Only last 20 minor versions are now supported. This
   allows us to spend less time worrying about migrating older game worlds while in development.
-* [TechnicalImprovement] Reworked database schema. New schema simplifies how resource replenishment is handled much
+- [TechnicalImprovement] Reworked database schema. New schema simplifies how resource replenishment is handled much
   easier with fewer exceptions.
 
 ## Version 0.4.54
 
 #### Aug 20, 2026
 
-* [Feature] Smithy received a small update. It will now show a unit upgrade duration table, allowing you to more easily
+- [Feature] Smithy received a small update. It will now show a unit upgrade duration table, allowing you to more easily
   plan unit upgrades.
-* [BugFix] Rebalanced Smithy unit upgrade duration. Unit upgrades should now be much faster.
-* [UIUXImprovement] Horizontally overflowing tables are now scrollable with mouse.
+- [BugFix] Rebalanced Smithy unit upgrade duration. Unit upgrades should now be much faster.
+- [UIUXImprovement] Horizontally overflowing tables are now scrollable with mouse.
 
 ## Version 0.4.53
 
 #### Aug 16, 2026
 
-* [Feature] Battle reports will now display a row for hospitalized and imprisoned troops.
-* [Feature] Battle reports will now include a sum of losses, imprisoned and hospitalized troops.
-* [Feature] Battle reports will now include a list of damaged buildings.
-* [Feature] Preparatory work for attacks and raids. When attacking with only scouts, confirmation modal will now display
+- [Feature] Battle reports will now display a row for hospitalized and imprisoned troops.
+- [Feature] Battle reports will now include a sum of losses, imprisoned and hospitalized troops.
+- [Feature] Battle reports will now include a list of damaged buildings.
+- [Feature] Preparatory work for attacks and raids. When attacking with only scouts, confirmation modal will now display
   scouting target. When your attack includes catapults, you'll now have the option of selecting targets. When attacking
   an unoccupied oasis with a hero and your hero has cages equipped, you'll now have the option of selecting either a
   battle or capture mode.
-* [UIUXImprovement] For PWA-installations, toast notifications will now no longer render out of bounds, and construction
+- [UIUXImprovement] For PWA-installations, toast notifications will now no longer render out of bounds, and construction
   list & troop list will no longer render with incorrect bottom offset.
-* [TechnicalImprovement] Large cleanup of the backend to improve type safety and remove redundant code branches.
+- [TechnicalImprovement] Large cleanup of the backend to improve type safety and remove redundant code branches.
 
 ## Version 0.4.52
 
 #### Aug 6, 2026
 
-* [Feature] Added Hospital & Spartan Asclepeion buildings. Once combat is added, your losses will be automatically
+- [Feature] Added Hospital & Spartan Asclepeion buildings. Once combat is added, your losses will be automatically
   tracked and ready for healing.
 
 ## Version 0.4.51
 
 #### Aug 5, 2026
 
-* [TechnicalImprovement] Reworked our internal building definition system. This allows us to define tribe-specific
+- [TechnicalImprovement] Reworked our internal building definition system. This allows us to define tribe-specific
   building effects (namely Cranny & Trade Office).
 
 ## Version 0.4.50
 
 #### Aug 5, 2026
 
-* [Feature] We implemented **Trade Office** building. Your merchants will now carry more resources and transferring
+- [Feature] We implemented **Trade Office** building. Your merchants will now carry more resources and transferring
   resources between your villages should be less tedious!
 
 ## Version 0.4.49
 
 #### Aug 3, 2026
 
-* [Feature] **Our most requested feature is finally here!** You may now schedule future building construction. Each
+- [Feature] **Our most requested feature is finally here!** You may now schedule future building construction. Each
   village may have up to 5 buildings under construction or scheduled for construction. Scheduled construction may
   include both new buildings and upgrades, and may be reordered or cancelled at any time. Resource requirements are
   checked only once construction begins, and resources are consumed at that time. Romans retain their ability to
@@ -292,41 +314,41 @@
 
 #### Jul 27, 2026
 
-* [BugFix] Fixed an issue where a duplicated trade report was creating when transferring resources between your own
+- [BugFix] Fixed an issue where a duplicated trade report was creating when transferring resources between your own
   villages.
-* [BugFix] Fixed dialog height on longer dialogs.
-* [BugFix] Fixed an issue where hero would be assigned additional attribute points even after level 99.
-* [UIUXImprovement] Reworked mobile bottom navigation bar. Links with no counters are now positioned inside a popover.
+- [BugFix] Fixed dialog height on longer dialogs.
+- [BugFix] Fixed an issue where hero would be assigned additional attribute points even after level 99.
+- [UIUXImprovement] Reworked mobile bottom navigation bar. Links with no counters are now positioned inside a popover.
   This reduces the amount of scrolling players have to do to navigate the app.
 
 ## Version 0.4.47
 
 #### Jul 26, 2026
 
-* [Feature] Added the ability to exclude battle reports in which you have no losses as the attacker and trade reports in
+- [Feature] Added the ability to exclude battle reports in which you have no losses as the attacker and trade reports in
   which you're trading between your own villages.
-* [Feature] Added report cap of a thousand reports. Automatic report deletion of the oldest, non-archived reports kicks
+- [Feature] Added report cap of a thousand reports. Automatic report deletion of the oldest, non-archived reports kicks
   in after the cap is reached.
 
 ## Version 0.4.46
 
 #### Jul 24, 2026
 
-* [UIUXImprovement] Reworked report actions. Actions for individual reports are now available through a context menu,
+- [UIUXImprovement] Reworked report actions. Actions for individual reports are now available through a context menu,
   while bulk actions are displayed in the table header after selecting reports. Only actions relevant to the selected
   reports are shown.
-* [UIUXImprovement] Report timestamps now use a shorter, locale-aware format. Reports received today display the time,
+- [UIUXImprovement] Report timestamps now use a shorter, locale-aware format. Reports received today display the time,
   while older reports display the date. The full timestamp is available by hovering over it.
-* [UIUXImprovement] Archived reports now display an archive icon and report subjects have been shortened for easier
+- [UIUXImprovement] Archived reports now display an archive icon and report subjects have been shortened for easier
   scanning.
-* [UIUXImprovement] Report details now include actions for deleting, archiving and changing the read status of the
+- [UIUXImprovement] Report details now include actions for deleting, archiving and changing the read status of the
   report. Adventure, hunting party and gathering expedition reports also received cleaner headings.
 
 ## Version 0.4.45
 
 #### Jul 24, 2026
 
-* [Feature] **Reports are finally here!** This was one of the last missing features blocking us from working on combat
+- [Feature] **Reports are finally here!** This was one of the last missing features blocking us from working on combat
   mechanics. We added adventure, merchant, troop relocation and reinforcements, hunting party, gathering expedition,
   scouting and battle reports.
 
@@ -334,14 +356,14 @@
 
 #### Jul 16, 2026
 
-* [Feature] Production overview page will now properly display negative wheat production caused by population and
+- [Feature] Production overview page will now properly display negative wheat production caused by population and
   troops.
 
 ## Version 0.4.43
 
 #### Jul 14, 2026
 
-* [UIUXImprovement] This version includes a reworked UI. Page & section descriptions have now been removed from the page
+- [UIUXImprovement] This version includes a reworked UI. Page & section descriptions have now been removed from the page
   and instead added to **information popovers**. This reduces the length of the pages, reducing the amount of scrolling
   required and enabling faster navigation through the pages. Information popovers are available as page, section or
   block level elements, so you may encounter more than one on a given page.
@@ -350,7 +372,7 @@
 
 #### Jul 11, 2026
 
-* [UIUXImprovement] When switching villages with a building details view open, the app now attempts to open the same
+- [UIUXImprovement] When switching villages with a building details view open, the app now attempts to open the same
   building, even if it occupies a different position in the new village. Previously, it would always open the building
   at the same position, regardless of which building was actually there.
 
@@ -358,53 +380,53 @@
 
 #### Jul 11, 2026
 
-* [BugFix] Fixed an issue where rearranging a building, which you have multiple instances of, would sometimes cause the
+- [BugFix] Fixed an issue where rearranging a building, which you have multiple instances of, would sometimes cause the
   incorrect building to be rearranged.
 
 ## Version 0.4.40
 
 #### Jul 8, 2026
 
-* [Feature] Added the ability to create Gaul traps.
+- [Feature] Added the ability to create Gaul traps.
 
 ## Version 0.4.39
 
 #### Jul 7, 2026
 
-* [BugFix] Fixed oasis resources calculation ahead of upcoming attacking and raiding feature.
-* [Performance] Reworked `effects` table. This is our largest table that contains village/oasis properties. This rework
+- [BugFix] Fixed oasis resources calculation ahead of upcoming attacking and raiding feature.
+- [Performance] Reworked `effects` table. This is our largest table that contains village/oasis properties. This rework
   reduced size of `effects` table by around 40% (which amounts to around 800KB in practice) and improved execution speed
   of most common queries by around 20-25%.
-* [Performance] Reworked `tiles` table. This minor change reduced our total database size by around 4% (150KB in
+- [Performance] Reworked `tiles` table. This minor change reduced our total database size by around 4% (150KB in
   practice) and improved execution speed of map-related queries by around 1-2%.
-* [Performance] Reworked `oasis` table. This minor change reduced our total database size by around 1.5% (45KB in
+- [Performance] Reworked `oasis` table. This minor change reduced our total database size by around 1.5% (45KB in
   practice) and improved execution speed of oasis-related queries around 15%-70%.
 
 ## Version 0.4.38
 
 #### Jul 6, 2026
 
-* [BugFix] Fixed an issue where current resource amount wasn't accurately represented when attempting to send resources
+- [BugFix] Fixed an issue where current resource amount wasn't accurately represented when attempting to send resources
   through the marketplace.
-* [Feature] Added the ability to preview which tiles are already occupied in Oasis Bonus Finder.
-* [Performance] Improved search performance of Oasis Bonus Finder by 20-45%, depending on the amount of search filters
+- [Feature] Added the ability to preview which tiles are already occupied in Oasis Bonus Finder.
+- [Performance] Improved search performance of Oasis Bonus Finder by 20-45%, depending on the amount of search filters
   used.
 
 ## Version 0.4.37
 
 #### Jul 1, 2026
 
-* [BugFix] Fixed an issue where relocating buildings would cause building effects to be incorrectly calculated.
-* [BugFix] Fixed an issue where hero regeneration rate wasn't correctly updated for faster game worlds.
-* [Performance] Reduced web worker memory usage during game world imports by roughly 50%.
-* [Performance] Improved Resources & Village view's building fields render timing by ~ 3.4%
-* [Performance] Improved controller route matching performance by roughly 45-50%.
+- [BugFix] Fixed an issue where relocating buildings would cause building effects to be incorrectly calculated.
+- [BugFix] Fixed an issue where hero regeneration rate wasn't correctly updated for faster game worlds.
+- [Performance] Reduced web worker memory usage during game world imports by roughly 50%.
+- [Performance] Improved Resources & Village view's building fields render timing by ~ 3.4%
+- [Performance] Improved controller route matching performance by roughly 45-50%.
 
 ## Version 0.4.36
 
 #### Jun 24, 2026
 
-* [Feature] Added **Gatherer's Hut** building. Gatherer's Hut enables you to send your idle troops on to gathering
+- [Feature] Added **Gatherer's Hut** building. Gatherer's Hut enables you to send your idle troops on to gathering
   expeditions, where they collect resources. Each unit sent carries 4 resources. Gathering expeditions are meant as a
   low-risk, although lower-reward alternative to raiding.
 
@@ -412,62 +434,62 @@
 
 #### Jun 22, 2026
 
-* [Feature] Added **Trade routes** functionality. You may now schedule periodic resource transfers between your
+- [Feature] Added **Trade routes** functionality. You may now schedule periodic resource transfers between your
   villages. You may schedule as many trade routes as you wish. Trade routes persist through demolishing the Marketplace.
-* [BugFix] Fixed long village names breaking mobile navigation alignment. Village navigation now also shows resource
+- [BugFix] Fixed long village names breaking mobile navigation alignment. Village navigation now also shows resource
   layout of the village.
 
 ## Version 0.4.34
 
 #### Jun 19, 2026
 
-* [BugFix] Improved internal data structures to prevent event execution happening with stale data, which was observed to
+- [BugFix] Improved internal data structures to prevent event execution happening with stale data, which was observed to
   (potentially) happen in some cases.
 
 ## Version 0.4.33
 
 #### Jun 18, 2026
 
-* [Feature] Added the ability to transfer resources between villages. You require a Marketplace of at least level 1. You
+- [Feature] Added the ability to transfer resources between villages. You require a Marketplace of at least level 1. You
   may transfer resources through the Marketplace view or through the map directly.
 
 ## Version 0.4.32
 
 #### Jun 16, 2026
 
-* [Performance] Improve the performance of training units. Unit training events now resolve approximately 40% faster,
+- [Performance] Improve the performance of training units. Unit training events now resolve approximately 40% faster,
   which should be especially noticeable when training hundreds of units.
 
 ## Version 0.4.31
 
 #### Jun 15, 2026
 
-* [Feature] **A long awaited feature is here at last!** We added the ability to send reinforcements or relocate troops
+- [Feature] **A long awaited feature is here at last!** We added the ability to send reinforcements or relocate troops
   to villages and oases you own. You may do so either through the map, by clicking on the tile you own, or through the
   Rally Point's Send Troops tab. Sent reinforcements may also be relocated to target village's garrison troops at any
   point. Relocating troops allows you to use them from the target village.
 
-* [BugFix] Fixed a stale resource counter, that would be especially noticeable when switching between villages.
+- [BugFix] Fixed a stale resource counter, that would be especially noticeable when switching between villages.
 
 ## Version 0.4.30
 
 #### Jun 9, 2026
 
-* [BugFix] Fixed a navigation bar overlaying app elements on some browsers.
+- [BugFix] Fixed a navigation bar overlaying app elements on some browsers.
 
 ## Version 0.4.29
 
 #### Jun 6, 2026
 
-* [BugFix] Fixed a stale UI issue where constructing a new building wouldn't update the construction timer.
-* [BugFix] Fixed an error being thrown when toggling between "compact" and "detailed" building construction list.
-* [BugFix] Fixed an error, which in some cases caused a Hero unit to be duplicated after completing an adventure.
+- [BugFix] Fixed a stale UI issue where constructing a new building wouldn't update the construction timer.
+- [BugFix] Fixed an error being thrown when toggling between "compact" and "detailed" building construction list.
+- [BugFix] Fixed an error, which in some cases caused a Hero unit to be duplicated after completing an adventure.
 
 ## Version 0.4.28
 
 #### Jun 4, 2026
 
-* [Feature] Added our first new building, the **Hunter's Lodge**. Hunter's Lodge allows you to send out hunting parties
+- [Feature] Added our first new building, the **Hunter's Lodge**. Hunter's Lodge allows you to send out hunting parties
   which will hunt animals from nearby oasis. These captured animals will serve as reinforcements, defending your village
   from incoming attacks. Hunter's Lodge also allows you to manufacture **Animal cages**, which you'll be able to use
   with your Hero and capture animals yourself.
@@ -476,29 +498,29 @@
 
 #### Jun 1, 2026
 
-* [BugFix] Fixed overflowing tables on mobile devices.
-* [BugFix] Added missing bookmark functionality to Rally Point's Send troops view.
-* [TechnicalImprovement] Reworked backend structure.
-* [TechnicalImprovement] SQL queries with parameters now throw a type error if said parameters are not provided.
+- [BugFix] Fixed overflowing tables on mobile devices.
+- [BugFix] Added missing bookmark functionality to Rally Point's Send troops view.
+- [TechnicalImprovement] Reworked backend structure.
+- [TechnicalImprovement] SQL queries with parameters now throw a type error if said parameters are not provided.
 
 ## Version 0.4.26
 
 #### May 25, 2026
 
-* [Performance] Improved game world creation speed. Tests indicate between 35% to 40% speed increase.
+- [Performance] Improved game world creation speed. Tests indicate between 35% to 40% speed increase.
 
 ## Version 0.4.25
 
 #### May 23, 2026
 
-* [Feature] Added the ability to mark map tiles with markers. You're able to attach a description and select a color for
+- [Feature] Added the ability to mark map tiles with markers. You're able to attach a description and select a color for
   the marker.
 
 ## Version 0.4.24
 
 #### May 21, 2026
 
-* [Feature] Added the ability to rearrange buildings in villages. This feature can be accessed through Main Building by
+- [Feature] Added the ability to rearrange buildings in villages. This feature can be accessed through Main Building by
   accessing Village management's Rearrange buildings tab. Buildings may be rearranged by dragging them onto empty or
   occupied building fields. Note that Wall and Rally point can't be rearranged and no buildings may be assigned to their
   building fields.
@@ -507,50 +529,50 @@
 
 #### May 20, 2026
 
-* [Feature] Tile modal now displays a link to player profile.
-* [BugFix] Minor technical changes to prevent common errors from occurring.
+- [Feature] Tile modal now displays a link to player profile.
+- [BugFix] Minor technical changes to prevent common errors from occurring.
 
 ## Version 0.4.22
 
 #### May 19, 2026
 
-* [Performance] Greatly improved adventure point calculation, resolving in noticeably faster game world initialization,
+- [Performance] Greatly improved adventure point calculation, resolving in noticeably faster game world initialization,
   especially for game worlds which haven't been opened in a while.
 
 ## Version 0.4.21
 
 #### May 16, 2026
 
-* [BugFix] Fixed an issue where starting a building demolition, the demolition countdown would not appear in the Village
+- [BugFix] Fixed an issue where starting a building demolition, the demolition countdown would not appear in the Village
   Overview or Main Building's Demolish Buildings views.
-* [BugFix] Fixed an issue where upgrading a building would prevent a separate building from being downgraded.
-* [BugFix] Fixed an issue where Village Overview's demolition table would not appear unless the Main Building was at
+- [BugFix] Fixed an issue where upgrading a building would prevent a separate building from being downgraded.
+- [BugFix] Fixed an issue where Village Overview's demolition table would not appear unless the Main Building was at
   level 11.
-* [TechnicalImprovement] Reworded some error descriptions for more clarity.
+- [TechnicalImprovement] Reworded some error descriptions for more clarity.
 
 ## Version 0.4.20
 
 #### May 15, 2026
 
-* [Feature] Added the ability to cancel building downgrade/demolish events.
-* [Feature] Added the ability to downgrade buildings by more than one level at a time.
-* [Feature] Reworked building downgrade/demolish duration. Duration is now based on level difference. Each level of
+- [Feature] Added the ability to cancel building downgrade/demolish events.
+- [Feature] Added the ability to downgrade buildings by more than one level at a time.
+- [Feature] Reworked building downgrade/demolish duration. Duration is now based on level difference. Each level of
   difference adds `300 seconds / game world speed` to the duration.
 
 ## Version 0.4.19
 
 #### May 10, 2026
 
-* [TechnicalImprovement] Toast popups and notifications will now display the village name.
-* [BugFix] Fixed an issue where village founding events didn't show a correct timestamp on the Events page.
-* [BugFix] Fixed an issue where NPC reputation level was incorrectly calculated, resulting in all NPC being shown as
+- [TechnicalImprovement] Toast popups and notifications will now display the village name.
+- [BugFix] Fixed an issue where village founding events didn't show a correct timestamp on the Events page.
+- [BugFix] Fixed an issue where NPC reputation level was incorrectly calculated, resulting in all NPC being shown as
   with "hated" reputation level.
 
 ## Version 0.4.18
 
 #### May 8, 2026
 
-* [TechnicalImprovement] We reworked how communication between threads works, enabling complete type safety. Previously,
+- [TechnicalImprovement] We reworked how communication between threads works, enabling complete type safety. Previously,
   we had no way to guarantee that the data we pass between threads is actually correct, without just manually testing
   it. This caused issues during refactoring, since any missing argument/parameter isn't actually caught during
   lint/type-check and had to be manually validated to be working.
@@ -559,33 +581,33 @@
 
 #### May 6, 2026
 
-* [Feature] Introduced stacked tabs layout on desktop devices.
-* [Feature] Split Rally Point's Troop movements tab in to a Troop movements tab & Stationed units tab.
+- [Feature] Introduced stacked tabs layout on desktop devices.
+- [Feature] Split Rally Point's Troop movements tab in to a Troop movements tab & Stationed units tab.
 
 ## Version 0.4.16
 
 #### May 5, 2026
 
-* [Performance] Removed unnecessary sorting operations on player, building details and quests pages.
+- [Performance] Removed unnecessary sorting operations on player, building details and quests pages.
 
 ## Version 0.4.15
 
 #### May 5, 2026
 
-* [Feature] Expanded NPC village templates. NPC villages will now be created with more buildings and a higher
+- [Feature] Expanded NPC village templates. NPC villages will now be created with more buildings and a higher
   population.
 
 ## Version 0.4.14
 
 #### May 4, 2026
 
-* [BugFix] Minor CSS overflow fixes.
+- [BugFix] Minor CSS overflow fixes.
 
 ## Version 0.4.13
 
 #### May 1, 2026
 
-* [Feature] Added `Oasis animal finder` page. Oasis animal finder page allows you to search for all oases with a
+- [Feature] Added `Oasis animal finder` page. Oasis animal finder page allows you to search for all oases with a
   specific combination of animals present. For each selected animal type, you can set a minimum number of animals of
   that type that must be present in the oasis, allowing you to further narrow down the search. Oasis animal finder is
   accessible through the map page.
@@ -594,130 +616,129 @@
 
 #### Apr 29, 2026
 
-* [Performance] Optimized background event generation. This update speeds up simulating of past events by 4-6x on game
+- [Performance] Optimized background event generation. This update speeds up simulating of past events by 4-6x on game
   worlds, inactive by more than 10 days.
 
 ## Version 0.4.11
 
 #### Apr 29, 2026
 
-* [Feature] Added the ability to cancel unit improvements.
-* [Feature] Added a confirmation modal for cancelling unit improvements.
-* [BugFix] Fixed an incorrectly calculated cost for unit improvements.
+- [Feature] Added the ability to cancel unit improvements.
+- [Feature] Added a confirmation modal for cancelling unit improvements.
+- [BugFix] Fixed an incorrectly calculated cost for unit improvements.
 
 ## Version 0.4.10
 
 #### Apr 25, 2026
 
 fix: building downgrade fixes
-
-* [Feature] Added a table of current ongoing demolishments to the "Demolish buildings" tab of Village management.
-* [Feature] Added a confirmation modal with details of what will happen if you confirm downgrading or demolishing
+- [Feature] Added a table of current ongoing demolishments to the "Demolish buildings" tab of Village management.
+- [Feature] Added a confirmation modal with details of what will happen if you confirm downgrading or demolishing
   buildings.
-* [BugFix] Building overview and building field tooltip will now properly display "Currently downgrading to level x", if
+- [BugFix] Building overview and building field tooltip will now properly display "Currently downgrading to level x", if
   the building is being downgraded.
-* [BugFix] Toast notifications will now properly say, "Building was downgraded to level x".
+- [BugFix] Toast notifications will now properly say, "Building was downgraded to level x".
 
 ## Version 0.4.9
 
 #### Apr 23, 2026
 
-* [Feature] Added Natars as a possible NPC tribe during game world creation.
-* [BugFix] Removed Nature and Spartans from game world overview charts.
+- [Feature] Added Natars as a possible NPC tribe during game world creation.
+- [BugFix] Removed Nature and Spartans from game world overview charts.
 
 ## Version 0.4.8
 
 #### Apr 20, 2026
 
-* [BugFix] Fixed a Zod type issue occurring on Hero's Mansion page when NPC players are occupying an oasis in your
+- [BugFix] Fixed a Zod type issue occurring on Hero's Mansion page when NPC players are occupying an oasis in your
   vicinity.
 
 ## Version 0.4.7
 
 #### Apr 19, 2026
 
-* [BugFix] Fixed an issue where queuing troops would refund resources.
+- [BugFix] Fixed an issue where queuing troops would refund resources.
 
 ## Version 0.4.6
 
 #### Apr 18, 2026
 
-* [Feature] "Train `{number}` `{unit_name}`" quests may now be progressed.
+- [Feature] "Train `{number}` `{unit_name}`" quests may now be progressed.
 
 ## Version 0.4.5
 
 #### Apr 15, 2026
 
-* [Feature] Added a stationed troops section to the Rally Point's Troop movements tab. This section displays troops
+- [Feature] Added a stationed troops section to the Rally Point's Troop movements tab. This section displays troops
   currently stationed in your village, both deployable troops and reinforcements.
 
 ## Version 0.4.4
 
 #### Apr 13, 2026
 
-* [BugFix] Fixed an issue where a hero unit would get duplicated when being sent on an adventure from a non-home
+- [BugFix] Fixed an issue where a hero unit would get duplicated when being sent on an adventure from a non-home
   village.
 
 ## Version 0.4.3
 
 #### Apr 13, 2026
 
-* [Feature] Building benefits tab now shows all building effect values.
+- [Feature] Building benefits tab now shows all building effect values.
 
-* [BugFix] Fixed wall building incorrectly showing defense bonus of over 100%.
+- [BugFix] Fixed wall building incorrectly showing defense bonus of over 100%.
 
 ## Version 0.4.2
 
 #### Apr 12, 2026
 
-* [BugFix] Rename village screen will now correctly show the current village's name on village change.
+- [BugFix] Rename village screen will now correctly show the current village's name on village change.
 
-* [BugFix] Map tile tooltips and modals will now correctly show the "%" sign next to the oasis bonus value.
+- [BugFix] Map tile tooltips and modals will now correctly show the "%" sign next to the oasis bonus value.
 
-* [BugFix] Fixed incorrect wheat field label on 0-0-0-15 resource fields.
+- [BugFix] Fixed incorrect wheat field label on 0-0-0-15 resource fields.
 
-* [BugFix] Fixed certain frontend caches not being properly invalidated when specific events were triggered.
+- [BugFix] Fixed certain frontend caches not being properly invalidated when specific events were triggered.
 
-* [BugFix] Fixed homepage's Discord button not correctly showing current server user count.
+- [BugFix] Fixed homepage's Discord button not correctly showing current server user count.
 
-* [TechnicalImprovement] Selected filters and toggles (ex. on report page) will now persist through app refreshes.
+- [TechnicalImprovement] Selected filters and toggles (ex. on report page) will now persist through app refreshes.
 
-* [TechnicalImprovement] Improved error-handling flow when exporting game worlds.
+- [TechnicalImprovement] Improved error-handling flow when exporting game worlds.
 
 ## Version 0.4.1
 
 #### Apr 10, 2026
 
-* [BugFix] Fixed missing spacings between labels and inputs on forms.
+- [BugFix] Fixed missing spacings between labels and inputs on forms.
 
 ## Version 0.4.0
 
 #### Apr 9, 2026
 
-* [Breaking] This version introduces breaking changes
+- [Breaking] This version introduces breaking changes
 
-* [Feature] We added the ability to found new villages. You're able to found new villages by selecting an empty tile on
+- [Feature] We added the ability to found new villages. You're able to found new villages by selecting an empty tile on
   the map, while having three settlers present in your village.
 
-* [Feature] We're getting a new page! **Event log page** will show a list of the latest events happening in your
+- [Feature] We're getting a new page! **Event log page** will show a list of the latest events happening in your
   kingdom! It will show completed **construction/destruction/downgrade events**, **training events**, as well as **unit
   improvement events**, **unit research events** and **new village founding events**. You'll be able to toggle between
   village-specific events or all events. This will allow you to see what was done since you were last online, at a
   glance!
 
-* [Feature] We added new custom-made icons! This time for **cavalry defense** and **infantry defense**.
+- [Feature] We added new custom-made icons! This time for **cavalry defense** and **infantry defense**.
 
-* [Feature] We added experimental support for transferring a game world between devices on the same network. This is
+- [Feature] We added experimental support for transferring a game world between devices on the same network. This is
   done using WebRTC technology. To transfer the game world to a new device, both devices must have the app open and be
   on the same network.
 
-* [Feature] We added an initial implementation for village loyalty mechanic. This will be expanded in the future with
+- [Feature] We added an initial implementation for village loyalty mechanic. This will be expanded in the future with
   the introduction of combat mechanics.
 
-* [Feature] We added an initial implementation for farm lists. This will be expanded in the future with the introduction
+- [Feature] We added an initial implementation for farm lists. This will be expanded in the future with the introduction
   of combat mechanics.
 
-* [Feature] We reworked how construction cancellation works. Previously, cancelling an ongoing construction refunded a
+- [Feature] We reworked how construction cancellation works. Previously, cancelling an ongoing construction refunded a
   flat 80% of the construction cost, regardless of when the construction was canceled. This penalized players who
   initialized construction by mistake. The new refund system is based on the proportionality of already-completed
   construction. Cancelling immediately or in the first 5% of construction duration will refund 95% of the construction
@@ -728,81 +749,81 @@ fix: building downgrade fixes
 
 #### Mar 31, 2026
 
-* [BugFix] Fixed an issue where double-clicking a building field would take you to a non-existing page.
+- [BugFix] Fixed an issue where double-clicking a building field would take you to a non-existing page.
 
 ## Version 0.3.16
 
 #### Mar 27, 2026
 
-* [BugFix] Fixed an issue where Smithy unit improvement events were not properly accounted for in other villages.
+- [BugFix] Fixed an issue where Smithy unit improvement events were not properly accounted for in other villages.
 
 ## Version 0.3.15
 
 #### Mar 19, 2026
 
-* [BugFix] Replaced `withResolvers` with a manual implementation to support older devices.
+- [BugFix] Replaced `withResolvers` with a manual implementation to support older devices.
 
 ## Version 0.3.14
 
 #### Mar 19, 2026
 
-* [BugFix] Fixed an issue where navigating to certain pages did not work correctly.
+- [BugFix] Fixed an issue where navigating to certain pages did not work correctly.
 
 ## Version 0.3.13
 
 #### Mar 17, 2026
 
-* [TechnicalImprovement] App will now remember your position when navigating between nested tabs.
+- [TechnicalImprovement] App will now remember your position when navigating between nested tabs.
 
 ## Version 0.3.12
 
 #### Mar 14, 2026
 
-* [TechnicalImprovement] Upgraded our internal graphics library version, which now provides smaller and more efficient
+- [TechnicalImprovement] Upgraded our internal graphics library version, which now provides smaller and more efficient
   icons.
 
 ## Version 0.3.11
 
 #### Mar 13, 2026
 
-* [BugFix] Fixed a bug where multiple building construction events could have been queued up at once.
+- [BugFix] Fixed a bug where multiple building construction events could have been queued up at once.
 
 ## Version 0.3.10
 
 #### Mar 12, 2026
 
-* [BugFix] Added a missing residence training queue to the Village Overview page.
+- [BugFix] Added a missing residence training queue to the Village Overview page.
 
 ## Version 0.3.9
 
 #### Mar 11, 2026
 
-* [BugFix] Fixed the incorrect building duration value shown on Upgrade Details' Upgrade Duration tab.
+- [BugFix] Fixed the incorrect building duration value shown on Upgrade Details' Upgrade Duration tab.
 
 ## Version 0.3.8
 
 #### Mar 8, 2026
 
-* [TechnicalImprovement] Improved api-worker error detection flow. Users will now be properly notified when an error
+- [TechnicalImprovement] Improved api-worker error detection flow. Users will now be properly notified when an error
   occurs.
 
 ## Version 0.3.7
 
 #### Mar 6, 2026
 
-* [BugFix] Added additional validations to prevent the app from getting in to incorrect state.
+- [BugFix] Added additional validations to prevent the app from getting in to incorrect state.
 
 ## Version 0.3.6
 
 #### Mar 6, 2026
 
-* [BugFix] Fixed formatting issues with increasing percentage values in building cards.
+- [BugFix] Fixed formatting issues with increasing percentage values in building cards.
 
 ## Version 0.3.5
 
 #### Mar 6, 2026
 
-* [BugFix] Added additional validations to prevent the app from getting to an incorrect state. These fixes should
+- [BugFix] Added additional validations to prevent the app from getting to an incorrect state. These fixes should
   prevent users from being able to upgrade units beyond level 20, upgrade buildings beyond their max level and surpass
   other similar limitations.
 
@@ -810,41 +831,41 @@ fix: building downgrade fixes
 
 #### Mar 5, 2026
 
-* [BugFix] Fixed an issue where resource fields showed an incorrect hourly production.
+- [BugFix] Fixed an issue where resource fields showed an incorrect hourly production.
 
-* [BugFix] Fixed an issue where unit training didn't correctly subtract resources.
+- [BugFix] Fixed an issue where unit training didn't correctly subtract resources.
 
 ## Version 0.3.3
 
 #### Mar 4, 2026
 
-* [BugFix] Fixed an issue where controller parameter type-casting was not working correctly.
+- [BugFix] Fixed an issue where controller parameter type-casting was not working correctly.
 
 ## Version 0.3.2
 
 #### Mar 4, 2026
 
-* [BugFix] Fixed an issue upgrading buildings wouldn't complete "upgrade building to level x" quests.
+- [BugFix] Fixed an issue upgrading buildings wouldn't complete "upgrade building to level x" quests.
 
-* [BugFix] Fixed an issue where training multiple units at once actually trained X * X number of units, instead of X.
+- [BugFix] Fixed an issue where training multiple units at once actually trained X * X number of units, instead of X.
 
-* [BugFix] Fixed an issue where a Hero would return immediately after completing an adventure.
+- [BugFix] Fixed an issue where a Hero would return immediately after completing an adventure.
 
-* [BugFix] Added missing dark mode support on various elements.
+- [BugFix] Added missing dark mode support on various elements.
 
 ## Version 0.3.1
 
 #### Mar 3, 2026
 
-* [Feature] Added dark mode support for both public and in-game pages.
+- [Feature] Added dark mode support for both public and in-game pages.
 
 ## Version 0.3.0
 
 #### Mar 3, 2026
 
-* [Breaking] This version introduces breaking changes
+- [Breaking] This version introduces breaking changes
 
-* [Feature] Added hero adventures! Too long have our heroes sat idly by. No longer! You'll now be able to send a hero on
+- [Feature] Added hero adventures! Too long have our heroes sat idly by. No longer! You'll now be able to send a hero on
   adventures to gather loot and experience! <br /> Adventures will take anywhere from 8 to 12 minutes, and are scaled
   with game world speed.<br /> Each adventure will cost your hero some health points; 5 to be exact. This can be reduced
   by wearing damage-reducing gear!<br /> Your hero earns experience each time it completes an adventure. It currently
@@ -852,103 +873,103 @@ fix: building downgrade fixes
   loot on successfully finishing an adventure. We're currently still missing loot tables, so this is coming in a later
   patch, along with hero inventory interface.<br />
 
-* [Feature] Added the ability to train Chiefs and Settlers.
+- [Feature] Added the ability to train Chiefs and Settlers.
 
-* [Feature] Added more missing unit icons.
+- [Feature] Added more missing unit icons.
 
-* [Feature] Added custom-made icons for resources.
+- [Feature] Added custom-made icons for resources.
 
-* [BugFix] Fixed an issue where some occupiable oasis did not have proper resource bonuses and animals generated.
+- [BugFix] Fixed an issue where some occupiable oasis did not have proper resource bonuses and animals generated.
 
-* [BugFix] Fixed an issue where not all occupiable oases were shown in Hero's Mansion.
+- [BugFix] Fixed an issue where not all occupiable oases were shown in Hero's Mansion.
 
-* [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented
+- [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented
   2 separate changes in regard to a database. The first one reduced overall database size by around 10-30%, depending on
   game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This
   results in faster game world creation, as well as better performance while in the game!
 
-* [TechnicalImprovement] Improved database breaking changes detection. App will now more consistently detect outdated
+- [TechnicalImprovement] Improved database breaking changes detection. App will now more consistently detect outdated
   game worlds.
 
 ## Version 0.2.5
 
 #### Feb 28, 2026
 
-* [Feature] Error messages for resource-dependent actions now display the exact time at which the required resources
+- [Feature] Error messages for resource-dependent actions now display the exact time at which the required resources
   will be available.
 
 ## Version 0.2.4
 
 #### Feb 23, 2026
 
-* [Feature] Village overview page now shows an ongoing building construction table with the ability to cancel
+- [Feature] Village overview page now shows an ongoing building construction table with the ability to cancel
   construction
 
 ## Version 0.2.3
 
 #### Feb 21, 2026
 
-* [BugFix] Fixed the discrepancy between population count shown on the map and in statistics.
+- [BugFix] Fixed the discrepancy between population count shown on the map and in statistics.
 
 ## Version 0.2.2
 
 #### Feb 21, 2026
 
-* [BugFix] Fixed building construction queue tooltips overlapping on tables.
+- [BugFix] Fixed building construction queue tooltips overlapping on tables.
 
 ## Version 0.2.1
 
 #### Feb 16, 2026
 
-* [Feature] Added an option to view the constructable buildings list in compacted form. This change allows players to
+- [Feature] Added an option to view the constructable buildings list in compacted form. This change allows players to
   scroll less, especially on mobile devices.
 
-* [Feature] Added the ability to commit minor database upgrades without breaking game worlds.
+- [Feature] Added the ability to commit minor database upgrades without breaking game worlds.
 
 ## Version 0.2.0
 
 #### Feb 15, 2026
 
-* [Breaking] This version introduces breaking changes
+- [Breaking] This version introduces breaking changes
 
-* [Feature] Added hero attributes page. You're now able to see all your hero attributes. There are some additional
+- [Feature] Added hero attributes page. You're now able to see all your hero attributes. There are some additional
   attributes that are not shown (cranny plunder, ...). These options will be added in a later patch. Page also allows
   you to change hero's ability points, along with the ability to switch hero resource production focus. The dropdown
   shows you production values to expect on change.
 
-* [Feature] A "hero level up" option has been added to developer tools.
+- [Feature] A "hero level up" option has been added to developer tools.
 
 ## Version 0.1.2
 
 #### Feb 11, 2026
 
-* [BugFix] Fixed an issue where barracks and stable upgrades wouldn't decrease unit training duration.
+- [BugFix] Fixed an issue where barracks and stable upgrades wouldn't decrease unit training duration.
 
 ## Version 0.1.1
 
 #### Feb 11, 2026
 
-* [BugFix] Fixed an issue where upgrading buildings wouldn't increase the building effect values (building duration,
+- [BugFix] Fixed an issue where upgrading buildings wouldn't increase the building effect values (building duration,
   troop training, ...).
 
-* [BugFix] Fixed an issue where environment variables weren't getting injected.
+- [BugFix] Fixed an issue where environment variables weren't getting injected.
 
-* [Performance] Improved performance of resolving events. Updating resource query now doesn't run if there's no change
+- [Performance] Improved performance of resolving events. Updating resource query now doesn't run if there's no change
   to resources.
 
 ## Version 0.1.0
 
 #### Feb 9, 2026
 
-* [Breaking] This update is not compatible with existing game worlds and requires the creation of new game worlds
-* [Feature] Player pages - you can now see player information, along with the list of villages they occupy.
-* [Feature] Statistics pages - you can now see the ranking of all players and all villages, based on population.
-* [Feature] Game world overview page - you can now see the split of tribes, factions and basic game world information.
-* [Feature] Oasis bonus finder - long gone are the days of manually checking the map for your perfect location of your
+- [Breaking] This update is not compatible with existing game worlds and requires the creation of new game worlds
+- [Feature] Player pages - you can now see player information, along with the list of villages they occupy.
+- [Feature] Statistics pages - you can now see the ranking of all players and all villages, based on population.
+- [Feature] Game world overview page - you can now see the split of tribes, factions and basic game world information.
+- [Feature] Oasis bonus finder - long gone are the days of manually checking the map for your perfect location of your
   next village. This tool allows you to find all tiles with specific resource composition and bonuses!
-* [Feature] Reworked developer tools - you may now toggle instant completion and cost-free of individual event types,
+- [Feature] Reworked developer tools - you may now toggle instant completion and cost-free of individual event types,
   add or remove resources, add adventure points or spawn hero items!
-* [Feature] Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as
+- [Feature] Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as
   development continues!
 
   From a technical improvement perspective, we haven't been idling. The new version fixes the long-standing issue of
@@ -959,14 +980,14 @@ fix: building downgrade fixes
 
 #### Jan 26, 2026
 
-* [Performance] We've improved the performance of the game world creation. You can expect 10-15% faster game world
+- [Performance] We've improved the performance of the game world creation. You can expect 10-15% faster game world
   generation!
 
 ## Version 0.0.48
 
 #### Jan 19, 2026
 
-* [Feature] You'll now be able to start building upgrades faster on mobile! Press the building upgrade indicator for a
+- [Feature] You'll now be able to start building upgrades faster on mobile! Press the building upgrade indicator for a
   second, and the building will start upgrading, without you having to open the building interface and clicking the
   build button.
 
@@ -974,50 +995,50 @@ fix: building downgrade fixes
 
 #### Jan 7, 2026
 
-* [Performance] We've reworked some of the scripts used in game-world generation, and as a result, generation is now
+- [Performance] We've reworked some of the scripts used in game-world generation, and as a result, generation is now
   about 10-15% faster. This is especially important in larger worlds or when using a lower-end device, where generation
   may take a couple of seconds.
 
-* [TechnicalImprovement] We transitioned the repository to a monorepo. This came with some technical challenges, but
+- [TechnicalImprovement] We transitioned the repository to a monorepo. This came with some technical challenges, but
   also a ton of clarity. Project is now much simpler to navigate and reason about!
 
-* [TechnicalImprovement] We've added oxlint to the project. This is a new linting tool, and it's very promising. Plan is
+- [TechnicalImprovement] We've added oxlint to the project. This is a new linting tool, and it's very promising. Plan is
   to use it side-by-side with Biome (our current linter), with the goal of eventually transitioning fully off of Biome.
 
 ## Version 0.0.46
 
 #### Jan 4, 2026
 
-* [Feature] We added a game-world-overview page. Thank you very much for your contribution!
+- [Feature] We added a game-world-overview page. Thank you very much for your contribution!
 
 ## Version 0.0.45
 
 #### Dec 30, 2025
 
-* [Feature] We added player pages! You'll now be able to see general information about each player, along with a list of
+- [Feature] We added player pages! You'll now be able to see general information about each player, along with a list of
   their villages. Thank you very much for your contribution!
 
 ## Version 0.0.44
 
 #### Dec 24, 2025
 
-* [Feature] UI color scheme (dark/light mode), graphic skin variant (default, snow, ...), locale and graphics day-night
+- [Feature] UI color scheme (dark/light mode), graphic skin variant (default, snow, ...), locale and graphics day-night
   setting are now persistent between game worlds. This doesn't mean much yet. We don't have graphics, only support a
   single locale and don't have a dark mode yet, but once those things arrive, you'll be able to set them once and have
   the setting persist through all game worlds.
 
-* [Performance] We've done a minor cleanup. In this case, we managed to remove a minor dependency, which reduced the
+- [Performance] We've done a minor cleanup. In this case, we managed to remove a minor dependency, which reduced the
   final bundle by about ~60 kb.
 
 ## Version 0.0.43
 
 #### Dec 19, 2025
 
-* [Feature] We now have a global not-found page. We've been seeing a small rise of routing errors lately. We're not sure
+- [Feature] We now have a global not-found page. We've been seeing a small rise of routing errors lately. We're not sure
   if these are just bots trying different subpages, but in case some real users are getting lost, this should help them
   out a bit.
 
-* [Feature] We've reworked the in-game error pages for a game world not found and game world is already opened errors.
+- [Feature] We've reworked the in-game error pages for a game world not found and game world is already opened errors.
   Instead of being redirected to /404 or /403, you'll now remain inside the relevant game world url. This reduces the
   number of clicks needed to solve a particular error.
 
@@ -1025,9 +1046,9 @@ fix: building downgrade fixes
 
 #### Dec 12, 2025
 
-* [BugFix] We've fixed an annoying layout shift, which appeared when changing between village and non-village pages!
+- [BugFix] We've fixed an annoying layout shift, which appeared when changing between village and non-village pages!
 
-* [Performance] We've substantially improved the performance of the construct new building page. This page was actually
+- [Performance] We've substantially improved the performance of the construct new building page. This page was actually
   flagged as one of the slowest pages we have. The reason for this is that to determine which buildings you're allowed
   to construct, we have to run a bunch of checks. While these checks are not that slow individually, we had to run these
   checks multiple times for each building, which added up quickly. We've now reworked this to make it more efficient.

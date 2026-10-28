@@ -41,3 +41,12 @@ export const villageBySlugDtoSchema = z.strictObject({
   resourceFieldComposition: resourceFieldCompositionSchema,
   buildingFields: z.array(buildingFieldSchema),
 });
+
+export const villageCulturePointsDtoSchema = z.strictObject({
+  culturePoints: z.number(),
+  villageCount: z.number(),
+  currentVillageCulturePointsProduction: z.number(),
+  playerCulturePointsProduction: z.number(),
+  currentVillageCulturePointsRequirement: z.number(),
+  nextVillageCulturePointsRequirement: z.number(),
+});

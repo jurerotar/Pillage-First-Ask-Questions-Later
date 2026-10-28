@@ -1,8 +1,11 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
 import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import createCulturePointsTable from '../schemas/culture-points-schema.sql?raw';
 import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
@@ -685,6 +688,57 @@ export const upgradeDb = (
           CREATE INDEX idx_villages_slug ON villages (slug) WHERE slug IS NOT NULL;
         `,
       });
+    });
+  });
+
+  migrate('0.4.76', (db) => {
+    db.transaction((tx) => {
+      tx.exec({
+        sql: `
+          ALTER TABLE servers
+          ADD COLUMN culture_points_requirement_speed INTEGER CHECK (culture_points_requirement_speed IN (1, 2, 3, 4, 5)) NOT NULL DEFAULT 1;
+        `,
+      });
+
+      tx.execMulti({ sql: createCulturePointsTable });
+
+      const villageCount = tx.selectValue({
+        sql: `
+          SELECT
+            (
+              SELECT COUNT(*)
+              FROM villages v
+              WHERE v.player_id = $player_id
+            ) + (
+              SELECT COUNT(*)
+              FROM events e
+                JOIN villages v ON v.id = e.village_id
+              WHERE
+                v.player_id = $player_id
+                AND e.type = 'troopMovementFindNewVillage'
+            ) AS village_count;
+        `,
+        bind: { $player_id: PLAYER_ID },
+        schema: z.number(),
+      })!;
+
+      tx.exec({
+        sql: `
+          INSERT INTO culture_points
+            (player_id, culture_points, culture_points_updated_at)
+          VALUES ($player_id, $culture_points, $updated_at);
+        `,
+        bind: {
+          $culture_points: calculateCulturePointsRequirementForVillageCount(
+            villageCount,
+            1,
+          ),
+          $updated_at: Date.now(),
+          $player_id: PLAYER_ID,
+        },
+      });
+
+      setupGlobalWriteTriggers(tx);
     });
   });
 

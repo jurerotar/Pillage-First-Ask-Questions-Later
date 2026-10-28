@@ -210,9 +210,7 @@ export const getPlayerBySlug = createController('/players/:playerSlug', {
   return (
     database.selectObject({
       sql: selectPlayerBySlugQuery,
-      bind: {
-        $player_slug: playerSlug,
-      },
+      bind: { $player_slug: playerSlug },
       schema: playerSchema,
     }) ?? null
   );
