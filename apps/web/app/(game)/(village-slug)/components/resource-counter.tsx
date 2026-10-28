@@ -56,7 +56,7 @@ export const ResourceCounter = ({
           </span>
         </span>
       </div>
-      <div className="relative flex h-3 lg:h-5.5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
+      <div className="relative flex h-3 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9] overflow-hidden">
         <div
           className={clsx(
             isFull || hasNegativeProduction

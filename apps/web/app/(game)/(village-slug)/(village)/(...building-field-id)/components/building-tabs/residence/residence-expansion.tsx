@@ -7,6 +7,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCulturePointsProgress } from 'app/(game)/(village-slug)/hooks/use-culture-points-progress';
 import { InformationPopover } from 'app/(game)/components/information-popover';
+import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Progress } from 'app/components/ui/progress';
 
@@ -17,7 +18,6 @@ export const ResidenceExpansion = () => {
     dailyProduction,
     availableCulturePoints,
     availableVillageCount,
-    previousRequirement,
     nextRequirement,
     progress,
   } = useCulturePointsProgress();
@@ -36,36 +36,29 @@ export const ResidenceExpansion = () => {
         <Text as="h2">{t('Expansion')}</Text>
       </SectionContent>
       <SectionContent>
-        <Text as="h3">{t('Culture points')}</Text>
-
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center gap-2">
-            <Text className="text-xs font-medium text-muted-foreground uppercase">
-              {t('Progress to next village')}
-            </Text>
-            <Text className="text-right font-medium text-sm tabular-nums">
-              {Math.floor(progress)}%
-            </Text>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="flex items-center gap-2 font-medium">
+              <Icon
+                type="culturePoints"
+                className="size-5"
+              />
+              <span>
+                {t('Culture points')}{' '}
+                {formatNumber(Math.floor(availableCulturePoints))} /{' '}
+                {formatNumber(nextRequirement)}
+              </span>
+            </span>
+            <span className="text-sm tabular-nums">
+              {t('{{percent}}% filled', { percent: progress.toFixed(1) })}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Text
-              as="span"
-              className="shrink-0 text-sm font-medium tabular-nums"
-            >
-              {formatNumber(previousRequirement)}
-            </Text>
-            <Progress
-              value={progress}
-              aria-label={t('Culture points progress')}
-              className="border border-[#0d648e] [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)] h-2.5"
-            />
-            <Text
-              as="span"
-              className="shrink-0 text-sm font-medium tabular-nums"
-            >
-              {formatNumber(nextRequirement)}
-            </Text>
-          </div>
+          <Progress
+            value={progress}
+            aria-label={t('Culture points progress')}
+            aria-valuetext={`${formatNumber(Math.floor(availableCulturePoints))} / ${formatNumber(nextRequirement)}`}
+            className="h-2 rounded-full bg-muted [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)]"
+          />
         </div>
         <dl className="grid grid-cols-2 gap-2">
           <div className="flex flex-col">
