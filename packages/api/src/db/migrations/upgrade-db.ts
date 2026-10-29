@@ -712,6 +712,16 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.78', (db) => {
+    db.exec({
+      sql: 'ALTER TABLE developer_settings ADD COLUMN is_free_celebrations_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_free_celebrations_enabled IN (0, 1));',
+    });
+
+    db.exec({
+      sql: 'ALTER TABLE developer_settings ADD COLUMN is_instant_celebrations_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_instant_celebrations_enabled IN (0, 1));',
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({

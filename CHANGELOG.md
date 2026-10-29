@@ -1,3 +1,16 @@
+## Version 0.4.78
+
+#### Oct 29, 2026
+
+- [Feature] The world map just got a lot more alive! Villages now have unique graphics for each tribe and grow
+  visually as their population increases.
+- [Feature] Added developer options for Town Hall celebrations.
+- [UIUXImprovement] Added Town Hall celebrations and their remaining cooldowns to the village overview.
+- [UIUXImprovement] Reworked celebration cards with compact costs, reward icons, information popovers and clearer
+  validation messages.
+- [UIUXImprovement] Improved the visual distinction between selected and unselected toggles.
+- [BugFix] Fixed map graphics disappearing when changing the UI theme.
+
 ## Version 0.4.77
 
 #### Oct 29, 2026

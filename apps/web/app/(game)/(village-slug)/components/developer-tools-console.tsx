@@ -148,6 +148,14 @@ export const DeveloperToolsConsole = ({
       instantSetting: 'isInstantUnitResearchEnabled',
     },
     {
+      label: t('Celebrations'),
+      description: t(
+        'Control the resource cost and cooldown of Town Hall celebrations.',
+      ),
+      freeSetting: 'isFreeCelebrationsEnabled',
+      instantSetting: 'isInstantCelebrationsEnabled',
+    },
+    {
       label: t('Hero revives'),
       description: t(
         'Control the resource cost and duration of reviving heroes.',
