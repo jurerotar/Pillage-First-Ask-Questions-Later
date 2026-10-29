@@ -2,7 +2,8 @@
 
 #### Oct 29, 2026
 
-- [Feature] Map villages now use graphics based on their tribe and population.
+- [Feature] The world map just got a lot more alive! Villages now have unique graphics for each tribe and grow
+  visually as their population increases.
 - [Feature] Added developer options for Town Hall celebrations.
 - [UIUXImprovement] Added Town Hall celebrations and their remaining cooldowns to the village overview.
 - [UIUXImprovement] Reworked celebration cards with compact costs, reward icons, information popovers and clearer
