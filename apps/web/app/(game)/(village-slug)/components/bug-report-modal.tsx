@@ -1,4 +1,3 @@
-import { faro } from '@grafana/faro-web-sdk';
 import { useMutation } from '@tanstack/react-query';
 import { use, useRef } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,6 +18,7 @@ import {
 import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
 import { Spinner } from 'app/components/ui/spinner';
+import { faro } from 'app/instrumentation/faro-client';
 
 type BugReportModalProps = {
   isOpen: boolean;
@@ -87,7 +87,7 @@ const createDiagnostics = (server: ReturnType<typeof useServer>['server']) => {
     appVersion: env.VERSION,
     browserLanguage: navigator.language,
     browserLanguages: navigator.languages,
-    faroSessionId: faro.api?.getSession()?.id ?? null,
+    faroSessionId: faro?.api.getSession()?.id ?? null,
     gameWorld: {
       id: server.id,
       mapSize: server.configuration.mapSize,

@@ -1,4 +1,5 @@
 import { env } from '@pillage-first/utils/env';
+import { setFaroClient } from 'app/instrumentation/faro-client';
 import { getDeviceType, isStandaloneDisplayMode } from 'app/utils/device';
 
 const allowedBranches = new Set(['master']);
@@ -222,13 +223,15 @@ export const initFaro = async () => {
     return;
   }
 
-  const [{ initializeFaro, getWebInstrumentations }, { ReactIntegration }] =
-    await Promise.all([
-      import('@grafana/faro-web-sdk'),
-      import('@grafana/faro-react'),
-    ]);
+  const [
+    { initializeFaro, getWebInstrumentations },
+    { FaroErrorBoundary, ReactIntegration },
+  ] = await Promise.all([
+    import('@grafana/faro-web-sdk'),
+    import('@grafana/faro-react'),
+  ]);
 
-  initializeFaro({
+  const client = initializeFaro({
     url: env.VITE_FARO_INGEST_ENDPOINT,
     app: {
       name: 'pillage-first',
@@ -250,4 +253,6 @@ export const initFaro = async () => {
       },
     },
   });
+
+  setFaroClient(client, FaroErrorBoundary);
 };

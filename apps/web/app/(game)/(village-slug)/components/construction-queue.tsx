@@ -1,4 +1,3 @@
-import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
 import { clsx } from 'clsx';
 import { Suspense, use, useCallback, useMemo, useState } from 'react';
@@ -361,17 +360,6 @@ const ConstructionQueueContent = () => {
 
   const totalSlotsCount = 5;
   const emptySlotsCount = Math.max(0, totalSlotsCount - orderedEvents.length);
-
-  // TODO: We've had reports of a bug where emptySlots is less than 0. We're manually reporting the issue, remove this code block once resolved.
-  if (totalSlotsCount - orderedEvents.length < 0) {
-    faro.api.pushError(
-      new Error(
-        `Invalid array length at ConstructionQueue${JSON.stringify({
-          buildingUpgradeEvents,
-        })}`,
-      ),
-    );
-  }
 
   const slots = [
     ...orderedEvents.map((event) => ({

@@ -1,5 +1,5 @@
-import { faro } from '@grafana/faro-web-sdk';
 import type { Server } from '@pillage-first/types/models/server';
+import { faro } from 'app/instrumentation/faro-client';
 
 type ProductEventAttributes = Record<string, string | number | boolean | null>;
 
@@ -38,7 +38,7 @@ const pushProductEvent = (
   name: string,
   attributes: ProductEventAttributes = {},
 ): void => {
-  faro.api?.pushEvent(name, toEventAttributes(attributes), 'product', {
+  faro?.api.pushEvent(name, toEventAttributes(attributes), 'product', {
     skipDedupe: true,
   });
 };
