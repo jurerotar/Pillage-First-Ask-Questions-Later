@@ -39,6 +39,18 @@
 // Unoccupied occupiable tiles
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
   :global(html.skin-variant-#{$skinVariantSelector}) {
+    .occupied-tile {
+      @each $tribe in $tribes {
+        @if $tribe != 'nature' {
+          @each $size in ('sm', 'md', 'lg') {
+            &-#{$tribe}-#{$size} {
+              background-image: url('#{$imagesPath}/map/villages/#{$tribe}/#{$size}.avif?v=#{$graphics-version}');
+            }
+          }
+        }
+      }
+    }
+
     $base: '#{$imagesPath}/map/unoccupied-tiles';
 
     .unoccupied-tile {

@@ -125,14 +125,22 @@ const getTileClassNames = (
     );
   }
 
-  if (tile.type === 'free' && tile.owner !== null) {
-    const { faction } = tile.owner;
+  if (
+    tile.type === 'free' &&
+    tile.owner !== null &&
+    tile.ownerVillage !== null
+  ) {
+    const { faction, tribe } = tile.owner;
+    const population = tile.ownerVillage.population;
+    const villageSize =
+      population < 250 ? 'sm' : population < 750 ? 'md' : 'lg';
     const reputationLevel =
       faction === 'player' ? 'player' : getReputation(faction).reputationLevel;
 
     return clsx(
       cellStyles.tile,
       cellStyles['occupied-tile'],
+      cellStyles[`occupied-tile-${tribe}-${villageSize}`],
       cellStyles[`occupied-tile-magnification-${magnification}`],
       shouldShowFactionReputation &&
         cellStyles[`occupied-tile-reputation-${reputationLevel}`],
