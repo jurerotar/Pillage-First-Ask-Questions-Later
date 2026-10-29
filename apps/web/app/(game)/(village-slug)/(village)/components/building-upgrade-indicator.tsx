@@ -1,10 +1,10 @@
 import {
-  type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
   use,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MdUpgrade } from 'react-icons/md';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
@@ -29,7 +29,7 @@ const StaticButton = ({
 }: StaticButtonProps) => {
   const { level } = buildingField;
   return (
-    <div className="rounded-full non-selectable transition-transform relative pointer-events-none lg:pointer-events-auto">
+    <div className="rounded-full non-selectable transition-transform relative pointer-events-none">
       <BorderIndicator
         backgroundVariant={backgroundVariant}
         variant={variant}
@@ -42,6 +42,7 @@ const StaticButton = ({
 
 type UpgradeButtonProps = {
   buildingField: BuildingField;
+  nextLevel: number;
   backgroundVariant: BorderIndicatorBackgroundVariant;
   onUpgrade: () => void;
   variant: BorderIndicatorBorderVariant;
@@ -49,11 +50,13 @@ type UpgradeButtonProps = {
 
 const UpgradeButton = ({
   buildingField,
+  nextLevel,
   backgroundVariant,
   onUpgrade,
   variant,
 }: UpgradeButtonProps) => {
-  const { level } = buildingField;
+  const { t } = useTranslation();
+  const { level, buildingId } = buildingField;
 
   const [shouldShowUpgradeButton, setShouldShowUpgradeButton] =
     useState<boolean>(false);
@@ -64,21 +67,15 @@ const UpgradeButton = ({
     onUpgrade();
   };
 
-  const onKeyDown = (event: ReactKeyboardEvent) => {
-    if (event.key === 'Enter') {
-      event.stopPropagation();
-      event.preventDefault();
-      onUpgrade();
-    }
-  };
-
   return (
     <button
-      className="hover:scale-125 rounded-full non-selectable cursor-pointer transition-transform relative focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring"
+      className="hover:scale-125 rounded-full non-selectable cursor-pointer pointer-events-auto transition-transform relative focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring"
       type="button"
-      tabIndex={0}
+      aria-label={t('Upgrade {{building}} to level {{level}}', {
+        building: t(`BUILDINGS.${buildingId}.NAME`),
+        level: nextLevel,
+      })}
       onClick={onUpgradeButtonClick}
-      onKeyDown={onKeyDown}
       onMouseEnter={() => setShouldShowUpgradeButton(true)}
       onMouseLeave={() => setShouldShowUpgradeButton(false)}
     >
@@ -98,12 +95,14 @@ const UpgradeButton = ({
 type BuildingUpgradeIndicatorProps = {
   isHovered: boolean;
   buildingField: BuildingField;
+  nextLevel: number;
   buildingEvent: BuildingEvent | undefined;
   onUpgrade: () => void;
 };
 
 export const BuildingUpgradeIndicator = ({
   buildingField,
+  nextLevel,
   isHovered,
   buildingEvent,
   onUpgrade,
@@ -130,6 +129,7 @@ export const BuildingUpgradeIndicator = ({
   return (
     <ChildComponent
       buildingField={buildingField}
+      nextLevel={nextLevel}
       backgroundVariant={backgroundVariant}
       onUpgrade={onUpgrade}
       variant={variant}
