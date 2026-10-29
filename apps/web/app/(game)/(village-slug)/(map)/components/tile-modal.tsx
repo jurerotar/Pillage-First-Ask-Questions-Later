@@ -55,6 +55,7 @@ import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 import { useIntl } from 'app/hooks/use-intl';
 import { CookieContext } from 'app/providers/cookie-context';
 
@@ -94,6 +95,7 @@ type TileModalMarkerProps = {
     tileId: number;
     description: string;
     color: MapMarker['color'];
+    icon: MapMarker['icon'];
   }) => void;
   deleteMapMarker: (args: { tileId: number }) => void;
 };
@@ -105,6 +107,7 @@ type TileDialogProps = TileModalProps &
 type MapMarkerFormValues = {
   description: string;
   color: MapMarker['color'];
+  icon: MapMarker['icon'];
 };
 
 const TileModalMarker = ({
@@ -118,24 +121,45 @@ const TileModalMarker = ({
   const form = useForm<MapMarkerFormValues>({
     defaultValues: {
       description: '',
-      color: '#dc2626',
+      color: '#ffffff',
+      icon: 'mapMarker',
     },
   });
 
   const color = form.watch('color');
+  const icon = form.watch('icon');
+
+  const iconOptions = [
+    { icon: 'mapMarker', label: t('Flag') },
+    { icon: 'mapMarkerAttack', label: t('Attack') },
+    { icon: 'mapMarkerDefence', label: t('Defence') },
+    { icon: 'mapMarkerSettlement', label: t('Settlement') },
+    { icon: 'mapMarkerDanger', label: t('Danger') },
+    { icon: 'mapMarkerTreasure', label: t('Treasure') },
+  ] satisfies { icon: MapMarker['icon']; label: string }[];
 
   useEffect(() => {
-    form.reset({
-      description: marker?.description ?? '',
-      color: marker?.color ?? '#dc2626',
-    });
+    if (!marker) {
+      form.reset();
+      return;
+    }
+
+    form.reset(
+      {
+        description: marker.description,
+        color: marker.color,
+        icon: marker.icon,
+      },
+      { keepDefaultValues: true },
+    );
   }, [form, marker]);
 
-  const onSubmit = form.handleSubmit(({ description, color }) => {
+  const onSubmit = form.handleSubmit(({ description, color, icon }) => {
     createMapMarker({
       tileId: tile.id,
       description: description.trim(),
       color,
+      icon,
     });
   });
 
@@ -144,17 +168,39 @@ const TileModalMarker = ({
       className="flex flex-col gap-4"
       onSubmit={onSubmit}
     >
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={`map-marker-description-${tile.id}`}>
-          {t('Description')}
-        </Label>
-        <Input
-          id={`map-marker-description-${tile.id}`}
-          maxLength={120}
-          placeholder={t('Map marker description')}
-          {...form.register('description')}
-        />
-      </div>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-2 text-sm font-medium">{t('Icon')}</legend>
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          size="sm"
+          value={icon}
+          aria-label={t('Icon')}
+          className="flex-wrap"
+          onValueChange={(value) => {
+            const option = iconOptions.find((option) => option.icon === value);
+            if (option) {
+              form.setValue('icon', option.icon, { shouldDirty: true });
+            }
+          }}
+        >
+          {iconOptions.map((option) => (
+            <ToggleGroupItem
+              key={option.icon}
+              value={option.icon}
+              aria-label={option.label}
+              data-tooltip-id="general-tooltip"
+              data-tooltip-content={option.label}
+            >
+              <Icon
+                type={option.icon}
+                className="grayscale"
+                shouldShowTooltip={false}
+              />
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </fieldset>
       <div className="flex flex-col gap-2">
         <span className="text-sm font-medium">{t('Color')}</span>
         <div className="flex flex-wrap gap-2">
@@ -179,6 +225,17 @@ const TileModalMarker = ({
             />
           ))}
         </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={`map-marker-description-${tile.id}`}>
+          {t('Description')}
+        </Label>
+        <Input
+          id={`map-marker-description-${tile.id}`}
+          maxLength={120}
+          placeholder={t('Map marker description')}
+          {...form.register('description')}
+        />
       </div>
       <div className="flex justify-end gap-2">
         <Button
@@ -225,7 +282,7 @@ const TileModalMarkerDescription = ({
           className="size-4"
           shouldShowTooltip={false}
           style={{ color: marker.color }}
-          type="mapMarker"
+          type={marker.icon}
         />
         <span className="text-muted-foreground">{marker.description}</span>
       </span>

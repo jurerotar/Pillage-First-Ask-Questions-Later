@@ -147,57 +147,6 @@ export const upgradeDb = (
     );
   };
 
-  migrate('0.4.57', (db) => {
-    db.exec({
-      sql: `
-        UPDATE events
-        SET
-          meta = JSON_SET(
-            meta,
-            '$.troops',
-            JSON((
-              SELECT JSON_GROUP_ARRAY(JSON(updated_troop))
-              FROM
-                (
-                  SELECT
-                    CASE
-                      WHEN (
-                             JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
-                               OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
-                             )
-                        AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
-                        THEN JSON_SET(
-                        troop.value,
-                        '$.sourceTileId',
-                        JSON_EXTRACT(troop.value, '$.tileId')
-                             )
-                      ELSE troop.value
-                      END AS updated_troop
-                  FROM
-                    JSON_EACH(events.meta, '$.troops') AS troop
-                  ORDER BY CAST(troop.key AS INTEGER)
-                  )
-              ))
-                 )
-        WHERE
-          meta IS NOT NULL
-          AND JSON_TYPE(meta, '$.troops') = 'array'
-          AND EXISTS
-          (
-            SELECT 1
-            FROM
-              JSON_EACH(events.meta, '$.troops') AS troop
-            WHERE
-              (
-                JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
-                  OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
-                )
-              AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
-            );
-      `,
-    });
-  });
-
   migrate('0.4.58', (db) => {
     db.exec({
       sql: `
@@ -739,6 +688,27 @@ export const upgradeDb = (
       });
 
       setupGlobalWriteTriggers(tx);
+    });
+  });
+
+  migrate('0.4.77', (db) => {
+    db.exec({
+      sql: "ALTER TABLE map_markers ADD COLUMN icon TEXT NOT NULL DEFAULT 'mapMarker';",
+    });
+
+    db.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id)
+        SELECT e.id, 1.0 / s.speed, t.id, sc.id, so.id
+        FROM effect_ids e, servers s, effect_type_ids t,
+          effect_scope_ids sc, effect_source_ids so
+        WHERE e.effect = 'residenceTrainingDuration'
+          AND t.type = 'bonus' AND sc.scope = 'server' AND so.source = 'server'
+          AND NOT EXISTS (
+            SELECT 1 FROM effects existing
+            WHERE existing.effect_id = e.id AND existing.scope_id = sc.id
+          );
+      `,
     });
   });
 

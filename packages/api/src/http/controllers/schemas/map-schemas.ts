@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { factionSchema } from '@pillage-first/types/models/faction';
+import { mapMarkerIconSchema } from '@pillage-first/types/models/map-marker';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import {
@@ -56,6 +57,7 @@ export const getTileOasisBonusesSchema = z
 
 export const getMapMarkersSchema = z
   .strictObject({
+    icon: mapMarkerIconSchema,
     tile_id: z.number(),
     description: z.string(),
     color: z.string().regex(/^#[\dA-Fa-f]{6}$/u),

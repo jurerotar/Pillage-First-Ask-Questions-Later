@@ -27,6 +27,7 @@ type CellBaseProps = {
     tileId: number;
     description: string;
     color: MapMarker['color'];
+    icon: MapMarker['icon'];
   }) => void;
   deleteMapMarker: (args: { tileId: number }) => void;
   onClick: (tileId: number) => void;
@@ -61,7 +62,7 @@ const CellIcons = (props: CellIconsProps) => {
       <Icon
         className={mapMarkerClasses}
         style={{ color: marker.color }}
-        type="mapMarker"
+        type={marker.icon}
         shouldShowTooltip={false}
       />
     );

@@ -1,3 +1,14 @@
+## Version 0.4.77
+
+#### Oct 29, 2026
+
+- [Feature] Added selectable map marker icons.
+- [UIUXImprovement] Added a quantity slider and maximum quantity controls when selling items at auctions.
+- [UIUXImprovement] Scheduled construction queue items now display their construction duration.
+- [UIUXImprovement] Added accessible labels to building upgrade indicators and occupied building fields.
+- [BugFix] Rebalanced Embassy construction costs.
+- [BugFix] Fixed Residence unit training times ignoring game world speed.
+
 ## Version 0.4.76
 
 #### Oct 28, 2026
