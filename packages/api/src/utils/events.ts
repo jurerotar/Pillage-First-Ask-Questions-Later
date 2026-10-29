@@ -1714,9 +1714,11 @@ export const getEventDuration = (
       sql: 'SELECT is_instant_celebrations_enabled FROM developer_settings',
       schema: z.coerce.boolean(),
     });
+
     if (isInstant) {
       return 0;
     }
+
     return calculateCulturePointsCelebrationDuration({
       celebrationType: event.celebrationType,
       townHallLevel,
