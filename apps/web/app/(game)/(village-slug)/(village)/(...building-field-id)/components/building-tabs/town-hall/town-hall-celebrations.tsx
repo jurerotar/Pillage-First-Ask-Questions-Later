@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
-import { CelebrationCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/town-hall/celebration-card';
+import { CelebrationCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/town-hall/components/celebration-card';
 import {
   Section,
   SectionContent,
@@ -40,48 +40,6 @@ export const TownHallCelebrations = () => {
           </Text>
         </InformationPopover>
         <Text as="h2">{t('Celebrations')}</Text>
-        <Text as="h3">{t('Celebration Limits')}</Text>
-        <Text>
-          {t(
-            'Each celebration type has a maximum number of Culture Points it can generate.',
-          )}
-        </Text>
-        <Text>
-          {t(
-            'The limit depends on gameworld speed and can be found in the Culture Points table of the game versions overview.',
-          )}
-        </Text>
-        <Text as="h3">{t('Destroyed Town Hall')}</Text>
-        <ul className="list-disc pl-4">
-          <li>
-            <Text>{t('Ongoing celebrations continue normally.')}</Text>
-          </li>
-          <li>
-            <Text>
-              {t(
-                'Queued celebrations continue and will start after cooldown ends.',
-              )}
-            </Text>
-          </li>
-          <li>
-            <Text>
-              {t(
-                'You cannot start new celebrations until the Town Hall is rebuilt.',
-              )}
-            </Text>
-          </li>
-        </ul>
-        <Text as="h3">{t('Celebration Duration')}</Text>
-        <Text>
-          {t(
-            'Each celebration triggers a cooldown before the next one can start.',
-          )}
-        </Text>
-        <Text>
-          {t(
-            'The exact cooldown duration depends on the Town Hall level and server speed.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <Tabs

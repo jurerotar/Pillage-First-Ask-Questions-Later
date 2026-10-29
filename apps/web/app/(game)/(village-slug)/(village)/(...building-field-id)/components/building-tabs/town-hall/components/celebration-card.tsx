@@ -1,5 +1,6 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import {
   CULTURE_POINTS_CELEBRATION_COSTS,
   CULTURE_POINTS_CELEBRATION_LIMITS,
@@ -7,15 +8,13 @@ import {
   calculateCulturePointsCelebrationDuration,
 } from '@pillage-first/game-assets/utils/culture-points';
 import { formatNumber } from '@pillage-first/utils/format';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useCelebrationErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/town-hall/hooks/use-celebration-error-bag';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useCulturePoints } from 'app/(game)/(village-slug)/hooks/use-culture-points';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
@@ -43,9 +42,6 @@ export const CelebrationCard = ({
   const { currentVillage } = useCurrentVillage();
   const { culturePoints } = useCulturePoints();
   const { developerSettings } = useDeveloperSettings();
-  const { eventsByType: celebrationEvents } = useEventsByType(
-    'culturePointsCelebration',
-  );
   const { createEvent } = useCreateEvent('culturePointsCelebration');
   const liveResources = use(CurrentVillageLiveResourcesSnapshotContext);
 
@@ -73,15 +69,11 @@ export const CelebrationCard = ({
         serverSpeed,
       });
 
-  const { hasEnoughResources, errorBag } = useResourceAvailability(cost);
-
-  const activeCelebration = celebrationEvents[0];
-
-  const isLargeCelebrationLocked =
-    celebrationType === 'large' && townHallLevel < 10;
-
-  const isDisabled =
-    !!activeCelebration || isLargeCelebrationLocked || !hasEnoughResources;
+  const { errorBag, isDisabled } = useCelebrationErrorBag({
+    celebrationType,
+    townHallLevel,
+    cost,
+  });
 
   const celebrationName =
     celebrationType === 'small'
@@ -91,44 +83,19 @@ export const CelebrationCard = ({
   return (
     <article className="flex flex-col gap-2 relative">
       <InformationPopover ariaLabel={celebrationName}>
-        <ul className="list-disc pl-4">
-          <li>
-            <Text>{t('Gives Culture Points immediately.')}</Text>
-          </li>
-          <li>
-            <Text>
-              {celebrationType === 'small'
-                ? t(
-                    'Culture Points gained equals the daily Culture Points production of the village, up to the celebration limit.',
-                  )
-                : t(
-                    'Culture Points gained equals the daily Culture Points production of all your villages, up to the limit.',
-                  )}
-            </Text>
-          </li>
-          {celebrationType === 'large' && (
-            <>
-              <li>
-                <Text>
-                  {t(
-                    'Your administrators reduce enemy village loyalty by up to 5% more.',
-                  )}
-                </Text>
-              </li>
-              <li>
-                <Text>
-                  {t(
-                    'Your own villages lose up to 5% less loyalty when you are attacked.',
-                  )}
-                </Text>
-              </li>
-            </>
-          )}
-        </ul>
+        <Text>
+          {celebrationType === 'small'
+            ? t(
+                'A small celebration instantly grants culture points equal to this village?s daily production, up to the celebration limit.',
+              )
+            : t(
+                'A large celebration instantly grants culture points equal to the daily production of all your villages, up to the celebration limit.',
+              )}
+        </Text>
         {celebrationType === 'large' && (
           <Text>
             {t(
-              'These loyalty effects apply to all battles that take place during the celebration, regardless of when troops were sent.',
+              'During a large celebration, your administrators reduce enemy village loyalty by up to 5% more, and your own villages lose up to 5% less loyalty when attacked. These effects apply to all battles during the celebration, regardless of when troops were sent.',
             )}
           </Text>
         )}
@@ -161,48 +128,39 @@ export const CelebrationCard = ({
       </section>
       <section className="flex flex-col gap-2">
         <Text as="h3">{t('Reward')}</Text>
-        <Text>
+        <Text className="flex gap-1 items-center">
+          <Icon
+            type="culturePoints"
+            className="size-5"
+          />
           {t('{{amount}} culture points', { amount: formatNumber(reward) })}
-        </Text>
-        <Text className="text-sm text-muted-foreground">
-          {t('Limit')}:{' '}
-          {t('{{amount}} culture points', { amount: formatNumber(limit) })}
         </Text>
       </section>
       <section className="flex flex-col gap-2">
-        {activeCelebration && (
-          <Text>
-            {t('Town Hall ready in {{time}}', {
-              time: '',
-            })}
-            <Countdown endsAt={activeCelebration.resolvesAt} />
-          </Text>
-        )}
-
         <Button
           size="fit"
           disabled={isDisabled}
           onClick={() => {
-            createEvent({
-              celebrationType,
-              cachesToClearImmediately: [
-                [culturePointsCacheKey],
-                [currentVillageCacheKey, currentVillage.slug],
-                [playersCacheKey],
-              ],
-            });
+            createEvent(
+              {
+                celebrationType,
+                cachesToClearImmediately: [
+                  [culturePointsCacheKey],
+                  [currentVillageCacheKey, currentVillage.slug],
+                  [playersCacheKey],
+                ],
+              },
+              {
+                onSuccess: () => {
+                  toast.success(t('Celebration started'));
+                },
+              },
+            );
           }}
         >
           {t('Start celebration')}
         </Button>
-        <ErrorBag
-          errorBag={[
-            ...(isLargeCelebrationLocked
-              ? [t('Large celebrations require Town Hall level 10.')]
-              : []),
-            ...errorBag,
-          ]}
-        />
+        <ErrorBag errorBag={errorBag} />
       </section>
     </article>
   );
