@@ -157,9 +157,8 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
                       <FormControl>
                         <Input
                           className="max-w-20"
-                          type="number"
-                          min={-halfSize}
-                          max={halfSize}
+                          type="text"
+                          inputMode="numeric"
                           {...form.register('origin.x', {
                             valueAsNumber: true,
                           })}
@@ -186,9 +185,8 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
                       <FormControl>
                         <Input
                           className="max-w-20"
-                          type="number"
-                          min={-halfSize}
-                          max={halfSize}
+                          type="text"
+                          inputMode="numeric"
                           {...form.register('origin.y', {
                             valueAsNumber: true,
                           })}
