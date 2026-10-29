@@ -1263,7 +1263,13 @@ export const getEventCost = (
   }
 
   if (isCulturePointsCelebrationEvent(event)) {
-    return CULTURE_POINTS_CELEBRATION_COSTS[event.celebrationType];
+    const isFree = database.selectValue({
+      sql: 'SELECT is_free_celebrations_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+    return isFree
+      ? [0, 0, 0, 0]
+      : CULTURE_POINTS_CELEBRATION_COSTS[event.celebrationType];
   }
 
   return [0, 0, 0, 0];
@@ -1703,6 +1709,13 @@ export const getEventDuration = (
         schema: z.number().nullable(),
       }) ?? 0;
 
+    const isInstant = database.selectValue({
+      sql: 'SELECT is_instant_celebrations_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+    if (isInstant) {
+      return 0;
+    }
     return calculateCulturePointsCelebrationDuration({
       celebrationType: event.celebrationType,
       townHallLevel,

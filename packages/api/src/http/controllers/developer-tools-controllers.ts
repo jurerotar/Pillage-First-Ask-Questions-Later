@@ -37,6 +37,8 @@ export const getDeveloperSettings = createController('/developer-settings', {
         is_free_unit_research_enabled,
         is_free_hunting_parties_enabled,
         is_instant_hero_revive_enabled,
+        is_free_celebrations_enabled,
+        is_instant_celebrations_enabled,
         is_free_hero_revive_enabled
       FROM
         developer_settings
@@ -116,6 +118,10 @@ export const updateDeveloperSettings = createController(
           'huntersLodgeHunt',
           'gatherersHutGatheringTrip',
         ];
+        break;
+      }
+      case 'isInstantCelebrationsEnabled': {
+        eventTypes = ['culturePointsCelebration'];
         break;
       }
       case 'isInstantHeroReviveEnabled': {
