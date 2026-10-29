@@ -1267,6 +1267,7 @@ export const getEventCost = (
       sql: 'SELECT is_free_celebrations_enabled FROM developer_settings',
       schema: z.coerce.boolean(),
     });
+
     return isFree
       ? [0, 0, 0, 0]
       : CULTURE_POINTS_CELEBRATION_COSTS[event.celebrationType];
