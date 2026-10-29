@@ -1,4 +1,3 @@
-import { FaroErrorBoundary } from '@grafana/faro-react';
 import {
   Link,
   Links,
@@ -14,6 +13,7 @@ import {
 } from '@pillage-first/utils/errors';
 import { GameErrorContent } from 'app/(game)/components/game-error-content';
 import { HeadLinks } from 'app/components/head-links';
+import { FaroErrorBoundary } from 'app/instrumentation/faro-client';
 
 export const ErrorBoundary = () => {
   const error = useRouteError() as Error;

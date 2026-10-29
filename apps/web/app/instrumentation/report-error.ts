@@ -1,5 +1,5 @@
-import { faro } from '@grafana/faro-web-sdk';
 import type { ErrorWithContext } from '@pillage-first/utils/errors';
+import { faro } from 'app/instrumentation/faro-client';
 
 type ReportErrorContext = Record<
   string,

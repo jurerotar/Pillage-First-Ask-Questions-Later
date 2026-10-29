@@ -1,4 +1,3 @@
-import { faro } from '@grafana/faro-web-sdk';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { memo, Suspense, use, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +21,7 @@ import {
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { HeadLinks } from 'app/components/head-links';
 import { Toaster } from 'app/components/ui/toaster';
+import { faro } from 'app/instrumentation/faro-client';
 import { pushGameWorldOpened } from 'app/instrumentation/product-events';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 import { CookieContext } from 'app/providers/cookie-context';
@@ -50,9 +50,9 @@ const addGameWorldAttributesToFaro = (serverSlug: string): void => {
 
   pushGameWorldOpened(gameWorld);
 
-  const session = faro.api.getSession();
+  const session = faro?.api.getSession();
 
-  faro.api.setSession({
+  faro?.api.setSession({
     ...session,
     attributes: {
       ...session?.attributes,
