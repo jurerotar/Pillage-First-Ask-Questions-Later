@@ -32,10 +32,10 @@ export const RallyPointTroopMovements = () => {
 
     return troopMovements.filter((movement) =>
       activeFilters.has(
-        getTroopMovementFilterCategory(movement, currentVillage.id),
+        getTroopMovementFilterCategory(movement, currentVillage.tileId),
       ),
     );
-  }, [currentVillage.id, troopMovementFilters, troopMovements]);
+  }, [currentVillage.tileId, troopMovementFilters, troopMovements]);
 
   const pagination = usePagination(filteredTroopMovements, 20, page);
 

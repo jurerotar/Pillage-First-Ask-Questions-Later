@@ -3,7 +3,7 @@ import type { TroopMovementFilterType } from 'app/(game)/(village-slug)/(village
 
 export const getTroopMovementFilterCategory = (
   movement: TroopMovementItemDto,
-  currentVillageId: number,
+  currentTileId: number,
 ): TroopMovementFilterType => {
   if (movement.type === 'troopMovementFindNewVillage') {
     return 'findNewVillage';
@@ -18,7 +18,7 @@ export const getTroopMovementFilterCategory = (
     movement.type === 'troopMovementRelocation' ||
     movement.type === 'troopMovementReturn'
   ) {
-    return movement.originatingVillageId !== currentVillageId
+    return movement.originatingTileId !== currentTileId
       ? 'deploymentIncoming'
       : 'deploymentOutgoing';
   }
@@ -27,7 +27,7 @@ export const getTroopMovementFilterCategory = (
     return 'offensiveMovementOutgoing';
   }
 
-  return movement.originatingVillageId !== currentVillageId
+  return movement.originatingTileId !== currentTileId
     ? 'offensiveMovementIncoming'
     : 'offensiveMovementOutgoing';
 };

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   troopMovementItemDtoSchema,
   troopMovementStatsItemDtoSchema,
@@ -29,7 +30,13 @@ export const mapTroopMovementRowToDto = (
     playerId: row.player_id,
     playerTribe: row.player_tribe,
     resolvesAt: row.resolves_at,
-    troops,
+    troops:
+      row.player_id !== PLAYER_ID &&
+      (row.type === 'troopMovementAttack' ||
+        row.type === 'troopMovementRaid' ||
+        row.type === 'troopMovementOasisOccupation')
+        ? null
+        : troops,
     ...(isAdventure
       ? {}
       : {

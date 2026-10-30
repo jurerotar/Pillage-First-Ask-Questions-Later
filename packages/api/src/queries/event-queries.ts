@@ -140,8 +140,8 @@ export const selectTroopMovementsByTileIdQuery = `
     e.duration,
     e.resolves_at,
     e.meta,
-    e.village_id AS originating_village_id,
-    v_orig.name AS originating_village_name,
+    v_origin.id AS originating_village_id,
+    v_origin.name AS originating_village_name,
     t_orig.id AS originating_tile_id,
     p_orig.id AS player_id,
     p_orig.name AS player_name,
@@ -151,7 +151,8 @@ export const selectTroopMovementsByTileIdQuery = `
     t_target.id AS target_tile_id
   FROM events e
   JOIN villages v_orig ON e.village_id = v_orig.id
-  JOIN tiles t_orig ON v_orig.tile_id = t_orig.id
+  JOIN tiles t_orig ON JSON_EXTRACT(e.meta, '$.originTileId') = t_orig.id
+  LEFT JOIN villages v_origin ON v_origin.tile_id = t_orig.id
   JOIN players p_orig ON v_orig.player_id = p_orig.id
   JOIN tribe_ids ti_orig ON p_orig.tribe_id = ti_orig.id
   LEFT JOIN tiles t_target ON JSON_EXTRACT(e.meta, '$.targetTileId') = t_target.id
@@ -228,9 +229,9 @@ export const selectTroopMovementStatsByTileIdQuery = `
       WHEN e.type = 'troopMovementFindNewVillage' THEN 'findNewVillage'
       WHEN e.type = 'troopMovementAdventure' THEN 'adventure'
       WHEN e.type IN ('troopMovementReinforcements', 'troopMovementRelocation', 'troopMovementReturn') THEN
-        CASE WHEN v_orig.tile_id != $tile_id THEN 'deploymentIncoming' ELSE 'deploymentOutgoing' END
+        CASE WHEN JSON_EXTRACT(e.meta, '$.originTileId') != $tile_id THEN 'deploymentIncoming' ELSE 'deploymentOutgoing' END
       WHEN e.type IN ('troopMovementAttack', 'troopMovementRaid', 'troopMovementOasisOccupation') THEN
-        CASE WHEN v_orig.tile_id != $tile_id THEN 'offensiveMovementIncoming' ELSE 'offensiveMovementOutgoing' END
+        CASE WHEN JSON_EXTRACT(e.meta, '$.originTileId') != $tile_id THEN 'offensiveMovementIncoming' ELSE 'offensiveMovementOutgoing' END
     END AS movement_type,
     COUNT(*) AS count,
     MIN(e.resolves_at) AS earliest_resolves_at

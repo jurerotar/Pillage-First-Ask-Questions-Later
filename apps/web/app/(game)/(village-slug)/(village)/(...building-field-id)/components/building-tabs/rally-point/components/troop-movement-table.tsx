@@ -99,12 +99,15 @@ export const TroopMovementTable = ({ movement }: TroopMovementTableProps) => {
   const { currentVillage } = useCurrentVillage();
   const { mapSize } = useServer();
 
-  const category = getTroopMovementFilterCategory(movement, currentVillage.id);
+  const category = getTroopMovementFilterCategory(
+    movement,
+    currentVillage.tileId,
+  );
   const iconType = getMovementIcon(category);
   const label = getMovementLabel(movement.type, t);
 
   const sortedTroops = useMemo(
-    () => sortTroops(movement.playerTribe, movement.troops),
+    () => sortTroops(movement.playerTribe, movement.troops ?? []),
     [movement.playerTribe, movement.troops],
   );
 
@@ -143,7 +146,7 @@ export const TroopMovementTable = ({ movement }: TroopMovementTableProps) => {
             <span className="text-muted-foreground">{movement.playerName}</span>{' '}
             {t('from')}{' '}
             <TileLink
-              name={movement.originatingVillageName}
+              name={movement.originatingVillageName ?? t('Oasis')}
               tileId={movement.originatingTileId}
               mapSize={mapSize}
             />
