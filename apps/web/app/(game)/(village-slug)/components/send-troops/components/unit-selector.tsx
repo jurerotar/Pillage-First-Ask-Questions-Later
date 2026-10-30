@@ -168,14 +168,14 @@ export const UnitSelector = ({
                                 max={maxSelectableAmount}
                                 disabled={isDisabled}
                                 className="px-1 text-left w-full bg-emerald-50/50 dark:bg-emerald-950/20"
-                                onChange={(e) =>
+                                onChange={(event) =>
                                   field.onChange(
-                                    e.target.value === ''
+                                    event.target.value === ''
                                       ? 0
                                       : Math.max(
                                           0,
                                           Math.min(
-                                            Number.parseInt(e.target.value, 10),
+                                            event.target.valueAsNumber,
                                             maxSelectableAmount,
                                           ),
                                         ),

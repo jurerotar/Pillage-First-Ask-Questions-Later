@@ -259,10 +259,14 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
                               type="number"
                               min={1}
                               {...amountField}
-                              value={amountField.value}
+                              value={
+                                Number.isNaN(amountField.value)
+                                  ? ''
+                                  : amountField.value
+                              }
                               onChange={(event) => {
                                 amountField.onChange(
-                                  Number.parseInt(event.target.value, 10) || 1,
+                                  event.target.valueAsNumber,
                                 );
                               }}
                             />
