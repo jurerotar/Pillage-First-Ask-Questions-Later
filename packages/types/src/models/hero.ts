@@ -6,6 +6,20 @@ export const heroResourceToProduceSchema = z
 
 export type HeroResourceToProduce = z.infer<typeof heroResourceToProduceSchema>;
 
+export const heroStatusSchema = z.discriminatedUnion('type', [
+  z.strictObject({
+    type: z.enum(['stationed', 'reinforcing']),
+    tileId: z.number(),
+  }),
+  z.strictObject({
+    type: z.enum(['adventure', 'travel']),
+    endsAt: z.number(),
+  }),
+  z.strictObject({
+    type: z.literal('dead'),
+  }),
+]);
+
 export const heroSchema = z
   .strictObject({
     id: z.number(),
@@ -29,7 +43,7 @@ export const heroSchema = z
     }),
     resourceToProduce: heroResourceToProduceSchema,
     villageId: z.number(),
-    isHeroHome: z.boolean(),
+    status: heroStatusSchema,
   })
   .meta({ id: 'Hero' });
 

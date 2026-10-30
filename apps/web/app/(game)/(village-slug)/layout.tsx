@@ -22,7 +22,13 @@ import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
-import { TbDotsVertical, TbGrave2, TbMap2, TbShoe } from 'react-icons/tb';
+import {
+  TbDotsVertical,
+  TbGrave2,
+  TbMap2,
+  TbShield,
+  TbShoe,
+} from 'react-icons/tb';
 import {
   Link,
   NavLink,
@@ -291,7 +297,7 @@ const VillageOverviewMobileItem = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, isHeroAlive, health, experience, isHeroHome } = useHero();
+  const { hero, isHeroAlive, health, experience } = useHero();
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
@@ -324,8 +330,16 @@ const HeroNavigationItem = () => {
       <span className="absolute size-4 bg-background dark:bg-muted bottom-0 -right-1.5 rounded-full border border-[#f1f1f1] dark:border-border shadow-md inline-flex justify-center items-center">
         {isHeroAlive && (
           <>
-            {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
-            {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
+            {hero.status.type === 'stationed' && (
+              <FaHome className="text-gray-500 text-xs" />
+            )}
+            {hero.status.type === 'reinforcing' && (
+              <TbShield className="text-gray-500 text-xs" />
+            )}
+            {(hero.status.type === 'travel' ||
+              hero.status.type === 'adventure') && (
+              <TbShoe className="text-gray-500 text-xs" />
+            )}
           </>
         )}
         {!isHeroAlive && <TbGrave2 className="text-gray-500 text-xs" />}

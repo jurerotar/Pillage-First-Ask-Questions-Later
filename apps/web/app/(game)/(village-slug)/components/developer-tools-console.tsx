@@ -68,7 +68,7 @@ export const DeveloperToolsConsole = ({
     adjustLoyalty,
     adjustCulturePoints,
   } = useDeveloperActions();
-  const { hero, isHeroAlive, isHeroHome } = useHero();
+  const { hero, isHeroAlive } = useHero();
   const { available: adventurePoints } = useHeroAdventures();
   const { loyalty } = useLoyalty();
 
@@ -79,7 +79,11 @@ export const DeveloperToolsConsole = ({
     return calculateHeroLevel(hero.stats.experience);
   }, [hero.stats.experience]);
 
-  const canKillHero = isHeroAlive && isHeroHome;
+  const canKillHero =
+    isHeroAlive &&
+    hero.status.type === 'stationed' &&
+    hero.status.tileId === currentVillage.tileId &&
+    hero.villageId === currentVillage.id;
 
   const handleUpdateResource = (
     resource: Resource,
