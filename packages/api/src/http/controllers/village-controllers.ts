@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { occupiableOasisDtoSchema } from '@pillage-first/types/dtos/oasis';
-import { villageBySlugDtoSchema } from '@pillage-first/types/dtos/village';
+import {
+  villageBySlugDtoSchema,
+  villageCulturePointsDtoSchema,
+} from '@pillage-first/types/dtos/village';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { gatherersHutExpeditionsSchema } from '@pillage-first/types/models/gatherers-hut-expeditions';
 import {
@@ -16,6 +19,13 @@ import {
   updateRearrangedBuildingFieldEventsQuery,
   updateRearrangedScheduledBuildingUpgradesQuery,
 } from '../../queries/village-queries';
+import {
+  calculatePlayerCulturePointsProduction,
+  calculateVillageCulturePointsProduction,
+  getPlayerCulturePointsRequirementContext,
+  updatePlayerCulturePointsAt,
+} from '../../utils/culture-points';
+import { getVillagePlayerId } from '../../utils/village';
 import { createController } from '../controller';
 import {
   mapOccupiableOasisRowToDto,
@@ -97,6 +107,42 @@ export const getGatherersHutExpeditions = createController(
 
   return gatherersHutExpeditionsSchema.parse({
     completed,
+  });
+});
+
+export const getVillageCulturePoints = createController(
+  '/villages/:villageId/culture-points',
+  {
+    summary: 'Get village and player culture points',
+    requestParams: {
+      path: z.strictObject({
+        villageId: z.coerce.number(),
+      }),
+    },
+    response: villageCulturePointsDtoSchema,
+  },
+)(({ database, path: { villageId } }) => {
+  const now = Date.now();
+  const playerId = getVillagePlayerId(database, villageId);
+
+  const playerCulturePointsProduction = calculatePlayerCulturePointsProduction(
+    database,
+    playerId,
+  );
+
+  const culturePoints = updatePlayerCulturePointsAt(
+    database,
+    now,
+    playerId,
+    playerCulturePointsProduction,
+  )!;
+
+  return villageCulturePointsDtoSchema.parse({
+    culturePoints,
+    currentVillageCulturePointsProduction:
+      calculateVillageCulturePointsProduction(database, villageId),
+    playerCulturePointsProduction,
+    ...getPlayerCulturePointsRequirementContext(database, playerId),
   });
 });
 

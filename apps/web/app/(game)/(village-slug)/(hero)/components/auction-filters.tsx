@@ -88,6 +88,7 @@ export const AuctionFilters = ({
         <PopoverTrigger asChild>
           <Button
             aria-label={t('Auction filters')}
+            className="w-fit"
             size="sm"
             variant="outline"
           >

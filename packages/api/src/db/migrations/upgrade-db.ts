@@ -1,8 +1,11 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
 import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import createCulturePointsTable from '../schemas/culture-points-schema.sql?raw';
 import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
@@ -143,57 +146,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.57', (db) => {
-    db.exec({
-      sql: `
-        UPDATE events
-        SET
-          meta = JSON_SET(
-            meta,
-            '$.troops',
-            JSON((
-              SELECT JSON_GROUP_ARRAY(JSON(updated_troop))
-              FROM
-                (
-                  SELECT
-                    CASE
-                      WHEN (
-                             JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
-                               OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
-                             )
-                        AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
-                        THEN JSON_SET(
-                        troop.value,
-                        '$.sourceTileId',
-                        JSON_EXTRACT(troop.value, '$.tileId')
-                             )
-                      ELSE troop.value
-                      END AS updated_troop
-                  FROM
-                    JSON_EACH(events.meta, '$.troops') AS troop
-                  ORDER BY CAST(troop.key AS INTEGER)
-                  )
-              ))
-                 )
-        WHERE
-          meta IS NOT NULL
-          AND JSON_TYPE(meta, '$.troops') = 'array'
-          AND EXISTS
-          (
-            SELECT 1
-            FROM
-              JSON_EACH(events.meta, '$.troops') AS troop
-            WHERE
-              (
-                JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
-                  OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
-                )
-              AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
-            );
-      `,
-    });
-  });
 
   migrate('0.4.58', (db) => {
     db.exec({
@@ -685,6 +637,88 @@ export const upgradeDb = (
           CREATE INDEX idx_villages_slug ON villages (slug) WHERE slug IS NOT NULL;
         `,
       });
+    });
+  });
+
+  migrate('0.4.76', (db) => {
+    db.transaction((tx) => {
+      tx.exec({
+        sql: `
+          ALTER TABLE servers
+          ADD COLUMN culture_points_requirement_speed INTEGER CHECK (culture_points_requirement_speed IN (1, 2, 3, 4, 5)) NOT NULL DEFAULT 1;
+        `,
+      });
+
+      tx.execMulti({ sql: createCulturePointsTable });
+
+      const villageCount = tx.selectValue({
+        sql: `
+          SELECT
+            (
+              SELECT COUNT(*)
+              FROM villages v
+              WHERE v.player_id = $player_id
+            ) + (
+              SELECT COUNT(*)
+              FROM events e
+                JOIN villages v ON v.id = e.village_id
+              WHERE
+                v.player_id = $player_id
+                AND e.type = 'troopMovementFindNewVillage'
+            ) AS village_count;
+        `,
+        bind: { $player_id: PLAYER_ID },
+        schema: z.number(),
+      })!;
+
+      tx.exec({
+        sql: `
+          INSERT INTO culture_points
+            (player_id, culture_points, culture_points_updated_at)
+          VALUES ($player_id, $culture_points, $updated_at);
+        `,
+        bind: {
+          $culture_points: calculateCulturePointsRequirementForVillageCount(
+            villageCount,
+            1,
+          ),
+          $updated_at: Date.now(),
+          $player_id: PLAYER_ID,
+        },
+      });
+
+      setupGlobalWriteTriggers(tx);
+    });
+  });
+
+  migrate('0.4.77', (db) => {
+    db.exec({
+      sql: "ALTER TABLE map_markers ADD COLUMN icon TEXT NOT NULL DEFAULT 'mapMarker';",
+    });
+
+    db.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id)
+        SELECT e.id, 1.0 / s.speed, t.id, sc.id, so.id
+        FROM effect_ids e, servers s, effect_type_ids t,
+          effect_scope_ids sc, effect_source_ids so
+        WHERE e.effect = 'residenceTrainingDuration'
+          AND t.type = 'bonus' AND sc.scope = 'server' AND so.source = 'server'
+          AND NOT EXISTS (
+            SELECT 1 FROM effects existing
+            WHERE existing.effect_id = e.id AND existing.scope_id = sc.id
+          );
+      `,
+    });
+  });
+
+  migrate('0.4.78', (db) => {
+    db.exec({
+      sql: 'ALTER TABLE developer_settings ADD COLUMN is_free_celebrations_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_free_celebrations_enabled IN (0, 1));',
+    });
+
+    db.exec({
+      sql: 'ALTER TABLE developer_settings ADD COLUMN is_instant_celebrations_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_instant_celebrations_enabled IN (0, 1));',
     });
   });
 

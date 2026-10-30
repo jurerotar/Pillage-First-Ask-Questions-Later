@@ -4,6 +4,7 @@ import {
   updateBookmark,
 } from './controllers/bookmark-controllers';
 import {
+  adjustCulturePoints,
   adjustVillageLoyalty,
   getDeveloperSettings,
   incrementHeroAdventurePoints,
@@ -138,6 +139,7 @@ import {
   getGatherersHutExpeditions,
   getOccupiableOasisInRange,
   getVillageBySlug,
+  getVillageCulturePoints,
   rearrangeBuildingFields,
 } from './controllers/village-controllers';
 import { getArtifactsAroundVillage } from './controllers/world-items-controllers';
@@ -154,6 +156,7 @@ export const apiRoutes = [
   createRoute(getDeveloperSettings),
   createRoute(updateDeveloperSettings),
   createRoute(updateVillageResources),
+  createRoute(adjustCulturePoints),
   createRoute(spawnHeroItem),
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
@@ -225,6 +228,7 @@ export const apiRoutes = [
 
   // Villages
   createRoute(getVillageBySlug),
+  createRoute(getVillageCulturePoints),
   createRoute(getVillageStorage),
   createRoute(getGatherersHutExpeditions),
   createRoute(getStationedTroopsByTile),

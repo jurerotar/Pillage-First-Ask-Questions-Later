@@ -2118,6 +2118,70 @@ describe('events utils', () => {
     });
   });
 
+  test('small celebration developer flags independently control cost and duration', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = getAnyVillageId(database);
+
+    const event = {
+      ...createGameEventMock('culturePointsCelebration'),
+      villageId,
+      celebrationType: 'small' as const,
+    };
+
+    const cost = getEventCost(database, event);
+    const duration = getEventDuration(database, event);
+
+    expect(cost.some((value) => value > 0)).toBe(true);
+    expect(duration).toBeGreaterThan(0);
+
+    setDevFlag(database, 'is_free_celebrations_enabled', 1);
+
+    expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+    expect(getEventDuration(database, event)).toBe(duration);
+
+    setDevFlag(database, 'is_instant_celebrations_enabled', 1);
+
+    expect(getEventDuration(database, event)).toBe(0);
+    expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+
+    setDevFlag(database, 'is_free_celebrations_enabled', 0);
+
+    expect(getEventCost(database, event)).toEqual(cost);
+    expect(getEventDuration(database, event)).toBe(0);
+  });
+
+  test('large celebration developer flags independently control cost and duration', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = getAnyVillageId(database);
+
+    const event = {
+      ...createGameEventMock('culturePointsCelebration'),
+      villageId,
+      celebrationType: 'large' as const,
+    };
+
+    const cost = getEventCost(database, event);
+    const duration = getEventDuration(database, event);
+
+    expect(cost.some((value) => value > 0)).toBe(true);
+    expect(duration).toBeGreaterThan(0);
+
+    setDevFlag(database, 'is_free_celebrations_enabled', 1);
+
+    expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+    expect(getEventDuration(database, event)).toBe(duration);
+
+    setDevFlag(database, 'is_instant_celebrations_enabled', 1);
+
+    expect(getEventDuration(database, event)).toBe(0);
+    expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+
+    setDevFlag(database, 'is_free_celebrations_enabled', 0);
+
+    expect(getEventCost(database, event)).toEqual(cost);
+    expect(getEventDuration(database, event)).toBe(0);
+  });
+
   describe(getEventDuration, () => {
     test('buildingConstruction - should return 0', async () => {
       using database = await prepareTestDatabase();
@@ -2829,7 +2893,8 @@ describe('events utils', () => {
         },
       });
 
-      const selectValue = vi.spyOn(database, 'selectValue');
+      using selectValue = vi.spyOn(database, 'selectValue');
+
       createEvents<'huntersLodgeHunt'>(database, {
         type: 'huntersLodgeHunt',
         villageId,
@@ -2843,8 +2908,6 @@ describe('events utils', () => {
             selectResourceSiteResourcesRelevantEffectsByTileIdQuery,
         ),
       ).toHaveLength(1);
-
-      selectValue.mockRestore();
 
       const event = database.selectObject({
         sql: `

@@ -27,6 +27,7 @@ type CellBaseProps = {
     tileId: number;
     description: string;
     color: MapMarker['color'];
+    icon: MapMarker['icon'];
   }) => void;
   deleteMapMarker: (args: { tileId: number }) => void;
   onClick: (tileId: number) => void;
@@ -61,7 +62,7 @@ const CellIcons = (props: CellIconsProps) => {
       <Icon
         className={mapMarkerClasses}
         style={{ color: marker.color }}
-        type="mapMarker"
+        type={marker.icon}
         shouldShowTooltip={false}
       />
     );
@@ -124,14 +125,22 @@ const getTileClassNames = (
     );
   }
 
-  if (tile.type === 'free' && tile.owner !== null) {
-    const { faction } = tile.owner;
+  if (
+    tile.type === 'free' &&
+    tile.owner !== null &&
+    tile.ownerVillage !== null
+  ) {
+    const { faction, tribe } = tile.owner;
+    const population = tile.ownerVillage.population;
+    const villageSize =
+      population < 250 ? 'sm' : population < 750 ? 'md' : 'lg';
     const reputationLevel =
       faction === 'player' ? 'player' : getReputation(faction).reputationLevel;
 
     return clsx(
       cellStyles.tile,
       cellStyles['occupied-tile'],
+      cellStyles[`occupied-tile-${tribe}-${villageSize}`],
       cellStyles[`occupied-tile-magnification-${magnification}`],
       shouldShowFactionReputation &&
         cellStyles[`occupied-tile-reputation-${reputationLevel}`],

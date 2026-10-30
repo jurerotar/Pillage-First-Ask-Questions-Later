@@ -1,5 +1,17 @@
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
 
+export const calculateProgressPercentage = (
+  value: number,
+  min: number,
+  max: number,
+): number => {
+  if (max <= min) {
+    return 100;
+  }
+
+  return Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
+};
+
 export const calculateDistanceBetweenPoints = (
   firstPoint: Coordinates,
   secondPoint: Coordinates,

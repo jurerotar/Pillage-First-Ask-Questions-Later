@@ -15,6 +15,7 @@ import {
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
+import { calculatePlayerCulturePointsProduction } from '../../../utils/culture-points';
 import { insertEvents } from '../../../utils/events';
 import {
   cancelScheduling,
@@ -23,6 +24,7 @@ import {
 } from '../../events/scheduler/scheduler';
 import { createSchedulerDataSource } from '../../events/scheduler/scheduler-data-source';
 import {
+  adjustCulturePoints,
   adjustVillageLoyalty,
   incrementHeroAdventurePoints,
   levelUpHero,
@@ -34,6 +36,51 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('developer-tools-controllers', () => {
   const playerId = PLAYER_ID;
+
+  test('culture-point adjustments settle accrued points and apply each signed amount', async () => {
+    using database = await prepareTestDatabase();
+
+    const villageId = database.selectValue({
+      sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1;',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    const start = database.selectValue({
+      sql: 'SELECT culture_points_updated_at FROM culture_points WHERE player_id = $player_id;',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    const now = start + 86_400_000;
+    using _clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+
+    let expected = calculatePlayerCulturePointsProduction(database);
+    for (const amount of [1_000, 10_000, -1_000, -10_000]) {
+      adjustCulturePoints(
+        database,
+        createControllerArgs<
+          '/developer-settings/:villageId/culture-points',
+          'patch'
+        >({
+          path: { villageId },
+          body: { amount },
+        }),
+      );
+      expected += amount;
+
+      expect(
+        database.selectObject({
+          sql: 'SELECT culture_points AS points, culture_points_updated_at AS updatedAt FROM culture_points WHERE player_id = $player_id;',
+          bind: { $player_id: playerId },
+          schema: z.strictObject({
+            points: z.number(),
+            updatedAt: z.number(),
+          }),
+        }),
+      ).toEqual({ points: expected, updatedAt: now });
+    }
+  });
 
   describe(adjustVillageLoyalty, () => {
     test('should create the first loyaltyIncrease event when loyalty is adjusted', async () => {

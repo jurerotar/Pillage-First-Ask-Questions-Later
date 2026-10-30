@@ -22,7 +22,13 @@ import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
-import { TbDotsVertical, TbGrave2, TbMap2, TbShoe } from 'react-icons/tb';
+import {
+  TbDotsVertical,
+  TbGrave2,
+  TbMap2,
+  TbShield,
+  TbShoe,
+} from 'react-icons/tb';
 import {
   Link,
   NavLink,
@@ -51,6 +57,7 @@ import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-c
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useVillageSwitchNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-village-switch-navigation';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
+import { useCulturePointsProgress } from 'app/(game)/(village-slug)/hooks/use-culture-points-progress';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
@@ -167,16 +174,14 @@ const DesktopPopulation = () => {
   const { population } = computedWheatProductionEffect;
 
   return (
-    <div className="flex gap-2">
-      <div className="flex gap-2 justify-center items-center rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1">
-        <Icon
-          type="population"
-          className="min-w-4"
-        />
-        <span className="text-foreground text-sm">
-          {formatNumber(population)}
-        </span>
-      </div>
+    <div className="flex gap-2 justify-center items-center rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1">
+      <Icon
+        type="population"
+        className="min-w-4"
+      />
+      <span className="text-foreground text-sm">
+        {formatNumber(population)}
+      </span>
     </div>
   );
 };
@@ -201,6 +206,58 @@ const VillageOverviewDesktopItem = () => {
         <CiCircleList className="text-xl" />
       </span>
     </NavLink>
+  );
+};
+
+const MobileCulturePointsProgress = () => {
+  const { t } = useTranslation();
+  const { progress } = useCulturePointsProgress();
+  const percentage = Math.floor(progress);
+
+  return (
+    <span
+      title={t('Culture points progress')}
+      className="inline-flex items-center justify-between gap-0.5 bg-background dark:bg-muted px-0.5 absolute bottom-0 left-8 h-4 min-w-9 rounded-full border border-[#f1f1f1] dark:border-border shadow-md"
+    >
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 bg-muted rounded-full overflow-hidden"
+      >
+        <span
+          className="absolute inset-0 bg-blue-500 origin-left transition-transform"
+          style={{ transform: `scaleX(${progress / 100})` }}
+        />
+      </span>
+      <Icon
+        type="culturePoints"
+        className="relative size-3 shrink-0"
+        shouldShowTooltip={false}
+      />
+      <span className="relative text-2xs text-white text-shadow-lg tabular-nums">
+        {percentage}%
+      </span>
+    </span>
+  );
+};
+
+const DesktopCulturePointsProgress = () => {
+  const { t } = useTranslation();
+  const { progress } = useCulturePointsProgress();
+
+  return (
+    <span
+      title={t('Culture points progress')}
+      className="inline-flex items-center justify-center gap-2 rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1"
+    >
+      <Icon
+        type="culturePoints"
+        className="size-4 shrink-0"
+        shouldShowTooltip={false}
+      />
+      <span className="text-foreground text-sm tabular-nums">
+        {Math.floor(progress)}%
+      </span>
+    </span>
   );
 };
 
@@ -231,13 +288,16 @@ const VillageOverviewMobileItem = () => {
           {formatNumber(population)}
         </span>
       </span>
+      <Suspense fallback={null}>
+        <MobileCulturePointsProgress />
+      </Suspense>
     </Link>
   );
 };
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, isHeroAlive, health, experience, isHeroHome } = useHero();
+  const { hero, isHeroAlive, health, experience } = useHero();
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
@@ -270,8 +330,16 @@ const HeroNavigationItem = () => {
       <span className="absolute size-4 bg-background dark:bg-muted bottom-0 -right-1.5 rounded-full border border-[#f1f1f1] dark:border-border shadow-md inline-flex justify-center items-center">
         {isHeroAlive && (
           <>
-            {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
-            {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
+            {hero.status.type === 'stationed' && (
+              <FaHome className="text-gray-500 text-xs" />
+            )}
+            {hero.status.type === 'reinforcing' && (
+              <TbShield className="text-gray-500 text-xs" />
+            )}
+            {(hero.status.type === 'travel' ||
+              hero.status.type === 'adventure') && (
+              <TbShoe className="text-gray-500 text-xs" />
+            )}
           </>
         )}
         {!isHeroAlive && <TbGrave2 className="text-gray-500 text-xs" />}
@@ -765,8 +833,11 @@ const TopNavigation = ({
                 </li>
               </ul>
             </nav>
-            <div className="flex flex-1 justify-end">
+            <div className="flex flex-1 justify-end gap-2">
               <DesktopPopulation />
+              <Suspense fallback={null}>
+                <DesktopCulturePointsProgress />
+              </Suspense>
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-context';
 import {
+  culturePointsCacheKey,
   currentVillageCacheKey,
   developerSettingsCacheKey,
   effectsCacheKey,
@@ -37,6 +38,7 @@ type SpawnHeroItemArgs = {
 };
 
 type AdjustLoyaltyArgs = { amount: number };
+type AdjustCulturePointsArgs = { amount: -10_000 | -1_000 | 1_000 | 10_000 };
 
 export const useDeveloperActions = () => {
   const { apiClient } = use(ApiContext);
@@ -83,6 +85,22 @@ export const useDeveloperActions = () => {
     },
     onSuccess: async (_, _args, _onMutateResult, context) => {
       await invalidateQueries(context, [[currentVillageCacheKey, villageSlug]]);
+    },
+  });
+
+  const { mutate: adjustCulturePoints } = useMutation<
+    void,
+    Error,
+    AdjustCulturePointsArgs
+  >({
+    mutationFn: async ({ amount }) => {
+      await apiClient.patch('/developer-settings/:villageId/culture-points', {
+        path: { villageId: currentVillage.id },
+        body: { amount },
+      });
+    },
+    onSuccess: async (_, _args, _onMutateResult, context) => {
+      await invalidateQueries(context, [[culturePointsCacheKey]]);
     },
   });
 
@@ -169,6 +187,7 @@ export const useDeveloperActions = () => {
   );
 
   return {
+    adjustCulturePoints,
     updateDeveloperSetting,
     updateVillageResources,
     spawnHeroItem,

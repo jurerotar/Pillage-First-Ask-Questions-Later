@@ -49,7 +49,7 @@ const TileTooltipMarkerDescription = ({
           className="size-4"
           shouldShowTooltip={false}
           style={{ color: mapMarker.color }}
-          type="mapMarker"
+          type={mapMarker.icon}
         />
         <span className="text-gray-300">{mapMarker.description}</span>
       </span>

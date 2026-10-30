@@ -20,6 +20,7 @@ import {
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { Pagination } from 'app/components/ui/pagination';
@@ -137,11 +138,37 @@ const QuestListItem = ({
   const rewards = getQuestRewards(quest.id);
 
   return (
-    <div className="border rounded-xs p-2 shadow-xs">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-        <div className="flex flex-col gap-2 w-full md:w-4/6">
-          <div className="flex items-center gap-1.5">
+    <div className="relative border rounded-xs p-2 shadow-xs">
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex items-center gap-1.5 pr-10">
             <Text className="font-semibold">{title}</Text>
+            <InformationPopover
+              ariaLabel={t('Quest rewards')}
+              className="top-2! right-2!"
+              contentClassName="w-96"
+            >
+              <ul className="mt-2 flex max-h-80 flex-col gap-3 overflow-y-auto">
+                {questGroup.quests.map((levelQuest) => (
+                  <li
+                    className="flex flex-col gap-1"
+                    key={levelQuest.id}
+                  >
+                    <Text className="font-medium">
+                      {getQuestTexts(levelQuest.id, t).title}
+                    </Text>
+                    <div className="flex flex-wrap gap-2">
+                      {getQuestRewards(levelQuest.id).map((reward) => (
+                        <QuestReward
+                          key={reward.type}
+                          reward={reward}
+                        />
+                      ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </InformationPopover>
             {isDone && (
               <LuCheck
                 aria-label={t('Quest completed')}
@@ -170,6 +197,7 @@ const QuestListItem = ({
 
         {isCollectable && (
           <Button
+            className="self-end"
             variant="default"
             onClick={() => onComplete(quest.id)}
             type="button"

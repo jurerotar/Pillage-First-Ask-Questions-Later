@@ -66,8 +66,9 @@ export const DeveloperToolsConsole = ({
     incrementHeroAdventurePoints,
     killHero,
     adjustLoyalty,
+    adjustCulturePoints,
   } = useDeveloperActions();
-  const { hero, isHeroAlive, isHeroHome } = useHero();
+  const { hero, isHeroAlive } = useHero();
   const { available: adventurePoints } = useHeroAdventures();
   const { loyalty } = useLoyalty();
 
@@ -78,7 +79,11 @@ export const DeveloperToolsConsole = ({
     return calculateHeroLevel(hero.stats.experience);
   }, [hero.stats.experience]);
 
-  const canKillHero = isHeroAlive && isHeroHome;
+  const canKillHero =
+    isHeroAlive &&
+    hero.status.type === 'stationed' &&
+    hero.status.tileId === currentVillage.tileId &&
+    hero.villageId === currentVillage.id;
 
   const handleUpdateResource = (
     resource: Resource,
@@ -145,6 +150,14 @@ export const DeveloperToolsConsole = ({
       ),
       freeSetting: 'isFreeUnitResearchEnabled',
       instantSetting: 'isInstantUnitResearchEnabled',
+    },
+    {
+      label: t('Celebrations'),
+      description: t(
+        'Control the resource cost and cooldown of Town Hall celebrations.',
+      ),
+      freeSetting: 'isFreeCelebrationsEnabled',
+      instantSetting: 'isInstantCelebrationsEnabled',
     },
     {
       label: t('Hero revives'),
@@ -455,6 +468,25 @@ export const DeveloperToolsConsole = ({
                         </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </SectionContent>
+
+              <Separator orientation="horizontal" />
+
+              <SectionContent>
+                <Text as="h3">{t('Culture points')}</Text>
+                <div className="flex flex-wrap gap-2">
+                  {([-10_000, -1_000, 1_000, 10_000] as const).map((amount) => (
+                    <Button
+                      key={amount}
+                      size="sm"
+                      variant={amount < 0 ? 'destructive' : 'default'}
+                      onClick={() => adjustCulturePoints({ amount })}
+                    >
+                      {amount > 0 ? '+' : ''}
+                      {amount / 1_000}k
+                    </Button>
                   ))}
                 </div>
               </SectionContent>

@@ -5,7 +5,7 @@ import { CookieContext } from 'app/providers/cookie-context';
 import layoutStyles from '../layout.module.scss';
 
 export const PreferencesUpdater = () => {
-  const { locale, skinVariant, timeOfDay } = use(CookieContext);
+  const { locale } = use(CookieContext);
 
   const { direction } = useTextDirection(locale);
 
@@ -20,25 +20,14 @@ export const PreferencesUpdater = () => {
   }, []);
 
   useEffect(() => {
-    if (!(skinVariant && timeOfDay)) {
-      return;
-    }
     const html = document.documentElement;
 
     html.setAttribute('dir', direction);
-    html.classList.add(
-      `skin-variant-${skinVariant}`,
-      `time-of-day-${timeOfDay}`,
-    );
 
     return () => {
       html.removeAttribute('dir');
-      html.classList.remove(
-        `skin-variant-${skinVariant}`,
-        `time-of-day-${timeOfDay}`,
-      );
     };
-  }, [skinVariant, timeOfDay, direction]);
+  }, [direction]);
 
   return null;
 };

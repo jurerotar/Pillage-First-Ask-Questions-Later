@@ -28,6 +28,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from 'app/components/ui/popover';
+import { Slider } from 'app/components/ui/slider';
 import {
   Table,
   TableBody,
@@ -85,7 +86,6 @@ export const AuctionsSellItem = () => {
           <TableHeader>
             <TableRow>
               <TableHeaderCell>{t('Item')}</TableHeaderCell>
-              <TableHeaderCell>{t('Available')}</TableHeaderCell>
               <TableHeaderCell>{t('Sell amount')}</TableHeaderCell>
               <TableHeaderCell>{t('Action')}</TableHeaderCell>
             </TableRow>
@@ -94,7 +94,7 @@ export const AuctionsSellItem = () => {
             {pagination.currentPageItems.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={3}
                   className="text-muted-foreground"
                 >
                   {t('No inventory items match your filters')}
@@ -105,8 +105,19 @@ export const AuctionsSellItem = () => {
                 const item = getItemDefinition(inventoryItem.id);
                 const amount = Math.min(
                   inventoryItem.amount,
-                  sellAmounts[inventoryItem.id] ?? 1,
+                  sellAmounts[inventoryItem.id] ?? 0,
                 );
+                const setAmount = (value: number) => {
+                  const nextAmount = Math.min(
+                    inventoryItem.amount,
+                    Math.max(0, Number.isFinite(value) ? Math.trunc(value) : 0),
+                  );
+
+                  setSellAmounts((previousAmounts) => ({
+                    ...previousAmounts,
+                    [inventoryItem.id]: nextAmount,
+                  }));
+                };
                 const instantPrice = getEstimatedPriceRange(
                   item.basePrice!,
                   amount,
@@ -125,34 +136,47 @@ export const AuctionsSellItem = () => {
                         {t(`ITEMS.${item.name}.NAME`)}
                       </ItemTooltip>
                     </TableCell>
-                    <TableCell>{formatNumber(inventoryItem.amount)}</TableCell>
                     <TableCell>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={inventoryItem.amount}
-                        value={amount}
-                        className="w-24"
-                        hideSpinner
-                        onChange={(event) => {
-                          const nextAmount = Math.min(
-                            inventoryItem.amount,
-                            Math.max(1, Number(event.currentTarget.value)),
-                          );
-
-                          setSellAmounts((previousAmounts) => ({
-                            ...previousAmounts,
-                            [inventoryItem.id]: nextAmount,
-                          }));
-                        }}
-                      />
+                      <div className="flex w-72 items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                          <Slider
+                            aria-label={t('Sell amount')}
+                            min={0}
+                            max={inventoryItem.amount}
+                            value={[amount]}
+                            onValueChange={([value]) => setAmount(value)}
+                          />
+                        </div>
+                        <div className="w-20 shrink-0">
+                          <Input
+                            aria-label={t('Sell amount')}
+                            type="number"
+                            min={0}
+                            max={inventoryItem.amount}
+                            value={amount}
+                            hideSpinner
+                            onChange={(event) => {
+                              setAmount(Number(event.currentTarget.value));
+                            }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="fit"
+                          className="px-1.5 py-1 h-full"
+                          onClick={() => setAmount(inventoryItem.amount)}
+                        >
+                          ({formatNumber(inventoryItem.amount)})
+                        </Button>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             size="sm"
-                            disabled={isSellingItem}
+                            disabled={isSellingItem || amount === 0}
                           >
                             {t('Sell')}
                           </Button>
@@ -164,7 +188,7 @@ export const AuctionsSellItem = () => {
                           <div className="flex flex-col gap-2">
                             <PopoverClose asChild>
                               <Button
-                                disabled={isSellingItem}
+                                disabled={isSellingItem || amount === 0}
                                 onClick={() => {
                                   sellItem({
                                     itemId: inventoryItem.id,
@@ -183,7 +207,7 @@ export const AuctionsSellItem = () => {
                             <PopoverClose asChild>
                               <Button
                                 variant="outline"
-                                disabled={isSellingItem}
+                                disabled={isSellingItem || amount === 0}
                                 onClick={() => {
                                   sellItem({
                                     itemId: inventoryItem.id,

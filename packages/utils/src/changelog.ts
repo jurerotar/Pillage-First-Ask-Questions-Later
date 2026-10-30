@@ -59,8 +59,8 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
       continue;
     }
 
-    // Bullet with tag: * [Tag] text
-    const itemMatch = line.match(/^\*\s+\[([^\]]+)\]\s+(.*)$/u);
+    // Tagged bullets use "- [Tag] text"; retain support for legacy "*" bullets.
+    const itemMatch = line.match(/^[-*]\s+\[([^\]]+)\]\s+(.*)$/u);
     if (itemMatch) {
       const tag = itemMatch[1].trim();
       const text = itemMatch[2].trim();

@@ -14,7 +14,8 @@ export const selectPlayerMapMarkersQuery = `
       WHEN TRIM(description) = '' THEN 'Map marker ' || ROW_NUMBER() OVER (ORDER BY id)
       ELSE description
       END AS description,
-    color
+    color,
+    icon
   FROM
     map_markers
   WHERE
@@ -25,9 +26,9 @@ export const selectPlayerMapMarkersQuery = `
 
 export const insertMapMarkerQuery = `
   INSERT INTO
-    map_markers (player_id, tile_id, description, color)
+    map_markers (player_id, tile_id, description, color, icon)
   VALUES
-    ($player_id, $tile_id, $description, $color);
+    ($player_id, $tile_id, $description, $color, $icon);
 `;
 
 export const selectVillageAndFirstOasisTileIdsQuery = `
