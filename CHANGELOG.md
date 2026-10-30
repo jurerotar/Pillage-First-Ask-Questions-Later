@@ -1,3 +1,14 @@
+## Version 0.4.79
+
+#### Oct 30, 2026
+
+- [Feature] Added a list of saved map markers to the map filters panel.
+- [UIUXImprovement] Quests now show how their rewards progress.
+- [UIUXImprovement] Improved hero adventure and revival messages to more accurately reflect the hero's status.
+- [TechnicalImprovement] Migrated shared UI components from Radix UI to Base UI.
+- [BugFix] Fixed map markers hiding other tile icons.
+- [BugFix] Fixed the Oasis Animal Finder minimum amount field preventing users from clearing the value while editing.
+
 ## Version 0.4.78
 
 #### Oct 29, 2026
