@@ -54,6 +54,7 @@ export const TroopMovementFilters = ({
         <PopoverTrigger asChild>
           <Button
             aria-label={t('Troop movement filters')}
+            className="w-fit"
             size="sm"
             variant="outline"
           >

@@ -94,6 +94,7 @@ export const ReportFilters = ({
           <PopoverTrigger asChild>
             <Button
               aria-label={t('Report filters')}
+              className="w-fit"
               size="sm"
               variant="outline"
             >

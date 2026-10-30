@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
 import { gameEventTypeSchema } from '../models/game-event';
 import { tribeSchema } from '../models/tribe';
+import { troopSchema } from '../models/troop';
 
 const villageTargetTroopMovementTypeSchema = gameEventTypeSchema.extract([
   'troopMovementReinforcements',
@@ -29,19 +30,20 @@ export const troopMovementItemDtoSchema = z
     z.strictObject({
       id: z.number(),
       type: z.literal('troopMovementAdventure'),
-      originatingVillageId: z.number(),
-      originatingVillageName: z.string(),
+      originatingVillageId: z.number().nullable(),
+      originatingVillageName: z.string().nullable(),
       originatingTileId: z.number(),
       playerName: z.string(),
       playerId: z.number(),
       playerTribe: tribeSchema,
       resolvesAt: z.number(),
+      troops: z.array(troopSchema).nullable(),
     }),
     z.strictObject({
       id: z.number(),
       type: villageTargetTroopMovementTypeSchema,
-      originatingVillageId: z.number(),
-      originatingVillageName: z.string(),
+      originatingVillageId: z.number().nullable(),
+      originatingVillageName: z.string().nullable(),
       originatingTileId: z.number(),
       playerName: z.string(),
       playerId: z.number(),
@@ -50,9 +52,12 @@ export const troopMovementItemDtoSchema = z
       targetVillageId: z.number().nullable(),
       targetVillageName: z.string().nullable(),
       targetTileId: z.number().nullable(),
+      troops: z.array(troopSchema).nullable(),
     }),
   ])
   .meta({ id: 'TroopMovementItemDto' });
+
+export type TroopMovementItemDto = z.infer<typeof troopMovementItemDtoSchema>;
 
 export const troopMovementStatsItemDtoSchema = z
   .strictObject({
@@ -68,3 +73,7 @@ export const troopMovementStatsItemDtoSchema = z
     earliestResolvesAt: z.number(),
   })
   .meta({ id: 'TroopMovementStatsItemDto' });
+
+export type TroopMovementStatsItemDto = z.infer<
+  typeof troopMovementStatsItemDtoSchema
+>;

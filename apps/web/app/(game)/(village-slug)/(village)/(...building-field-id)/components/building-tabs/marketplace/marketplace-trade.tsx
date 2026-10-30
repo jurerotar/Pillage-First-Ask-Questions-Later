@@ -96,6 +96,7 @@ const ResourceFilterPopover = ({
       <PopoverTrigger asChild>
         <Button
           aria-label={ariaLabel}
+          className="w-fit"
           size="sm"
           variant="outline"
         >
