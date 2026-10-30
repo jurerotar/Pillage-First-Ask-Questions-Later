@@ -51,17 +51,19 @@ export const TroopMovementFilters = ({
     <SectionContent>
       <Text className="font-semibold">{t('Filter troop movements')}</Text>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            aria-label={t('Troop movement filters')}
-            size="sm"
-            variant="outline"
-          >
-            <LuListFilter className="size-4" />
-            {t('Troop movement filters')}
-            <Badge variant="secondary">{troopMovementFilters.length}</Badge>
-          </Button>
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <Button
+              aria-label={t('Troop movement filters')}
+              size="sm"
+              variant="outline"
+            >
+              <LuListFilter className="size-4" />
+              {t('Troop movement filters')}
+              <Badge variant="secondary">{troopMovementFilters.length}</Badge>
+            </Button>
+          }
+        />
         <PopoverContent
           align="start"
           className="w-80 p-3"

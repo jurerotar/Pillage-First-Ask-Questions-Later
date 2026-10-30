@@ -85,18 +85,20 @@ export const AuctionFilters = ({
     <SectionContent>
       <Text className="font-medium">{t('Filter auction offers')}</Text>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            aria-label={t('Auction filters')}
-            className="w-fit"
-            size="sm"
-            variant="outline"
-          >
-            <LuListFilter className="size-4" />
-            {t('Auction filters')}
-            <Badge variant="secondary">{auctionFilters.length}</Badge>
-          </Button>
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <Button
+              aria-label={t('Auction filters')}
+              className="w-fit"
+              size="sm"
+              variant="outline"
+            >
+              <LuListFilter className="size-4" />
+              {t('Auction filters')}
+              <Badge variant="secondary">{auctionFilters.length}</Badge>
+            </Button>
+          }
+        />
         <PopoverContent
           align="start"
           className="w-72 p-3"

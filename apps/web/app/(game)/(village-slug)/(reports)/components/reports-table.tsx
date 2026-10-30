@@ -162,16 +162,18 @@ export const ReportsTable = ({
               </TableCell>
               <TableCell>
                 <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      aria-label={t('Actions')}
-                      title={t('Actions')}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <LuEllipsis />
-                    </Button>
-                  </PopoverTrigger>
+                  <PopoverTrigger
+                    render={
+                      <Button
+                        aria-label={t('Actions')}
+                        title={t('Actions')}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <LuEllipsis />
+                      </Button>
+                    }
+                  />
                   <PopoverContent
                     align="end"
                     className="w-auto rounded-lg p-1 shadow-xl"

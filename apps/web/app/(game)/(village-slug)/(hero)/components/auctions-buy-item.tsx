@@ -12,6 +12,7 @@ import {
   isAuctionItemVisible,
 } from 'app/(game)/(village-slug)/(hero)/components/utils/auction-items';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -71,7 +72,7 @@ export const AuctionsBuyItem = () => {
         <Text as="h2">{t('Buy items')}</Text>
       </SectionContent>
       <AuctionFilters {...auctionFilters} />
-      <div className="overflow-x-auto">
+      <OverflowContainer>
         <Table>
           <TableHeader>
             <TableRow>
@@ -142,7 +143,7 @@ export const AuctionsBuyItem = () => {
             )}
           </TableBody>
         </Table>
-      </div>
+      </OverflowContainer>
       <div className="flex w-full justify-end">
         <Pagination
           {...pagination}

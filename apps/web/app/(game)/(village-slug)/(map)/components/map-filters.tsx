@@ -134,7 +134,7 @@ export const MapFilters = () => {
               )}
             >
               <ToggleGroup
-                type="multiple"
+                multiple
                 variant="outline"
                 size="sm"
                 value={activeValues}

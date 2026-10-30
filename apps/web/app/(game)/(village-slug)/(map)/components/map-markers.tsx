@@ -29,18 +29,20 @@ export const MapMarkers = () => {
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          className="pointer-events-auto inline-flex size-10 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:bg-accent md:size-12"
-          aria-label={t('Map markers')}
-          data-tooltip-id="general-tooltip"
-          data-tooltip-content={t('Map markers')}
-          data-testid="map-markers-button"
-        >
-          <LuList className="size-5" />
-        </button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <button
+            type="button"
+            className="pointer-events-auto inline-flex size-10 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:bg-accent md:size-12"
+            aria-label={t('Map markers')}
+            data-tooltip-id="general-tooltip"
+            data-tooltip-content={t('Map markers')}
+            data-testid="map-markers-button"
+          >
+            <LuList className="size-5" />
+          </button>
+        }
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('Map markers')}</DialogTitle>
