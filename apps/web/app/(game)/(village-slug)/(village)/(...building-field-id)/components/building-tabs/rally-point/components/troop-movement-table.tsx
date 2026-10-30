@@ -15,7 +15,6 @@ import {
   UnitTableRow,
   UnitTableTitle,
   UnitTableUnitIcons,
-  UnitTableWheatConsumption,
 } from 'app/(game)/components/unit-table';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icons';
@@ -169,13 +168,10 @@ export const TroopMovementTable = ({ movement }: TroopMovementTableProps) => {
           troops={sortedTroops}
         />
       ) : (
-        <>
-          <UnitTableRow
-            label={t('Troops')}
-            troops={sortedTroops}
-          />
-          <UnitTableWheatConsumption troops={sortedTroops} />
-        </>
+        <UnitTableRow
+          label={t('Troops')}
+          troops={sortedTroops}
+        />
       )}
     </UnitTable>
   );
