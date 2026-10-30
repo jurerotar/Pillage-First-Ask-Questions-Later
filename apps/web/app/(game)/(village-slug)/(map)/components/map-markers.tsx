@@ -4,6 +4,7 @@ import { LuList, LuTrash2 } from 'react-icons/lu';
 import { Link } from 'react-router';
 import { useMapMarkers } from 'app/(game)/(village-slug)/(map)/hooks/use-map-markers';
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { Icon } from 'app/components/icon';
 import { Button } from 'app/components/ui/button';
 import {
@@ -14,12 +15,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from 'app/components/ui/dialog';
+import { Pagination } from 'app/components/ui/pagination';
 
 export const MapMarkers = () => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const { mapMarkers, deleteMapMarker, isDeletingMapMarker } = useMapMarkers();
   const { map } = useMap();
+  const pagination = usePagination(mapMarkers, 5);
 
   return (
     <Dialog
@@ -51,7 +54,7 @@ export const MapMarkers = () => {
           </p>
         ) : (
           <ul className="flex flex-col divide-y divide-border">
-            {mapMarkers.map((marker) => {
+            {pagination.currentPageItems.map((marker) => {
               const tile = map.at(marker.tileId - 1)!;
 
               const { x, y } = tile.coordinates;
@@ -94,6 +97,11 @@ export const MapMarkers = () => {
               );
             })}
           </ul>
+        )}
+        {pagination.pageCount > 1 && (
+          <div className="flex justify-end">
+            <Pagination {...pagination} />
+          </div>
         )}
       </DialogContent>
     </Dialog>

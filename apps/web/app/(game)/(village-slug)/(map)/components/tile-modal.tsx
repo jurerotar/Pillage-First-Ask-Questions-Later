@@ -35,6 +35,7 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useTileReports } from 'app/(game)/(village-slug)/hooks/use-tile-reports';
 import { useTileTroopMovements } from 'app/(game)/(village-slug)/hooks/use-tile-troop-movements';
@@ -53,6 +54,7 @@ import {
 } from 'app/components/ui/dialog';
 import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
+import { Pagination } from 'app/components/ui/pagination';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
@@ -719,6 +721,7 @@ const TileModalMovements = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
   const intl = useIntl();
   const { troopMovements: movements } = useTileTroopMovements(tile.id);
+  const pagination = usePagination(movements, 5);
 
   const labels = {
     troopMovementReinforcements: t('Reinforcements'),
@@ -735,58 +738,65 @@ const TileModalMovements = ({ tile }: TileModalProps) => {
   }
 
   return (
-    <ul className="flex max-h-[min(20rem,50dvh)] flex-col divide-y divide-border overflow-y-auto overscroll-contain">
-      {movements.map((movement) => {
-        const isIncoming = movement.targetTileId === tile.id;
-        const isOffensive =
-          movement.type === 'troopMovementAttack' ||
-          movement.type === 'troopMovementRaid' ||
-          movement.type === 'troopMovementOasisOccupation';
-        const icon =
-          movement.type === 'troopMovementFindNewVillage'
-            ? 'findNewVillage'
-            : isOffensive
-              ? isIncoming
-                ? 'offensiveMovementIncoming'
-                : 'offensiveMovementOutgoing'
-              : isIncoming
-                ? 'deploymentIncoming'
-                : 'deploymentOutgoing';
+    <div className="flex flex-col gap-4">
+      <ul className="flex max-h-[min(20rem,50dvh)] flex-col divide-y divide-border overflow-y-auto overscroll-contain">
+        {pagination.currentPageItems.map((movement) => {
+          const isIncoming = movement.targetTileId === tile.id;
+          const isOffensive =
+            movement.type === 'troopMovementAttack' ||
+            movement.type === 'troopMovementRaid' ||
+            movement.type === 'troopMovementOasisOccupation';
+          const icon =
+            movement.type === 'troopMovementFindNewVillage'
+              ? 'findNewVillage'
+              : isOffensive
+                ? isIncoming
+                  ? 'offensiveMovementIncoming'
+                  : 'offensiveMovementOutgoing'
+                : isIncoming
+                  ? 'deploymentIncoming'
+                  : 'deploymentOutgoing';
 
-        return (
-          <li
-            key={movement.id}
-            className="flex shrink-0 items-center gap-2 py-2 text-sm"
-          >
-            <Icon
-              type={icon}
-              className="size-4 shrink-0"
-              shouldShowTooltip={false}
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <Text className="font-medium">{labels[movement.type]}</Text>
-              <Text className="text-muted-foreground">
-                {movement.originName} ({movement.originCoordinates.x}|
-                {movement.originCoordinates.y}){' → '}
-                {movement.targetName} ({movement.targetCoordinates.x}|
-                {movement.targetCoordinates.y})
-              </Text>
-              <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 tabular-nums">
-                <span>
-                  {t('Arrives in')} <Countdown endsAt={movement.resolvesAt} />
-                </span>
-                <time
-                  dateTime={new Date(movement.resolvesAt).toISOString()}
-                  className="text-muted-foreground"
-                >
-                  {intl.dateTime.format(movement.resolvesAt)}
-                </time>
+          return (
+            <li
+              key={movement.id}
+              className="flex shrink-0 items-center gap-2 py-2 text-sm"
+            >
+              <Icon
+                type={icon}
+                className="size-4 shrink-0"
+                shouldShowTooltip={false}
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <Text className="font-medium">{labels[movement.type]}</Text>
+                <Text className="text-muted-foreground">
+                  {movement.originName} ({movement.originCoordinates.x}|
+                  {movement.originCoordinates.y}){' → '}
+                  {movement.targetName} ({movement.targetCoordinates.x}|
+                  {movement.targetCoordinates.y})
+                </Text>
+                <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 tabular-nums">
+                  <span>
+                    {t('Arrives in')} <Countdown endsAt={movement.resolvesAt} />
+                  </span>
+                  <time
+                    dateTime={new Date(movement.resolvesAt).toISOString()}
+                    className="text-muted-foreground"
+                  >
+                    {intl.dateTime.format(movement.resolvesAt)}
+                  </time>
+                </div>
               </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+            </li>
+          );
+        })}
+      </ul>
+      {pagination.pageCount > 1 && (
+        <div className="flex justify-end">
+          <Pagination {...pagination} />
+        </div>
+      )}
+    </div>
   );
 };
 
