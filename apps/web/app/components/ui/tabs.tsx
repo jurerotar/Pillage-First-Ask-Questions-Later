@@ -1,5 +1,5 @@
+import { Tabs as TabsPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import { Tabs as TabsPrimitive } from 'radix-ui';
 import {
   Children,
   type ComponentProps,
@@ -30,7 +30,7 @@ const tabClassName = clsx(
   'text-foreground/70 hover:text-foreground',
   'focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none',
   'disabled:pointer-events-none disabled:opacity-50',
-  'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+  'data-active:bg-background data-active:text-foreground data-active:shadow-sm',
 );
 
 const getMoreButtonClassName = (isActive: boolean) => {
@@ -50,7 +50,14 @@ type TabsContextValue = {
 
 const TabsContext = createContext<TabsContextValue | null>(null);
 
-type TabsProps = ComponentProps<typeof TabsPrimitive.Root>;
+type TabsProps = Omit<
+  ComponentProps<typeof TabsPrimitive.Root>,
+  'value' | 'defaultValue' | 'onValueChange'
+> & {
+  value?: string;
+  defaultValue?: string;
+  onValueChange?: (value: string) => void;
+};
 
 export const Tabs = ({
   children,
@@ -80,7 +87,7 @@ export const Tabs = ({
     <TabsContext.Provider value={contextValue}>
       <TabsPrimitive.Root
         value={currentValue}
-        onValueChange={handleValueChange}
+        onValueChange={(value) => handleValueChange(String(value))}
         {...props}
       >
         {children}
@@ -89,7 +96,7 @@ export const Tabs = ({
   );
 };
 
-type TabElementProps = ComponentProps<typeof TabsPrimitive.Trigger>;
+type TabElementProps = ComponentProps<typeof TabsPrimitive.Tab>;
 
 type TabItem = {
   child: ReactElement<TabElementProps>;
@@ -219,6 +226,7 @@ export const TabList = ({
 
   return (
     <TabsPrimitive.List
+      activateOnFocus
       ref={containerRef}
       className={clsx(
         'relative inline-flex max-w-full items-center gap-1 overflow-hidden rounded-lg bg-muted p-1 text-muted-foreground transition-colors',
@@ -307,9 +315,9 @@ export const Tab = ({
   className,
   value,
   ...props
-}: ComponentProps<typeof TabsPrimitive.Trigger>) => {
+}: ComponentProps<typeof TabsPrimitive.Tab>) => {
   return (
-    <TabsPrimitive.Trigger
+    <TabsPrimitive.Tab
       value={value}
       data-slot="tab"
       data-value={value}
@@ -317,7 +325,7 @@ export const Tab = ({
       {...props}
     >
       {children}
-    </TabsPrimitive.Trigger>
+    </TabsPrimitive.Tab>
   );
 };
 
@@ -326,17 +334,17 @@ export const TabPanel = ({
   className,
   value,
   ...props
-}: ComponentProps<typeof TabsPrimitive.Content>) => {
+}: ComponentProps<typeof TabsPrimitive.Panel>) => {
   return (
-    <TabsPrimitive.Content
+    <TabsPrimitive.Panel
       value={value}
       className={clsx(
-        'mt-2 flex-1 border border-border p-2 outline-none',
+        'mt-2 flex-1 border border-border p-2 outline-none data-ending-style:hidden data-hidden:hidden',
         className,
       )}
       {...props}
     >
       {children}
-    </TabsPrimitive.Content>
+    </TabsPrimitive.Panel>
   );
 };

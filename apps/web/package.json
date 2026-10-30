@@ -27,6 +27,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@base-ui/react": "1.9.0",
     "@grafana/faro-react": "2.13.0",
     "@grafana/faro-web-sdk": "2.13.0",
     "@hookform/resolvers": "6.0.1",
@@ -49,7 +50,6 @@
     "isbot": "5.2.2",
     "moderndash": "4.0.2",
     "qrcode.react": "4.2.0",
-    "radix-ui": "1.8.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-hook-form": "7.91.0",

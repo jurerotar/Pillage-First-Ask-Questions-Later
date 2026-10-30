@@ -1,6 +1,6 @@
+import { Popover as PopoverPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import { Popover as PopoverPrimitive } from 'radix-ui';
-import type { ComponentProps } from 'react';
+import { type ComponentProps, isValidElement } from 'react';
 
 export const Popover = ({
   ...props
@@ -14,13 +14,18 @@ export const Popover = ({
 };
 
 export const PopoverTrigger = ({
+  asChild,
+  children,
   ...props
-}: ComponentProps<typeof PopoverPrimitive.Trigger>) => {
+}: ComponentProps<typeof PopoverPrimitive.Trigger> & { asChild?: boolean }) => {
   return (
     <PopoverPrimitive.Trigger
       data-slot="popover-trigger"
+      render={asChild && isValidElement(children) ? children : undefined}
       {...props}
-    />
+    >
+      {asChild ? undefined : children}
+    </PopoverPrimitive.Trigger>
   );
 };
 
@@ -28,43 +33,48 @@ export const PopoverContent = ({
   className,
   align = 'center',
   sideOffset = 4,
+  side,
   ...props
-}: ComponentProps<typeof PopoverPrimitive.Content>) => {
+}: ComponentProps<typeof PopoverPrimitive.Popup> &
+  Pick<
+    ComponentProps<typeof PopoverPrimitive.Positioner>,
+    'align' | 'side' | 'sideOffset'
+  >) => {
   return (
     <PopoverPrimitive.Portal>
-      <PopoverPrimitive.Content
-        data-slot="popover-content"
+      <PopoverPrimitive.Positioner
         align={align}
+        side={side}
+        collisionPadding={0}
         sideOffset={sideOffset}
-        className={clsx(
-          'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 origin-(--radix-popover-content-transform-origin) rounded-md border p-1 shadow-md outline-hidden',
-          className,
-        )}
-        {...props}
-      />
+        className="z-50"
+      >
+        <PopoverPrimitive.Popup
+          data-slot="popover-content"
+          className={clsx(
+            'bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 origin-(--transform-origin) rounded-md border p-1 shadow-md outline-hidden',
+            className,
+          )}
+          {...props}
+        />
+      </PopoverPrimitive.Positioner>
     </PopoverPrimitive.Portal>
   );
 };
 
-export const PopoverAnchor = ({
-  ...props
-}: ComponentProps<typeof PopoverPrimitive.Anchor>) => {
-  return (
-    <PopoverPrimitive.Anchor
-      data-slot="popover-anchor"
-      {...props}
-    />
-  );
-};
-
 export const PopoverClose = ({
+  asChild,
+  children,
   ...props
-}: ComponentProps<typeof PopoverPrimitive.Close>) => {
+}: ComponentProps<typeof PopoverPrimitive.Close> & { asChild?: boolean }) => {
   return (
     <PopoverPrimitive.Close
       data-slot="popover-close"
+      render={asChild && isValidElement(children) ? children : undefined}
       {...props}
-    />
+    >
+      {asChild ? undefined : children}
+    </PopoverPrimitive.Close>
   );
 };
 

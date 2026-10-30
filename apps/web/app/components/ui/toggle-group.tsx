@@ -1,6 +1,6 @@
+import { Toggle, ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react';
 import type { VariantProps } from 'class-variance-authority';
 import { clsx } from 'clsx';
-import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
 import { type ComponentProps, createContext, use, useMemo } from 'react';
 import { toggleVariants } from 'app/components/ui/cvas/toggle-cva';
 
@@ -9,7 +9,24 @@ const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
   variant: 'default',
 });
 
-type ToggleGroupProps = ComponentProps<typeof ToggleGroupPrimitive.Root> &
+type ToggleGroupProps = Omit<
+  ComponentProps<typeof ToggleGroupPrimitive>,
+  'value' | 'defaultValue' | 'onValueChange'
+> &
+  (
+    | {
+        type: 'single';
+        value?: string;
+        defaultValue?: string;
+        onValueChange?: (value: string) => void;
+      }
+    | {
+        type: 'multiple';
+        value?: string[];
+        defaultValue?: string[];
+        onValueChange?: (value: string[]) => void;
+      }
+  ) &
   VariantProps<typeof toggleVariants>;
 
 export const ToggleGroup = ({
@@ -19,6 +36,7 @@ export const ToggleGroup = ({
   children,
   ...props
 }: ToggleGroupProps) => {
+  const { type, ...groupProps } = props;
   const value = useMemo(() => {
     return {
       variant,
@@ -27,7 +45,7 @@ export const ToggleGroup = ({
   }, [variant, size]);
 
   return (
-    <ToggleGroupPrimitive.Root
+    <ToggleGroupPrimitive
       data-slot="toggle-group"
       data-variant={variant}
       data-size={size}
@@ -35,14 +53,36 @@ export const ToggleGroup = ({
         'group/toggle-group flex w-fit gap-1 lg:gap-2 items-center',
         className,
       )}
-      {...props}
+      {...groupProps}
+      multiple={type === 'multiple'}
+      value={
+        props.value === undefined
+          ? undefined
+          : typeof props.value === 'string'
+            ? [props.value]
+            : props.value
+      }
+      defaultValue={
+        props.defaultValue === undefined
+          ? undefined
+          : typeof props.defaultValue === 'string'
+            ? [props.defaultValue]
+            : props.defaultValue
+      }
+      onValueChange={(value) => {
+        if (props.type === 'single') {
+          props.onValueChange?.(value[0] ?? '');
+        } else {
+          props.onValueChange?.(value);
+        }
+      }}
     >
       <ToggleGroupContext value={value}>{children}</ToggleGroupContext>
-    </ToggleGroupPrimitive.Root>
+    </ToggleGroupPrimitive>
   );
 };
 
-type ToggleGroupItemProps = ComponentProps<typeof ToggleGroupPrimitive.Item> &
+type ToggleGroupItemProps = ComponentProps<typeof Toggle> &
   VariantProps<typeof toggleVariants>;
 
 export const ToggleGroupItem = ({
@@ -55,7 +95,7 @@ export const ToggleGroupItem = ({
   const context = use(ToggleGroupContext);
 
   return (
-    <ToggleGroupPrimitive.Item
+    <Toggle
       data-slot="toggle-group-item"
       data-variant={context.variant || variant}
       data-size={context.size || size}
@@ -70,6 +110,6 @@ export const ToggleGroupItem = ({
       {...props}
     >
       {children}
-    </ToggleGroupPrimitive.Item>
+    </Toggle>
   );
 };

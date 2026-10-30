@@ -1,6 +1,12 @@
+import { useRender } from '@base-ui/react/use-render';
 import { clsx } from 'clsx';
-import { type Label as LabelPrimitive, Slot } from 'radix-ui';
-import { type ComponentProps, createContext, use, useMemo } from 'react';
+import {
+  type ComponentProps,
+  createContext,
+  type ReactElement,
+  use,
+  useMemo,
+} from 'react';
 import {
   Controller,
   type ControllerProps,
@@ -98,7 +104,7 @@ export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
 export const FormLabel = ({
   className,
   ...props
-}: ComponentProps<typeof LabelPrimitive.Root>) => {
+}: ComponentProps<typeof Label>) => {
   const { error, formItemId } = useFormField();
 
   return (
@@ -112,12 +118,14 @@ export const FormLabel = ({
   );
 };
 
-export const FormControl = (props: ComponentProps<typeof Slot.Root>) => {
+export const FormControl = (
+  props: ComponentProps<'div'> & { children: ReactElement },
+) => {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
-    <Slot.Root
+    <FormControlSlot
       data-slot="form-control"
       id={formItemId}
       aria-describedby={
@@ -164,3 +172,10 @@ export const FormMessage = ({ className, ...props }: ComponentProps<'p'>) => {
     </p>
   );
 };
+
+function FormControlSlot({
+  children,
+  ...props
+}: ComponentProps<'div'> & { children: ReactElement }) {
+  return useRender({ render: children, props });
+}

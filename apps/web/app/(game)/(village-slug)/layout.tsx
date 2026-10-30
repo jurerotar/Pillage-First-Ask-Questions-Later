@@ -202,7 +202,7 @@ const VillageOverviewDesktopItem = () => {
         'transition-[background-color,border-color,transform] active:scale-95 active:shadow-inner',
       )}
     >
-      <span className="lg:bg-background rounded-md flex items-center justify-center">
+      <span className="rounded-md flex items-center justify-center">
         <CiCircleList className="text-xl" />
       </span>
     </NavLink>
