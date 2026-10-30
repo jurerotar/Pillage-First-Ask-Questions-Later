@@ -2,6 +2,7 @@ import { useClickOutside } from '@mantine/hooks';
 import { clsx } from 'clsx';
 import { use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MapMarkers } from 'app/(game)/(village-slug)/(map)/components/map-markers';
 import { OasisAnimalFinderLink } from 'app/(game)/(village-slug)/(map)/components/oasis-animal-finder-link';
 import { OasisBonusFinderLink } from 'app/(game)/(village-slug)/(map)/components/oasis-bonus-finder-link';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
@@ -93,6 +94,7 @@ export const MapFilters = () => {
       )}
     >
       <div className="flex items-start justify-end gap-2">
+        <MapMarkers />
         <div className="flex flex-col items-end gap-2">
           <fieldset
             ref={containerRef}

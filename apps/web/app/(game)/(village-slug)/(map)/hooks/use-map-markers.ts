@@ -62,29 +62,27 @@ export const useMapMarkers = () => {
     },
   });
 
-  const { mutate: deleteMapMarker } = useMutation<
-    void,
-    Error,
-    { tileId: number }
-  >({
-    mutationFn: async ({ tileId }) => {
-      await apiClient.delete('/players/:playerId/map-markers/:tileId', {
-        path: {
-          playerId: player.id,
-          tileId,
-        },
-      });
-    },
-    onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[mapMarkersCacheKey]]);
-      toast.success(t('Map marker deleted'));
-    },
-  });
+  const { mutate: deleteMapMarker, isPending: isDeletingMapMarker } =
+    useMutation<void, Error, { tileId: number }>({
+      mutationFn: async ({ tileId }) => {
+        await apiClient.delete('/players/:playerId/map-markers/:tileId', {
+          path: {
+            playerId: player.id,
+            tileId,
+          },
+        });
+      },
+      onSuccess: async (_data, _vars, _onMutateResult, context) => {
+        await invalidateQueries(context, [[mapMarkersCacheKey]]);
+        toast.success(t('Map marker deleted'));
+      },
+    });
 
   return {
     mapMarkers,
     mapMarkersByTileId,
     createMapMarker,
     deleteMapMarker,
+    isDeletingMapMarker,
   };
 };
