@@ -173,13 +173,12 @@ const TileModalMarker = ({
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-sm font-medium">{t('Icon')}</legend>
         <ToggleGroup
-          type="single"
           variant="outline"
           size="sm"
-          value={icon}
+          value={[icon]}
           aria-label={t('Icon')}
           className="flex-wrap"
-          onValueChange={(value) => {
+          onValueChange={([value]) => {
             const option = iconOptions.find((option) => option.icon === value);
             if (option) {
               form.setValue('icon', option.icon, { shouldDirty: true });

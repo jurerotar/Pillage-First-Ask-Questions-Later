@@ -9,24 +9,7 @@ const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
   variant: 'default',
 });
 
-type ToggleGroupProps = Omit<
-  ComponentProps<typeof ToggleGroupPrimitive>,
-  'value' | 'defaultValue' | 'onValueChange'
-> &
-  (
-    | {
-        type: 'single';
-        value?: string;
-        defaultValue?: string;
-        onValueChange?: (value: string) => void;
-      }
-    | {
-        type: 'multiple';
-        value?: string[];
-        defaultValue?: string[];
-        onValueChange?: (value: string[]) => void;
-      }
-  ) &
+type ToggleGroupProps = ComponentProps<typeof ToggleGroupPrimitive> &
   VariantProps<typeof toggleVariants>;
 
 export const ToggleGroup = ({
@@ -36,7 +19,6 @@ export const ToggleGroup = ({
   children,
   ...props
 }: ToggleGroupProps) => {
-  const { type, ...groupProps } = props;
   const value = useMemo(() => {
     return {
       variant,
@@ -53,29 +35,7 @@ export const ToggleGroup = ({
         'group/toggle-group flex w-fit gap-1 lg:gap-2 items-center',
         className,
       )}
-      {...groupProps}
-      multiple={type === 'multiple'}
-      value={
-        props.value === undefined
-          ? undefined
-          : typeof props.value === 'string'
-            ? [props.value]
-            : props.value
-      }
-      defaultValue={
-        props.defaultValue === undefined
-          ? undefined
-          : typeof props.defaultValue === 'string'
-            ? [props.defaultValue]
-            : props.defaultValue
-      }
-      onValueChange={(value) => {
-        if (props.type === 'single') {
-          props.onValueChange?.(value[0] ?? '');
-        } else {
-          props.onValueChange?.(value);
-        }
-      }}
+      {...props}
     >
       <ToggleGroupContext value={value}>{children}</ToggleGroupContext>
     </ToggleGroupPrimitive>

@@ -1,69 +1,20 @@
 import { Dialog as DialogPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import {
-  type ComponentProps,
-  createContext,
-  isValidElement,
-  useContext,
-  useLayoutEffect,
-  useRef,
-} from 'react';
+import type { ComponentProps } from 'react';
 import { LuX } from 'react-icons/lu';
 
-type DismissHandlers = {
-  onEscapeKeyDown?: (event: Event) => void;
-  onInteractOutside?: (event: Event) => void;
-};
-const DismissContext = createContext<{ current: DismissHandlers } | null>(null);
+export const Dialog = (props: ComponentProps<typeof DialogPrimitive.Root>) => (
+  <DialogPrimitive.Root {...props} />
+);
 
-export const Dialog = ({
-  onOpenChange,
-  ...props
-}: ComponentProps<typeof DialogPrimitive.Root>) => {
-  const handlers = useRef<DismissHandlers>({});
-  return (
-    <DismissContext value={handlers}>
-      <DialogPrimitive.Root
-        onOpenChange={(open, details) => {
-          const event = new Event('dismiss', { cancelable: true });
-          if (!open && details.reason === 'escape-key') {
-            handlers.current.onEscapeKeyDown?.(event);
-          }
-          if (
-            !open &&
-            (details.reason === 'outside-press' ||
-              details.reason === 'focus-out')
-          ) {
-            handlers.current.onInteractOutside?.(event);
-          }
-          if (event.defaultPrevented) {
-            details.cancel();
-            return;
-          }
-          onOpenChange?.(open, details);
-        }}
-        data-slot="dialog"
-        {...props}
-      />
-    </DismissContext>
-  );
-};
-
-export const DialogTrigger = ({
-  asChild,
-  children,
-  ...props
-}: ComponentProps<typeof DialogPrimitive.Trigger> & { asChild?: boolean }) => {
-  return (
-    <DialogPrimitive.Trigger
-      data-slot="dialog-trigger"
-      render={asChild && isValidElement(children) ? children : undefined}
-      {...props}
-    >
-      {asChild ? undefined : children}
-    </DialogPrimitive.Trigger>
-  );
-};
+export const DialogTrigger = (
+  props: ComponentProps<typeof DialogPrimitive.Trigger>,
+) => (
+  <DialogPrimitive.Trigger
+    data-slot="dialog-trigger"
+    {...props}
+  />
+);
 
 export const DialogPortal = ({
   ...props
@@ -107,29 +58,14 @@ export const DialogOverlay = ({
 
 type DialogContentProps = ComponentProps<typeof DialogPrimitive.Popup> & {
   closeDisabled?: boolean;
-  onEscapeKeyDown?: (event: Event) => void;
-  onInteractOutside?: (event: Event) => void;
 };
 
 export const DialogContent = ({
   className,
   children,
   closeDisabled = false,
-  onEscapeKeyDown,
-  onInteractOutside,
   ...props
 }: DialogContentProps) => {
-  const handlers = useContext(DismissContext);
-  useLayoutEffect(() => {
-    if (handlers) {
-      handlers.current = { onEscapeKeyDown, onInteractOutside };
-    }
-    return () => {
-      if (handlers) {
-        handlers.current = {};
-      }
-    };
-  }, [handlers, onEscapeKeyDown, onInteractOutside]);
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />

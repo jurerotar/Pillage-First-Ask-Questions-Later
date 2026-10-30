@@ -648,9 +648,9 @@ const VillageSelect = () => {
               return (
                 <DropdownMenuRadioItem
                   key={id}
-                  textValue={textValue}
+                  label={textValue}
                   value={slug}
-                  onSelect={() => {
+                  onClick={() => {
                     void navigateToVillage(slug);
                   }}
                 >
@@ -883,57 +883,59 @@ const MobileMoreNavigation = () => {
         className="w-52 p-1"
       >
         <nav aria-label={t('More')}>
-          <PopoverClose asChild>
-            <Link
-              to="statistics"
-              className={itemClassName}
-            >
-              <GoGraph className="text-xl" />
-              <span>{t('Statistics')}</span>
-            </Link>
-          </PopoverClose>
-          <PopoverClose asChild>
-            <Link
-              to="preferences"
-              className={itemClassName}
-            >
-              <MdSettings className="text-xl" />
-              <span>{t('Preferences')}</span>
-            </Link>
-          </PopoverClose>
-          <PopoverClose asChild>
-            <Link
-              to="/game-worlds"
-              className={itemClassName}
-            >
-              <RxExit className="text-xl text-red-500" />
-              <span>{t('Logout')}</span>
-            </Link>
-          </PopoverClose>
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="statistics"
+                className={itemClassName}
+              >
+                <GoGraph className="text-xl" />
+                <span>{t('Statistics')}</span>
+              </Link>
+            }
+          />
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="preferences"
+                className={itemClassName}
+              >
+                <MdSettings className="text-xl" />
+                <span>{t('Preferences')}</span>
+              </Link>
+            }
+          />
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="/game-worlds"
+                className={itemClassName}
+              >
+                <RxExit className="text-xl text-red-500" />
+                <span>{t('Logout')}</span>
+              </Link>
+            }
+          />
           <Separator
             orientation="horizontal"
             className=""
           />
-          {/*<PopoverClose asChild>*/}
-          {/*  <Link*/}
-          {/*    target="_blank"*/}
-          {/*    to="https://discord.com/invite/Ep7NKVXUZA"*/}
-          {/*    className={itemClassName}*/}
-          {/*  >*/}
-          {/*    <FaDiscord className="text-xl text-[#7289da]" />*/}
-          {/*    <span>Discord</span>*/}
-          {/*  </Link>*/}
-          {/*</PopoverClose>*/}
-          <PopoverClose asChild>
-            <Link
-              target="_blank"
-              to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-              className={itemClassName}
-            >
-              <FaGithub className="text-xl text-[#24292e] dark:text-white" />
-              <span>GitHub</span>
-            </Link>
-          </PopoverClose>
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                target="_blank"
+                to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                className={itemClassName}
+              >
+                <FaGithub className="text-xl text-[#24292e] dark:text-white" />
+                <span>GitHub</span>
+              </Link>
+            }
+          />
         </nav>
       </PopoverContent>
     </Popover>

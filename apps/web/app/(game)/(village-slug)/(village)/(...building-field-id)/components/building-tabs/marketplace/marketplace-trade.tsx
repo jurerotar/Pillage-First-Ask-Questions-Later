@@ -93,17 +93,19 @@ const ResourceFilterPopover = ({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={ariaLabel}
-          size="sm"
-          variant="outline"
-        >
-          <LuListFilter className="size-4" />
-          {label}
-          <Badge variant="secondary">{filters.length}</Badge>
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-label={ariaLabel}
+            size="sm"
+            variant="outline"
+          >
+            <LuListFilter className="size-4" />
+            {label}
+            <Badge variant="secondary">{filters.length}</Badge>
+          </Button>
+        }
+      />
       <PopoverContent
         align="start"
         className="w-64 p-3"

@@ -176,11 +176,11 @@ const useOasisBonusItems = () => {
   ];
 };
 
-const OasisBonusSelectContent = ({
-  items,
-}: {
+type OasisBonusSelectContentProps = {
   items: ReturnType<typeof useOasisBonusItems>;
-}) => (
+};
+
+const OasisBonusSelectContent = ({ items }: OasisBonusSelectContentProps) => (
   <SelectContent>
     {items.map(({ value, label }) => (
       <SelectItem

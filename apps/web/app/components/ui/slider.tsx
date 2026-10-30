@@ -2,14 +2,7 @@ import { Slider as SliderPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
 import { type ComponentProps, useMemo } from 'react';
 
-type SliderProps = Omit<
-  ComponentProps<typeof SliderPrimitive.Root>,
-  'value' | 'defaultValue' | 'onValueChange'
-> & {
-  value?: number[];
-  defaultValue?: number[];
-  onValueChange?: (value: number[]) => void;
-} & {
+type SliderProps = ComponentProps<typeof SliderPrimitive.Root<number[]>> & {
   marks?: (string | number)[];
 };
 
@@ -53,9 +46,7 @@ export const Slider = (props: SliderProps) => {
         thumbAlignment="edge"
         thumbCollisionBehavior="none"
         {...rootProps}
-        onValueChange={(value) =>
-          onValueChange?.(Array.isArray(value) ? value : [value as number])
-        }
+        onValueChange={onValueChange}
       >
         <SliderPrimitive.Control className="relative flex w-full items-center touch-none data-[orientation=vertical]:h-full data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col">
           <SliderPrimitive.Track

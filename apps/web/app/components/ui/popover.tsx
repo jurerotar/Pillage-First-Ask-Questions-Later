@@ -1,6 +1,6 @@
 import { Popover as PopoverPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import { type ComponentProps, isValidElement } from 'react';
+import type { ComponentProps } from 'react';
 
 export const Popover = ({
   ...props
@@ -13,21 +13,14 @@ export const Popover = ({
   );
 };
 
-export const PopoverTrigger = ({
-  asChild,
-  children,
-  ...props
-}: ComponentProps<typeof PopoverPrimitive.Trigger> & { asChild?: boolean }) => {
-  return (
-    <PopoverPrimitive.Trigger
-      data-slot="popover-trigger"
-      render={asChild && isValidElement(children) ? children : undefined}
-      {...props}
-    >
-      {asChild ? undefined : children}
-    </PopoverPrimitive.Trigger>
-  );
-};
+export const PopoverTrigger = (
+  props: ComponentProps<typeof PopoverPrimitive.Trigger>,
+) => (
+  <PopoverPrimitive.Trigger
+    data-slot="popover-trigger"
+    {...props}
+  />
+);
 
 export const PopoverContent = ({
   className,
@@ -62,21 +55,14 @@ export const PopoverContent = ({
   );
 };
 
-export const PopoverClose = ({
-  asChild,
-  children,
-  ...props
-}: ComponentProps<typeof PopoverPrimitive.Close> & { asChild?: boolean }) => {
-  return (
-    <PopoverPrimitive.Close
-      data-slot="popover-close"
-      render={asChild && isValidElement(children) ? children : undefined}
-      {...props}
-    >
-      {asChild ? undefined : children}
-    </PopoverPrimitive.Close>
-  );
-};
+export const PopoverClose = (
+  props: ComponentProps<typeof PopoverPrimitive.Close>,
+) => (
+  <PopoverPrimitive.Close
+    data-slot="popover-close"
+    {...props}
+  />
+);
 
 export const PopoverArrow = ({
   className,

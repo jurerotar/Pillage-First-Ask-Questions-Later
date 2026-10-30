@@ -62,17 +62,10 @@ export const DropdownMenuContent = ({
 export const DropdownMenuRadioItem = ({
   className,
   children,
-  textValue,
-  onSelect,
   ...props
-}: ComponentProps<typeof DropdownMenuPrimitive.RadioItem> & {
-  textValue?: string;
-  onSelect?: () => void;
-}) => {
+}: ComponentProps<typeof DropdownMenuPrimitive.RadioItem>) => {
   return (
     <DropdownMenuPrimitive.RadioItem
-      label={textValue}
-      onClick={onSelect}
       data-slot="dropdown-menu-radio-item"
       className={clsx(
         'text-popover-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden non-selectable data-disabled:pointer-events-none data-disabled:opacity-50',

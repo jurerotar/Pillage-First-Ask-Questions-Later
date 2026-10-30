@@ -241,19 +241,21 @@ export const TabList = ({
           open={isMoreOpen}
           onOpenChange={setIsMoreOpen}
         >
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className={getMoreButtonClassName(Boolean(isOverflowActive))}
-              data-slot="tab-more"
-            >
-              {t('More')}
-              <LuChevronDown
-                aria-hidden="true"
-                className="size-3.5"
-              />
-            </button>
-          </PopoverTrigger>
+          <PopoverTrigger
+            render={
+              <button
+                type="button"
+                className={getMoreButtonClassName(Boolean(isOverflowActive))}
+                data-slot="tab-more"
+              >
+                {t('More')}
+                <LuChevronDown
+                  aria-hidden="true"
+                  className="size-3.5"
+                />
+              </button>
+            }
+          />
           <PopoverContent
             align="end"
             className="flex flex-col gap-0.5 p-1"

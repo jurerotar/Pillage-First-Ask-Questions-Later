@@ -70,22 +70,24 @@ export const ServerCard = ({ server }: ServerCardProps) => {
         open={isActionsOpen}
         onOpenChange={setIsActionsOpen}
       >
-        <PopoverTrigger asChild>
-          <Button
-            aria-label="Game world actions"
-            aria-busy={isActionPending}
-            className="absolute right-2 top-2 rounded-full border-border/70 bg-background/80 shadow-sm backdrop-blur-sm"
-            disabled={isActionPending}
-            size="icon"
-            variant="outline"
-          >
-            {isActionPending ? (
-              <FaSpinner className="animate-spin" />
-            ) : (
-              <FaEllipsisVertical />
-            )}
-          </Button>
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <Button
+              aria-label="Game world actions"
+              aria-busy={isActionPending}
+              className="absolute right-2 top-2 rounded-full border-border/70 bg-background/80 shadow-sm backdrop-blur-sm"
+              disabled={isActionPending}
+              size="icon"
+              variant="outline"
+            >
+              {isActionPending ? (
+                <FaSpinner className="animate-spin" />
+              ) : (
+                <FaEllipsisVertical />
+              )}
+            </Button>
+          }
+        />
         <PopoverContent
           align="end"
           className="rounded-lg p-1 shadow-xl"

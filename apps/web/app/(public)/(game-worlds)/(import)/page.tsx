@@ -233,21 +233,18 @@ const ImportGameWorld = () => {
           )}
           <Dialog
             open={worldId !== null}
-            onOpenChange={(open) => !open && closeRemoteImport()}
+            onOpenChange={(open, eventDetails) => {
+              if (!open && isImporting) {
+                eventDetails.cancel();
+                return;
+              }
+
+              if (!open) {
+                closeRemoteImport();
+              }
+            }}
           >
-            <DialogContent
-              closeDisabled={isImporting}
-              onInteractOutside={(event) => {
-                if (isImporting) {
-                  event.preventDefault();
-                }
-              }}
-              onEscapeKeyDown={(event) => {
-                if (isImporting) {
-                  event.preventDefault();
-                }
-              }}
-            >
+            <DialogContent closeDisabled={isImporting}>
               <DialogHeader>
                 <DialogTitle>Import shared game world</DialogTitle>
                 <DialogDescription>
