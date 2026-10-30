@@ -147,20 +147,6 @@ export const upgradeDb = (
     );
   };
 
-  migrate('0.4.58', (db) => {
-    db.exec({
-      sql: `
-        CREATE INDEX IF NOT EXISTS idx_effects_resource_site_resources
-          ON effects (effect_id, scope_id, tile_id, source_specifier, source_id, type_id, value);
-      `,
-    });
-
-    db.exec({ sql: 'DROP INDEX IF EXISTS idx_effects_resource_tile;' });
-    db.exec({
-      sql: 'DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;',
-    });
-  });
-
   migrate('0.4.62', (db) => {
     const completedAt = Date.now();
 
