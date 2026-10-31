@@ -477,7 +477,7 @@ export const DeveloperToolsConsole = ({
               <SectionContent>
                 <Text as="h3">{t('Culture points')}</Text>
                 <div className="flex flex-wrap gap-2">
-                  {([-10_000, -1_000, 1_000, 10_000] as const).map((amount) => (
+                  {([-10_000, -1000, 1000, 10_000] as const).map((amount) => (
                     <Button
                       key={amount}
                       size="sm"
@@ -485,7 +485,7 @@ export const DeveloperToolsConsole = ({
                       onClick={() => adjustCulturePoints({ amount })}
                     >
                       {amount > 0 ? '+' : ''}
-                      {amount / 1_000}k
+                      {amount / 1000}k
                     </Button>
                   ))}
                 </div>

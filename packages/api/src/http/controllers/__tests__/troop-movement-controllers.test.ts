@@ -259,7 +259,7 @@ describe('troop-movement-controllers', () => {
       }),
     );
 
-    expect(movements.map(({ id }) => id)).toEqual([
+    expect(movements.map(({ id }) => id)).toStrictEqual([
       incomingId,
       secondRaidId,
       returnId,
@@ -306,7 +306,7 @@ describe('troop-movement-controllers', () => {
           path: { tileId: oasisTileId },
         }),
       ).map(({ id }) => id),
-    ).toEqual([eventId]);
+    ).toStrictEqual([eventId]);
   });
 
   test('movement routes distinguish the actual return origin from the home village', async () => {
@@ -342,7 +342,7 @@ describe('troop-movement-controllers', () => {
         schema: z.strictObject({ x: z.number(), y: z.number() }),
       });
 
-    expect(movements).toEqual([
+    expect(movements).toStrictEqual([
       expect.objectContaining({
         id: eventId,
         originName: 'Return Origin',

@@ -10,16 +10,16 @@ import {
 describe('math utils', () => {
   describe(calculateProgressPercentage, () => {
     test('calculates progress within a range with a nonzero starting point', () => {
-      expect(calculateProgressPercentage(2_000, 2_000, 3_000)).toBe(0);
-      expect(calculateProgressPercentage(2_500, 2_000, 3_000)).toBe(50);
-      expect(calculateProgressPercentage(3_000, 2_000, 3_000)).toBe(100);
+      expect(calculateProgressPercentage(2000, 2000, 3000)).toBe(0);
+      expect(calculateProgressPercentage(2500, 2000, 3000)).toBe(50);
+      expect(calculateProgressPercentage(3000, 2000, 3000)).toBe(100);
     });
 
     test('clamps progress and treats an empty or reversed range as complete', () => {
-      expect(calculateProgressPercentage(1_000, 2_000, 3_000)).toBe(0);
-      expect(calculateProgressPercentage(4_000, 2_000, 3_000)).toBe(100);
-      expect(calculateProgressPercentage(2_000, 2_000, 2_000)).toBe(100);
-      expect(calculateProgressPercentage(2_000, 3_000, 2_000)).toBe(100);
+      expect(calculateProgressPercentage(1000, 2000, 3000)).toBe(0);
+      expect(calculateProgressPercentage(4000, 2000, 3000)).toBe(100);
+      expect(calculateProgressPercentage(2000, 2000, 2000)).toBe(100);
+      expect(calculateProgressPercentage(2000, 3000, 2000)).toBe(100);
     });
   });
 

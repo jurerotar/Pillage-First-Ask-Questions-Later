@@ -86,7 +86,7 @@ export const useMap = () => {
   const { borderTiles } = useBorderTiles();
 
   const map = useMemo(() => {
-    const completeTiles = new Array<z.infer<typeof tileSchema>>(tiles.length);
+    const completeTiles: z.infer<typeof tileSchema>[] = [];
 
     let borderTileIndex = 0;
 

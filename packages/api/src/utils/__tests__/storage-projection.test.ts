@@ -171,7 +171,7 @@ describe('incoming storage deliveries', () => {
 
     const deliveries = getStorageDeliveries(events);
 
-    expect(deliveries.map(({ arrivesAt }) => arrivesAt)).toEqual([
+    expect(deliveries.map(({ arrivesAt }) => arrivesAt)).toStrictEqual([
       2 * hour,
       3 * hour,
     ]);
@@ -232,7 +232,7 @@ describe('incoming storage deliveries', () => {
         { ...returning, loot: [0, 0, 0, 0] },
         { ...gathering, troops: [] },
       ]),
-    ).toEqual([
+    ).toStrictEqual([
       {
         source: 'gathering',
         arrivesAt: hour,

@@ -69,7 +69,7 @@ describe('village storage endpoint', () => {
 
     expect(villageStorageDtoSchema.safeParse(first).success).toBe(true);
     expect(first.calculatedAt).toBe(now);
-    expect(first.resources[0]).toEqual({
+    expect(first.resources[0]).toStrictEqual({
       resource: 'wood',
       incoming: { gathering: 0, marketplace: 0, troops: 0 },
       fullAt: now - 30_000 + 8 * hour,
@@ -84,7 +84,7 @@ describe('village storage endpoint', () => {
     clock.mockReturnValue(now + 1000);
     const second = readStorage(database, village.id);
 
-    expect(second.resources).toEqual(first.resources);
+    expect(second.resources).toStrictEqual(first.resources);
 
     clock.mockReturnValue(now + 40_000);
     const later = readStorage(database, village.id);
@@ -193,17 +193,17 @@ describe('village storage endpoint', () => {
 
     const result = readStorage(database, village.id);
 
-    expect(result.resources[0].incoming).toEqual({
+    expect(result.resources[0].incoming).toStrictEqual({
       gathering: 10,
       marketplace: 800,
       troops: 20,
     });
-    expect(result.resources[1].incoming).toEqual({
+    expect(result.resources[1].incoming).toStrictEqual({
       gathering: 10,
       marketplace: 0,
       troops: 30,
     });
-    expect(result.resources[3].incoming).toEqual({
+    expect(result.resources[3].incoming).toStrictEqual({
       gathering: 10,
       marketplace: 500,
       troops: 50,

@@ -30,7 +30,7 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
       }),
     });
 
-  expect(selectPoints()).toEqual([
+  expect(selectPoints()).toStrictEqual([
     {
       player_id: PLAYER_ID,
       culture_points: 0,
@@ -46,7 +46,7 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
   expect(updatePlayerCulturePointsAt(database, timestamp)).toBe(production);
   addPlayerCulturePoints(database, 500, timestamp);
 
-  expect(selectPoints()).toEqual([
+  expect(selectPoints()).toStrictEqual([
     {
       player_id: PLAYER_ID,
       culture_points: production + 500,
@@ -62,7 +62,7 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
     production + 500,
   );
 
-  expect(selectPoints()).toEqual([
+  expect(selectPoints()).toStrictEqual([
     {
       player_id: PLAYER_ID,
       culture_points: production + 500,
@@ -120,7 +120,7 @@ test('pending founding missions reserve culture-point capacity until removed', a
     },
   });
 
-  expect(validateTroopMovement(database, mission)).toEqual([]);
+  expect(validateTroopMovement(database, mission)).toStrictEqual([]);
 
   insertEvents(database, [mission]);
 
@@ -133,7 +133,7 @@ test('pending founding missions reserve culture-point capacity until removed', a
 
   const secondMission = { ...mission, targetTileId: secondTarget };
 
-  expect(validateTroopMovement(database, secondMission)).toEqual([
+  expect(validateTroopMovement(database, secondMission)).toStrictEqual([
     `Not enough culture points. ${reservedContext.nextVillageCulturePointsRequirement} culture points are required to found the next village.`,
   ]);
 
@@ -144,14 +144,14 @@ test('pending founding missions reserve culture-point capacity until removed', a
     Date.now(),
   );
 
-  expect(validateTroopMovement(database, secondMission)).toEqual([]);
+  expect(validateTroopMovement(database, secondMission)).toStrictEqual([]);
 
   database.exec({
     sql: "DELETE FROM events WHERE type = 'troopMovementFindNewVillage' AND village_id = $village_id;",
     bind: { $village_id: villageId },
   });
 
-  expect(getPlayerCulturePointsRequirementContext(database)).toEqual(
+  expect(getPlayerCulturePointsRequirementContext(database)).toStrictEqual(
     initialContext,
   );
 });
@@ -171,7 +171,7 @@ test('another player’s founding missions do not reserve the player’s capacit
     createTroopMovementFindNewVillageEventMock({ villageId: otherVillageId }),
   ]);
 
-  expect(getPlayerCulturePointsRequirementContext(database)).toEqual(
+  expect(getPlayerCulturePointsRequirementContext(database)).toStrictEqual(
     initialContext,
   );
 });

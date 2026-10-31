@@ -78,11 +78,11 @@ test('building changes preserve fractional accrual and settle at the event times
     const before = calculatePlayerCulturePointsProduction(database);
 
     expect(before).toBeGreaterThan(0);
-    expect(updatePlayerCulturePointsAt(database, start + 1_000)).toBeCloseTo(
+    expect(updatePlayerCulturePointsAt(database, start + 1000)).toBeCloseTo(
       before / 86_400,
       10,
     );
-    expect(updatePlayerCulturePointsAt(database, start + 2_000)).toBeCloseTo(
+    expect(updatePlayerCulturePointsAt(database, start + 2000)).toBeCloseTo(
       (before * 2) / 86_400,
       10,
     );
@@ -116,7 +116,7 @@ test('building changes preserve fractional accrual and settle at the event times
         sql: 'SELECT culture_points AS points, culture_points_updated_at AS updatedAt FROM culture_points;',
         schema: z.strictObject({ points: z.number(), updatedAt: z.number() }),
       }),
-    ).toEqual({ points: before / 2, updatedAt: start + DAY / 2 });
+    ).toStrictEqual({ points: before / 2, updatedAt: start + DAY / 2 });
     expect(updatePlayerCulturePointsAt(database, start + DAY)).toBeCloseTo(
       before / 2 + after / 2,
     );

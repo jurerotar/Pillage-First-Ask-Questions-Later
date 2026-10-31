@@ -2136,17 +2136,17 @@ describe('events utils', () => {
 
     setDevFlag(database, 'is_free_celebrations_enabled', 1);
 
-    expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     expect(getEventDuration(database, event)).toBe(duration);
 
     setDevFlag(database, 'is_instant_celebrations_enabled', 1);
 
     expect(getEventDuration(database, event)).toBe(0);
-    expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
 
     setDevFlag(database, 'is_free_celebrations_enabled', 0);
 
-    expect(getEventCost(database, event)).toEqual(cost);
+    expect(getEventCost(database, event)).toStrictEqual(cost);
     expect(getEventDuration(database, event)).toBe(0);
   });
 
@@ -2168,17 +2168,17 @@ describe('events utils', () => {
 
     setDevFlag(database, 'is_free_celebrations_enabled', 1);
 
-    expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     expect(getEventDuration(database, event)).toBe(duration);
 
     setDevFlag(database, 'is_instant_celebrations_enabled', 1);
 
     expect(getEventDuration(database, event)).toBe(0);
-    expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
 
     setDevFlag(database, 'is_free_celebrations_enabled', 0);
 
-    expect(getEventCost(database, event)).toEqual(cost);
+    expect(getEventCost(database, event)).toStrictEqual(cost);
     expect(getEventDuration(database, event)).toBe(0);
   });
 

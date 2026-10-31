@@ -38,7 +38,7 @@ type SpawnHeroItemArgs = {
 };
 
 type AdjustLoyaltyArgs = { amount: number };
-type AdjustCulturePointsArgs = { amount: -10_000 | -1_000 | 1_000 | 10_000 };
+type AdjustCulturePointsArgs = { amount: -10_000 | -1000 | 1000 | 10_000 };
 
 export const useDeveloperActions = () => {
   const { apiClient } = use(ApiContext);

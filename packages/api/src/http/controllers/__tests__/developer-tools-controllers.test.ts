@@ -56,7 +56,7 @@ describe('developer-tools-controllers', () => {
     using _clock = vi.spyOn(Date, 'now').mockReturnValue(now);
 
     let expected = calculatePlayerCulturePointsProduction(database);
-    for (const amount of [1_000, 10_000, -1_000, -10_000]) {
+    for (const amount of [1000, 10_000, -1000, -10_000]) {
       adjustCulturePoints(
         database,
         createControllerArgs<
@@ -78,7 +78,7 @@ describe('developer-tools-controllers', () => {
             updatedAt: z.number(),
           }),
         }),
-      ).toEqual({ points: expected, updatedAt: now });
+      ).toStrictEqual({ points: expected, updatedAt: now });
     }
   });
 
