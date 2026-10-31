@@ -10,7 +10,7 @@ export const culturePointsSeeder = (
     sql: `
       INSERT INTO culture_points
         (player_id, culture_points, culture_points_updated_at)
-      VALUES ($player_id, 0, $updated_at);
+      VALUES ($player_id, 500, $updated_at);
     `,
     bind: {
       $player_id: PLAYER_ID,

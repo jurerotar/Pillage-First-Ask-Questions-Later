@@ -17,7 +17,13 @@ export type HeroItemQuestReward = {
   amount: number;
 };
 
+export type CulturePointsQuestReward = {
+  type: 'culture-points';
+  amount: number;
+};
+
 export type QuestReward =
+  | CulturePointsQuestReward
   | ResourceQuestReward
   | HeroExperienceQuestReward
   | HeroItemQuestReward;
@@ -73,6 +79,7 @@ export type GatheredResourceCountQuestRequirement = {
 };
 
 export type QuestRequirement =
+  | { type: 'celebration-count'; count: number }
   | BuildingQuestRequirement
   | AdventureCountQuestRequirement
   | KillCountQuestRequirement
@@ -88,6 +95,7 @@ type VillageQuestId =
   | `${Matcher}-resourceFields-${number}`;
 
 type GlobalQuestId =
+  | `celebrationCount-${number}`
   | `adventureCount-${number}`
   | `queuedTroopCount-${number}`
   | `queuedTroopCountById-${Unit['id']}-${number}`

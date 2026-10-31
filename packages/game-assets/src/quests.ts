@@ -197,6 +197,12 @@ export const createBuildingQuest = (
 
 export const globalQuests: GlobalQuestDefinition[] = [
   ...createAdventureCountQuests(),
+  ...[1, 3, 5, 10, 15, 20, 30, 50, 75, 100].map(
+    (count): GlobalQuestDefinition => ({
+      id: `celebrationCount-${count}`,
+      scope: 'global',
+    }),
+  ),
   ...createQueuedTroopCountQuests(),
   ...createUnitKillCountQuests(),
   ...createKillCountQuests(),

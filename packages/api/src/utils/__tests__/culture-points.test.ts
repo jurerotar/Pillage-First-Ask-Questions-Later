@@ -22,7 +22,7 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
 
   const selectPoints = () =>
     database.selectObjects({
-      sql: 'SELECT * FROM culture_points;',
+      sql: 'SELECT player_id, culture_points, culture_points_updated_at FROM culture_points;',
       schema: z.strictObject({
         player_id: z.number(),
         culture_points: z.number(),
@@ -33,7 +33,7 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
   expect(selectPoints()).toEqual([
     {
       player_id: PLAYER_ID,
-      culture_points: 0,
+      culture_points: 500,
       culture_points_updated_at: createdAt,
     },
   ]);
@@ -43,13 +43,15 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
 
   expect(production).toBeGreaterThan(0);
 
-  expect(updatePlayerCulturePointsAt(database, timestamp)).toBe(production);
+  expect(updatePlayerCulturePointsAt(database, timestamp)).toBe(
+    production + 500,
+  );
   addPlayerCulturePoints(database, 500, timestamp);
 
   expect(selectPoints()).toEqual([
     {
       player_id: PLAYER_ID,
-      culture_points: production + 500,
+      culture_points: production + 1000,
       culture_points_updated_at: timestamp,
     },
   ]);
@@ -59,13 +61,13 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
   ).toBeUndefined();
   addPlayerCulturePoints(database, 500, timestamp + 1000, 2);
   expect(updatePlayerCulturePointsAt(database, timestamp - 1000)).toBe(
-    production + 500,
+    production + 1000,
   );
 
   expect(selectPoints()).toEqual([
     {
       player_id: PLAYER_ID,
-      culture_points: production + 500,
+      culture_points: production + 1000,
       culture_points_updated_at: timestamp,
     },
   ]);
