@@ -2,11 +2,23 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitsByTribe } from '@pillage-first/game-assets/utils/units';
+import { questIdSchema } from '@pillage-first/types/models/quest';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../testing';
 
 describe('questsSeeder', () => {
+  test('all seeded quest IDs match the quest ID schema', async () => {
+    using database = await prepareTestDatabase();
+
+    const ids = database.selectValues({
+      sql: 'SELECT quest_id FROM quests;',
+      schema: questIdSchema,
+    });
+
+    expect(ids.length).toBeGreaterThan(0);
+  });
+
   test('quests seeded (>=0)', async () => {
     using database = await prepareTestDatabase();
 

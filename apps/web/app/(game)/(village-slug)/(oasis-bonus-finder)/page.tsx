@@ -555,7 +555,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={(checked) => {
-                            const value = checked === true;
+                            const value = checked;
                             field.onChange(value);
                             setSearchParams(
                               (prev) => {
@@ -583,7 +583,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={(checked) => {
-                            const value = checked === true;
+                            const value = checked;
                             field.onChange(value);
                             setSearchParams(
                               (prev) => {

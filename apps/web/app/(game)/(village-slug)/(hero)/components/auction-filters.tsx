@@ -53,7 +53,7 @@ const AuctionFilterCheckbox = ({
       <Checkbox
         id={id}
         checked={isChecked}
-        onCheckedChange={(checked) => onCheckedChange(value, checked === true)}
+        onCheckedChange={(checked) => onCheckedChange(value, checked)}
       />
       <Label
         className="min-w-0 flex-1 cursor-pointer justify-between gap-3"

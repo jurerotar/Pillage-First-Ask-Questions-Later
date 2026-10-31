@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { z } from 'zod';
 
-type GithubRepo = {
-  stargazers_count: number;
-  forks_count: number;
-  watchers_count: number;
-};
+const githubRepoSchema = z.object({
+  stargazers_count: z.number().int().nonnegative(),
+  forks_count: z.number().int().nonnegative(),
+  watchers_count: z.number().int().nonnegative(),
+});
 
 export const useGithubStars = () => {
   return useQuery({
@@ -16,7 +17,7 @@ export const useGithubStars = () => {
         throw new Error('Failed to fetch github stars');
       }
 
-      const data = (await response.json()) as GithubRepo;
+      const data = githubRepoSchema.parse(await response.json());
 
       return {
         starCount: data.stargazers_count,

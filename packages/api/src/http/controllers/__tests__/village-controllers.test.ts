@@ -3,6 +3,10 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { effectIdSchema } from '@pillage-first/types/models/effect';
+import {
+  baseEventRowSchema,
+  mapEventRowToTypedEvent,
+} from '../../../utils/zod/event-schemas';
 import { getTrapperCageStats } from '../trapper-controllers';
 import {
   getGatherersHutExpeditions,
@@ -183,13 +187,13 @@ describe('village-controllers', () => {
       expect(bf1).toBe('BARRACKS');
       expect(bf2).toBe('MAIN_BUILDING');
 
-      const event = database.selectValue({
-        sql: 'SELECT meta FROM events WHERE village_id = $v',
+      const event = database.selectObject({
+        sql: 'SELECT * FROM events WHERE village_id = $v',
         bind: { $v: villageId },
-        schema: z.string(),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       });
 
-      expect(JSON.parse(event!).buildingFieldId).toBe(fieldId2);
+      expect(event).toMatchObject({ buildingFieldId: fieldId2 });
     });
 
     test('should move building effects when rearranging occupied building fields', async () => {
@@ -351,21 +355,18 @@ describe('village-controllers', () => {
       );
 
       const events = database.selectObjects({
-        sql: 'SELECT type, meta FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY type',
+        sql: 'SELECT * FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY type',
         bind: {
           $starts_at: eventStartsAt,
           $ends_at: eventStartsAt + buildingEventTypes.length - 1,
         },
-        schema: z.strictObject({
-          type: z.string(),
-          meta: z.string(),
-        }),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       });
 
       expect(events).toHaveLength(buildingEventTypes.length);
 
       for (const event of events) {
-        expect(JSON.parse(event.meta)).toMatchObject({
+        expect(event).toMatchObject({
           buildingFieldId: 25,
           buildingId: 'MAIN_BUILDING',
         });
@@ -479,24 +480,20 @@ describe('village-controllers', () => {
       );
 
       const events = database.selectObjects({
-        sql: 'SELECT type, meta, village_id AS villageId FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY starts_at',
+        sql: 'SELECT * FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY starts_at',
         bind: {
           $starts_at: eventStartsAt,
           $ends_at: eventStartsAt + eventsToInsert.length - 1,
         },
-        schema: z.strictObject({
-          type: z.string(),
-          meta: z.string(),
-          villageId: z.number(),
-        }),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       });
 
       expect(events).toHaveLength(eventsToInsert.length);
-      expect(JSON.parse(events[0].meta).buildingFieldId).toBe(19);
-      expect(JSON.parse(events[1].meta).buildingFieldId).toBe(19);
+      expect(events[0]).toMatchObject({ buildingFieldId: 19 });
+      expect(events[1]).toMatchObject({ buildingFieldId: 19 });
       expect(events[1].villageId).toBe(otherVillageId);
-      expect(JSON.parse(events[2].meta).buildingFieldId).toBe(20);
-      expect(JSON.parse(events[3].meta).buildingFieldId).toBe(21);
+      expect(events[2]).toMatchObject({ buildingFieldId: 20 });
+      expect(events[3]).toMatchObject({ buildingFieldId: 21 });
     });
 
     test('should move building to empty field', async () => {
@@ -733,17 +730,17 @@ describe('village-controllers', () => {
         }),
       })!;
 
-      const event = database.selectValue({
-        sql: 'SELECT meta FROM events WHERE village_id = $v',
+      const event = database.selectObject({
+        sql: 'SELECT * FROM events WHERE village_id = $v',
         bind: { $v: villageId },
-        schema: z.string(),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       })!;
 
       expect(field18.building_id).toBe('WOODCUTTER');
       expect(field18.level).toBe(9);
       expect(field39.building_id).toBe('RALLY_POINT');
       expect(field39.level).toBe(3);
-      expect(JSON.parse(event).buildingFieldId).toBe(18);
+      expect(event).toMatchObject({ buildingFieldId: 18 });
     });
 
     test('should preserve level when moving building between swappable boundary fields', async () => {
@@ -895,13 +892,13 @@ describe('village-controllers', () => {
         },
       ]);
 
-      const event = database.selectValue({
-        sql: 'SELECT meta FROM events WHERE village_id = $v AND starts_at = $starts_at',
+      const event = database.selectObject({
+        sql: 'SELECT * FROM events WHERE village_id = $v AND starts_at = $starts_at',
         bind: { $v: villageId, $starts_at: eventStartsAt },
-        schema: z.string(),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       })!;
 
-      expect(JSON.parse(event)).toMatchObject({
+      expect(event).toMatchObject({
         buildingFieldId: 21,
         buildingId: 'GRANARY',
       });

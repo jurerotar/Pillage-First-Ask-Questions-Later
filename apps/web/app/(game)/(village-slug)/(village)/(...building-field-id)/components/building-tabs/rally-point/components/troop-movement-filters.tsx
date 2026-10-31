@@ -81,9 +81,7 @@ export const TroopMovementFilters = ({
                   <Checkbox
                     id={id}
                     checked={activeFilters.has(filter)}
-                    onCheckedChange={(checked) =>
-                      updateFilter(filter, checked === true)
-                    }
+                    onCheckedChange={(checked) => updateFilter(filter, checked)}
                   />
                   <Label
                     className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
