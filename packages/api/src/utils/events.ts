@@ -153,6 +153,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
     const event = events[i];
 
     let metaObj: Record<string, SqlValue> | undefined;
+
     for (const property in event) {
       if (nonMetaEventProperties.has(property)) {
         continue;

@@ -116,7 +116,7 @@ test('building changes preserve fractional accrual and settle at the event times
         sql: 'SELECT culture_points AS points, culture_points_updated_at AS updatedAt FROM culture_points;',
         schema: z.strictObject({ points: z.number(), updatedAt: z.number() }),
       }),
-    ).toEqual({ points: 500 + before / 2, updatedAt: start + DAY / 2 });
+    ).toStrictEqual({ points: 500 + before / 2, updatedAt: start + DAY / 2 });
     expect(updatePlayerCulturePointsAt(database, start + DAY)).toBeCloseTo(
       500 + before / 2 + after / 2,
     );

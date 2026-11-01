@@ -20,9 +20,7 @@ const parseArray = <T extends z.core.$ZodType>(
   schema: T,
   values: unknown[],
 ): z.core.output<T>[] => {
-  return z
-    .array(schema as unknown as z.ZodType)
-    .parse(values) as z.core.output<T>[];
+  return z.array(schema).parse(values);
 };
 
 const createPreparedStatementCache = (): Map<string, PreparedStatement> => {
