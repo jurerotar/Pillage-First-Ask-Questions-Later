@@ -648,6 +648,7 @@ const VillageSelect = () => {
               return (
                 <DropdownMenuRadioItem
                   key={id}
+                  closeOnClick
                   label={textValue}
                   value={slug}
                   onClick={() => {

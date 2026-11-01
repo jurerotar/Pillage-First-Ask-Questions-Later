@@ -17,7 +17,13 @@ export type HeroItemQuestReward = {
   amount: number;
 };
 
+export type CulturePointsQuestReward = {
+  type: 'culture-points';
+  amount: number;
+};
+
 export type QuestReward =
+  | CulturePointsQuestReward
   | ResourceQuestReward
   | HeroExperienceQuestReward
   | HeroItemQuestReward;
@@ -73,6 +79,7 @@ export type GatheredResourceCountQuestRequirement = {
 };
 
 export type QuestRequirement =
+  | { type: 'celebration-count'; count: number }
   | BuildingQuestRequirement
   | AdventureCountQuestRequirement
   | KillCountQuestRequirement
@@ -91,6 +98,7 @@ const villageQuestIdSchema = z.union([
 ]);
 
 const globalQuestIdSchema = z.union([
+  z.templateLiteral(['celebrationCount-', z.number()]),
   z.templateLiteral(['adventureCount-', z.number()]),
   z.templateLiteral(['queuedTroopCount-', z.number()]),
   z.templateLiteral(['queuedTroopCountById-', unitIdSchema, '-', z.number()]),

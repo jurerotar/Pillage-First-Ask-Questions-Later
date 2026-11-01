@@ -708,6 +708,33 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.80', (db) => {
+    db.transaction((tx) => {
+      // Earlier migrations create this table using the current schema.
+      const hasCelebrationsHeld = tx.selectValue({
+        sql: "SELECT COUNT(*) FROM pragma_table_info('culture_points') WHERE name = 'celebrations_held';",
+        schema: z.number(),
+      });
+
+      if (!hasCelebrationsHeld) {
+        tx.exec({
+          sql: 'ALTER TABLE culture_points ADD COLUMN celebrations_held INTEGER NOT NULL DEFAULT 0 CHECK (celebrations_held >= 0);',
+        });
+      }
+
+      for (const count of [1, 3, 5, 10, 15, 20, 30, 50, 75, 100]) {
+        tx.exec({
+          sql: `INSERT INTO quests (quest_id, village_id)
+            SELECT $quest_id, NULL
+            WHERE NOT EXISTS (
+              SELECT 1 FROM quests WHERE quest_id = $quest_id AND village_id IS NULL
+            );`,
+          bind: { $quest_id: `celebrationCount-${count}` },
+        });
+      }
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({
