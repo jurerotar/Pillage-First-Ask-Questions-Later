@@ -53,7 +53,7 @@ describe('hero-controllers', () => {
       }),
     );
 
-    expect(hero.status).toEqual({ type: 'adventure', endsAt: 3000 });
+    expect(hero.status).toStrictEqual({ type: 'adventure', endsAt: 3000 });
   });
 
   test('getHero reports adventure status during the return trip', async () => {
@@ -86,7 +86,7 @@ describe('hero-controllers', () => {
       }),
     );
 
-    expect(hero.status).toEqual({ type: 'adventure', endsAt: 2000 });
+    expect(hero.status).toStrictEqual({ type: 'adventure', endsAt: 2000 });
   });
 
   test('getHero reports travel status while sending reinforcements', async () => {
@@ -119,7 +119,7 @@ describe('hero-controllers', () => {
       }),
     );
 
-    expect(hero.status).toEqual({ type: 'travel', endsAt: 2000 });
+    expect(hero.status).toStrictEqual({ type: 'travel', endsAt: 2000 });
   });
 
   test('getHero reports dead status even with a remaining movement event', async () => {
@@ -143,7 +143,7 @@ describe('hero-controllers', () => {
       }),
     );
 
-    expect(hero.status).toEqual({ type: 'dead' });
+    expect(hero.status).toStrictEqual({ type: 'dead' });
   });
 
   test('getHero should return hero details', async () => {
@@ -489,7 +489,7 @@ describe('hero-controllers', () => {
     );
 
     expect(hero.villageId).toBe(homeVillage.id);
-    expect(hero.status).toEqual({
+    expect(hero.status).toStrictEqual({
       type: 'reinforcing',
       tileId: reinforcedVillage.tile_id,
     });

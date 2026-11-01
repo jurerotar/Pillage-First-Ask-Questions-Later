@@ -1,13 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import {
-  type DefaultValues,
-  type FieldValues,
-  type Resolver,
-  useForm,
-} from 'react-hook-form';
+import { type DefaultValues, type FieldValues, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { TroopMovementEventType } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Unit } from '@pillage-first/types/models/unit';
@@ -81,11 +76,8 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
   );
 
   const form = useForm<T, unknown, T>({
-    resolver: zodResolver(schema as z.ZodType<T, FieldValues>) as Resolver<
-      T,
-      unknown,
-      T
-    >,
+    // Form state uses T; the schema still validates and coerces every input.
+    resolver: zodResolver(z.preprocess((values: T) => values, schema)),
     defaultValues: initialValues as DefaultValues<T>,
   });
 

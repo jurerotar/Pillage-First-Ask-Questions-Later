@@ -78,7 +78,7 @@ describe('developer-tools-controllers', () => {
             updatedAt: z.number(),
           }),
         }),
-      ).toEqual({ points: expected, updatedAt: now });
+      ).toStrictEqual({ points: expected, updatedAt: now });
     }
   });
 
