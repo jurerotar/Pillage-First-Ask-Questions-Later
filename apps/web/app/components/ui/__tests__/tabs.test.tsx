@@ -138,7 +138,9 @@ describe(Tabs, () => {
     expect(result.getByText('Inventory panel').hasAttribute('hidden')).toBe(
       false,
     );
-    expect(result.queryByRole('button', { name: 'Inventory' })).toBeNull();
+    await waitFor(() => {
+      expect(result.queryByRole('button', { name: 'Inventory' })).toBeNull();
+    });
   });
 
   test('restores visible tabs when the list becomes wide enough', async () => {
@@ -158,7 +160,7 @@ describe(Tabs, () => {
     });
   });
 
-  test('keeps the overflow menu interactive inside a modal dialog', () => {
+  test('keeps the overflow menu interactive inside a modal dialog', async () => {
     using result = renderTabs(220, ({ children }) => (
       <Dialog defaultOpen>
         <DialogContent aria-describedby={undefined}>
@@ -175,7 +177,7 @@ describe(Tabs, () => {
       '[data-slot="popover-content"]',
     );
     expect(menu).not.toBeNull();
-    expect(menu!.style.pointerEvents).toBe('auto');
+    expect(menu!.hasAttribute('data-open')).toBe(true);
     expect(
       result.getByRole('dialog', { name: 'Tile information' }).contains(menu),
     ).toBe(false);
@@ -185,7 +187,9 @@ describe(Tabs, () => {
     expect(result.getByText('Inventory panel').hasAttribute('hidden')).toBe(
       false,
     );
-    expect(result.queryByRole('button', { name: 'Inventory' })).toBeNull();
+    await waitFor(() => {
+      expect(result.queryByRole('button', { name: 'Inventory' })).toBeNull();
+    });
     expect(
       result.getByRole('dialog', { name: 'Tile information' }),
     ).not.toBeNull();

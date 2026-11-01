@@ -1108,6 +1108,21 @@ export const runEventCreationSideEffects = (
       playerId,
       production,
     );
+
+    database.exec({
+      sql: 'UPDATE culture_points SET celebrations_held = celebrations_held + 1 WHERE player_id = $player_id;',
+      bind: { $player_id: playerId },
+    });
+
+    database.exec({
+      sql: `UPDATE quests SET completed_at = $timestamp
+        WHERE completed_at IS NULL AND village_id IS NULL
+          AND quest_id GLOB 'celebrationCount-*'
+          AND CAST(substr(quest_id, length('celebrationCount-') + 1) AS INTEGER)
+            <= (SELECT celebrations_held FROM culture_points WHERE player_id = $player_id)
+          AND $player_id = ${PLAYER_ID};`,
+      bind: { $timestamp: event.startsAt, $player_id: playerId },
+    });
   }
 };
 
@@ -1263,7 +1278,14 @@ export const getEventCost = (
   }
 
   if (isCulturePointsCelebrationEvent(event)) {
-    return CULTURE_POINTS_CELEBRATION_COSTS[event.celebrationType];
+    const isFree = database.selectValue({
+      sql: 'SELECT is_free_celebrations_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    return isFree
+      ? [0, 0, 0, 0]
+      : CULTURE_POINTS_CELEBRATION_COSTS[event.celebrationType];
   }
 
   return [0, 0, 0, 0];
@@ -1702,6 +1724,15 @@ export const getEventDuration = (
         },
         schema: z.number().nullable(),
       }) ?? 0;
+
+    const isInstant = database.selectValue({
+      sql: 'SELECT is_instant_celebrations_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isInstant) {
+      return 0;
+    }
 
     return calculateCulturePointsCelebrationDuration({
       celebrationType: event.celebrationType,

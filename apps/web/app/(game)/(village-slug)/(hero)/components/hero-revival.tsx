@@ -96,7 +96,6 @@ export const HeroRevival = () => {
             <Icon type="heroRevivalDuration" />
             <Text>{formatTime(revivalTime)}</Text>
           </div>
-          <ErrorBag errorBag={errorBag} />
           <Button
             size="fit"
             onClick={() => reviveHero()}
@@ -104,6 +103,7 @@ export const HeroRevival = () => {
           >
             {t('Revive')}
           </Button>
+          <ErrorBag errorBag={errorBag} />
         </div>
       )}
     </SectionContent>

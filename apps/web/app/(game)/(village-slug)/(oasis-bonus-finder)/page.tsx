@@ -138,25 +138,23 @@ const resourceFieldCompositions: ResourceFieldComposition[] = [
 
 const RFCFieldValues = ['any-cropper', ...resourceFieldCompositions] as const;
 
-const OasisBonusSelectContent = () => {
+const useOasisBonusItems = () => {
   const { t } = useTranslation();
 
-  return (
-    <SelectContent>
-      <SelectItem value={NO_OASIS_BONUS_KEY}>{t('Any oasis bonus')}</SelectItem>
-      {oasisBonuses.map((oasisBonus) => {
-        const [
-          firstBonusValue,
-          firstBonusResource,
-          secondBonusValue,
-          secondBonusResource,
-        ] = splitOasisBonus(oasisBonus);
+  return [
+    { value: NO_OASIS_BONUS_KEY, label: t('Any oasis bonus') },
+    ...oasisBonuses.map((oasisBonus) => {
+      const [
+        firstBonusValue,
+        firstBonusResource,
+        secondBonusValue,
+        secondBonusResource,
+      ] = splitOasisBonus(oasisBonus);
 
-        return (
-          <SelectItem
-            key={oasisBonus}
-            value={oasisBonus}
-          >
+      return {
+        value: oasisBonus,
+        label: (
+          <span className="inline-flex items-center gap-2">
             {firstBonusValue}%
             <Icon
               className="size-4"
@@ -171,17 +169,35 @@ const OasisBonusSelectContent = () => {
                 />
               </>
             )}
-          </SelectItem>
-        );
-      })}
-    </SelectContent>
-  );
+          </span>
+        ),
+      };
+    }),
+  ];
 };
+
+type OasisBonusSelectContentProps = {
+  items: ReturnType<typeof useOasisBonusItems>;
+};
+
+const OasisBonusSelectContent = ({ items }: OasisBonusSelectContentProps) => (
+  <SelectContent>
+    {items.map(({ value, label }) => (
+      <SelectItem
+        key={value}
+        value={value}
+      >
+        {label}
+      </SelectItem>
+    ))}
+  </SelectContent>
+);
 
 const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
+  const oasisBonusItems = useOasisBonusItems();
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
   const { mapSize } = useServer();
@@ -442,6 +458,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                     <FormItem className="flex flex-col gap-2">
                       <FormLabel>{t('First oasis bonus')}</FormLabel>
                       <Select
+                        items={oasisBonusItems}
                         onValueChange={(v) => {
                           field.onChange(v);
                           setSearchParams(
@@ -459,7 +476,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
-                        <OasisBonusSelectContent />
+                        <OasisBonusSelectContent items={oasisBonusItems} />
                       </Select>
                       <FormMessage />
                     </FormItem>
@@ -472,6 +489,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                     <FormItem className="flex flex-col gap-2">
                       <FormLabel>{t('Second oasis bonus')}</FormLabel>
                       <Select
+                        items={oasisBonusItems}
                         onValueChange={(v) => {
                           field.onChange(v);
                           setSearchParams(
@@ -489,7 +507,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
-                        <OasisBonusSelectContent />
+                        <OasisBonusSelectContent items={oasisBonusItems} />
                       </Select>
                       <FormMessage />
                     </FormItem>
@@ -502,6 +520,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                     <FormItem className="flex flex-col gap-2">
                       <FormLabel>{t('Third oasis bonus')}</FormLabel>
                       <Select
+                        items={oasisBonusItems}
                         onValueChange={(v) => {
                           field.onChange(v);
                           setSearchParams(
@@ -519,7 +538,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
-                        <OasisBonusSelectContent />
+                        <OasisBonusSelectContent items={oasisBonusItems} />
                       </Select>
                       <FormMessage />
                     </FormItem>

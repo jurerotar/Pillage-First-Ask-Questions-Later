@@ -70,7 +70,6 @@ export const HeroAdventures = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <ErrorBag errorBag={errorBag} />
         <Button
           disabled={!canStartAdventure}
           onClick={() => startAdventure()}
@@ -78,6 +77,7 @@ export const HeroAdventures = () => {
         >
           {t('Start adventure')}
         </Button>
+        <ErrorBag errorBag={errorBag} />
       </SectionContent>
     </Section>
   );

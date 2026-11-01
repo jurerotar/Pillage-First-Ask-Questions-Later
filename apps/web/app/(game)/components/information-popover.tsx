@@ -26,19 +26,21 @@ export const InformationPopover = ({
 }: InformationPopoverProps) => {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={ariaLabel}
-          className={clsx(
-            'absolute top-0 right-0 transition-colors!',
-            className,
-          )}
-          title={ariaLabel}
-          variant="outline"
-        >
-          <FaCircleInfo className="size-4 !transition-none" />
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-label={ariaLabel}
+            className={clsx(
+              'absolute top-0 right-0 transition-colors!',
+              className,
+            )}
+            title={ariaLabel}
+            variant="outline"
+          >
+            <FaCircleInfo className="size-4 !transition-none" />
+          </Button>
+        }
+      />
       <PopoverContent
         align="end"
         className={clsx('w-80 max-w-[calc(100vw-2rem)] p-3', contentClassName)}
@@ -52,16 +54,18 @@ export const InformationPopover = ({
           >
             {ariaLabel}
           </Text>
-          <PopoverClose asChild>
-            <Button
-              aria-label="Close information popover"
-              className="-mt-1 -mr-1"
-              size="icon"
-              variant="ghost"
-            >
-              <FaXmark className="size-4" />
-            </Button>
-          </PopoverClose>
+          <PopoverClose
+            render={
+              <Button
+                aria-label="Close information popover"
+                className="-mt-1 -mr-1"
+                size="icon"
+                variant="ghost"
+              >
+                <FaXmark className="size-4" />
+              </Button>
+            }
+          />
         </div>
         {children}
       </PopoverContent>

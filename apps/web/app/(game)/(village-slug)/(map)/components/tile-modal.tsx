@@ -35,6 +35,7 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useTileReports } from 'app/(game)/(village-slug)/hooks/use-tile-reports';
 import { useTileTroopMovements } from 'app/(game)/(village-slug)/hooks/use-tile-troop-movements';
@@ -53,8 +54,10 @@ import {
 } from 'app/components/ui/dialog';
 import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
+import { Pagination } from 'app/components/ui/pagination';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 import { useIntl } from 'app/hooks/use-intl';
 import { CookieContext } from 'app/providers/cookie-context';
 
@@ -94,6 +97,7 @@ type TileModalMarkerProps = {
     tileId: number;
     description: string;
     color: MapMarker['color'];
+    icon: MapMarker['icon'];
   }) => void;
   deleteMapMarker: (args: { tileId: number }) => void;
 };
@@ -105,6 +109,7 @@ type TileDialogProps = TileModalProps &
 type MapMarkerFormValues = {
   description: string;
   color: MapMarker['color'];
+  icon: MapMarker['icon'];
 };
 
 const TileModalMarker = ({
@@ -118,24 +123,45 @@ const TileModalMarker = ({
   const form = useForm<MapMarkerFormValues>({
     defaultValues: {
       description: '',
-      color: '#dc2626',
+      color: '#ffffff',
+      icon: 'mapMarker',
     },
   });
 
   const color = form.watch('color');
+  const icon = form.watch('icon');
+
+  const iconOptions = [
+    { icon: 'mapMarker', label: t('Flag') },
+    { icon: 'mapMarkerAttack', label: t('Attack') },
+    { icon: 'mapMarkerDefence', label: t('Defence') },
+    { icon: 'mapMarkerSettlement', label: t('Settlement') },
+    { icon: 'mapMarkerDanger', label: t('Danger') },
+    { icon: 'mapMarkerTreasure', label: t('Treasure') },
+  ] satisfies { icon: MapMarker['icon']; label: string }[];
 
   useEffect(() => {
-    form.reset({
-      description: marker?.description ?? '',
-      color: marker?.color ?? '#dc2626',
-    });
+    if (!marker) {
+      form.reset();
+      return;
+    }
+
+    form.reset(
+      {
+        description: marker.description,
+        color: marker.color,
+        icon: marker.icon,
+      },
+      { keepDefaultValues: true },
+    );
   }, [form, marker]);
 
-  const onSubmit = form.handleSubmit(({ description, color }) => {
+  const onSubmit = form.handleSubmit(({ description, color, icon }) => {
     createMapMarker({
       tileId: tile.id,
       description: description.trim(),
       color,
+      icon,
     });
   });
 
@@ -144,17 +170,38 @@ const TileModalMarker = ({
       className="flex flex-col gap-4"
       onSubmit={onSubmit}
     >
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={`map-marker-description-${tile.id}`}>
-          {t('Description')}
-        </Label>
-        <Input
-          id={`map-marker-description-${tile.id}`}
-          maxLength={120}
-          placeholder={t('Map marker description')}
-          {...form.register('description')}
-        />
-      </div>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-2 text-sm font-medium">{t('Icon')}</legend>
+        <ToggleGroup
+          variant="outline"
+          size="sm"
+          value={[icon]}
+          aria-label={t('Icon')}
+          className="flex-wrap"
+          onValueChange={([value]) => {
+            const option = iconOptions.find((option) => option.icon === value);
+            if (option) {
+              form.setValue('icon', option.icon, { shouldDirty: true });
+            }
+          }}
+        >
+          {iconOptions.map((option) => (
+            <ToggleGroupItem
+              key={option.icon}
+              value={option.icon}
+              aria-label={option.label}
+              data-tooltip-id="general-tooltip"
+              data-tooltip-content={option.label}
+            >
+              <Icon
+                type={option.icon}
+                className="grayscale"
+                shouldShowTooltip={false}
+              />
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </fieldset>
       <div className="flex flex-col gap-2">
         <span className="text-sm font-medium">{t('Color')}</span>
         <div className="flex flex-wrap gap-2">
@@ -179,6 +226,17 @@ const TileModalMarker = ({
             />
           ))}
         </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={`map-marker-description-${tile.id}`}>
+          {t('Description')}
+        </Label>
+        <Input
+          id={`map-marker-description-${tile.id}`}
+          maxLength={120}
+          placeholder={t('Map marker description')}
+          {...form.register('description')}
+        />
       </div>
       <div className="flex justify-end gap-2">
         <Button
@@ -225,7 +283,7 @@ const TileModalMarkerDescription = ({
           className="size-4"
           shouldShowTooltip={false}
           style={{ color: marker.color }}
-          type="mapMarker"
+          type={marker.icon}
         />
         <span className="text-muted-foreground">{marker.description}</span>
       </span>
@@ -662,6 +720,7 @@ const TileModalMovements = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
   const intl = useIntl();
   const { troopMovements: movements } = useTileTroopMovements(tile.id);
+  const pagination = usePagination(movements, 5);
 
   const labels = {
     troopMovementReinforcements: t('Reinforcements'),
@@ -678,58 +737,65 @@ const TileModalMovements = ({ tile }: TileModalProps) => {
   }
 
   return (
-    <ul className="flex max-h-[min(20rem,50dvh)] flex-col divide-y divide-border overflow-y-auto overscroll-contain">
-      {movements.map((movement) => {
-        const isIncoming = movement.targetTileId === tile.id;
-        const isOffensive =
-          movement.type === 'troopMovementAttack' ||
-          movement.type === 'troopMovementRaid' ||
-          movement.type === 'troopMovementOasisOccupation';
-        const icon =
-          movement.type === 'troopMovementFindNewVillage'
-            ? 'findNewVillage'
-            : isOffensive
-              ? isIncoming
-                ? 'offensiveMovementIncoming'
-                : 'offensiveMovementOutgoing'
-              : isIncoming
-                ? 'deploymentIncoming'
-                : 'deploymentOutgoing';
+    <div className="flex flex-col gap-4">
+      <ul className="flex max-h-[min(20rem,50dvh)] flex-col divide-y divide-border overflow-y-auto overscroll-contain">
+        {pagination.currentPageItems.map((movement) => {
+          const isIncoming = movement.targetTileId === tile.id;
+          const isOffensive =
+            movement.type === 'troopMovementAttack' ||
+            movement.type === 'troopMovementRaid' ||
+            movement.type === 'troopMovementOasisOccupation';
+          const icon =
+            movement.type === 'troopMovementFindNewVillage'
+              ? 'findNewVillage'
+              : isOffensive
+                ? isIncoming
+                  ? 'offensiveMovementIncoming'
+                  : 'offensiveMovementOutgoing'
+                : isIncoming
+                  ? 'deploymentIncoming'
+                  : 'deploymentOutgoing';
 
-        return (
-          <li
-            key={movement.id}
-            className="flex shrink-0 items-center gap-2 py-2 text-sm"
-          >
-            <Icon
-              type={icon}
-              className="size-4 shrink-0"
-              shouldShowTooltip={false}
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <Text className="font-medium">{labels[movement.type]}</Text>
-              <Text className="text-muted-foreground">
-                {movement.originName} ({movement.originCoordinates.x}|
-                {movement.originCoordinates.y}){' → '}
-                {movement.targetName} ({movement.targetCoordinates.x}|
-                {movement.targetCoordinates.y})
-              </Text>
-              <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 tabular-nums">
-                <span>
-                  {t('Arrives in')} <Countdown endsAt={movement.resolvesAt} />
-                </span>
-                <time
-                  dateTime={new Date(movement.resolvesAt).toISOString()}
-                  className="text-muted-foreground"
-                >
-                  {intl.dateTime.format(movement.resolvesAt)}
-                </time>
+          return (
+            <li
+              key={movement.id}
+              className="flex shrink-0 items-center gap-2 py-2 text-sm"
+            >
+              <Icon
+                type={icon}
+                className="size-4 shrink-0"
+                shouldShowTooltip={false}
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <Text className="font-medium">{labels[movement.type]}</Text>
+                <Text className="text-muted-foreground">
+                  {movement.originName} ({movement.originCoordinates.x}|
+                  {movement.originCoordinates.y}){' → '}
+                  {movement.targetName} ({movement.targetCoordinates.x}|
+                  {movement.targetCoordinates.y})
+                </Text>
+                <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 tabular-nums">
+                  <span>
+                    {t('Arrives in')} <Countdown endsAt={movement.resolvesAt} />
+                  </span>
+                  <time
+                    dateTime={new Date(movement.resolvesAt).toISOString()}
+                    className="text-muted-foreground"
+                  >
+                    {intl.dateTime.format(movement.resolvesAt)}
+                  </time>
+                </div>
               </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+            </li>
+          );
+        })}
+      </ul>
+      {pagination.pageCount > 1 && (
+        <div className="flex justify-end">
+          <Pagination {...pagination} />
+        </div>
+      )}
+    </div>
   );
 };
 

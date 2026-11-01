@@ -27,6 +27,7 @@ type CellBaseProps = {
     tileId: number;
     description: string;
     color: MapMarker['color'];
+    icon: MapMarker['icon'];
   }) => void;
   deleteMapMarker: (args: { tileId: number }) => void;
   onClick: (tileId: number) => void;
@@ -40,32 +41,13 @@ type CellIconsProps = CellBaseProps & {
 };
 
 const CellIcons = (props: CellIconsProps) => {
-  const { tile, mapFilters, magnification, mapMarkersByTileId } = props;
+  const { tile, mapFilters, magnification } = props;
   const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
-
-  const marker = mapMarkersByTileId.get(tile.id);
 
   const tileIconClasses = clsx(
     cellStyles['tile-icon'],
     cellStyles[`tile-icon-magnification-${magnification}`],
   );
-
-  const mapMarkerClasses = clsx(
-    'size-4 md:size-6',
-    cellStyles['map-marker'],
-    cellStyles[`map-marker-magnification-${magnification}`],
-  );
-
-  if (marker) {
-    return (
-      <Icon
-        className={mapMarkerClasses}
-        style={{ color: marker.color }}
-        type="mapMarker"
-        shouldShowTooltip={false}
-      />
-    );
-  }
 
   if (
     shouldShowWheatFields &&
@@ -124,14 +106,22 @@ const getTileClassNames = (
     );
   }
 
-  if (tile.type === 'free' && tile.owner !== null) {
-    const { faction } = tile.owner;
+  if (
+    tile.type === 'free' &&
+    tile.owner !== null &&
+    tile.ownerVillage !== null
+  ) {
+    const { faction, tribe } = tile.owner;
+    const population = tile.ownerVillage.population;
+    const villageSize =
+      population < 250 ? 'sm' : population < 750 ? 'md' : 'lg';
     const reputationLevel =
       faction === 'player' ? 'player' : getReputation(faction).reputationLevel;
 
     return clsx(
       cellStyles.tile,
       cellStyles['occupied-tile'],
+      cellStyles[`occupied-tile-${tribe}-${villageSize}`],
       cellStyles[`occupied-tile-magnification-${magnification}`],
       shouldShowFactionReputation &&
         cellStyles[`occupied-tile-reputation-${reputationLevel}`],
@@ -170,6 +160,7 @@ export const Cell = ({
   const tileId = tileIndex + 1;
 
   const tile = map[tileIndex];
+  const marker = cellProps.mapMarkersByTileId.get(tile.id);
   const isBorderTile =
     tile.type === 'oasis' &&
     tile.attributes.bonusType === null &&
@@ -196,6 +187,18 @@ export const Cell = ({
       data-tile-id={tileId}
       className={className}
     >
+      {!isBorderTile && marker && (
+        <Icon
+          className={clsx(
+            'size-4 md:size-6',
+            cellStyles['map-marker'],
+            cellStyles[`map-marker-magnification-${magnification}`],
+          )}
+          style={{ color: marker.color }}
+          type={marker.icon}
+          shouldShowTooltip={false}
+        />
+      )}
       {!isBorderTile && (
         <CellIcons
           tile={tile}

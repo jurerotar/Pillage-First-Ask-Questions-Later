@@ -54,6 +54,7 @@ export const getHero = createController('/players/:playerId/hero', {
           h.experience_modifier,
           h.speed,
           h.village_id,
+          home.tile_id AS home_tile_id,
           h.natarian_attack_bonus,
           h.attack_bonus,
           h.defence_bonus,
@@ -62,23 +63,41 @@ export const getHero = createController('/players/:playerId/hero', {
           hsa.resource_production,
           hsa.attack_bonus,
           hsa.defence_bonus,
-          EXISTS
           (
-            SELECT 1
-            FROM
-              troops t
-                JOIN unit_ids ui ON t.unit_id = ui.id
-                JOIN villages v ON v.id = h.village_id
-            WHERE
-              ui.unit = 'HERO'
-              AND t.tile_id = v.tile_id
-              AND t.source_tile_id = v.tile_id
+            SELECT t.tile_id
+            FROM troops t
+              JOIN unit_ids ui ON t.unit_id = ui.id
+              JOIN villages home ON home.id = h.village_id
+            WHERE ui.unit = 'HERO'
+              AND t.source_tile_id = home.tile_id
               AND t.amount > 0
-            ) AS is_home
+            LIMIT 1
+          ) AS stationed_tile_id,
+          CASE WHEN e.id IS NULL THEN NULL
+            WHEN e.type = 'troopMovementAdventure'
+              OR json_extract(e.meta, '$.originalMovementType') = 'troopMovementAdventure'
+            THEN 'adventure' ELSE 'travel' END AS movement_type,
+          CASE WHEN e.type = 'troopMovementAdventure'
+            THEN e.resolves_at + e.duration ELSE e.resolves_at END AS movement_ends_at
         FROM
           heroes h
+            JOIN villages home ON home.id = h.village_id
             JOIN
             hero_selectable_attributes hsa ON h.id = hsa.hero_id
+            LEFT JOIN events e ON e.id = (
+              SELECT movement.id
+              FROM events movement
+                JOIN villages v ON v.id = movement.village_id
+              WHERE v.player_id = h.player_id
+                AND movement.type LIKE 'troopMovement%'
+                AND EXISTS (
+                  SELECT 1 FROM json_each(movement.meta, '$.troops') troop
+                  WHERE json_extract(troop.value, '$.unitId') = 'HERO'
+                    AND json_extract(troop.value, '$.amount') > 0
+                )
+              ORDER BY movement.resolves_at
+              LIMIT 1
+            )
         WHERE
           h.player_id = $player_id;
       `,

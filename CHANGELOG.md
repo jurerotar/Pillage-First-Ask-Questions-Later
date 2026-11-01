@@ -1,3 +1,38 @@
+## Version 0.4.79
+
+#### Oct 30, 2026
+
+- [Feature] Added a list of saved map markers to the map filters panel.
+- [UIUXImprovement] Quests now show how their rewards progress.
+- [UIUXImprovement] Improved hero adventure and revival messages to more accurately reflect the hero's status.
+- [TechnicalImprovement] Migrated shared UI components from Radix UI to Base UI.
+- [BugFix] Fixed map markers hiding other tile icons.
+- [BugFix] Fixed the Oasis Animal Finder minimum amount field preventing users from clearing the value while editing.
+
+## Version 0.4.78
+
+#### Oct 29, 2026
+
+- [Feature] The world map just got a lot more alive! Villages now have unique graphics for each tribe and grow
+  visually as their population increases.
+- [Feature] Added developer options for Town Hall celebrations.
+- [UIUXImprovement] Added Town Hall celebrations and their remaining cooldowns to the village overview.
+- [UIUXImprovement] Reworked celebration cards with compact costs, reward icons, information popovers and clearer
+  validation messages.
+- [UIUXImprovement] Improved the visual distinction between selected and unselected toggles.
+- [BugFix] Fixed map graphics disappearing when changing the UI theme.
+
+## Version 0.4.77
+
+#### Oct 29, 2026
+
+- [Feature] Added selectable map marker icons.
+- [UIUXImprovement] Added a quantity slider and maximum quantity controls when selling items at auctions.
+- [UIUXImprovement] Scheduled construction queue items now display their construction duration.
+- [UIUXImprovement] Added accessible labels to building upgrade indicators and occupied building fields.
+- [BugFix] Rebalanced Embassy construction costs.
+- [BugFix] Fixed Residence unit training times ignoring game world speed.
+
 ## Version 0.4.76
 
 #### Oct 28, 2026

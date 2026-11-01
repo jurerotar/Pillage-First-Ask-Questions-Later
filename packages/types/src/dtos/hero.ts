@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { heroResourceToProduceSchema } from '../models/hero';
+import { heroResourceToProduceSchema, heroStatusSchema } from '../models/hero';
 import { heroLoadoutSlotSchema } from '../models/hero-loadout';
 
 export const heroProductionUpdateDtoSchema = z.strictObject({
@@ -29,7 +29,7 @@ export const heroDtoSchema = z.strictObject({
   }),
   villageId: z.number(),
   resourceToProduce: heroResourceToProduceSchema,
-  isHeroHome: z.boolean(),
+  status: heroStatusSchema,
 });
 
 export const heroLoadoutEntryDtoSchema = z.strictObject({

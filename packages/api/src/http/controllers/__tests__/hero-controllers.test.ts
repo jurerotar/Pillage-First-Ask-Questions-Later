@@ -23,6 +23,129 @@ import { createControllerArgs } from './utils/controller-args';
 describe('hero-controllers', () => {
   const playerId = PLAYER_ID;
 
+  test('getHero reports adventure status with the full return time', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementAdventure',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: null,
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.status).toEqual({ type: 'adventure', endsAt: 3000 });
+  });
+
+  test('getHero reports adventure status during the return trip', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementReturn',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: 'troopMovementAdventure',
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.status).toEqual({ type: 'adventure', endsAt: 2000 });
+  });
+
+  test('getHero reports travel status while sending reinforcements', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementReinforcements',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: null,
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.status).toEqual({ type: 'travel', endsAt: 2000 });
+  });
+
+  test('getHero reports dead status even with a remaining movement event', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: `
+        UPDATE heroes SET health = 0 WHERE player_id = $player_id;
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ('troopMovementAdventure', 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id),
+          '{"troops":[{"unitId":"HERO","amount":1}]}');
+      `,
+      bind: { $player_id: playerId },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.status).toEqual({ type: 'dead' });
+  });
+
   test('getHero should return hero details', async () => {
     using database = await prepareTestDatabase();
 
@@ -36,7 +159,7 @@ describe('hero-controllers', () => {
     expect(hero).toMatchObject({
       id: expect.any(Number),
       villageId: expect.any(Number),
-      isHeroHome: expect.any(Boolean),
+      status: { type: 'stationed', tileId: expect.any(Number) },
       stats: expect.objectContaining({
         health: expect.any(Number),
         experience: expect.any(Number),
@@ -285,7 +408,7 @@ describe('hero-controllers', () => {
     ]);
   });
 
-  test('getHero should report hero as not home while reinforcing another village', async () => {
+  test('getHero should report reinforcing status while reinforcing another village', async () => {
     using database = await prepareTestDatabase();
 
     const homeVillage = database.selectObject({
@@ -366,7 +489,10 @@ describe('hero-controllers', () => {
     );
 
     expect(hero.villageId).toBe(homeVillage.id);
-    expect(hero.isHeroHome).toBe(false);
+    expect(hero.status).toEqual({
+      type: 'reinforcing',
+      tileId: reinforcedVillage.tile_id,
+    });
   });
 
   test('startHeroAdventure should throw while hero is reinforcing another village', async () => {

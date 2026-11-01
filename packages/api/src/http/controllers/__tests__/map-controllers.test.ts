@@ -293,7 +293,7 @@ describe('map-controllers', () => {
       database,
       createControllerArgs<'/players/:playerId/map-markers', 'post'>({
         path: { playerId },
-        body: { tileId, description, color },
+        body: { tileId, description, color, icon: 'mapMarkerAttack' },
       }),
     );
 
@@ -306,7 +306,12 @@ describe('map-controllers', () => {
     );
 
     expect(markers).toHaveLength(1);
-    expect(markers[0]).toStrictEqual({ tileId, description, color });
+    expect(markers[0]).toStrictEqual({
+      tileId,
+      description,
+      color,
+      icon: 'mapMarkerAttack',
+    });
 
     addMapMarker(
       database,
@@ -316,6 +321,7 @@ describe('map-controllers', () => {
           tileId,
           description: 'Updated target',
           color: '#16a34a',
+          icon: 'mapMarkerScout',
         },
       }),
     );
@@ -332,6 +338,7 @@ describe('map-controllers', () => {
       tileId,
       description: 'Updated target',
       color: '#16a34a',
+      icon: 'mapMarkerScout',
     });
 
     // 3. Remove marker
@@ -366,6 +373,7 @@ describe('map-controllers', () => {
           tileId: 123,
           description: 'Forward village target',
           color: '#2563eb',
+          icon: 'mapMarker',
         },
       }),
     );
@@ -378,6 +386,7 @@ describe('map-controllers', () => {
           tileId: 124,
           description: '',
           color: '#dc2626',
+          icon: 'mapMarker',
         },
       }),
     );
@@ -390,6 +399,7 @@ describe('map-controllers', () => {
           tileId: 125,
           description: '   ',
           color: '#16a34a',
+          icon: 'mapMarker',
         },
       }),
     );
@@ -405,11 +415,13 @@ describe('map-controllers', () => {
       tileId: 124,
       description: 'Map marker 2',
       color: '#dc2626',
+      icon: 'mapMarker',
     });
     expect(markers).toContainEqual({
       tileId: 125,
       description: 'Map marker 3',
       color: '#16a34a',
+      icon: 'mapMarker',
     });
   });
 });

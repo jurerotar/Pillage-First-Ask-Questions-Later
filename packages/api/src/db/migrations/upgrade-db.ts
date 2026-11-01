@@ -147,71 +147,6 @@ export const upgradeDb = (
     );
   };
 
-  migrate('0.4.57', (db) => {
-    db.exec({
-      sql: `
-        UPDATE events
-        SET
-          meta = JSON_SET(
-            meta,
-            '$.troops',
-            JSON((
-              SELECT JSON_GROUP_ARRAY(JSON(updated_troop))
-              FROM
-                (
-                  SELECT
-                    CASE
-                      WHEN (
-                             JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
-                               OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
-                             )
-                        AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
-                        THEN JSON_SET(
-                        troop.value,
-                        '$.sourceTileId',
-                        JSON_EXTRACT(troop.value, '$.tileId')
-                             )
-                      ELSE troop.value
-                      END AS updated_troop
-                  FROM
-                    JSON_EACH(events.meta, '$.troops') AS troop
-                  ORDER BY CAST(troop.key AS INTEGER)
-                  )
-              ))
-                 )
-        WHERE
-          meta IS NOT NULL
-          AND JSON_TYPE(meta, '$.troops') = 'array'
-          AND EXISTS
-          (
-            SELECT 1
-            FROM
-              JSON_EACH(events.meta, '$.troops') AS troop
-            WHERE
-              (
-                JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
-                  OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
-                )
-              AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
-            );
-      `,
-    });
-  });
-
-  migrate('0.4.58', (db) => {
-    db.exec({
-      sql: `
-        CREATE INDEX IF NOT EXISTS idx_effects_resource_site_resources
-          ON effects (effect_id, scope_id, tile_id, source_specifier, source_id, type_id, value);
-      `,
-    });
-
-    db.exec({ sql: 'DROP INDEX IF EXISTS idx_effects_resource_tile;' });
-    db.exec({
-      sql: 'DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;',
-    });
-  });
-
   migrate('0.4.62', (db) => {
     const completedAt = Date.now();
 
@@ -739,6 +674,64 @@ export const upgradeDb = (
       });
 
       setupGlobalWriteTriggers(tx);
+    });
+  });
+
+  migrate('0.4.77', (db) => {
+    db.exec({
+      sql: "ALTER TABLE map_markers ADD COLUMN icon TEXT NOT NULL DEFAULT 'mapMarker';",
+    });
+
+    db.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id)
+        SELECT e.id, 1.0 / s.speed, t.id, sc.id, so.id
+        FROM effect_ids e, servers s, effect_type_ids t,
+          effect_scope_ids sc, effect_source_ids so
+        WHERE e.effect = 'residenceTrainingDuration'
+          AND t.type = 'bonus' AND sc.scope = 'server' AND so.source = 'server'
+          AND NOT EXISTS (
+            SELECT 1 FROM effects existing
+            WHERE existing.effect_id = e.id AND existing.scope_id = sc.id
+          );
+      `,
+    });
+  });
+
+  migrate('0.4.78', (db) => {
+    db.exec({
+      sql: 'ALTER TABLE developer_settings ADD COLUMN is_free_celebrations_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_free_celebrations_enabled IN (0, 1));',
+    });
+
+    db.exec({
+      sql: 'ALTER TABLE developer_settings ADD COLUMN is_instant_celebrations_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_instant_celebrations_enabled IN (0, 1));',
+    });
+  });
+
+  migrate('0.4.80', (db) => {
+    db.transaction((tx) => {
+      // Earlier migrations create this table using the current schema.
+      const hasCelebrationsHeld = tx.selectValue({
+        sql: "SELECT COUNT(*) FROM pragma_table_info('culture_points') WHERE name = 'celebrations_held';",
+        schema: z.number(),
+      });
+
+      if (!hasCelebrationsHeld) {
+        tx.exec({
+          sql: 'ALTER TABLE culture_points ADD COLUMN celebrations_held INTEGER NOT NULL DEFAULT 0 CHECK (celebrations_held >= 0);',
+        });
+      }
+
+      for (const count of [1, 3, 5, 10, 15, 20, 30, 50, 75, 100]) {
+        tx.exec({
+          sql: `INSERT INTO quests (quest_id, village_id)
+            SELECT $quest_id, NULL
+            WHERE NOT EXISTS (
+              SELECT 1 FROM quests WHERE quest_id = $quest_id AND village_id IS NULL
+            );`,
+          bind: { $quest_id: `celebrationCount-${count}` },
+        });
+      }
     });
   });
 

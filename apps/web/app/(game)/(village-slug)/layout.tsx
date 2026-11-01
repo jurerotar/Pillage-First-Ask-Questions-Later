@@ -22,7 +22,13 @@ import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
-import { TbDotsVertical, TbGrave2, TbMap2, TbShoe } from 'react-icons/tb';
+import {
+  TbDotsVertical,
+  TbGrave2,
+  TbMap2,
+  TbShield,
+  TbShoe,
+} from 'react-icons/tb';
 import {
   Link,
   NavLink,
@@ -196,7 +202,7 @@ const VillageOverviewDesktopItem = () => {
         'transition-[background-color,border-color,transform] active:scale-95 active:shadow-inner',
       )}
     >
-      <span className="lg:bg-background rounded-md flex items-center justify-center">
+      <span className="rounded-md flex items-center justify-center">
         <CiCircleList className="text-xl" />
       </span>
     </NavLink>
@@ -291,7 +297,7 @@ const VillageOverviewMobileItem = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, isHeroAlive, health, experience, isHeroHome } = useHero();
+  const { hero, isHeroAlive, health, experience } = useHero();
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
@@ -324,8 +330,16 @@ const HeroNavigationItem = () => {
       <span className="absolute size-4 bg-background dark:bg-muted bottom-0 -right-1.5 rounded-full border border-[#f1f1f1] dark:border-border shadow-md inline-flex justify-center items-center">
         {isHeroAlive && (
           <>
-            {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
-            {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
+            {hero.status.type === 'stationed' && (
+              <FaHome className="text-gray-500 text-xs" />
+            )}
+            {hero.status.type === 'reinforcing' && (
+              <TbShield className="text-gray-500 text-xs" />
+            )}
+            {(hero.status.type === 'travel' ||
+              hero.status.type === 'adventure') && (
+              <TbShoe className="text-gray-500 text-xs" />
+            )}
           </>
         )}
         {!isHeroAlive && <TbGrave2 className="text-gray-500 text-xs" />}
@@ -634,9 +648,10 @@ const VillageSelect = () => {
               return (
                 <DropdownMenuRadioItem
                   key={id}
-                  textValue={textValue}
+                  closeOnClick
+                  label={textValue}
                   value={slug}
-                  onSelect={() => {
+                  onClick={() => {
                     void navigateToVillage(slug);
                   }}
                 >
@@ -869,57 +884,59 @@ const MobileMoreNavigation = () => {
         className="w-52 p-1"
       >
         <nav aria-label={t('More')}>
-          <PopoverClose asChild>
-            <Link
-              to="statistics"
-              className={itemClassName}
-            >
-              <GoGraph className="text-xl" />
-              <span>{t('Statistics')}</span>
-            </Link>
-          </PopoverClose>
-          <PopoverClose asChild>
-            <Link
-              to="preferences"
-              className={itemClassName}
-            >
-              <MdSettings className="text-xl" />
-              <span>{t('Preferences')}</span>
-            </Link>
-          </PopoverClose>
-          <PopoverClose asChild>
-            <Link
-              to="/game-worlds"
-              className={itemClassName}
-            >
-              <RxExit className="text-xl text-red-500" />
-              <span>{t('Logout')}</span>
-            </Link>
-          </PopoverClose>
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="statistics"
+                className={itemClassName}
+              >
+                <GoGraph className="text-xl" />
+                <span>{t('Statistics')}</span>
+              </Link>
+            }
+          />
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="preferences"
+                className={itemClassName}
+              >
+                <MdSettings className="text-xl" />
+                <span>{t('Preferences')}</span>
+              </Link>
+            }
+          />
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="/game-worlds"
+                className={itemClassName}
+              >
+                <RxExit className="text-xl text-red-500" />
+                <span>{t('Logout')}</span>
+              </Link>
+            }
+          />
           <Separator
             orientation="horizontal"
             className=""
           />
-          {/*<PopoverClose asChild>*/}
-          {/*  <Link*/}
-          {/*    target="_blank"*/}
-          {/*    to="https://discord.com/invite/Ep7NKVXUZA"*/}
-          {/*    className={itemClassName}*/}
-          {/*  >*/}
-          {/*    <FaDiscord className="text-xl text-[#7289da]" />*/}
-          {/*    <span>Discord</span>*/}
-          {/*  </Link>*/}
-          {/*</PopoverClose>*/}
-          <PopoverClose asChild>
-            <Link
-              target="_blank"
-              to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-              className={itemClassName}
-            >
-              <FaGithub className="text-xl text-[#24292e] dark:text-white" />
-              <span>GitHub</span>
-            </Link>
-          </PopoverClose>
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                target="_blank"
+                to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                className={itemClassName}
+              >
+                <FaGithub className="text-xl text-[#24292e] dark:text-white" />
+                <span>GitHub</span>
+              </Link>
+            }
+          />
         </nav>
       </PopoverContent>
     </Popover>

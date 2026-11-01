@@ -422,7 +422,9 @@ const MapPageContents = () => {
       >
         <Suspense fallback={null}>
           <TileDialog
-            createMapMarker={createMapMarker}
+            createMapMarker={(marker) => {
+              createMapMarker(marker, { onSuccess: closeTileModal });
+            }}
             deleteMapMarker={deleteMapMarker}
             mapMarkersByTileId={mapMarkersByTileId}
             tile={modalArgs.current!}

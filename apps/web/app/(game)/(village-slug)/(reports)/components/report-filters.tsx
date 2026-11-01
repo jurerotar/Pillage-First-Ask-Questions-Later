@@ -91,17 +91,19 @@ export const ReportFilters = ({
       </div>
       <div className="flex items-center gap-2">
         <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              aria-label={t('Report filters')}
-              size="sm"
-              variant="outline"
-            >
-              <LuListFilter className="size-4" />
-              {t('Report filters')}
-              <Badge variant="secondary">{selectedFilters.length}</Badge>
-            </Button>
-          </PopoverTrigger>
+          <PopoverTrigger
+            render={
+              <Button
+                aria-label={t('Report filters')}
+                size="sm"
+                variant="outline"
+              >
+                <LuListFilter className="size-4" />
+                {t('Report filters')}
+                <Badge variant="secondary">{selectedFilters.length}</Badge>
+              </Button>
+            }
+          />
           <PopoverContent
             align="start"
             className="w-80 p-3"

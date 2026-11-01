@@ -268,21 +268,18 @@ export const BugReportModal = ({ isOpen, onClose }: BugReportModalProps) => {
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => !open && !isSubmitting && onClose()}
+      onOpenChange={(open, eventDetails) => {
+        if (!open && isSubmitting) {
+          eventDetails.cancel();
+          return;
+        }
+
+        if (!open) {
+          onClose();
+        }
+      }}
     >
-      <DialogContent
-        closeDisabled={isSubmitting}
-        onEscapeKeyDown={(event) => {
-          if (isSubmitting) {
-            event.preventDefault();
-          }
-        }}
-        onInteractOutside={(event) => {
-          if (isSubmitting) {
-            event.preventDefault();
-          }
-        }}
-      >
+      <DialogContent closeDisabled={isSubmitting}>
         <form onSubmit={form.handleSubmit((values) => submit(values))}>
           <DialogHeader>
             <DialogTitle>{t('Report a bug')}</DialogTitle>
