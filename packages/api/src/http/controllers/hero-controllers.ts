@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  calculateHeroAttributePoints,
+  calculateHeroLevel,
+} from '@pillage-first/game-assets/utils/hero';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import {
   heroDtoSchema,
@@ -308,17 +312,48 @@ export const changeHeroAttributes = createController(
     database.transaction(() => {
       const hero = database.selectObject({
         sql: `
-          SELECT h.id, ti.tribe
+          SELECT h.id, h.experience, ti.tribe,
+            hsa.attack_power AS attackPower,
+            hsa.resource_production AS resourceProduction,
+            hsa.attack_bonus AS attackBonus,
+            hsa.defence_bonus AS defenceBonus
           FROM
             heroes h
+              JOIN hero_selectable_attributes hsa ON hsa.hero_id = h.id
               JOIN players p ON h.player_id = p.id
               JOIN tribe_ids ti ON p.tribe_id = ti.id
           WHERE
             p.id = $player_id
         `,
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number(), tribe: tribeSchema }),
+        schema: z.strictObject({
+          id: z.number(),
+          tribe: tribeSchema,
+          experience: z.number(),
+          attackPower: z.number(),
+          resourceProduction: z.number(),
+          attackBonus: z.number(),
+          defenceBonus: z.number(),
+        }),
       })!;
+
+      const { level } = calculateHeroLevel(hero.experience);
+
+      const spentPoints =
+        attackPower + resourceProduction + attackBonus + defenceBonus;
+
+      if (spentPoints > calculateHeroAttributePoints(level)) {
+        throw new Error('Not enough hero attribute points');
+      }
+
+      if (
+        attackPower < hero.attackPower ||
+        resourceProduction < hero.resourceProduction ||
+        attackBonus < hero.attackBonus ||
+        defenceBonus < hero.defenceBonus
+      ) {
+        throw new Error('Hero attribute points cannot be decreased');
+      }
 
       database.exec({
         sql: `

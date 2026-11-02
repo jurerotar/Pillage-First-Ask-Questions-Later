@@ -579,8 +579,86 @@ describe('hero-controllers', () => {
   });
 
   describe(changeHeroAttributes, () => {
+    test.each([
+      [
+        'over budget',
+        {
+          attackPower: 1,
+          resourceProduction: 4,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Not enough hero attribute points',
+      ],
+      [
+        'redistributing saved points',
+        {
+          attackPower: 1,
+          resourceProduction: 3,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Hero attribute points cannot be decreased',
+      ],
+      [
+        'removing saved points',
+        {
+          attackPower: 0,
+          resourceProduction: 0,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Hero attribute points cannot be decreased',
+      ],
+    ])('rejects %s without changing the hero', async (_label, body, error) => {
+      using database = await prepareTestDatabase();
+      database.exec({
+        sql: 'UPDATE heroes SET experience = 0 WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+      });
+      const args = createControllerArgs<'/players/:playerId/hero', 'get'>({
+        path: { playerId },
+      });
+      const before = getHero(database, args);
+      expect(() =>
+        changeHeroAttributes(
+          database,
+          createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
+            path: { playerId },
+            body,
+          }),
+        ),
+      ).toThrow(error);
+      expect(getHero(database, args)).toEqual(before);
+    });
+
+    test('accepts an unchanged allocation with no free points', async () => {
+      using database = await prepareTestDatabase();
+      const body = getHero(
+        database,
+        createControllerArgs<'/players/:playerId/hero', 'get'>({
+          path: { playerId },
+        }),
+      ).selectableAttributes;
+      expect(() =>
+        changeHeroAttributes(
+          database,
+          createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
+            path: { playerId },
+            body,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
     test('should update hero attributes and base stats', async () => {
       using database = await prepareTestDatabase();
+
+      // Level 24 grants exactly the 100 points allocated below.
+      database.exec({
+        sql: 'UPDATE heroes SET experience = 15000 WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+      });
 
       const result = changeHeroAttributes(
         database,
