@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { initializeStatistics, type Statistics } from './statistics.ts';
 
 export type Report = {
   closedAt: number | null;
@@ -136,7 +137,29 @@ export class Store implements Disposable {
       ) STRICT;
     `);
 
+    initializeStatistics(database);
+
     return new Store(database);
+  }
+
+  public getStatistics(): Statistics {
+    const { id: _id, ...statistics } = this.#database
+      .prepare('SELECT * FROM statistics WHERE id = 1')
+      .get() as Statistics & { id: number };
+    return statistics;
+  }
+
+  public recordDownload(uploadId: string): void {
+    this.#database
+      .prepare(`
+      UPDATE statistics SET
+        sharedDownloadsStarted = sharedDownloadsStarted + CASE WHEN uploads.world_id IS NOT NULL THEN 1 ELSE 0 END,
+        sharedDownloadBytesRequested = sharedDownloadBytesRequested + CASE WHEN uploads.world_id IS NOT NULL THEN uploads.expected_bytes ELSE 0 END,
+        reportDownloadsStarted = reportDownloadsStarted + CASE WHEN uploads.report_id IS NOT NULL THEN 1 ELSE 0 END,
+        reportDownloadBytesRequested = reportDownloadBytesRequested + CASE WHEN uploads.report_id IS NOT NULL THEN uploads.expected_bytes ELSE 0 END
+      FROM uploads WHERE statistics.id = 1 AND uploads.id = ? AND uploads.status = 'complete'
+    `)
+      .run(uploadId);
   }
 
   public close(): void {
@@ -328,9 +351,21 @@ export class Store implements Disposable {
     );
   }
 
-  public deleteWorld(id: string): void {
+  public deleteWorld(id: string, reason?: 'imported' | 'expired'): void {
     this.#database.exec('BEGIN IMMEDIATE;');
     try {
+      if (reason) {
+        const counter =
+          reason === 'imported'
+            ? 'sharedImportsConfirmed'
+            : 'sharedWorldsExpired';
+        this.#database
+          .prepare(`
+          UPDATE statistics SET ${counter} = ${counter} + 1
+          WHERE id = 1 AND EXISTS (SELECT 1 FROM game_worlds WHERE id = ?)
+        `)
+          .run(id);
+      }
       this.#database
         .prepare(
           'DELETE FROM upload_chunks WHERE upload_id IN (SELECT id FROM uploads WHERE world_id = ?)',

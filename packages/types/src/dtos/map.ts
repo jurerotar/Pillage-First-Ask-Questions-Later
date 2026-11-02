@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
 import { factionSchema } from '../models/faction';
+import { mapMarkerIconSchema } from '../models/map-marker';
 import { resourceSchema } from '../models/resource';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
 import { oasisBonusTypeSchema } from '../models/tile';
@@ -66,6 +67,7 @@ export const mapTileWorldItemDtoSchema = z.strictObject({
 });
 
 export const mapMarkerDtoSchema = z.strictObject({
+  icon: mapMarkerIconSchema,
   tileId: z.number(),
   description: z.string(),
   color: z.string().regex(/^#[\dA-Fa-f]{6}$/u, 'Expected a hex color value'),

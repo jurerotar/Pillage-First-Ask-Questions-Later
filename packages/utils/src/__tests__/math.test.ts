@@ -1,12 +1,28 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
   calculateDistanceBetweenPoints,
+  calculateProgressPercentage,
   randomInt,
   roundTo5,
   roundToNDecimalPoints,
 } from '../math';
 
 describe('math utils', () => {
+  describe(calculateProgressPercentage, () => {
+    test('calculates progress within a range with a nonzero starting point', () => {
+      expect(calculateProgressPercentage(2000, 2000, 3000)).toBe(0);
+      expect(calculateProgressPercentage(2500, 2000, 3000)).toBe(50);
+      expect(calculateProgressPercentage(3000, 2000, 3000)).toBe(100);
+    });
+
+    test('clamps progress and treats an empty or reversed range as complete', () => {
+      expect(calculateProgressPercentage(1000, 2000, 3000)).toBe(0);
+      expect(calculateProgressPercentage(4000, 2000, 3000)).toBe(100);
+      expect(calculateProgressPercentage(2000, 2000, 2000)).toBe(100);
+      expect(calculateProgressPercentage(2000, 3000, 2000)).toBe(100);
+    });
+  });
+
   describe(calculateDistanceBetweenPoints, () => {
     test('should calculate distance between two points', () => {
       const p1 = { x: 0, y: 0 };

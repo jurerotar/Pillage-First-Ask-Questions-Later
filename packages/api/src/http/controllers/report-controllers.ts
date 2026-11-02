@@ -26,6 +26,7 @@ import {
   selectReportTypeQuery,
   selectScheduledConstructionCancellationReportQuery,
   selectScoutingReportQuery,
+  selectTileReportListingsQuery,
   selectTradeReportQuery,
   selectUnitImprovementReportQuery,
   selectUnitResearchReportQuery,
@@ -83,6 +84,22 @@ export const getReports = createController('/reports', {
       $scope: scope,
       $filter_name: reportFilterNameByScope[scope],
     },
+    schema: getReportListingsRowSchema,
+  });
+
+  return rows.map(mapReportListingRowToDto);
+});
+
+export const getTileReports = createController('/tiles/:tileId/reports', {
+  summary: 'Get the latest player battle and scouting reports targeting a tile',
+  requestParams: {
+    path: z.strictObject({ tileId: z.coerce.number() }),
+  },
+  response: z.array(reportListingDtoSchema),
+})(({ database, path: { tileId } }) => {
+  const rows = database.selectObjects({
+    sql: selectTileReportListingsQuery,
+    bind: { $tile_id: tileId, $player_id: PLAYER_ID },
     schema: getReportListingsRowSchema,
   });
 

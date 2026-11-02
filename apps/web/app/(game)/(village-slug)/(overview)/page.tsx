@@ -12,6 +12,7 @@ import { HuntersLodgeHuntingPartyTable } from 'app/(game)/(village-slug)/compone
 import { MainBuildingDemolitionTable } from 'app/(game)/(village-slug)/components/main-building-demolition-table';
 import { MerchantMovementTable } from 'app/(game)/(village-slug)/components/merchant-movement-table';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
+import { TownHallCelebrationTable } from 'app/(game)/(village-slug)/components/town-hall-celebration-table';
 import { VillageConstructionTable } from 'app/(game)/(village-slug)/components/village-construction-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
@@ -35,6 +36,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
     doesBreweryExist,
     doesHuntersLodgeExist,
     doesGatherersHutExist,
+    doesTownHallExist,
     isMainBuildingAboveLevel10,
   ] = useMemo(() => {
     const fields = currentVillage.buildingFields;
@@ -45,12 +47,17 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
     let hasBreweryBuilding = false;
     let hasHuntersLodgeBuilding = false;
     let hasGatherersHutBuilding = false;
+    let hasTownHallBuilding = false;
     let hasMainBuildingAboveLevel10 = false;
 
     for (const field of fields) {
       const id = field.buildingId;
 
       switch (id) {
+        case 'TOWN_HALL': {
+          hasTownHallBuilding = true;
+          break;
+        }
         case 'ACADEMY': {
           hasAcademyBuilding = true;
           break;
@@ -89,6 +96,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
       hasBreweryBuilding,
       hasHuntersLodgeBuilding,
       hasGatherersHutBuilding,
+      hasTownHallBuilding,
       hasMainBuildingAboveLevel10,
     ];
   }, [currentVillage.buildingFields]);
@@ -100,6 +108,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
   const breweryName = t('BUILDINGS.BREWERY.NAME');
   const huntersLodgeName = t('BUILDINGS.HUNTERS_LODGE.NAME');
   const gatherersHutName = t('BUILDINGS.GATHERERS_HUT.NAME');
+  const townHallName = t('BUILDINGS.TOWN_HALL.NAME');
 
   const title = `${t('Overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -196,6 +205,16 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
               { buildingName: marketplaceName },
             )}
           {doesMarketplaceExist && <MerchantMovementTable />}
+        </SectionContent>
+        <Separator orientation="horizontal" />
+        <SectionContent>
+          <Text as="h2">{townHallName}</Text>
+          {!doesTownHallExist &&
+            t(
+              'You need to build the {{buildingName}} before you can organize celebrations.',
+              { buildingName: townHallName },
+            )}
+          {doesTownHallExist && <TownHallCelebrationTable />}
         </SectionContent>
         {tribe === 'teutons' && (
           <>

@@ -123,7 +123,7 @@ export const useVillageTroops = () => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.tileId],
         [villageUnitCountCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.tileId],
+        [troopMovementsCacheKey],
       ]);
     },
   });
@@ -171,7 +171,7 @@ export const useVillageTroops = () => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.tileId],
         [villageUnitCountCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.tileId],
+        [troopMovementsCacheKey],
         [effectsCacheKey, currentVillage.tileId],
       ]);
     },
@@ -196,7 +196,7 @@ export const useVillageTroops = () => {
       await invalidateQueries(context, [
         [sentReinforcementsCacheKey, currentVillage.tileId],
         [villageUnitCountCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.tileId],
+        [troopMovementsCacheKey],
         [effectsCacheKey, currentVillage.tileId],
       ]);
     },

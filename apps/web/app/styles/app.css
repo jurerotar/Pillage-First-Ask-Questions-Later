@@ -74,6 +74,8 @@
 }
 
 @theme inline {
+  --color-resource-bar-green-border: #506d00;
+  --color-resource-bar-red-border: #a60000;
   --default-transition-duration: 300ms;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -106,6 +108,14 @@
   --color-warning: var(--warning);
   --color-success: var(--success);
   --color-link: oklch(0.6432 0.2313 142.62);
+}
+
+@utility bg-resource-bar-green {
+  background-image: linear-gradient(#c7e94f, #c7e94f 40%, #506d00);
+}
+
+@utility bg-resource-bar-red {
+  background-image: linear-gradient(#ff9696, #ff9696 40%, #a60000);
 }
 
 @layer utilities {

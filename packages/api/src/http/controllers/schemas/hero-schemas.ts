@@ -19,7 +19,10 @@ export const getHeroSchema = z
     village_id: z.number(),
     natarian_attack_bonus: z.number(),
     resource_to_produce: heroResourceToProduceSchema,
-    is_home: z.number(),
+    home_tile_id: z.number(),
+    stationed_tile_id: z.number().nullable(),
+    movement_type: z.enum(['adventure', 'travel']).nullable(),
+    movement_ends_at: z.number().nullable(),
   })
   .meta({ id: 'GetHeroRow' });
 

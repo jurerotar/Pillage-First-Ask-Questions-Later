@@ -4,6 +4,7 @@ import type { GameEventType } from '@pillage-first/types/models/game-event';
 import {
   adventurePointsCacheKey,
   collectableQuestCountCacheKey,
+  culturePointsCacheKey,
   currentVillageCacheKey,
   effectsCacheKey,
   eventsCacheKey,
@@ -54,6 +55,7 @@ export const cachesToClearOnResolve: Handlers = {
   },
   buildingLevelChange: ({ affectedVillageIds }) => {
     return [
+      [culturePointsCacheKey],
       [currentVillageCacheKey],
       [effectsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
@@ -66,6 +68,7 @@ export const cachesToClearOnResolve: Handlers = {
   },
   buildingDestruction: ({ affectedVillageIds }) => {
     return [
+      [culturePointsCacheKey],
       [currentVillageCacheKey],
       [effectsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
@@ -120,6 +123,7 @@ export const cachesToClearOnResolve: Handlers = {
   },
   troopMovementFindNewVillage: ({ affectedVillageIds }) => {
     return [
+      [culturePointsCacheKey],
       [currentVillageCacheKey],
       [villageListingCacheKey],
       [tilesCacheKey],
@@ -256,6 +260,16 @@ export const cachesToClearOnResolve: Handlers = {
       ...affectedVillageIds.flatMap((villageId) => [
         [eventsCacheKey, 'resourceTransfer', villageId],
         [eventsCacheKey, 'tradeRoute', villageId],
+      ]),
+    ];
+  },
+  culturePointsCelebration: ({ affectedVillageIds }) => {
+    return [
+      [culturePointsCacheKey],
+      ...affectedVillageIds.map((villageId) => [
+        eventsCacheKey,
+        'culturePointsCelebration',
+        villageId,
       ]),
     ];
   },

@@ -22,7 +22,13 @@ import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
-import { TbDotsVertical, TbGrave2, TbMap2, TbShoe } from 'react-icons/tb';
+import {
+  TbDotsVertical,
+  TbGrave2,
+  TbMap2,
+  TbShield,
+  TbShoe,
+} from 'react-icons/tb';
 import {
   Link,
   NavLink,
@@ -51,6 +57,7 @@ import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-c
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useVillageSwitchNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-village-switch-navigation';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
+import { useCulturePointsProgress } from 'app/(game)/(village-slug)/hooks/use-culture-points-progress';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
@@ -67,18 +74,18 @@ import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from 'app/components/ui/dropdown-menu';
+import {
   Popover,
   PopoverClose,
   PopoverContent,
   PopoverTrigger,
 } from 'app/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from 'app/components/ui/select';
 import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -167,16 +174,14 @@ const DesktopPopulation = () => {
   const { population } = computedWheatProductionEffect;
 
   return (
-    <div className="flex gap-2">
-      <div className="flex gap-2 justify-center items-center rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1">
-        <Icon
-          type="population"
-          className="min-w-4"
-        />
-        <span className="text-foreground text-sm">
-          {formatNumber(population)}
-        </span>
-      </div>
+    <div className="flex gap-2 justify-center items-center rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1">
+      <Icon
+        type="population"
+        className="min-w-4"
+      />
+      <span className="text-foreground text-sm">
+        {formatNumber(population)}
+      </span>
     </div>
   );
 };
@@ -197,10 +202,62 @@ const VillageOverviewDesktopItem = () => {
         'transition-[background-color,border-color,transform] active:scale-95 active:shadow-inner',
       )}
     >
-      <span className="lg:bg-background rounded-md flex items-center justify-center">
+      <span className="rounded-md flex items-center justify-center">
         <CiCircleList className="text-xl" />
       </span>
     </NavLink>
+  );
+};
+
+const MobileCulturePointsProgress = () => {
+  const { t } = useTranslation();
+  const { progress } = useCulturePointsProgress();
+  const percentage = Math.floor(progress);
+
+  return (
+    <span
+      title={t('Culture points progress')}
+      className="inline-flex items-center justify-between gap-0.5 bg-background dark:bg-muted px-0.5 absolute bottom-0 left-8 h-4 min-w-9 rounded-full border border-[#f1f1f1] dark:border-border shadow-md"
+    >
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 bg-muted rounded-full overflow-hidden"
+      >
+        <span
+          className="absolute inset-0 bg-blue-500 origin-left transition-transform"
+          style={{ transform: `scaleX(${progress / 100})` }}
+        />
+      </span>
+      <Icon
+        type="culturePoints"
+        className="relative size-3 shrink-0"
+        shouldShowTooltip={false}
+      />
+      <span className="relative text-2xs text-white text-shadow-lg tabular-nums">
+        {percentage}%
+      </span>
+    </span>
+  );
+};
+
+const DesktopCulturePointsProgress = () => {
+  const { t } = useTranslation();
+  const { progress } = useCulturePointsProgress();
+
+  return (
+    <span
+      title={t('Culture points progress')}
+      className="inline-flex items-center justify-center gap-2 rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1"
+    >
+      <Icon
+        type="culturePoints"
+        className="size-4 shrink-0"
+        shouldShowTooltip={false}
+      />
+      <span className="text-foreground text-sm tabular-nums">
+        {Math.floor(progress)}%
+      </span>
+    </span>
   );
 };
 
@@ -231,13 +288,16 @@ const VillageOverviewMobileItem = () => {
           {formatNumber(population)}
         </span>
       </span>
+      <Suspense fallback={null}>
+        <MobileCulturePointsProgress />
+      </Suspense>
     </Link>
   );
 };
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, isHeroAlive, health, experience, isHeroHome } = useHero();
+  const { hero, isHeroAlive, health, experience } = useHero();
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
@@ -270,8 +330,16 @@ const HeroNavigationItem = () => {
       <span className="absolute size-4 bg-background dark:bg-muted bottom-0 -right-1.5 rounded-full border border-[#f1f1f1] dark:border-border shadow-md inline-flex justify-center items-center">
         {isHeroAlive && (
           <>
-            {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
-            {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
+            {hero.status.type === 'stationed' && (
+              <FaHome className="text-gray-500 text-xs" />
+            )}
+            {hero.status.type === 'reinforcing' && (
+              <TbShield className="text-gray-500 text-xs" />
+            )}
+            {(hero.status.type === 'travel' ||
+              hero.status.type === 'adventure') && (
+              <TbShoe className="text-gray-500 text-xs" />
+            )}
           </>
         )}
         {!isHeroAlive && <TbGrave2 className="text-gray-500 text-xs" />}
@@ -560,53 +628,54 @@ const VillageSelect = () => {
   }, [playerVillages, preferences.villageSort]);
 
   return (
-    <Select
-      onValueChange={(value) => {
-        void navigateToVillage(value);
-      }}
-      value={currentVillage.slug}
-    >
-      <SelectTrigger
+    <DropdownMenu>
+      <DropdownMenuTrigger
         title={t('Village select')}
         aria-label={t('Village select')}
         className="flex flex-1"
       >
-        <SelectValue>{currentVillageLabel}</SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {sortedPlayerVillages.map(
-          ({ slug, name, id, coordinates, resourceFieldComposition }) => {
-            const { x, y } = coordinates;
-            const formattedId = `${x}|${y}`;
-            const resources = parseResourcesFromRFC(resourceFieldComposition);
-            const textValue = `${name} (${formattedId}) | ${resources.join('-')}`;
+        <span className="truncate">{currentVillageLabel}</span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuRadioGroup value={currentVillage.slug}>
+          {sortedPlayerVillages.map(
+            ({ slug, name, id, coordinates, resourceFieldComposition }) => {
+              const { x, y } = coordinates;
+              const formattedId = `${x}|${y}`;
+              const resources = parseResourcesFromRFC(resourceFieldComposition);
+              const textValue = `${name} (${formattedId}) | ${resources.join('-')}`;
 
-            return (
-              <SelectItem
-                key={id}
-                textValue={textValue}
-                value={slug}
-              >
-                <Text
-                  as="span"
-                  className="flex min-w-0 flex-col gap-0.5 text-xs sm:text-sm"
+              return (
+                <DropdownMenuRadioItem
+                  key={id}
+                  closeOnClick
+                  label={textValue}
+                  value={slug}
+                  onClick={() => {
+                    void navigateToVillage(slug);
+                  }}
                 >
-                  <span className="truncate font-medium">
-                    {name} ({formattedId})
-                  </span>
-                  <span className="inline-flex gap-2 text-muted-foreground">
-                    <Resources
-                      iconClassName="size-3.5"
-                      resources={resources}
-                    />
-                  </span>
-                </Text>
-              </SelectItem>
-            );
-          },
-        )}
-      </SelectContent>
-    </Select>
+                  <Text
+                    as="span"
+                    className="flex min-w-0 flex-col gap-0.5 text-xs sm:text-sm"
+                  >
+                    <span className="truncate font-medium">
+                      {name} ({formattedId})
+                    </span>
+                    <span className="inline-flex gap-2 text-muted-foreground">
+                      <Resources
+                        iconClassName="size-3.5"
+                        resources={resources}
+                      />
+                    </span>
+                  </Text>
+                </DropdownMenuRadioItem>
+              );
+            },
+          )}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
@@ -627,8 +696,8 @@ const TopNavigation = ({
     <header className="flex flex-col w-full px-safe-or-2 pb-1 lg:px-safe lg:py-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200 dark:from-muted/60 dark:via-card dark:to-muted/60">
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
-          <div className="hidden lg:flex w-full bg-muted py-1 px-2">
-            <nav className="hidden lg:flex justify-between container mx-auto">
+          <div className="hidden lg:flex w-full bg-muted py-1">
+            <nav className="hidden lg:flex justify-between container mx-auto px-2">
               <ul className="flex gap-1">
                 <li>
                   <DesktopTopRowItem
@@ -722,7 +791,7 @@ const TopNavigation = ({
               </ul>
             </nav>
           </div>
-          <div className="flex justify-between container mx-2 xl:mx-auto">
+          <div className="flex justify-between container mx-auto px-2">
             <div className="flex flex-1 items-center gap-2">
               <Suspense fallback={null}>
                 <VillageSelect />
@@ -765,8 +834,11 @@ const TopNavigation = ({
                 </li>
               </ul>
             </nav>
-            <div className="flex flex-1 justify-end">
+            <div className="flex flex-1 justify-end gap-2">
               <DesktopPopulation />
+              <Suspense fallback={null}>
+                <DesktopCulturePointsProgress />
+              </Suspense>
             </div>
           </div>
         </div>
@@ -778,7 +850,7 @@ const TopNavigation = ({
           <HeroNavigationItem />
         </div>
       )}
-      <div className="flex relative rounded-b-md px-2 lg:absolute top-full lg:-bottom-16 left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-5 shadow-lg dark:shadow-none">
+      <div className="flex relative rounded-md lg:rounded-t-none px-2 lg:absolute top-full lg:-bottom-16 left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-5 shadow-lg dark:shadow-none">
         <ResourceCounters />
       </div>
     </header>
@@ -812,57 +884,59 @@ const MobileMoreNavigation = () => {
         className="w-52 p-1"
       >
         <nav aria-label={t('More')}>
-          <PopoverClose asChild>
-            <Link
-              to="statistics"
-              className={itemClassName}
-            >
-              <GoGraph className="text-xl" />
-              <span>{t('Statistics')}</span>
-            </Link>
-          </PopoverClose>
-          <PopoverClose asChild>
-            <Link
-              to="preferences"
-              className={itemClassName}
-            >
-              <MdSettings className="text-xl" />
-              <span>{t('Preferences')}</span>
-            </Link>
-          </PopoverClose>
-          <PopoverClose asChild>
-            <Link
-              to="/game-worlds"
-              className={itemClassName}
-            >
-              <RxExit className="text-xl text-red-500" />
-              <span>{t('Logout')}</span>
-            </Link>
-          </PopoverClose>
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="statistics"
+                className={itemClassName}
+              >
+                <GoGraph className="text-xl" />
+                <span>{t('Statistics')}</span>
+              </Link>
+            }
+          />
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="preferences"
+                className={itemClassName}
+              >
+                <MdSettings className="text-xl" />
+                <span>{t('Preferences')}</span>
+              </Link>
+            }
+          />
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                to="/game-worlds"
+                className={itemClassName}
+              >
+                <RxExit className="text-xl text-red-500" />
+                <span>{t('Logout')}</span>
+              </Link>
+            }
+          />
           <Separator
             orientation="horizontal"
             className=""
           />
-          {/*<PopoverClose asChild>*/}
-          {/*  <Link*/}
-          {/*    target="_blank"*/}
-          {/*    to="https://discord.com/invite/Ep7NKVXUZA"*/}
-          {/*    className={itemClassName}*/}
-          {/*  >*/}
-          {/*    <FaDiscord className="text-xl text-[#7289da]" />*/}
-          {/*    <span>Discord</span>*/}
-          {/*  </Link>*/}
-          {/*</PopoverClose>*/}
-          <PopoverClose asChild>
-            <Link
-              target="_blank"
-              to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-              className={itemClassName}
-            >
-              <FaGithub className="text-xl text-[#24292e] dark:text-white" />
-              <span>GitHub</span>
-            </Link>
-          </PopoverClose>
+          <PopoverClose
+            nativeButton={false}
+            render={
+              <Link
+                target="_blank"
+                to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                className={itemClassName}
+              >
+                <FaGithub className="text-xl text-[#24292e] dark:text-white" />
+                <span>GitHub</span>
+              </Link>
+            }
+          />
         </nav>
       </PopoverContent>
     </Popover>

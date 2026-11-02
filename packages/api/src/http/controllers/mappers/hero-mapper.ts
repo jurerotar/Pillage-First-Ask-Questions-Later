@@ -16,6 +16,24 @@ import type {
   getHeroSchema,
 } from '../schemas/hero-schemas';
 
+const mapHeroStatus = (
+  row: z.infer<typeof getHeroSchema>,
+): z.infer<typeof heroDtoSchema>['status'] => {
+  if (row.health <= 0) {
+    return { type: 'dead' };
+  }
+
+  if (row.movement_type !== null && row.movement_ends_at !== null) {
+    return { type: row.movement_type, endsAt: row.movement_ends_at };
+  }
+
+  if (row.stationed_tile_id === row.home_tile_id) {
+    return { type: 'stationed', tileId: row.stationed_tile_id };
+  }
+
+  return { type: 'reinforcing', tileId: row.stationed_tile_id! };
+};
+
 export const mapHero = (
   row: z.infer<typeof getHeroSchema>,
 ): z.infer<typeof heroDtoSchema> => {
@@ -41,7 +59,7 @@ export const mapHero = (
     },
     villageId: row.village_id,
     resourceToProduce: row.resource_to_produce,
-    isHeroHome: Boolean(row.is_home),
+    status: mapHeroStatus(row),
   };
 
   return heroDtoSchema.parse(dto);

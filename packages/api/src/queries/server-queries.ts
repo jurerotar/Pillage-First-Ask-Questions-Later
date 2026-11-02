@@ -7,6 +7,7 @@ export const selectServerQuery = `
     created_at,
     seed,
     speed,
+    culture_points_requirement_speed,
     map_size,
     player_name,
     player_tribe

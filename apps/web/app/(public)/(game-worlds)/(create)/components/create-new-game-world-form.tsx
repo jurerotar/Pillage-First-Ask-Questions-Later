@@ -85,6 +85,10 @@ const createServerFromFormValues = (values: CreateServerFormValues) => {
     version: env.VERSION,
     createdAt: Date.now(),
     ...values,
+    configuration: {
+      ...values.configuration,
+      culturePointsRequirementSpeed: 1,
+    },
   };
 };
 

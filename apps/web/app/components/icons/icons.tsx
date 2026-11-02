@@ -32,6 +32,7 @@ import {
   GiGreekTemple,
   GiHuntingHorn,
   GiLeatherBoot,
+  GiOpenTreasureChest,
   GiPointyHat,
   GiRallyTheTroops,
   GiRat,
@@ -44,6 +45,7 @@ import {
   GiSpikedMace,
   GiSpyglass,
   GiSwapBag,
+  GiVillage,
   GiWolfHead,
   GiWolfTrap,
 } from 'react-icons/gi';
@@ -95,6 +97,7 @@ import {
   PillageFirstWoodWood,
 } from '@pillage-first/graphics';
 import type { Effect } from '@pillage-first/types/models/effect';
+import type { MapMarker } from '@pillage-first/types/models/map-marker';
 import type { Resource } from '@pillage-first/types/models/resource';
 import type {
   EgyptianUnitId,
@@ -211,6 +214,7 @@ type OtherIconType =
 type HeroIconType = 'heroRevivalDuration';
 
 export type IconType =
+  | MapMarker['icon']
   | UncategorizedIconType
   | CommonIconType
   | UnitAttributeType
@@ -273,6 +277,13 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   mapWheatFieldIconToggle: (props) => icons.wheat(props),
   mapTileTooltipToggle: (props) => <TbTooltip {...props} />,
   mapMarker: (props) => <PiFlagPennantFill {...props} />,
+  mapMarkerAttack: (props) => <LuSwords {...props} />,
+  mapMarkerDefence: (props) => <BsShieldFill {...props} />,
+  mapMarkerScout: (props) => <PillageFirstScroll {...props} />,
+  mapMarkerResources: (props) => icons.wood(props),
+  mapMarkerSettlement: (props) => <GiVillage {...props} />,
+  mapMarkerDanger: (props) => <FaSkull {...props} />,
+  mapMarkerTreasure: (props) => <GiOpenTreasureChest {...props} />,
 
   // Reports
   attackerNoLoss: (props) => (

@@ -1,5 +1,8 @@
 import type { PlayableTribe } from '@pillage-first/types/models/tribe';
-import { roundTo5 } from '@pillage-first/utils/math';
+import {
+  calculateProgressPercentage,
+  roundTo5,
+} from '@pillage-first/utils/math';
 
 const MAX_HERO_ATTRIBUTE_LEVEL = 99;
 
@@ -15,11 +18,9 @@ export const calculateHeroLevel = (currentExp: number) => {
   const nextLevelExp = (level + 1) * (level + 2) * 25;
 
   const expToNextLevel = nextLevelExp - currentExp;
-  const expInLevel = currentExp - currentLevelExp;
-  const expLevelRange = nextLevelExp - currentLevelExp;
-
-  const rawPercent = expLevelRange > 0 ? expInLevel / expLevelRange : 1;
-  const percentToNextLevel = Math.floor(rawPercent * 100);
+  const percentToNextLevel = Math.floor(
+    calculateProgressPercentage(currentExp, currentLevelExp, nextLevelExp),
+  );
 
   return {
     level,

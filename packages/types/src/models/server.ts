@@ -15,6 +15,10 @@ export const speedSchema = z
   ])
   .meta({ id: 'ServerSpeed' });
 
+export const culturePointsRequirementSpeedSchema = z
+  .union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)])
+  .meta({ id: 'CulturePointsRequirementSpeed' });
+
 export const serverDbSchema = z
   .strictObject({
     id: z.string(),
@@ -25,6 +29,7 @@ export const serverDbSchema = z
     seed: z.string(),
     map_size: mapSizeSchema,
     speed: speedSchema,
+    culture_points_requirement_speed: culturePointsRequirementSpeedSchema,
     player_name: z.string(),
     player_tribe: playableTribeSchema,
   })
@@ -39,6 +44,7 @@ export const serverDbSchema = z
       configuration: {
         mapSize: t.map_size,
         speed: t.speed,
+        culturePointsRequirementSpeed: t.culture_points_requirement_speed,
       },
       playerConfiguration: {
         name: t.player_name,
@@ -59,6 +65,7 @@ export const serverSchema = z
     configuration: z.strictObject({
       mapSize: mapSizeSchema,
       speed: speedSchema,
+      culturePointsRequirementSpeed: culturePointsRequirementSpeedSchema,
     }),
     playerConfiguration: z.strictObject({
       name: z.string(),

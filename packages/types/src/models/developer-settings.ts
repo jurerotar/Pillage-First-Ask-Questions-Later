@@ -13,6 +13,8 @@ export const developerSettingsSchema = z
     isFreeUnitResearchEnabled: z.boolean(),
     isFreeHuntingPartiesEnabled: z.boolean(),
     isInstantHeroReviveEnabled: z.boolean(),
+    isFreeCelebrationsEnabled: z.boolean(),
+    isInstantCelebrationsEnabled: z.boolean(),
     isFreeHeroReviveEnabled: z.boolean(),
   })
   .meta({ id: 'DeveloperSettings' });

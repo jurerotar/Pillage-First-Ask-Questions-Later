@@ -1,0 +1,194 @@
+import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import {
+  CULTURE_POINTS_CELEBRATION_LIMITS,
+  type CulturePointsCelebrationType,
+  calculateCulturePointsForBuildingField,
+  calculateCulturePointsRequirementForVillageCount,
+} from '@pillage-first/game-assets/utils/culture-points';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { culturePointsRequirementSpeedSchema } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
+
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+
+const buildingCulturePointsRowSchema = z.strictObject({
+  building_id: buildingIdSchema,
+  level: z.number(),
+});
+
+export const calculateVillageCulturePointsProduction = (
+  database: DbFacade,
+  villageId: number,
+): number => {
+  const rows = database.selectObjects({
+    sql: `
+      SELECT
+        bi.building AS building_id,
+        bf.level
+      FROM
+        building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+      WHERE
+        bf.village_id = $village_id
+        AND bf.level > 0;
+    `,
+    bind: { $village_id: villageId },
+    schema: buildingCulturePointsRowSchema,
+  });
+
+  let total = 0;
+
+  for (const row of rows) {
+    total += calculateCulturePointsForBuildingField(row.building_id, row.level);
+  }
+
+  return total;
+};
+
+export const calculatePlayerCulturePointsProduction = (
+  database: DbFacade,
+  playerId = PLAYER_ID,
+): number => {
+  const rows = database.selectObjects({
+    sql: `
+      SELECT
+        bi.building AS building_id,
+        bf.level
+      FROM
+        building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          JOIN villages v ON v.id = bf.village_id
+      WHERE
+        v.player_id = $player_id
+        AND bf.level > 0;
+    `,
+    bind: { $player_id: playerId },
+    schema: buildingCulturePointsRowSchema,
+  });
+
+  let total = 0;
+
+  for (const row of rows) {
+    total += calculateCulturePointsForBuildingField(row.building_id, row.level);
+  }
+
+  return total;
+};
+
+export const updatePlayerCulturePointsAt = (
+  database: DbFacade,
+  timestamp: number,
+  playerId = PLAYER_ID,
+  production = calculatePlayerCulturePointsProduction(database, playerId),
+): number | undefined => {
+  return database.selectValue({
+    sql: `
+      UPDATE culture_points
+      SET
+        culture_points = culture_points + (
+          1.0 * $production * MAX(0, $timestamp - culture_points_updated_at) / $day
+        ),
+        culture_points_updated_at = MAX(culture_points_updated_at, $timestamp)
+      WHERE
+        player_id = $player_id
+      RETURNING culture_points;
+    `,
+    bind: {
+      $production: production,
+      $timestamp: timestamp,
+      $day: DAY_IN_MILLISECONDS,
+      $player_id: playerId,
+    },
+    schema: z.number(),
+  });
+};
+
+export const addPlayerCulturePoints = (
+  database: DbFacade,
+  culturePoints: number,
+  timestamp: number,
+  playerId = PLAYER_ID,
+  production?: number,
+): void => {
+  updatePlayerCulturePointsAt(database, timestamp, playerId, production);
+
+  database.exec({
+    sql: `
+      UPDATE culture_points
+      SET culture_points = culture_points + $culture_points
+      WHERE player_id = $player_id;
+    `,
+    bind: {
+      $culture_points: culturePoints,
+      $player_id: playerId,
+    },
+  });
+};
+
+export const calculateCulturePointsCelebrationReward = (
+  database: DbFacade,
+  villageId: number,
+  celebrationType: CulturePointsCelebrationType,
+  playerProduction: number,
+): number => {
+  let production: number;
+
+  if (celebrationType === 'small') {
+    production = calculateVillageCulturePointsProduction(database, villageId);
+  } else {
+    production = playerProduction;
+  }
+
+  return Math.min(
+    production,
+    CULTURE_POINTS_CELEBRATION_LIMITS[celebrationType],
+  );
+};
+
+export const getPlayerCulturePointsRequirementContext = (
+  database: DbFacade,
+  playerId = PLAYER_ID,
+) => {
+  const { villageCount, pendingVillageCount, culturePointsRequirementSpeed } =
+    database.selectObject({
+      sql: `
+      SELECT
+        (
+          SELECT COUNT(*)
+          FROM villages
+          WHERE player_id = $player_id
+        ) AS villageCount,
+        (
+          SELECT COUNT(*)
+          FROM events e
+            JOIN villages v ON v.id = e.village_id
+          WHERE v.player_id = $player_id
+            AND e.type = 'troopMovementFindNewVillage'
+        ) AS pendingVillageCount,
+        culture_points_requirement_speed AS culturePointsRequirementSpeed
+      FROM servers
+      LIMIT 1;
+    `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({
+        villageCount: z.number(),
+        pendingVillageCount: z.number(),
+        culturePointsRequirementSpeed: culturePointsRequirementSpeedSchema,
+      }),
+    })!;
+
+  return {
+    villageCount,
+    currentVillageCulturePointsRequirement:
+      calculateCulturePointsRequirementForVillageCount(
+        villageCount,
+        culturePointsRequirementSpeed,
+      ),
+    nextVillageCulturePointsRequirement:
+      calculateCulturePointsRequirementForVillageCount(
+        villageCount + pendingVillageCount + 1,
+        culturePointsRequirementSpeed,
+      ),
+  };
+};

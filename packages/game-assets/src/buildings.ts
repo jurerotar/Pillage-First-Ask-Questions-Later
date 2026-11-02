@@ -1492,7 +1492,7 @@ export const buildings: Building[] = [
         level: 1,
       },
     ],
-    baseBuildingCost: [1400, 1330, 1200, 400],
+    baseBuildingCost: [180, 130, 150, 80],
     buildingCostCoefficient: 1.28,
     maxLevel: 20,
     buildingDurationBase: 1.16,

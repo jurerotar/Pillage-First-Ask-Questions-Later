@@ -54,3 +54,20 @@ To roll back, point `current` to a previous directory under `releases` and touch
 - Admin UI: `/bugs`, sign in with `API_TOKEN`. Admin routes under `/api/admin/reports` require that token and support listing, details, closing, deletion, and world downloads.
 
 Files must have a SQLite 3 header. Requests are rate limited by IP; configure the proxy to overwrite `X-Forwarded-For` with the actual client address.
+
+## Usage statistics
+
+`GET /api/admin/statistics` requires `Authorization: Bearer <API_TOKEN>` and returns persistent cumulative counters from `metadata.sqlite`. `trackingStartedAt` is the Unix timestamp in milliseconds when tracking was first enabled. Counters start at zero on upgrade; existing records are not backfilled because deleted history cannot be recovered. Totals survive restarts, imports, expiry cleanup, and report deletion.
+
+| Counters                                                       | Meaning                                                                                              |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `sharedUploadsReserved`, `reportUploadsReserved`               | Upload records created, including unfinished uploads.                                                |
+| `sharedUploadsCompleted`, `reportUploadsCompleted`             | Validated uploads finalized successfully; completion retries count once.                             |
+| `sharedUploadedBytes`, `reportUploadedBytes`                   | File sizes of completed uploads, excluding chunk retries.                                            |
+| `sharedDownloadsStarted`, `reportDownloadsStarted`             | Authorized download requests, including retries; these do not confirm receipt or a completed stream. |
+| `sharedDownloadBytesRequested`, `reportDownloadBytesRequested` | Full file sizes requested by those downloads, rather than measured network traffic.                  |
+| `sharedImportsConfirmed`                                       | Shared worlds removed after the client confirms successful import; deletion retries count once.      |
+| `sharedWorldsExpired`                                          | Expired shared worlds removed by cleanup, including unfinished uploads.                              |
+| `reportsSubmitted`, `reportsClosed`, `reportsDeleted`          | Reports created, first closed, and deleted; repeated close requests count once.                      |
+
+Shared transfers and bug report attachments have separate counters. No filenames, tokens, IP addresses, or report content are stored in statistics.

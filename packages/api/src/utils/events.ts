@@ -8,6 +8,10 @@ import {
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
 import {
+  CULTURE_POINTS_CELEBRATION_COSTS,
+  calculateCulturePointsCelebrationDuration,
+} from '@pillage-first/game-assets/utils/culture-points';
+import {
   calculateGatherersHutGatheringDuration,
   calculateGatherersHutPartySize,
 } from '@pillage-first/game-assets/utils/gatherers-hut';
@@ -62,6 +66,7 @@ import {
   isBuildingDowngradeEvent,
   isBuildingEvent,
   isBuildingLevelChangeEvent,
+  isCulturePointsCelebrationEvent,
   isGatherersHutGatheringTripEvent,
   isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
@@ -97,6 +102,11 @@ import {
 } from './adventures';
 import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
 import {
+  addPlayerCulturePoints,
+  calculateCulturePointsCelebrationReward,
+  calculatePlayerCulturePointsProduction,
+} from './culture-points';
+import {
   getMarketplaceVillage,
   getMerchantAmount,
   getMerchantMovementDurationByVillageId,
@@ -120,6 +130,7 @@ import {
   doesTroopTrainingDurationEffectMatchBuilding,
   isUnitInVillageTribe,
 } from './unit-event-validation';
+import { getVillagePlayerId } from './village';
 import { apiEffectSchema } from './zod/effect-schemas';
 
 const nonMetaEventProperties = new Set([
@@ -142,6 +153,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
     const event = events[i];
 
     let metaObj: Record<string, SqlValue> | undefined;
+
     for (const property in event) {
       if (nonMetaEventProperties.has(property)) {
         continue;
@@ -963,6 +975,41 @@ export const validateEventCreationPrerequisites = (
       throw new Error(errors[0]);
     }
   }
+
+  if (isCulturePointsCelebrationEvent(event)) {
+    const { villageId, celebrationType } = event;
+
+    const townHallLevel =
+      database.selectValue({
+        sql: selectVillageBuildingLevelQuery,
+        bind: {
+          $village_id: villageId,
+          $building_id: 'TOWN_HALL',
+        },
+        schema: z.number().nullable(),
+      }) ?? 0;
+
+    if (townHallLevel <= 0) {
+      throw new Error('Town Hall is required');
+    }
+
+    if (celebrationType === 'large' && townHallLevel < 10) {
+      throw new Error('Large celebrations require Town Hall level 10');
+    }
+
+    const hasOngoingCelebration = database.selectValue({
+      sql: selectVillageEventExistsByTypeQuery,
+      bind: {
+        $village_id: villageId,
+        $type: 'culturePointsCelebration',
+      },
+      schema: z.coerce.boolean(),
+    });
+
+    if (hasOngoingCelebration) {
+      throw new Error('Town Hall is already holding a celebration');
+    }
+  }
 };
 
 export const runEventCreationSideEffects = (
@@ -1038,6 +1085,45 @@ export const runEventCreationSideEffects = (
 
     assessQueuedTroopCountQuestCompletion(database, now);
     assessQueuedTroopCountByIdQuestCompletion(database, event.unitId, now);
+  }
+
+  if (isCulturePointsCelebrationEvent(event)) {
+    const playerId = getVillagePlayerId(database, event.villageId);
+
+    const production = calculatePlayerCulturePointsProduction(
+      database,
+      playerId,
+    );
+
+    const reward = calculateCulturePointsCelebrationReward(
+      database,
+      event.villageId,
+      event.celebrationType,
+      production,
+    );
+
+    addPlayerCulturePoints(
+      database,
+      reward,
+      event.startsAt,
+      playerId,
+      production,
+    );
+
+    database.exec({
+      sql: 'UPDATE culture_points SET celebrations_held = celebrations_held + 1 WHERE player_id = $player_id;',
+      bind: { $player_id: playerId },
+    });
+
+    database.exec({
+      sql: `UPDATE quests SET completed_at = $timestamp
+        WHERE completed_at IS NULL AND village_id IS NULL
+          AND quest_id GLOB 'celebrationCount-*'
+          AND CAST(substr(quest_id, length('celebrationCount-') + 1) AS INTEGER)
+            <= (SELECT celebrations_held FROM culture_points WHERE player_id = $player_id)
+          AND $player_id = ${PLAYER_ID};`,
+      bind: { $timestamp: event.startsAt, $player_id: playerId },
+    });
   }
 };
 
@@ -1190,6 +1276,17 @@ export const getEventCost = (
 
   if (isTradeRouteEvent(event)) {
     return [0, 0, 0, 0];
+  }
+
+  if (isCulturePointsCelebrationEvent(event)) {
+    const isFree = database.selectValue({
+      sql: 'SELECT is_free_celebrations_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    return isFree
+      ? [0, 0, 0, 0]
+      : CULTURE_POINTS_CELEBRATION_COSTS[event.celebrationType];
   }
 
   return [0, 0, 0, 0];
@@ -1609,6 +1706,40 @@ export const getEventDuration = (
       loyaltyIncreaseDuration;
 
     return timeUntilNextIncrease || loyaltyIncreaseDuration;
+  }
+
+  if (isCulturePointsCelebrationEvent(event)) {
+    const { speed } = database.selectObject({
+      sql: 'SELECT speed FROM servers LIMIT 1;',
+      schema: z.strictObject({
+        speed: speedSchema,
+      }),
+    })!;
+
+    const townHallLevel =
+      database.selectValue({
+        sql: selectVillageBuildingLevelQuery,
+        bind: {
+          $village_id: event.villageId,
+          $building_id: 'TOWN_HALL',
+        },
+        schema: z.number().nullable(),
+      }) ?? 0;
+
+    const isInstant = database.selectValue({
+      sql: 'SELECT is_instant_celebrations_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isInstant) {
+      return 0;
+    }
+
+    return calculateCulturePointsCelebrationDuration({
+      celebrationType: event.celebrationType,
+      townHallLevel,
+      serverSpeed: speed,
+    });
   }
 
   throw new Error(

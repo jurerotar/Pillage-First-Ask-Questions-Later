@@ -36,9 +36,39 @@
   }
 }
 
+@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
+    $base: '#{$imagesPath}/map/villages';
+
+    .occupied-tile {
+      @each $tribe in $tribes {
+        &-#{$tribe} {
+          @each $villageSize in "sm", "md", "lg" {
+            &-#{$villageSize} {
+              background-image: url('#{$base}/#{$tribe}/#{$villageSize}.avif?v=#{$graphics-version}');
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 // Unoccupied occupiable tiles
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
   :global(html.skin-variant-#{$skinVariantSelector}) {
+    .occupied-tile {
+      @each $tribe in $tribes {
+        @if $tribe != 'nature' {
+          @each $size in ('sm', 'md', 'lg') {
+            &-#{$tribe}-#{$size} {
+              background-image: url('#{$imagesPath}/map/villages/#{$tribe}/#{$size}.avif?v=#{$graphics-version}');
+            }
+          }
+        }
+      }
+    }
+
     $base: '#{$imagesPath}/map/unoccupied-tiles';
 
     .unoccupied-tile {

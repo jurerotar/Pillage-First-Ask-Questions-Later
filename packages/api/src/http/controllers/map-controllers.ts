@@ -67,29 +67,37 @@ export const addMapMarker = createController(
       tileId: z.number(),
       description: z.string(),
       color: mapMarkerDtoSchema.shape.color,
+      icon: mapMarkerDtoSchema.shape.icon,
     }),
   },
-)(({ database, path: { playerId }, body: { tileId, description, color } }) => {
-  database.transaction((db) => {
-    db.exec({
-      sql: deleteMapMarkerQuery,
-      bind: {
-        $player_id: playerId,
-        $tile_id: tileId,
-      },
-    });
+)(
+  ({
+    database,
+    path: { playerId },
+    body: { tileId, description, color, icon },
+  }) => {
+    database.transaction((db) => {
+      db.exec({
+        sql: deleteMapMarkerQuery,
+        bind: {
+          $player_id: playerId,
+          $tile_id: tileId,
+        },
+      });
 
-    db.exec({
-      sql: insertMapMarkerQuery,
-      bind: {
-        $player_id: playerId,
-        $tile_id: tileId,
-        $description: description,
-        $color: color,
-      },
+      db.exec({
+        sql: insertMapMarkerQuery,
+        bind: {
+          $player_id: playerId,
+          $tile_id: tileId,
+          $description: description,
+          $color: color,
+          $icon: icon,
+        },
+      });
     });
-  });
-});
+  },
+);
 
 export const removeMapMarker = createController(
   '/players/:playerId/map-markers/:tileId',

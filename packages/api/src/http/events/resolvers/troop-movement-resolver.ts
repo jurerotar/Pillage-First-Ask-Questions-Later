@@ -40,6 +40,7 @@ import {
   selectVillageIdAndTileIdQuery,
 } from '../../../queries/village-queries';
 import { createEvents } from '../../../utils/create-event';
+import { updatePlayerCulturePointsAt } from '../../../utils/culture-points';
 import {
   createHeroHealthRegenerationEventByVillageId,
   onHeroDeath,
@@ -201,6 +202,8 @@ export const findNewVillageMovementResolver: Resolver<
       tribe: playableTribeSchema,
     }),
   })!;
+
+  updatePlayerCulturePointsAt(database, resolvesAt, PLAYER_ID);
 
   // Create village with incremental slug v-{n}
   const newVillageId = database.selectValue({

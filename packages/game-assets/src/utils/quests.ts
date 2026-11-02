@@ -51,6 +51,17 @@ const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
 ]);
 
 export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
+  if (questId.startsWith('celebrationCount-')) {
+    const count = Number(questId.split('-')[1]);
+    return [
+      {
+        type: 'culture-points',
+        amount:
+          200 + [1, 3, 5, 10, 15, 20, 30, 50, 75, 100].indexOf(count) * 100,
+      },
+    ];
+  }
+
   if (questId.startsWith('queuedTroopCountById')) {
     const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
@@ -181,6 +192,11 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
 export const getQuestRequirements = (
   questId: Quest['id'],
 ): QuestRequirement[] => {
+  if (questId.startsWith('celebrationCount-')) {
+    return [
+      { type: 'celebration-count', count: Number(questId.split('-')[1]) },
+    ];
+  }
   if (questId.startsWith('queuedTroopCountById')) {
     const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);

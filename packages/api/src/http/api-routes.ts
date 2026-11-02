@@ -5,6 +5,7 @@ import {
 } from './controllers/bookmark-controllers';
 import { simulateCombat } from './controllers/combat-simulator-controllers';
 import {
+  adjustCulturePoints,
   adjustVillageLoyalty,
   getDeveloperSettings,
   incrementHeroAdventurePoints,
@@ -105,6 +106,7 @@ import {
   deleteReports,
   getReport,
   getReports,
+  getTileReports,
   updateReports,
 } from './controllers/report-controllers';
 import { getReputations } from './controllers/reputation-controllers';
@@ -123,9 +125,11 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from './controllers/statistics-controllers';
+import { getVillageStorage } from './controllers/storage-controllers';
 import { getTrapperCageStats } from './controllers/trapper-controllers';
 import {
   cancelTroopMovement,
+  getTileTroopMovements,
   getVillageTroopMovementStats,
   getVillageTroopMovements,
   validateTroopMovement,
@@ -136,6 +140,7 @@ import {
   getGatherersHutExpeditions,
   getOccupiableOasisInRange,
   getVillageBySlug,
+  getVillageCulturePoints,
   rearrangeBuildingFields,
 } from './controllers/village-controllers';
 import { getArtifactsAroundVillage } from './controllers/world-items-controllers';
@@ -152,6 +157,7 @@ export const apiRoutes = [
   createRoute(getDeveloperSettings),
   createRoute(updateDeveloperSettings),
   createRoute(updateVillageResources),
+  createRoute(adjustCulturePoints),
   createRoute(spawnHeroItem),
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
@@ -223,6 +229,8 @@ export const apiRoutes = [
 
   // Villages
   createRoute(getVillageBySlug),
+  createRoute(getVillageCulturePoints),
+  createRoute(getVillageStorage),
   createRoute(getGatherersHutExpeditions),
   createRoute(getStationedTroopsByTile),
   createRoute(getVillageUnitCount),
@@ -267,6 +275,7 @@ export const apiRoutes = [
 
   // Reports
   createRoute(getReports),
+  createRoute(getTileReports),
   createRoute(getReport),
   createRoute(updateReports),
   createRoute(deleteReports),
@@ -292,6 +301,7 @@ export const apiRoutes = [
   createRoute(getTileLoyalty),
 
   // Troop Movements
+  createRoute(getTileTroopMovements),
   createRoute(getVillageTroopMovements),
   createRoute(getVillageTroopMovementStats),
   createRoute(validateTroopMovement),

@@ -84,7 +84,6 @@ const setup = async () => {
     failOn,
     [Symbol.dispose]: () => {
       post.mockRestore();
-      vi.restoreAllMocks();
       database.close();
     },
   };
@@ -269,7 +268,7 @@ test('batch failure restores the deleted event', async () => {
 
 test('an empty batch does not open a transaction', async () => {
   using context = await setup();
-  const transaction = vi.spyOn(context.database, 'transaction');
+  using transaction = vi.spyOn(context.database, 'transaction');
 
   context.source.resolveEvents([]);
 
@@ -280,7 +279,7 @@ test.each([2, COMMIT_BATCH_SIZE - 1, COMMIT_BATCH_SIZE, COMMIT_BATCH_SIZE + 1])(
   '%i pending events commit in bounded batches without waiting for more events',
   async (count) => {
     using context = await setup();
-    const transaction = vi.spyOn(context.database, 'transaction');
+    using transaction = vi.spyOn(context.database, 'transaction');
 
     context.source.resolveEvents(
       Array.from({ length: count }, (_, index) => index + 1),
@@ -298,10 +297,12 @@ test('batch notifications are published only after commit', async () => {
   const { transaction } = context.database;
   let committed = false;
 
-  vi.spyOn(context.database, 'transaction').mockImplementation((callback) => {
-    transaction(callback);
-    committed = true;
-  });
+  using _transaction = vi
+    .spyOn(context.database, 'transaction')
+    .mockImplementation((callback) => {
+      transaction(callback);
+      committed = true;
+    });
 
   context.post.mockImplementation(() => {
     expect(committed).toBe(true);
@@ -382,10 +383,12 @@ test('publishes the error notification after committing the successful prefix', 
   const { transaction } = context.database;
   let committed = false;
 
-  vi.spyOn(context.database, 'transaction').mockImplementation((callback) => {
-    transaction(callback);
-    committed = true;
-  });
+  using _transaction = vi
+    .spyOn(context.database, 'transaction')
+    .mockImplementation((callback) => {
+      transaction(callback);
+      committed = true;
+    });
 
   context.post.mockImplementation(() => {
     expect(committed).toBe(true);
@@ -441,7 +444,7 @@ const abortTransaction = (
 ) => {
   const { transaction } = database;
 
-  vi.spyOn(database, 'transaction').mockImplementation((callback) => {
+  return vi.spyOn(database, 'transaction').mockImplementation((callback) => {
     transaction((tx) => {
       callback(tx);
       throw new Error('Abort before commit');
@@ -452,7 +455,7 @@ const abortTransaction = (
 test('an outer transaction failure rolls back the entire batch', async () => {
   using context = await setup();
 
-  abortTransaction(context.database);
+  using _transaction = abortTransaction(context.database);
 
   expect(() => context.source.resolveEvents([1, 2])).toThrow(
     'Abort before commit',
@@ -463,7 +466,7 @@ test('an outer transaction failure rolls back the entire batch', async () => {
 test('an outer transaction failure discards queued notifications', async () => {
   using context = await setup();
 
-  abortTransaction(context.database);
+  using _transaction = abortTransaction(context.database);
 
   expect(() => context.source.resolveEvents([1, 2])).toThrow();
   expect(context.post).not.toHaveBeenCalled();

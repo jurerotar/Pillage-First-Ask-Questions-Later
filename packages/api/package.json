@@ -42,12 +42,12 @@
     "@pillage-first/utils": "*",
     "@sqlite.org/sqlite-wasm": "3.54.1-build1",
     "moderndash": "4.0.2",
-    "path-to-regexp": "8.4.2",
+    "path-to-regexp": "9.0.0",
     "ts-seedrandom": "1.6.0",
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "knip": "6.42.1",
+    "knip": "6.43.0",
     "typescript": "7.0.2",
     "vitest": "5.0.5"
   },

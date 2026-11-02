@@ -10,6 +10,7 @@ import {
   selectCollectableQuestCountQuery,
   selectVillageQuestsQuery,
 } from '../../queries/quest-queries';
+import { addPlayerCulturePoints } from '../../utils/culture-points';
 import { addHeroExperience } from '../../utils/hero';
 import {
   addResourceSiteResourcesAt,
@@ -91,6 +92,11 @@ export const collectQuest = createController(
   const questRewards = getQuestRewards(questId as Quest['id']);
 
   for (const reward of questRewards) {
+    if (reward.type === 'culture-points') {
+      addPlayerCulturePoints(database, reward.amount, Date.now());
+      continue;
+    }
+
     if (isResourceQuestReward(reward)) {
       const { amount } = reward;
 

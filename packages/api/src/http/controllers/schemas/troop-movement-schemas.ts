@@ -1,7 +1,16 @@
 import { z } from 'zod';
+import { tileTroopMovementDtoSchema } from '@pillage-first/types/dtos/troop-movement';
+import { jsonCoordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
+
+export const getTileTroopMovementsRowSchema = tileTroopMovementDtoSchema.extend(
+  {
+    originCoordinates: jsonCoordinatesSchema,
+    targetCoordinates: jsonCoordinatesSchema,
+  },
+);
 
 export const troopMovementValidationBodySchema = z.strictObject({
   type: gameEventTypeSchema,

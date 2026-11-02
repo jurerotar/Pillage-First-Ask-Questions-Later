@@ -51,7 +51,7 @@ const TroopListContent = () => {
           isOpen: true,
         })}
       >
-        <div className="flex flex-col gap-2 max-h-96 lg:max-h-125 overflow-y-scroll scrollbar-hidden">
+        <div className="flex flex-col gap-2 max-h-[min(24rem,50dvh)] overflow-y-auto scrollbar-hidden">
           <div className="flex flex-col gap-1">
             <Text as="h3">{t('Own troops')}</Text>
             {ownTroops.length === 0 && (

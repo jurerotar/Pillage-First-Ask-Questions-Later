@@ -1,5 +1,11 @@
 import { clsx } from 'clsx';
-import { type AnchorHTMLAttributes, use, useMemo, useState } from 'react';
+import {
+  type AnchorHTMLAttributes,
+  type HTMLAttributes,
+  use,
+  useMemo,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
@@ -18,7 +24,7 @@ import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/pr
 import { useLongPress } from 'app/hooks/use-long-press';
 
 const occupiedBuildingFieldClassName =
-  'relative size-10 lg:size-16 rounded-full non-selectable focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border';
+  'relative size-10 lg:size-16 rounded-full non-selectable border border-black/10 dark:border-border';
 
 const noop = () => {};
 
@@ -45,18 +51,22 @@ type OccupiedBuildingFieldProps = {
 
 type OccupiedBuildingFieldContentProps = {
   buildingField: BuildingFieldType;
+  virtualLevel: number;
   currentBuildingFieldBuildingEvent: BuildingEvent | undefined;
   tab: string;
   isHovered?: boolean;
   onUpgrade?: () => void;
-} & AnchorHTMLAttributes<HTMLAnchorElement>;
+  linkProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
+} & HTMLAttributes<HTMLDivElement>;
 
 const OccupiedBuildingFieldContent = ({
   buildingField,
+  virtualLevel,
   currentBuildingFieldBuildingEvent,
   tab,
   isHovered = false,
   onUpgrade = noop,
+  linkProps,
   ...props
 }: OccupiedBuildingFieldContentProps) => {
   const { t } = useTranslation();
@@ -66,12 +76,7 @@ const OccupiedBuildingFieldContent = ({
   const hasEvent = !!currentBuildingFieldBuildingEvent;
 
   return (
-    <Link
-      to={{
-        pathname: `${buildingFieldId}`,
-        search: `tab=${tab}`,
-      }}
-      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
+    <div
       data-building-field-id={buildingFieldId}
       className={clsx(
         buildingFieldId <= 18 &&
@@ -83,28 +88,41 @@ const OccupiedBuildingFieldContent = ({
       )}
       {...props}
     >
-      <div className="absolute absolute-centering">
+      <Link
+        to={{
+          pathname: `${buildingFieldId}`,
+          search: `tab=${tab}`,
+        }}
+        aria-label={t('View {{building}} details', {
+          building: t(`BUILDINGS.${buildingId}.NAME`),
+        })}
+        className="absolute inset-0 rounded-full focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring"
+        {...linkProps}
+      >
+        {shouldShowBuildingNames && (
+          <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
+            {hasEvent && (
+              <Countdown
+                endsAt={
+                  currentBuildingFieldBuildingEvent.startsAt +
+                  currentBuildingFieldBuildingEvent.duration
+                }
+              />
+            )}
+            {!hasEvent && <span>{t(`BUILDINGS.${buildingId}.NAME`)}</span>}
+          </span>
+        )}
+      </Link>
+      <div className="absolute absolute-centering pointer-events-none">
         <BuildingUpgradeIndicator
           isHovered={isHovered}
           buildingField={buildingField}
+          nextLevel={virtualLevel + 1}
           buildingEvent={currentBuildingFieldBuildingEvent}
           onUpgrade={onUpgrade}
         />
       </div>
-      {shouldShowBuildingNames && (
-        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
-          {hasEvent && (
-            <Countdown
-              endsAt={
-                currentBuildingFieldBuildingEvent.startsAt +
-                currentBuildingFieldBuildingEvent.duration
-              }
-            />
-          )}
-          {!hasEvent && <span>{t(`BUILDINGS.${buildingId}.NAME`)}</span>}
-        </span>
-      )}
-    </Link>
+    </div>
   );
 };
 
@@ -151,9 +169,11 @@ const OccupiedBuildingFieldActive = ({
     <BuildingUpgradeStatusContext value={status}>
       <OccupiedBuildingFieldContent
         buildingField={buildingField}
+        virtualLevel={virtualLevel}
         currentBuildingFieldBuildingEvent={currentBuildingFieldBuildingEvent}
         tab={tab}
         onUpgrade={upgradeBuilding}
+        linkProps={isWiderThanLg ? undefined : longPress}
         {...(isWiderThanLg
           ? {
               onMouseEnter: () => setIsHovered(true),
@@ -165,7 +185,7 @@ const OccupiedBuildingFieldActive = ({
                 }
               },
             }
-          : longPress)}
+          : {})}
         isHovered={isHovered}
       />
     </BuildingUpgradeStatusContext>
@@ -193,6 +213,7 @@ export const OccupiedBuildingField = ({
   const content = (
     <OccupiedBuildingFieldContent
       buildingField={buildingField}
+      virtualLevel={virtualLevel}
       currentBuildingFieldBuildingEvent={currentBuildingFieldBuildingEvent}
       tab={tab}
     />

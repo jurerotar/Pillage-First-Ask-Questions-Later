@@ -35,19 +35,19 @@ export const apiRouteTypesPlugin = (): Plugin => {
 
   return {
     name: 'pillage-first-api-route-types',
+    // CI and type-check scripts generate these declarations before checking types.
+    apply: 'serve',
     enforce: 'pre',
     configResolved(config) {
       ({ logger } = config);
     },
-    buildStart() {
-      generateApiRouteTypes({ quiet: true });
-
-      for (const file of listApiRouteTypesInputFiles()) {
-        this.addWatchFile(file);
-      }
-    },
     configureServer(server) {
-      server.watcher.add(apiRouteTypesInputGlobs);
+      // React Router omits this hook from its internal build-time compiler.
+      generateApiRouteTypes({ quiet: true });
+      server.watcher.add([
+        ...apiRouteTypesInputGlobs,
+        ...listApiRouteTypesInputFiles(),
+      ]);
 
       const handleFileChange = (file: string) => {
         if (isApiRouteTypesInputFile(file)) {

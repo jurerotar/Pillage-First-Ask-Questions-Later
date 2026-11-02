@@ -1,10 +1,16 @@
 import { z } from 'zod';
-import { resourcesSchema } from '@pillage-first/types/models/resource';
+import {
+  type Resources,
+  resourcesSchema,
+} from '@pillage-first/types/models/resource';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
 import { selectResourceSiteResourcesRelevantEffectsByTileIdQuery } from '../queries/effect-queries';
-import { updateResourceSiteResourcesByTileIdToValuesQuery } from '../queries/village-queries';
+import {
+  selectPlayerIdByVillageIdQuery,
+  updateResourceSiteResourcesByTileIdToValuesQuery,
+} from '../queries/village-queries';
 import { apiEffectSchema } from './zod/effect-schemas';
 
 export const demolishBuilding = (
@@ -48,6 +54,7 @@ export const demolishBuilding = (
 };
 
 type CalculateResourceSiteResourcesAtReturn = {
+  hourlyProduction: Resources;
   currentWood: number;
   currentIron: number;
   currentClay: number;
@@ -85,6 +92,16 @@ export const getVillageTileId = (
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
     bind: { $village_id: villageId },
     schema: villageTileIdSchema,
+  })!;
+
+export const getVillagePlayerId = (
+  database: DbFacade,
+  villageId: number,
+): number =>
+  database.selectValue({
+    sql: selectPlayerIdByVillageIdQuery,
+    bind: { $village_id: villageId },
+    schema: z.number(),
   })!;
 
 export const calculateResourceSiteResourcesAt = (
@@ -190,6 +207,12 @@ export const calculateResourceSiteResourcesAt = (
   });
 
   return {
+    hourlyProduction: {
+      wood: woodProduction,
+      clay: clayProduction,
+      iron: ironProduction,
+      wheat: wheatProduction,
+    },
     currentWood,
     currentIron,
     currentClay,

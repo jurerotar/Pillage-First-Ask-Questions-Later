@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
@@ -11,6 +12,7 @@ const REPORTS_PER_PAGE = 20;
 type ReportsListProps = {
   reports: ReportListingDto[];
   page: number;
+  footerActions?: ReactNode;
   updateReports: ReturnType<typeof useReports>['updateReports'];
   deleteReports: ReturnType<typeof useReports>['deleteReports'];
   handlePageChange: (newPage: number | ((prev: number) => number)) => void;
@@ -19,6 +21,7 @@ type ReportsListProps = {
 export const ReportsList = ({
   reports,
   page,
+  footerActions,
   updateReports,
   deleteReports,
   handlePageChange,
@@ -45,7 +48,8 @@ export const ReportsList = ({
         deleteReports={deleteReports}
         clearSelectedReports={clearSelectedReports}
       />
-      <div className="flex w-full justify-end">
+      <div className="flex w-full items-center justify-between gap-2">
+        <div>{footerActions}</div>
         <Pagination
           {...pagination}
           setPage={handlePageChange}

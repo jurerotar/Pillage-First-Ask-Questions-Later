@@ -3,6 +3,7 @@ import { CookieContext } from 'app/providers/cookie-context';
 
 export type IntlFormatters = {
   dateTime: Intl.DateTimeFormat;
+  duration: Intl.DurationFormat;
   list: Intl.ListFormat;
   relativeTime: Intl.RelativeTimeFormat;
   time: Intl.DateTimeFormat;
@@ -13,6 +14,10 @@ export const useIntl = (): IntlFormatters => {
 
   return useMemo(
     () => ({
+      duration: new Intl.DurationFormat(locale, {
+        style: 'narrow',
+        secondsDisplay: 'always',
+      }),
       dateTime: new Intl.DateTimeFormat(locale, {
         month: 'long',
         day: 'numeric',

@@ -1,5 +1,7 @@
 import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  tileTroopMovementDtoSchema,
   troopMovementItemDtoSchema,
   troopMovementStatsItemDtoSchema,
 } from '@pillage-first/types/dtos/troop-movement';
@@ -7,6 +9,7 @@ import type { TroopMovementEvent } from '@pillage-first/types/models/game-event'
 import {
   deleteEventByIdQuery,
   selectEventByIdQuery,
+  selectTileTroopMovementsQuery,
   selectTroopMovementStatsByTileIdQuery,
   selectTroopMovementsByTileIdQuery,
 } from '../../queries/event-queries';
@@ -24,6 +27,7 @@ import {
   mapTroopMovementStatsRowToDto,
 } from './mappers/troop-movement-mapper';
 import {
+  getTileTroopMovementsRowSchema,
   getVillageTroopMovementStatsRowSchema,
   getVillageTroopMovementsRowSchema,
   troopMovementValidationBodySchema,
@@ -55,6 +59,23 @@ export const validateTroopMovement = createController(
   } as Partial<TroopMovementEvent>);
 
   return { errors };
+});
+
+export const getTileTroopMovements = createController(
+  '/tiles/:tileId/movements',
+  {
+    summary: 'Get active player-visible troop movements involving a tile',
+    requestParams: {
+      path: z.strictObject({ tileId: z.coerce.number() }),
+    },
+    response: z.array(tileTroopMovementDtoSchema),
+  },
+)(({ database, path: { tileId } }) => {
+  return database.selectObjects({
+    sql: selectTileTroopMovementsQuery,
+    bind: { $tile_id: tileId, $player_id: PLAYER_ID, $now: Date.now() },
+    schema: getTileTroopMovementsRowSchema,
+  });
 });
 
 export const getVillageTroopMovements = createController(

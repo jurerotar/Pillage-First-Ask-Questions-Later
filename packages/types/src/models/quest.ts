@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { Building } from './building';
-import type { NatureUnitId, Unit } from './unit';
+import { type Building, buildingIdSchema } from './building';
+import { type NatureUnitId, natureUnitIdSchema, unitIdSchema } from './unit';
 
 export type ResourceQuestReward = {
   type: 'resources';
@@ -17,7 +17,13 @@ export type HeroItemQuestReward = {
   amount: number;
 };
 
+export type CulturePointsQuestReward = {
+  type: 'culture-points';
+  amount: number;
+};
+
 export type QuestReward =
+  | CulturePointsQuestReward
   | ResourceQuestReward
   | HeroExperienceQuestReward
   | HeroItemQuestReward;
@@ -73,6 +79,7 @@ export type GatheredResourceCountQuestRequirement = {
 };
 
 export type QuestRequirement =
+  | { type: 'celebration-count'; count: number }
   | BuildingQuestRequirement
   | AdventureCountQuestRequirement
   | KillCountQuestRequirement
@@ -83,23 +90,36 @@ export type QuestRequirement =
   | QueuedTroopCountQuestRequirement
   | QueuedTroopCountByIdQuestRequirement;
 
-type VillageQuestId =
-  | `${Matcher}-${Building['id']}-${number}`
-  | `${Matcher}-resourceFields-${number}`;
+const matcherSchema = z.enum(['oneOf', 'every']);
 
-type GlobalQuestId =
-  | `adventureCount-${number}`
-  | `queuedTroopCount-${number}`
-  | `queuedTroopCountById-${Unit['id']}-${number}`
-  | `killCount-${number}`
-  | `unitKillCount-${Unit['id']}-${number}`
-  | `captureAnimalCountById-${NatureUnitId}-${number}`
-  | `captureAnimalKindCount-${number}`
-  | `gatheredResourceCount-${number}`;
+const villageQuestIdSchema = z.union([
+  z.templateLiteral([matcherSchema, '-', buildingIdSchema, '-', z.number()]),
+  z.templateLiteral([matcherSchema, '-resourceFields-', z.number()]),
+]);
 
-export type QuestId = VillageQuestId | GlobalQuestId;
+const globalQuestIdSchema = z.union([
+  z.templateLiteral(['celebrationCount-', z.number()]),
+  z.templateLiteral(['adventureCount-', z.number()]),
+  z.templateLiteral(['queuedTroopCount-', z.number()]),
+  z.templateLiteral(['queuedTroopCountById-', unitIdSchema, '-', z.number()]),
+  z.templateLiteral(['killCount-', z.number()]),
+  z.templateLiteral(['unitKillCount-', unitIdSchema, '-', z.number()]),
+  z.templateLiteral([
+    'captureAnimalCountById-',
+    natureUnitIdSchema,
+    '-',
+    z.number(),
+  ]),
+  z.templateLiteral(['captureAnimalKindCount-', z.number()]),
+  z.templateLiteral(['gatheredResourceCount-', z.number()]),
+]);
 
-export const questIdSchema = z.string() as unknown as z.ZodType<QuestId>;
+export const questIdSchema = z.union([
+  villageQuestIdSchema,
+  globalQuestIdSchema,
+]);
+
+export type QuestId = z.infer<typeof questIdSchema>;
 
 const baseQuestSchema = z.strictObject({
   id: z.string(),
@@ -110,7 +130,7 @@ const baseQuestSchema = z.strictObject({
 
 const villageQuestsSchema = baseQuestSchema
   .extend({
-    id: z.string() as unknown as z.ZodType<VillageQuestId>,
+    id: villageQuestIdSchema,
     scope: z.literal('village'),
     villageId: z.number(),
   })
@@ -120,7 +140,7 @@ export type VillageQuest = z.infer<typeof villageQuestsSchema>;
 
 const globalQuestsSchema = baseQuestSchema
   .extend({
-    id: z.string() as unknown as z.ZodType<GlobalQuestId>,
+    id: globalQuestIdSchema,
     scope: z.literal('global'),
   })
   .meta({ id: 'GlobalQuest' });

@@ -118,6 +118,7 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
   ];
 
   const decreasedValueEffectIds: ServerEffect['id'][] = [
+    'residenceTrainingDuration',
     'barracksTrainingDuration',
     'greatBarracksTrainingDuration',
     'stableTrainingDuration',
@@ -186,6 +187,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       id: z.number(),
     }),
   });
+
   const effectScopeIds = new Map(
     effectScopeRows.map((s) => {
       return [s.scope, s.id];

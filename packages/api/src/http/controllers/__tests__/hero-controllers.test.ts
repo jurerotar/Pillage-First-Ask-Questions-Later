@@ -23,6 +23,129 @@ import { createControllerArgs } from './utils/controller-args';
 describe('hero-controllers', () => {
   const playerId = PLAYER_ID;
 
+  test('getHero reports adventure status with the full return time', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementAdventure',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: null,
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.status).toStrictEqual({ type: 'adventure', endsAt: 3000 });
+  });
+
+  test('getHero reports adventure status during the return trip', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementReturn',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: 'troopMovementAdventure',
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.status).toStrictEqual({ type: 'adventure', endsAt: 2000 });
+  });
+
+  test('getHero reports travel status while sending reinforcements', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementReinforcements',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: null,
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.status).toStrictEqual({ type: 'travel', endsAt: 2000 });
+  });
+
+  test('getHero reports dead status even with a remaining movement event', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: `
+        UPDATE heroes SET health = 0 WHERE player_id = $player_id;
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ('troopMovementAdventure', 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id),
+          '{"troops":[{"unitId":"HERO","amount":1}]}');
+      `,
+      bind: { $player_id: playerId },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.status).toStrictEqual({ type: 'dead' });
+  });
+
   test('getHero should return hero details', async () => {
     using database = await prepareTestDatabase();
 
@@ -36,7 +159,7 @@ describe('hero-controllers', () => {
     expect(hero).toMatchObject({
       id: expect.any(Number),
       villageId: expect.any(Number),
-      isHeroHome: expect.any(Boolean),
+      status: { type: 'stationed', tileId: expect.any(Number) },
       stats: expect.objectContaining({
         health: expect.any(Number),
         experience: expect.any(Number),
@@ -285,7 +408,7 @@ describe('hero-controllers', () => {
     ]);
   });
 
-  test('getHero should report hero as not home while reinforcing another village', async () => {
+  test('getHero should report reinforcing status while reinforcing another village', async () => {
     using database = await prepareTestDatabase();
 
     const homeVillage = database.selectObject({
@@ -366,7 +489,10 @@ describe('hero-controllers', () => {
     );
 
     expect(hero.villageId).toBe(homeVillage.id);
-    expect(hero.isHeroHome).toBe(false);
+    expect(hero.status).toStrictEqual({
+      type: 'reinforcing',
+      tileId: reinforcedVillage.tile_id,
+    });
   });
 
   test('startHeroAdventure should throw while hero is reinforcing another village', async () => {
@@ -453,8 +579,86 @@ describe('hero-controllers', () => {
   });
 
   describe(changeHeroAttributes, () => {
+    test.each([
+      [
+        'over budget',
+        {
+          attackPower: 1,
+          resourceProduction: 4,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Not enough hero attribute points',
+      ],
+      [
+        'redistributing saved points',
+        {
+          attackPower: 1,
+          resourceProduction: 3,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Hero attribute points cannot be decreased',
+      ],
+      [
+        'removing saved points',
+        {
+          attackPower: 0,
+          resourceProduction: 0,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Hero attribute points cannot be decreased',
+      ],
+    ])('rejects %s without changing the hero', async (_label, body, error) => {
+      using database = await prepareTestDatabase();
+      database.exec({
+        sql: 'UPDATE heroes SET experience = 0 WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+      });
+      const args = createControllerArgs<'/players/:playerId/hero', 'get'>({
+        path: { playerId },
+      });
+      const before = getHero(database, args);
+      expect(() =>
+        changeHeroAttributes(
+          database,
+          createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
+            path: { playerId },
+            body,
+          }),
+        ),
+      ).toThrow(error);
+      expect(getHero(database, args)).toEqual(before);
+    });
+
+    test('accepts an unchanged allocation with no free points', async () => {
+      using database = await prepareTestDatabase();
+      const body = getHero(
+        database,
+        createControllerArgs<'/players/:playerId/hero', 'get'>({
+          path: { playerId },
+        }),
+      ).selectableAttributes;
+      expect(() =>
+        changeHeroAttributes(
+          database,
+          createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
+            path: { playerId },
+            body,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
     test('should update hero attributes and base stats', async () => {
       using database = await prepareTestDatabase();
+
+      // Level 24 grants exactly the 100 points allocated below.
+      database.exec({
+        sql: 'UPDATE heroes SET experience = 15000 WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+      });
 
       const result = changeHeroAttributes(
         database,

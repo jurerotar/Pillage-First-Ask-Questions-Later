@@ -13,11 +13,15 @@ import {
   LuGripVertical,
 } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
-import { calculateBuildingCostForLevel } from '@pillage-first/game-assets/utils/buildings';
+import {
+  calculateBuildingCostForLevel,
+  calculateBuildingDurationForLevel,
+} from '@pillage-first/game-assets/utils/buildings';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import {
   type ConstructionQueueDragHandlers,
   useConstructionQueueDrag,
@@ -32,6 +36,8 @@ import {
   CurrentVillageBuildingQueueContext,
   getBuildingUpgradeQueueEntryKey,
 } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
+import { Icon } from 'app/components/icon';
+import { formatTime } from 'app/utils/time';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-muted-foreground px-2 py-2.5 box-content border border-border rounded-xs transition-colors';
@@ -69,7 +75,7 @@ const ConstructionQueueCost = ({
   label,
   resources,
 }: ConstructionQueueCostProps) => (
-  <span className="flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground [&>span]:whitespace-nowrap">
+  <span className="flex max-w-full flex-wrap items-center gap-1 text-xs text-foreground [&>span]:whitespace-nowrap">
     {label && <span className="text-muted-foreground">{label}:</span>}
     <Resources
       iconClassName="size-4"
@@ -94,6 +100,8 @@ const ConstructionQueueBuilding = ({
   onCancel,
 }: ConstructionQueueBuildingProps) => {
   const { t } = useTranslation();
+  const { total: buildingDurationModifier } =
+    useComputedEffect('buildingDuration');
   const isScheduledEvent = buildingEvent.type === 'scheduledBuildingUpgrade';
   const scheduledEventCost = isScheduledEvent
     ? getBuildingUpgradeCost(buildingEvent)
@@ -132,21 +140,40 @@ const ConstructionQueueBuilding = ({
       )}
 
       <div className="flex min-w-0 flex-1 flex-col border-x border-border px-2 transition-colors">
-        <span className="inline-flex items-center gap-1 whitespace-nowrap">
-          {isScheduledEvent && (
-            <LuClock
-              aria-label={t('Scheduled construction')}
-              className="shrink-0 text-sm text-muted-foreground"
-            />
-          )}
-          <b className="truncate">
-            {t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
-          </b>
-          <span className="inline-flex items-center text-sm">
-            ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
-            {buildingEvent.level})
+        <div className="flex items-center gap-2">
+          <span className="inline-flex min-w-0 items-center gap-1 whitespace-nowrap">
+            {isScheduledEvent && (
+              <LuClock
+                aria-label={t('Scheduled construction')}
+                className="shrink-0 text-sm text-muted-foreground"
+              />
+            )}
+            <b className="truncate">
+              {t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
+            </b>
+            <span className="inline-flex shrink-0 items-center text-sm">
+              ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
+              {buildingEvent.level})
+            </span>
           </span>
-        </span>
+          {isScheduledEvent && (
+            <span
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-muted-foreground"
+              title={t('Upgrade duration')}
+            >
+              <Icon
+                type="buildingDuration"
+                className="size-4"
+              />
+              {formatTime(
+                calculateBuildingDurationForLevel(
+                  buildingEvent.buildingId,
+                  buildingEvent.level,
+                ) * buildingDurationModifier,
+              )}
+            </span>
+          )}
+        </div>
         {!isScheduledEvent && (
           <span className="text-sm">
             <Countdown

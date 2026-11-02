@@ -1,5 +1,6 @@
 import { faro } from '@grafana/faro-web-sdk';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { clsx } from 'clsx';
 import { memo, Suspense, use, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -99,7 +100,7 @@ const LayoutContent = memo<Route.ComponentProps>(
     const { sessionId } = loaderData;
 
     const { i18n } = useTranslation();
-    const { uiColorScheme } = use(CookieContext);
+    const { uiColorScheme, skinVariant, timeOfDay } = use(CookieContext);
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
     const [queryClient] = useState<QueryClient>(() => {
@@ -141,7 +142,11 @@ const LayoutContent = memo<Route.ComponentProps>(
     return (
       <html
         lang={i18n.language}
-        className={uiColorScheme}
+        className={clsx(
+          uiColorScheme,
+          `skin-variant-${skinVariant}`,
+          `time-of-day-${timeOfDay}`,
+        )}
       >
         <head>
           <HeadLinks />

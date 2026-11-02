@@ -24,7 +24,7 @@ export const cleanupExpiredWorlds = async (
         await removeUploadFiles(config, upload);
       }
 
-      store.deleteWorld(worldId);
+      store.deleteWorld(worldId, 'expired');
     } catch (error) {
       // Keep metadata so failed file deletions are retried on the next sweep.
       console.error('Unable to delete expired shared world', worldId, error);

@@ -23,6 +23,7 @@ export const mapOasisWithAnimalsRowToDto = (
   row: z.infer<typeof getOasesWithAnimalsRowSchema>,
 ) => {
   const animals = JSON.parse(row.animals_json);
+
   return oasisByAnimalsSearchResultItemDtoSchema.parse({
     tileId: row.tile_id,
     coordinates: { x: row.coordinates_x, y: row.coordinates_y },

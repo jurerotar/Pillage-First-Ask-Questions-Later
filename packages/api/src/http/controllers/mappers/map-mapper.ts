@@ -102,6 +102,7 @@ export const mapMarker = (
   row: z.infer<typeof getMapMarkersSchema>,
 ): z.infer<typeof mapMarkerDtoSchema> => {
   return mapMarkerDtoSchema.parse({
+    icon: row.icon,
     tileId: row.tile_id,
     description: row.description,
     color: row.color,
