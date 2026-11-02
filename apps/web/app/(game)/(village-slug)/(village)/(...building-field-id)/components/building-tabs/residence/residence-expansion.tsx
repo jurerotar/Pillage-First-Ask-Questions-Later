@@ -60,7 +60,7 @@ export const ResidenceExpansion = () => {
               value={progress}
               aria-label={t('Culture points progress')}
               aria-valuetext={`${formatNumber(Math.floor(availableCulturePoints))} / ${formatNumber(nextRequirement)}`}
-              className="box-content h-2.5 rounded-xs border border-[#b8b2a9] bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)]"
+              className="box-content h-2.5 rounded-xs border border-[#b8b2a9] bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner [&_[data-slot=progress-indicator]]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)]"
             />
             {nextRequirementAt !== null && (
               <span className="pointer-events-none absolute inset-0 flex items-center justify-center whitespace-nowrap text-[8px] lg:text-xs leading-none font-medium tabular-nums text-black">

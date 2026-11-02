@@ -60,7 +60,7 @@ const ResourceFilterCheckbox = ({
       <Checkbox
         id={id}
         checked={isChecked}
-        onCheckedChange={(checked) => onCheckedChange(value, checked === true)}
+        onCheckedChange={(checked) => onCheckedChange(value, checked)}
       />
       <Label
         className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
@@ -93,18 +93,20 @@ const ResourceFilterPopover = ({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={ariaLabel}
-          className="w-fit"
-          size="sm"
-          variant="outline"
-        >
-          <LuListFilter className="size-4" />
-          {label}
-          <Badge variant="secondary">{filters.length}</Badge>
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-label={ariaLabel}
+            className="w-fit"
+            size="sm"
+            variant="outline"
+          >
+            <LuListFilter className="size-4" />
+            {label}
+            <Badge variant="secondary">{filters.length}</Badge>
+          </Button>
+        }
+      />
       <PopoverContent
         align="start"
         className="w-64 p-3"

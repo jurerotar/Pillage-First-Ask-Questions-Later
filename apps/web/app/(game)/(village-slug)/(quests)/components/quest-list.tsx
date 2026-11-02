@@ -40,6 +40,10 @@ const QuestReward = ({ reward }: QuestRewardProps) => {
   }
 
   // TODO: Add hero items reward
+  if (reward.type === 'culture-points') {
+    return <span>{reward.amount} CP</span>;
+  }
+
   return null;
 };
 

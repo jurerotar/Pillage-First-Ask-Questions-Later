@@ -7,18 +7,18 @@ export type CulturePointsCelebrationType = 'small' | 'large';
 export type CulturePointsRequirementSpeed =
   Server['configuration']['culturePointsRequirementSpeed'];
 
-const CULTURE_POINTS_REQUIREMENT_BASE = 2_000;
+const CULTURE_POINTS_REQUIREMENT_BASE = 2000;
 const CULTURE_POINTS_REQUIREMENT_GROWTH = 1.4;
 const MAX_CULTURE_POINTS_REQUIREMENT_SPEED_FACTOR = 7;
 
 export const CULTURE_POINTS_CELEBRATION_COSTS = {
-  small: [6_400, 6_650, 5_940, 1_340],
-  large: [29_700, 33_250, 32_000, 6_700],
+  small: [6400, 6650, 5940, 1340],
+  large: [29_700, 33_250, 32_000, 6700],
 } satisfies Record<CulturePointsCelebrationType, number[]>;
 
 export const CULTURE_POINTS_CELEBRATION_LIMITS = {
   small: 500,
-  large: 2_000,
+  large: 2000,
 } satisfies Record<CulturePointsCelebrationType, number>;
 
 const CULTURE_POINTS_CELEBRATION_BASE_DURATIONS = {
@@ -70,7 +70,7 @@ export const calculateCulturePointsRequirementForVillageCount = (
     Math.ceil(
       (CULTURE_POINTS_REQUIREMENT_BASE *
         CULTURE_POINTS_REQUIREMENT_GROWTH ** exponent) /
-        1_000,
-    ) * 1_000
+        1000,
+    ) * 1000
   );
 };

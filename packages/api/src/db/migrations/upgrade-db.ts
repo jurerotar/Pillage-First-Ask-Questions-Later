@@ -147,20 +147,6 @@ export const upgradeDb = (
     );
   };
 
-  migrate('0.4.58', (db) => {
-    db.exec({
-      sql: `
-        CREATE INDEX IF NOT EXISTS idx_effects_resource_site_resources
-          ON effects (effect_id, scope_id, tile_id, source_specifier, source_id, type_id, value);
-      `,
-    });
-
-    db.exec({ sql: 'DROP INDEX IF EXISTS idx_effects_resource_tile;' });
-    db.exec({
-      sql: 'DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;',
-    });
-  });
-
   migrate('0.4.62', (db) => {
     const completedAt = Date.now();
 
@@ -719,6 +705,33 @@ export const upgradeDb = (
 
     db.exec({
       sql: 'ALTER TABLE developer_settings ADD COLUMN is_instant_celebrations_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_instant_celebrations_enabled IN (0, 1));',
+    });
+  });
+
+  migrate('0.4.80', (db) => {
+    db.transaction((tx) => {
+      // Earlier migrations create this table using the current schema.
+      const hasCelebrationsHeld = tx.selectValue({
+        sql: "SELECT COUNT(*) FROM pragma_table_info('culture_points') WHERE name = 'celebrations_held';",
+        schema: z.number(),
+      });
+
+      if (!hasCelebrationsHeld) {
+        tx.exec({
+          sql: 'ALTER TABLE culture_points ADD COLUMN celebrations_held INTEGER NOT NULL DEFAULT 0 CHECK (celebrations_held >= 0);',
+        });
+      }
+
+      for (const count of [1, 3, 5, 10, 15, 20, 30, 50, 75, 100]) {
+        tx.exec({
+          sql: `INSERT INTO quests (quest_id, village_id)
+            SELECT $quest_id, NULL
+            WHERE NOT EXISTS (
+              SELECT 1 FROM quests WHERE quest_id = $quest_id AND village_id IS NULL
+            );`,
+          bind: { $quest_id: `celebrationCount-${count}` },
+        });
+      }
     });
   });
 

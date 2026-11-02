@@ -235,16 +235,16 @@ describe('report-controllers', () => {
 
     setActiveReportFilters(database, []);
 
-    expect(getReports(database, createControllerArgs<'/reports'>({}))).toEqual(
-      [],
-    );
+    expect(
+      getReports(database, createControllerArgs<'/reports'>({})),
+    ).toStrictEqual([]);
 
     const reports = getTileReports(
       database,
       createControllerArgs<'/tiles/:tileId/reports'>({ path: { tileId } }),
     );
 
-    expect(reports.map(({ id, type }) => ({ id, type }))).toEqual([
+    expect(reports.map(({ id, type }) => ({ id, type }))).toStrictEqual([
       { id: 7, type: 'scouting' },
       { id: 1, type: 'battle' },
     ]);
@@ -285,7 +285,7 @@ describe('report-controllers', () => {
       createControllerArgs<'/tiles/:tileId/reports'>({ path: { tileId } }),
     );
 
-    expect(reports.map(({ id }) => id)).toEqual([
+    expect(reports.map(({ id }) => id)).toStrictEqual([
       10, 21, 20, 19, 18, 17, 16, 15, 14, 13,
     ]);
   });
@@ -302,7 +302,7 @@ describe('report-controllers', () => {
         database,
         createControllerArgs<'/tiles/:tileId/reports'>({ path: { tileId } }),
       ),
-    ).toEqual([]);
+    ).toStrictEqual([]);
   });
 
   test('should list reports and filter by one or multiple report types', async () => {

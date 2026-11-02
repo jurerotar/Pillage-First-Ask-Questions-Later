@@ -76,21 +76,18 @@ export const ShareGameWorldDialog = ({
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => !open && !isUploading && onClose()}
+      onOpenChange={(open, eventDetails) => {
+        if (!open && isUploading) {
+          eventDetails.cancel();
+          return;
+        }
+
+        if (!open) {
+          onClose();
+        }
+      }}
     >
-      <DialogContent
-        closeDisabled={isUploading}
-        onInteractOutside={(event) => {
-          if (isUploading) {
-            event.preventDefault();
-          }
-        }}
-        onEscapeKeyDown={(event) => {
-          if (isUploading) {
-            event.preventDefault();
-          }
-        }}
-      >
+      <DialogContent closeDisabled={isUploading}>
         <DialogHeader>
           <DialogTitle>Share game world</DialogTitle>
           <DialogDescription>

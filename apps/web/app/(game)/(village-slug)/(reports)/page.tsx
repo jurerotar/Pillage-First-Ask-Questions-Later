@@ -10,6 +10,7 @@ import {
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useFilteredReports } from './hooks/use-filtered-reports';
 
@@ -76,6 +77,25 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
                     updateReports={updateReports}
                     deleteReports={deleteReports}
                     handlePageChange={handlePageChange}
+                    footerActions={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={
+                          !reports.some(({ tags }) => !tags.includes('read'))
+                        }
+                        onClick={() =>
+                          updateReports({
+                            reportIds: reports
+                              .filter(({ tags }) => !tags.includes('read'))
+                              .map(({ id }) => id),
+                            tags: { read: true },
+                          })
+                        }
+                      >
+                        {t('Mark all as read')}
+                      </Button>
+                    }
                   />
                 </SectionContent>
               </Section>

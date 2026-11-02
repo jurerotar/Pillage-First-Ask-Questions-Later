@@ -1132,6 +1132,13 @@
     }
   },
   "QUESTS": {
+    "CELEBRATION-COUNT": {
+      "NAME_one": "Hold {{count}} celebration",
+      "NAME_other": "Hold {{count}} celebrations",
+      "DESCRIPTION_one": "Hold {{count}} Town Hall celebration across your villages.",
+      "DESCRIPTION_other": "Hold {{count}} Town Hall celebrations across your villages.",
+      "GROUP": "Celebrations"
+    },
     "ADVENTURE-COUNT": {
       "NAME_one": "{{count}} adventure",
       "NAME_other": "{{count}} adventures",

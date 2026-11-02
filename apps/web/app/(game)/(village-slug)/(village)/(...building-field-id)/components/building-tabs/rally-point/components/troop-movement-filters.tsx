@@ -51,18 +51,20 @@ export const TroopMovementFilters = ({
     <SectionContent>
       <Text className="font-semibold">{t('Filter troop movements')}</Text>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            aria-label={t('Troop movement filters')}
-            className="w-fit"
-            size="sm"
-            variant="outline"
-          >
-            <LuListFilter className="size-4" />
-            {t('Troop movement filters')}
-            <Badge variant="secondary">{troopMovementFilters.length}</Badge>
-          </Button>
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <Button
+              aria-label={t('Troop movement filters')}
+              className="w-fit"
+              size="sm"
+              variant="outline"
+            >
+              <LuListFilter className="size-4" />
+              {t('Troop movement filters')}
+              <Badge variant="secondary">{troopMovementFilters.length}</Badge>
+            </Button>
+          }
+        />
         <PopoverContent
           align="start"
           className="w-80 p-3"
@@ -80,9 +82,7 @@ export const TroopMovementFilters = ({
                   <Checkbox
                     id={id}
                     checked={activeFilters.has(filter)}
-                    onCheckedChange={(checked) =>
-                      updateFilter(filter, checked === true)
-                    }
+                    onCheckedChange={(checked) => updateFilter(filter, checked)}
                   />
                   <Label
                     className="min-w-0 flex-1 cursor-pointer justify-between gap-3"

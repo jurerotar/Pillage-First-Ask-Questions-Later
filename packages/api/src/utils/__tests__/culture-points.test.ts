@@ -22,7 +22,7 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
 
   const selectPoints = () =>
     database.selectObjects({
-      sql: 'SELECT * FROM culture_points;',
+      sql: 'SELECT player_id, culture_points, culture_points_updated_at FROM culture_points;',
       schema: z.strictObject({
         player_id: z.number(),
         culture_points: z.number(),
@@ -30,10 +30,10 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
       }),
     });
 
-  expect(selectPoints()).toEqual([
+  expect(selectPoints()).toStrictEqual([
     {
       player_id: PLAYER_ID,
-      culture_points: 0,
+      culture_points: 500,
       culture_points_updated_at: createdAt,
     },
   ]);
@@ -43,13 +43,15 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
 
   expect(production).toBeGreaterThan(0);
 
-  expect(updatePlayerCulturePointsAt(database, timestamp)).toBe(production);
+  expect(updatePlayerCulturePointsAt(database, timestamp)).toBe(
+    production + 500,
+  );
   addPlayerCulturePoints(database, 500, timestamp);
 
-  expect(selectPoints()).toEqual([
+  expect(selectPoints()).toStrictEqual([
     {
       player_id: PLAYER_ID,
-      culture_points: production + 500,
+      culture_points: production + 1000,
       culture_points_updated_at: timestamp,
     },
   ]);
@@ -59,13 +61,13 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
   ).toBeUndefined();
   addPlayerCulturePoints(database, 500, timestamp + 1000, 2);
   expect(updatePlayerCulturePointsAt(database, timestamp - 1000)).toBe(
-    production + 500,
+    production + 1000,
   );
 
-  expect(selectPoints()).toEqual([
+  expect(selectPoints()).toStrictEqual([
     {
       player_id: PLAYER_ID,
-      culture_points: production + 500,
+      culture_points: production + 1000,
       culture_points_updated_at: timestamp,
     },
   ]);
@@ -120,7 +122,7 @@ test('pending founding missions reserve culture-point capacity until removed', a
     },
   });
 
-  expect(validateTroopMovement(database, mission)).toEqual([]);
+  expect(validateTroopMovement(database, mission)).toStrictEqual([]);
 
   insertEvents(database, [mission]);
 
@@ -133,7 +135,7 @@ test('pending founding missions reserve culture-point capacity until removed', a
 
   const secondMission = { ...mission, targetTileId: secondTarget };
 
-  expect(validateTroopMovement(database, secondMission)).toEqual([
+  expect(validateTroopMovement(database, secondMission)).toStrictEqual([
     `Not enough culture points. ${reservedContext.nextVillageCulturePointsRequirement} culture points are required to found the next village.`,
   ]);
 
@@ -144,14 +146,14 @@ test('pending founding missions reserve culture-point capacity until removed', a
     Date.now(),
   );
 
-  expect(validateTroopMovement(database, secondMission)).toEqual([]);
+  expect(validateTroopMovement(database, secondMission)).toStrictEqual([]);
 
   database.exec({
     sql: "DELETE FROM events WHERE type = 'troopMovementFindNewVillage' AND village_id = $village_id;",
     bind: { $village_id: villageId },
   });
 
-  expect(getPlayerCulturePointsRequirementContext(database)).toEqual(
+  expect(getPlayerCulturePointsRequirementContext(database)).toStrictEqual(
     initialContext,
   );
 });
@@ -171,7 +173,7 @@ test('another player’s founding missions do not reserve the player’s capacit
     createTroopMovementFindNewVillageEventMock({ villageId: otherVillageId }),
   ]);
 
-  expect(getPlayerCulturePointsRequirementContext(database)).toEqual(
+  expect(getPlayerCulturePointsRequirementContext(database)).toStrictEqual(
     initialContext,
   );
 });

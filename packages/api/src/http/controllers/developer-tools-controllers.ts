@@ -269,8 +269,8 @@ export const adjustCulturePoints = createController(
     requestBody: z.strictObject({
       amount: z.union([
         z.literal(-10_000),
-        z.literal(-1_000),
-        z.literal(1_000),
+        z.literal(-1000),
+        z.literal(1000),
         z.literal(10_000),
       ]),
     }),

@@ -239,17 +239,19 @@ export const UnitOwnedTroops = () => {
         {t('Owned by this village')}:
       </span>
       <Popover>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            aria-label={t('Show own troops breakdown')}
-            className="inline-flex gap-2 items-center w-fit px-0 py-0"
-          >
-            <span className="inline-flex gap-1 items-center underline">
-              {formatNumber(totalCount)}
-            </span>
-          </button>
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <button
+              type="button"
+              aria-label={t('Show own troops breakdown')}
+              className="inline-flex gap-2 items-center w-fit px-0 py-0"
+            >
+              <span className="inline-flex gap-1 items-center underline">
+                {formatNumber(totalCount)}
+              </span>
+            </button>
+          }
+        />
         <PopoverContent
           align="start"
           className="w-40 rounded-lg p-2 shadow-xl"

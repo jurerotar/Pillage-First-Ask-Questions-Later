@@ -25,6 +25,7 @@
   },
   "ignorePatterns": [".turbo", "node_modules"],
   "rules": {
+    "import/no-nodejs-modules": "off",
     "eslint/no-await-in-loop": "warn",
     "eslint/no-shadow": "warn",
     "eslint/no-underscore-dangle": "off",

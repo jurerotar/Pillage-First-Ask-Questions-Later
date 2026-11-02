@@ -173,56 +173,62 @@ export const AuctionsSellItem = () => {
                     </TableCell>
                     <TableCell>
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            size="sm"
-                            disabled={isSellingItem || amount === 0}
-                          >
-                            {t('Sell')}
-                          </Button>
-                        </PopoverTrigger>
+                        <PopoverTrigger
+                          render={
+                            <Button
+                              size="sm"
+                              disabled={isSellingItem || amount === 0}
+                            >
+                              {t('Sell')}
+                            </Button>
+                          }
+                        />
                         <PopoverContent
                           align="end"
                           className="w-48 rounded-lg p-2 shadow-xl"
                         >
                           <div className="flex flex-col gap-2">
-                            <PopoverClose asChild>
-                              <Button
-                                disabled={isSellingItem || amount === 0}
-                                onClick={() => {
-                                  sellItem({
-                                    itemId: inventoryItem.id,
-                                    amount,
-                                    mode: 'instant',
-                                  });
-                                }}
-                              >
-                                <span>{t('Sell now')}</span>
-                                <span className="font-normal">
-                                  {formatNumber(instantPrice.minimum)}-
-                                  {formatNumber(instantPrice.maximum)}
-                                </span>
-                              </Button>
-                            </PopoverClose>
-                            <PopoverClose asChild>
-                              <Button
-                                variant="outline"
-                                disabled={isSellingItem || amount === 0}
-                                onClick={() => {
-                                  sellItem({
-                                    itemId: inventoryItem.id,
-                                    amount,
-                                    mode: 'auction',
-                                  });
-                                }}
-                              >
-                                <span>{t('Auction')}</span>
-                                <span className="font-normal">
-                                  {formatNumber(auctionPrice.minimum)}-
-                                  {formatNumber(auctionPrice.maximum)}
-                                </span>
-                              </Button>
-                            </PopoverClose>
+                            <PopoverClose
+                              render={
+                                <Button
+                                  disabled={isSellingItem || amount === 0}
+                                  onClick={() => {
+                                    sellItem({
+                                      itemId: inventoryItem.id,
+                                      amount,
+                                      mode: 'instant',
+                                    });
+                                  }}
+                                >
+                                  <span>{t('Sell now')}</span>
+                                  <span className="font-normal">
+                                    {formatNumber(instantPrice.minimum)}-
+                                    {formatNumber(instantPrice.maximum)}
+                                  </span>
+                                </Button>
+                              }
+                            />
+                            <PopoverClose
+                              render={
+                                <Button
+                                  variant="outline"
+                                  disabled={isSellingItem || amount === 0}
+                                  onClick={() => {
+                                    sellItem({
+                                      itemId: inventoryItem.id,
+                                      amount,
+                                      mode: 'auction',
+                                    });
+                                  }}
+                                >
+                                  <span>{t('Auction')}</span>
+                                  <span className="font-normal">
+                                    {formatNumber(auctionPrice.minimum)}-
+                                    {formatNumber(auctionPrice.maximum)}
+                                  </span>
+                                </Button>
+                              }
+                            />
                           </div>
                         </PopoverContent>
                       </Popover>

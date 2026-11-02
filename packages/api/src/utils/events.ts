@@ -153,6 +153,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
     const event = events[i];
 
     let metaObj: Record<string, SqlValue> | undefined;
+
     for (const property in event) {
       if (nonMetaEventProperties.has(property)) {
         continue;
@@ -1108,6 +1109,21 @@ export const runEventCreationSideEffects = (
       playerId,
       production,
     );
+
+    database.exec({
+      sql: 'UPDATE culture_points SET celebrations_held = celebrations_held + 1 WHERE player_id = $player_id;',
+      bind: { $player_id: playerId },
+    });
+
+    database.exec({
+      sql: `UPDATE quests SET completed_at = $timestamp
+        WHERE completed_at IS NULL AND village_id IS NULL
+          AND quest_id GLOB 'celebrationCount-*'
+          AND CAST(substr(quest_id, length('celebrationCount-') + 1) AS INTEGER)
+            <= (SELECT celebrations_held FROM culture_points WHERE player_id = $player_id)
+          AND $player_id = ${PLAYER_ID};`,
+      bind: { $timestamp: event.startsAt, $player_id: playerId },
+    });
   }
 };
 

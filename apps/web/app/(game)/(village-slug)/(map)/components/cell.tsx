@@ -41,32 +41,13 @@ type CellIconsProps = CellBaseProps & {
 };
 
 const CellIcons = (props: CellIconsProps) => {
-  const { tile, mapFilters, magnification, mapMarkersByTileId } = props;
+  const { tile, mapFilters, magnification } = props;
   const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
-
-  const marker = mapMarkersByTileId.get(tile.id);
 
   const tileIconClasses = clsx(
     cellStyles['tile-icon'],
     cellStyles[`tile-icon-magnification-${magnification}`],
   );
-
-  const mapMarkerClasses = clsx(
-    'size-4 md:size-6',
-    cellStyles['map-marker'],
-    cellStyles[`map-marker-magnification-${magnification}`],
-  );
-
-  if (marker) {
-    return (
-      <Icon
-        className={mapMarkerClasses}
-        style={{ color: marker.color }}
-        type={marker.icon}
-        shouldShowTooltip={false}
-      />
-    );
-  }
 
   if (
     shouldShowWheatFields &&
@@ -179,6 +160,7 @@ export const Cell = ({
   const tileId = tileIndex + 1;
 
   const tile = map[tileIndex];
+  const marker = cellProps.mapMarkersByTileId.get(tile.id);
   const isBorderTile =
     tile.type === 'oasis' &&
     tile.attributes.bonusType === null &&
@@ -205,6 +187,18 @@ export const Cell = ({
       data-tile-id={tileId}
       className={className}
     >
+      {!isBorderTile && marker && (
+        <Icon
+          className={clsx(
+            'size-4 md:size-6',
+            cellStyles['map-marker'],
+            cellStyles[`map-marker-magnification-${magnification}`],
+          )}
+          style={{ color: marker.color }}
+          type={marker.icon}
+          shouldShowTooltip={false}
+        />
+      )}
       {!isBorderTile && (
         <CellIcons
           tile={tile}
