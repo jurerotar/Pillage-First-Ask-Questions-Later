@@ -74,9 +74,7 @@ type BuildingCardProps = {
 
 const unfinishedBuildings = new Set<Building['id']>([
   'HORSE_DRINKING_TROUGH',
-  'RESIDENCE',
   'RALLY_POINT',
-  'TOWN_HALL',
   'EMBASSY',
   'COMMAND_CENTER',
   'MARKETPLACE',
