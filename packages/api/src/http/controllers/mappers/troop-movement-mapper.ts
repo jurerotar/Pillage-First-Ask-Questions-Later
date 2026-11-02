@@ -4,6 +4,7 @@ import {
   troopMovementItemDtoSchema,
   troopMovementStatsItemDtoSchema,
 } from '@pillage-first/types/dtos/troop-movement';
+import { resourceBundleSchema } from '@pillage-first/types/models/resource';
 import { troopSchema } from '@pillage-first/types/models/troop';
 import type {
   getVillageTroopMovementStatsRowSchema,
@@ -12,13 +13,14 @@ import type {
 
 const troopMovementMetaSchema = z.object({
   troops: z.array(troopSchema).default([]),
+  loot: resourceBundleSchema.optional(),
 });
 
 export const mapTroopMovementRowToDto = (
   row: z.infer<typeof getVillageTroopMovementsRowSchema>,
 ) => {
   const isAdventure = row.type === 'troopMovementAdventure';
-  const { troops } = troopMovementMetaSchema.parse(JSON.parse(row.meta));
+  const { troops, loot } = troopMovementMetaSchema.parse(JSON.parse(row.meta));
 
   return troopMovementItemDtoSchema.parse({
     id: row.id,
@@ -30,6 +32,11 @@ export const mapTroopMovementRowToDto = (
     playerId: row.player_id,
     playerTribe: row.player_tribe,
     resolvesAt: row.resolves_at,
+    ...(row.type === 'troopMovementReturn' &&
+    row.player_id === PLAYER_ID &&
+    loot
+      ? { loot }
+      : {}),
     troops:
       row.player_id !== PLAYER_ID &&
       (row.type === 'troopMovementAttack' ||

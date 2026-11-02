@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
 import { gameEventTypeSchema } from '../models/game-event';
+import { resourceBundleSchema } from '../models/resource';
 import { tribeSchema } from '../models/tribe';
 import { troopSchema } from '../models/troop';
 
@@ -53,6 +54,7 @@ export const troopMovementItemDtoSchema = z
       targetVillageName: z.string().nullable(),
       targetTileId: z.number().nullable(),
       troops: z.array(troopSchema).nullable(),
+      loot: resourceBundleSchema.optional(),
     }),
   ])
   .meta({ id: 'TroopMovementItemDto' });

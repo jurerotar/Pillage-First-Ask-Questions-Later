@@ -6,68 +6,55 @@ import type { TroopMovementItemDto } from '@pillage-first/types/dtos/troop-movem
 import { tileIdToCoordinates } from '@pillage-first/utils/map';
 import type { TroopMovementFilterType } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/troop-movement-filters';
 import { getTroopMovementFilterCategory } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/utils/get-troop-movement-filter-category';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import {
   UnitTable,
+  UnitTableArrivalRow,
   UnitTableHiddenRow,
+  UnitTableLootRow,
   UnitTableRow,
   UnitTableTitle,
   UnitTableUnitIcons,
 } from 'app/(game)/components/unit-table';
-import { Icon } from 'app/components/icon';
-import type { IconType } from 'app/components/icons/icons';
 
-const getMovementIcon = (category: TroopMovementFilterType): IconType => {
+const getMovementBackground = (category: TroopMovementFilterType): string => {
   switch (category) {
+    case 'deploymentOutgoing':
     case 'offensiveMovementOutgoing': {
-      return 'attackerNoLoss';
+      return 'bg-yellow-100 dark:bg-yellow-400/40';
     }
     case 'offensiveMovementIncoming': {
-      return 'defenderNoLoss';
-    }
-    case 'adventure': {
-      return 'heroAdventure';
-    }
-    case 'findNewVillage': {
-      return 'villageFounded';
+      return 'bg-red-100 dark:bg-red-950';
     }
     default: {
-      return 'troopMovement';
+      return 'bg-green-100 dark:bg-green-950';
     }
   }
 };
 
 const getMovementLabel = (
   type: TroopMovementItemDto['type'],
+  outgoing: boolean,
   t: ReturnType<typeof useTranslation>['t'],
 ) => {
   switch (type) {
-    case 'troopMovementAttack': {
-      return t('Attack');
-    }
-    case 'troopMovementRaid': {
-      return t('Raid');
-    }
-    case 'troopMovementOasisOccupation': {
+    case 'troopMovementReinforcements':
+      return outgoing ? t('Reinforcements to') : t('Reinforcements from');
+    case 'troopMovementRelocation':
+      return outgoing ? t('Relocation to') : t('Relocation from');
+    case 'troopMovementAttack':
+      return t('Attack against');
+    case 'troopMovementRaid':
+      return t('Raid against');
+    case 'troopMovementReturn':
+      return t('Return from');
+    case 'troopMovementOasisOccupation':
       return t('Occupy oasis');
-    }
-    case 'troopMovementReinforcements': {
-      return t('Reinforcement');
-    }
-    case 'troopMovementRelocation': {
-      return t('Relocation');
-    }
-    case 'troopMovementReturn': {
-      return t('Return');
-    }
-    case 'troopMovementAdventure': {
+    case 'troopMovementFindNewVillage':
+      return t('Found village at');
+    case 'troopMovementAdventure':
       return t('Adventure');
-    }
-    case 'troopMovementFindNewVillage': {
-      return t('Find new village');
-    }
   }
 };
 
@@ -96,6 +83,8 @@ type TroopMovementTableProps = {
 
 export const TroopMovementTable = ({ movement }: TroopMovementTableProps) => {
   const { t } = useTranslation();
+  const loot =
+    movement.type === 'troopMovementReturn' ? movement.loot : undefined;
   const { currentVillage } = useCurrentVillage();
   const { mapSize } = useServer();
 
@@ -103,8 +92,6 @@ export const TroopMovementTable = ({ movement }: TroopMovementTableProps) => {
     movement,
     currentVillage.tileId,
   );
-  const iconType = getMovementIcon(category);
-  const label = getMovementLabel(movement.type, t);
 
   const sortedTroops = useMemo(
     () => sortTroops(movement.playerTribe, movement.troops ?? []),
@@ -115,55 +102,42 @@ export const TroopMovementTable = ({ movement }: TroopMovementTableProps) => {
     category === 'offensiveMovementIncoming' &&
     movement.playerId !== currentVillage.playerId;
 
-  const targetTileId =
-    movement.type === 'troopMovementAdventure' ? null : movement.targetTileId;
-  const targetVillageName =
-    movement.type === 'troopMovementAdventure'
-      ? null
-      : (movement.targetVillageName ?? t('Oasis'));
+  const outgoing = movement.originatingTileId === currentVillage.tileId;
+  const showOrigin = !outgoing;
+
+  const otherVillage = (() => {
+    if (movement.type === 'troopMovementAdventure') {
+      return null;
+    }
+
+    if (showOrigin) {
+      return {
+        tileId: movement.originatingTileId,
+        name: movement.originatingVillageName ?? t('Oasis'),
+      };
+    }
+
+    return {
+      tileId: movement.targetTileId,
+      name: movement.targetVillageName ?? t('Oasis'),
+    };
+  })();
 
   return (
     <UnitTable tribe={movement.playerTribe}>
-      <UnitTableTitle>
-        <div className="flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-2">
-            <Icon
-              type={iconType}
-              shouldShowTooltip={false}
-              className="size-5"
-            />
-            {label}
-          </span>
-          <Countdown endsAt={movement.resolvesAt} />
-        </div>
-      </UnitTableTitle>
-      <thead className="bg-muted border-b dark:border-border font-medium">
-        <tr>
-          <th
-            colSpan={12}
-            className="p-2 text-left font-medium"
-          >
-            <span className="text-muted-foreground">{movement.playerName}</span>{' '}
-            {t('from')}{' '}
+      <UnitTableTitle className={getMovementBackground(category)}>
+        {getMovementLabel(movement.type, outgoing, t)}
+        {otherVillage?.tileId != null && (
+          <>
+            {' '}
             <TileLink
-              name={movement.originatingVillageName ?? t('Oasis')}
-              tileId={movement.originatingTileId}
+              name={otherVillage.name}
+              tileId={otherVillage.tileId}
               mapSize={mapSize}
             />
-            {targetTileId !== null && targetVillageName !== null && (
-              <>
-                {' '}
-                {t('to')}{' '}
-                <TileLink
-                  name={targetVillageName}
-                  tileId={targetTileId}
-                  mapSize={mapSize}
-                />
-              </>
-            )}
-          </th>
-        </tr>
-      </thead>
+          </>
+        )}
+      </UnitTableTitle>
       <UnitTableUnitIcons />
       {isIncomingOffensive ? (
         <UnitTableHiddenRow
@@ -176,6 +150,8 @@ export const TroopMovementTable = ({ movement }: TroopMovementTableProps) => {
           troops={sortedTroops}
         />
       )}
+      <UnitTableLootRow loot={loot} />
+      <UnitTableArrivalRow endsAt={movement.resolvesAt} />
     </UnitTable>
   );
 };

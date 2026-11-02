@@ -19,6 +19,8 @@ import { OverflowContainer } from 'app/(game)/(village-slug)/components/building
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
+import { useIntl } from 'app/hooks/use-intl';
+import { Countdown } from '../(village-slug)/components/countdown';
 import { Resources } from '../(village-slug)/components/resources';
 
 type UnitTableContextValue = {
@@ -52,9 +54,14 @@ export const UnitTable = ({ tribe, children }: UnitTableProps) => {
   );
 };
 
-export const UnitTableTitle = ({ children }: PropsWithChildren) => {
+export const UnitTableTitle = ({
+  children,
+  className = 'bg-muted',
+}: PropsWithChildren<{ className?: string }>) => {
   return (
-    <thead className="bg-muted border-b dark:border-border font-medium">
+    <thead
+      className={clsx('border-b dark:border-border font-medium', className)}
+    >
       <tr>
         <th
           colSpan={12}
@@ -199,6 +206,43 @@ export const UnitTableContentRow = ({
         </td>
       </tr>
     </tbody>
+  );
+};
+
+export const UnitTableArrivalRow = ({ endsAt }: { endsAt: number }) => {
+  const { t } = useTranslation();
+  const intl = useIntl();
+
+  return (
+    <UnitTableContentRow label={t('Arrival')}>
+      <div className="flex items-center justify-between gap-2 text-sm tabular-nums">
+        <span>
+          {t('in')} <Countdown endsAt={endsAt} />
+        </span>
+        <span>
+          {t('at')} {intl.time.format(endsAt)}
+        </span>
+      </div>
+    </UnitTableContentRow>
+  );
+};
+
+export const UnitTableLootRow = ({ loot }: { loot?: ResourceBundle }) => {
+  const { t } = useTranslation();
+
+  if (!loot?.some((amount) => amount > 0)) {
+    return null;
+  }
+
+  return (
+    <UnitTableContentRow label={t('Loot')}>
+      <div className="flex items-center gap-2 text-sm">
+        <Resources
+          resources={loot}
+          iconClassName="size-4"
+        />
+      </div>
+    </UnitTableContentRow>
   );
 };
 
