@@ -19,6 +19,7 @@ import { createControllerArgs } from './utils/controller-args';
 describe('troop-movement-controllers', () => {
   test('includes loot on returning player troops', async () => {
     using database = await prepareTestDatabase();
+
     const home = getPlayerVillage(database);
     const away = createVillage(database, 'Loot destination');
     const eventId = insertTroopMovementEvent(database, {
@@ -30,8 +31,13 @@ describe('troop-movement-controllers', () => {
       duration: 60_000,
       originalMovementType: 'troopMovementRaid',
     });
+
     database.exec({
-      sql: `UPDATE events SET meta = json_set(meta, '$.loot', json('[100,200,0,50]')) WHERE id = $id;`,
+      sql: `
+        UPDATE events
+        SET meta = json_set(meta, '$.loot', json('[100,200,0,50]'))
+        WHERE id = $id;
+      `,
       bind: { $id: eventId },
     });
 
@@ -41,6 +47,7 @@ describe('troop-movement-controllers', () => {
         path: { tileId: home.tile_id },
       }),
     );
+
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
       type: 'troopMovementReturn',
