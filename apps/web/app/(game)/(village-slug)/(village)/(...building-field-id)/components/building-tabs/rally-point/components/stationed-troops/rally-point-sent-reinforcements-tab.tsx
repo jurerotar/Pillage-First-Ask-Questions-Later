@@ -41,13 +41,13 @@ export const RallyPointSentReinforcementsTab = () => {
     isOpen: isReturnModalOpen,
     openModal: openReturnModal,
     closeModal: closeReturnModal,
-    modalArgs: returnModalArgs,
+    data: returnModalData,
   } = useDialog<ReinforcementDialogData>();
   const {
     isOpen: isRelocateModalOpen,
     openModal: openRelocateModal,
     closeModal: closeRelocateModal,
-    modalArgs: relocateModalArgs,
+    data: relocateModalData,
   } = useDialog<ReinforcementDialogData>();
 
   const sentReinforcementEntries = useMemo(() => {
@@ -77,17 +77,15 @@ export const RallyPointSentReinforcementsTab = () => {
     });
   };
 
-  const selectedReturnSentReinforcements = returnModalArgs.current?.tileId
+  const selectedReturnSentReinforcements = returnModalData?.tileId
     ? (sentReinforcements.find(
-        ({ village }) => village.tileId === returnModalArgs.current?.tileId,
+        ({ village }) => village.tileId === returnModalData?.tileId,
       ) ?? null)
     : null;
 
-  const selectedRelocateSentReinforcements = relocateModalArgs.current?.tileId
+  const selectedRelocateSentReinforcements = relocateModalData?.tileId
     ? (sentReinforcementEntries.find(({ canRelocate, village }) => {
-        return (
-          canRelocate && village.tileId === relocateModalArgs.current?.tileId
-        );
+        return canRelocate && village.tileId === relocateModalData?.tileId;
       }) ?? null)
     : null;
 

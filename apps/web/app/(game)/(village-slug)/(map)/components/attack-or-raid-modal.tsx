@@ -54,7 +54,7 @@ export const AttackOrRaidModal = ({
   });
 
   const confirmationTitle =
-    formData.current?.action === 'attack' ? t('Attack') : t('Raid');
+    formData?.action === 'attack' ? t('Attack') : t('Raid');
 
   const unitTableDetails =
     confirmationOption?.type === 'catapultTargets' ? (
@@ -84,11 +84,11 @@ export const AttackOrRaidModal = ({
       onOpenChange={(open) => !open && onClose()}
     >
       <DialogContent>
-        {isConfirmationStepOpen && formData.current ? (
+        {isConfirmationStepOpen && formData ? (
           <TroopMovementConfirmationContent
             onBack={closeConfirmationStep}
             onConfirm={onConfirm}
-            formData={formData.current}
+            formData={formData}
             title={confirmationTitle}
             tribe={tribe}
             backLabel={t('Back')}

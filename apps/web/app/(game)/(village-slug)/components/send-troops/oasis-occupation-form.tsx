@@ -63,12 +63,12 @@ export const OasisOccupationForm = () => {
             content: <Button type="submit">{t('Confirm')}</Button>,
           }}
         />
-        {formData.current ? (
+        {formData ? (
           <TroopMovementConfirmationModal
             isOpen={isConfirmationStepOpen}
             onClose={closeConfirmationStep}
             onConfirm={onConfirm}
-            formData={formData.current}
+            formData={formData}
             title={t('Occupy oasis')}
             tribe={tribe}
             backLabel={t('Back')}

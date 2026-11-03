@@ -1,39 +1,40 @@
-import { startTransition, useCallback, useRef, useState } from 'react';
+import { startTransition, useCallback, useState } from 'react';
 
 export const useDialog = <TArgs = unknown>(isOpenInitially = false) => {
-  const [isOpen, setIsOpen] = useState<boolean>(isOpenInitially);
-  const [hasOpened, setHasOpened] = useState<boolean>(isOpenInitially);
-  const modalArgs = useRef<TArgs | null>(null);
+  const [state, setState] = useState<{
+    isOpen: boolean;
+    hasOpened: boolean;
+    data: TArgs | null;
+  }>({
+    isOpen: isOpenInitially,
+    hasOpened: isOpenInitially,
+    data: null,
+  });
 
   const closeModal = useCallback(() => {
     startTransition(() => {
-      setIsOpen(false);
+      setState((previous) => ({ ...previous, isOpen: false, data: null }));
     });
-    modalArgs.current = null;
   }, []);
 
-  const openModal = useCallback((data?: TArgs) => {
-    if (data) {
-      modalArgs.current = data;
-    }
-
+  const openModal = useCallback((args?: TArgs) => {
     startTransition(() => {
-      setHasOpened(true);
-      setIsOpen(true);
+      setState({ isOpen: true, hasOpened: true, data: args ?? null });
     });
   }, []);
 
   const toggleModal = useCallback(() => {
-    setHasOpened(true);
-    setIsOpen((prevState) => !prevState);
+    setState((previous) => ({
+      ...previous,
+      hasOpened: true,
+      isOpen: !previous.isOpen,
+    }));
   }, []);
 
   return {
-    isOpen,
-    hasOpened,
+    ...state,
     closeModal,
     openModal,
     toggleModal,
-    modalArgs,
   };
 };
