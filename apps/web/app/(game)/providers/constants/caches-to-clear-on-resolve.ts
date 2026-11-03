@@ -18,6 +18,7 @@ import {
   scheduledBuildingUpgradesCacheKey,
   sentReinforcementsCacheKey,
   tilesCacheKey,
+  tradeRoutesCacheKey,
   trapperCagesCacheKey,
   troopMovementsCacheKey,
   unitImprovementCacheKey,
@@ -259,6 +260,7 @@ export const cachesToClearOnResolve: Handlers = {
       [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [eventsCacheKey, 'resourceTransfer', villageId],
+        [tradeRoutesCacheKey, villageId],
         [eventsCacheKey, 'tradeRoute', villageId],
       ]),
     ];

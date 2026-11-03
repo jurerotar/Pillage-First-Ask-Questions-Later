@@ -1,10 +1,10 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use, useMemo, useState } from 'react';
 import { type UseFormReturn, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { TradeRoute } from '@pillage-first/types/models/trade-route';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
 import {
@@ -15,10 +15,9 @@ import {
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { InformationPopover } from 'app/(game)/components/information-popover';
-import { eventsCacheKey } from 'app/(game)/constants/query-keys';
+import { tradeRoutesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -88,7 +87,7 @@ const getResourceList = (resources: typeof emptyResources) => {
 };
 
 const getTradeRouteFormValues = (
-  route: GameEvent<'tradeRoute'>,
+  route: TradeRoute,
 ): MarketplaceTradeRouteFormValues => ({
   resources: route.resources,
   targetVillageId: route.targetVillageId,
@@ -265,14 +264,14 @@ const MarketplaceTradeRouteForm = ({
   );
 };
 
-const ActiveTradeRoutes = ({
+const SavedTradeRoutes = ({
   merchant,
   onEdit,
   routes,
 }: {
   merchant: ReturnType<typeof useMarketplaceMerchants>['merchant'];
-  onEdit: (route: GameEvent<'tradeRoute'>) => void;
-  routes: GameEvent<'tradeRoute'>[];
+  onEdit: (route: TradeRoute) => void;
+  routes: TradeRoute[];
 }) => {
   const { t } = useTranslation();
   const { apiClient } = use(ApiContext);
@@ -284,7 +283,7 @@ const ActiveTradeRoutes = ({
   }, [playerVillages]);
 
   const routesByTargetVillage = useMemo(() => {
-    const groups = new Map<number, GameEvent<'tradeRoute'>[]>();
+    const groups = new Map<number, TradeRoute[]>();
 
     for (const route of routes) {
       const group = groups.get(route.targetVillageId) ?? [];
@@ -300,23 +299,44 @@ const ActiveTradeRoutes = ({
   }, [routes, villageById]);
 
   const { mutate: deleteTradeRoute, isPending } = useMutation({
-    mutationFn: async (eventId: number) => {
-      await apiClient.delete('/tiles/:tileId/trade-routes/:eventId', {
+    mutationFn: async (routeId: number) => {
+      await apiClient.delete('/tiles/:tileId/trade-routes/:routeId', {
         path: {
           tileId: currentVillage.tileId,
-          eventId,
+          routeId,
         },
       });
     },
     onSuccess: async (_, __, ___, context) => {
-      toast.success(t('Trade route cancelled'));
+      toast.success(t('Trade route deleted'));
 
       await invalidateQueries(context, [
-        [eventsCacheKey, 'tradeRoute', currentVillage.id],
+        [tradeRoutesCacheKey, currentVillage.id],
       ]);
     },
     onError: () => {
-      toast.error(t('Trade route could not be cancelled'));
+      toast.error(t('Trade route could not be deleted'));
+    },
+  });
+
+  const { mutate: togglePaused, isPending: isPausePending } = useMutation({
+    mutationFn: async (route: TradeRoute) => {
+      await apiClient.patch('/tiles/:tileId/trade-routes/:routeId/paused', {
+        path: { tileId: currentVillage.tileId, routeId: route.id },
+        body: { paused: !route.paused },
+      });
+    },
+    onSuccess: async (_, route, ___, context) => {
+      toast.success(
+        route.paused ? t('Trade route resumed') : t('Trade route paused'),
+      );
+
+      await invalidateQueries(context, [
+        [tradeRoutesCacheKey, currentVillage.id],
+      ]);
+    },
+    onError: () => {
+      toast.error(t('Trade route could not be updated'));
     },
   });
 
@@ -335,9 +355,7 @@ const ActiveTradeRoutes = ({
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell colSpan={5}>
-                {t('No trade routes are currently scheduled')}
-              </TableCell>
+              <TableCell colSpan={5}>{t('No saved trade routes')}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -396,10 +414,25 @@ const ActiveTradeRoutes = ({
                       </TableCell>
                       <TableCell>{formatTime(route.interval)}</TableCell>
                       <TableCell>
-                        <Countdown endsAt={route.resolvesAt} />
+                        {route.paused ? (
+                          t('Paused')
+                        ) : route.nextAt !== null ? (
+                          <Countdown endsAt={route.nextAt} />
+                        ) : (
+                          t('Unscheduled')
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isPending || isPausePending}
+                            onClick={() => togglePaused(route)}
+                          >
+                            {route.paused ? t('Resume') : t('Pause')}
+                          </Button>
                           <Button
                             type="button"
                             variant="outline"
@@ -412,10 +445,10 @@ const ActiveTradeRoutes = ({
                             type="button"
                             variant="outline"
                             size="sm"
-                            disabled={isPending}
+                            disabled={isPending || isPausePending}
                             onClick={() => deleteTradeRoute(route.id)}
                           >
-                            {t('Cancel')}
+                            {t('Delete')}
                           </Button>
                         </div>
                       </TableCell>
@@ -437,9 +470,20 @@ export const MarketplaceTradeRoutes = () => {
   const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
   const { merchant, marketplaceLevel } = useMarketplaceMerchants();
-  const { eventsByType: tradeRoutes } = useEventsByType('tradeRoute');
-  const [editingTradeRoute, setEditingTradeRoute] =
-    useState<GameEvent<'tradeRoute'> | null>(null);
+  const { data: tradeRoutes } = useSuspenseQuery({
+    queryKey: [tradeRoutesCacheKey, currentVillage.id],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/tiles/:tileId/trade-routes', {
+        path: { tileId: currentVillage.tileId },
+      });
+
+      return data;
+    },
+  });
+
+  const [editingTradeRoute, setEditingTradeRoute] = useState<TradeRoute | null>(
+    null,
+  );
 
   const createForm = useForm<MarketplaceTradeRouteFormValues>({
     defaultValues: getDefaultTradeRouteFormValues(),
@@ -486,7 +530,7 @@ export const MarketplaceTradeRoutes = () => {
       toast.success(t('Trade route scheduled'));
 
       await invalidateQueries(context, [
-        [eventsCacheKey, 'tradeRoute', currentVillage.id],
+        [tradeRoutesCacheKey, currentVillage.id],
       ]);
     },
     onError: () => {
@@ -500,10 +544,10 @@ export const MarketplaceTradeRoutes = () => {
         (village) => village.id === values.targetVillageId,
       )!;
 
-      await apiClient.patch('/tiles/:tileId/trade-routes/:eventId', {
+      await apiClient.patch('/tiles/:tileId/trade-routes/:routeId', {
         path: {
           tileId: currentVillage.tileId,
-          eventId: editingTradeRoute!.id,
+          routeId: editingTradeRoute!.id,
         },
         body: {
           targetTileId: targetVillage.tileId,
@@ -519,7 +563,7 @@ export const MarketplaceTradeRoutes = () => {
       toast.success(t('Trade route updated'));
 
       await invalidateQueries(context, [
-        [eventsCacheKey, 'tradeRoute', currentVillage.id],
+        [tradeRoutesCacheKey, currentVillage.id],
       ]);
     },
     onError: () => {
@@ -527,7 +571,7 @@ export const MarketplaceTradeRoutes = () => {
     },
   });
 
-  const startEditingTradeRoute = (route: GameEvent<'tradeRoute'>) => {
+  const startEditingTradeRoute = (route: TradeRoute) => {
     setEditingTradeRoute(route);
     editForm.reset(getTradeRouteFormValues(route));
   };
@@ -544,7 +588,7 @@ export const MarketplaceTradeRoutes = () => {
         <InformationPopover ariaLabel={t('Trade routes')}>
           <Text>
             {t(
-              'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time.',
+              'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time. Pause a route to stop future departures while keeping its settings. Transfers already in progress will continue.',
             )}
           </Text>
         </InformationPopover>
@@ -568,9 +612,9 @@ export const MarketplaceTradeRoutes = () => {
           as="h3"
           className="font-medium"
         >
-          {t('Scheduled trade routes')}
+          {t('Saved trade routes')}
         </Text>
-        <ActiveTradeRoutes
+        <SavedTradeRoutes
           merchant={merchant}
           routes={tradeRoutes}
           onEdit={startEditingTradeRoute}

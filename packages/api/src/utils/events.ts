@@ -117,6 +117,7 @@ import {
   assessQueuedTroopCountByIdQuestCompletion,
   assessQueuedTroopCountQuestCompletion,
 } from './quests';
+import { getTradeRouteById } from './trade-routes';
 import {
   materializeWoundedTroopsAt,
   removeTroops,
@@ -921,48 +922,10 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTradeRouteEvent(event)) {
-    const { village, merchant, marketplaceLevel } = getVillageMerchantStats(
-      database,
-      event.villageId,
-    );
-    const targetVillage = getMarketplaceVillage(
-      database,
-      event.targetVillageId,
-    );
+    const route = getTradeRouteById(database, event.tradeRouteId);
 
-    if (!targetVillage || targetVillage.playerId !== village.playerId) {
-      throw new Error(
-        'Target village does not exist or does not belong to player',
-      );
-    }
-
-    if (event.targetVillageId === event.villageId) {
-      throw new Error('Target village must be different from source village');
-    }
-
-    if (village.tileId !== event.originTileId) {
-      throw new Error('Origin tile does not belong to source village');
-    }
-
-    if (targetVillage.tileId !== event.targetTileId) {
-      throw new Error('Target tile does not belong to target village');
-    }
-
-    if (getTotalResourceAmount(event.resources) <= 0) {
-      throw new Error('Trade route must include resources');
-    }
-
-    if (!Number.isFinite(event.interval) || event.interval <= 0) {
-      throw new Error('Trade route interval must be positive');
-    }
-
-    const merchantAmount = getMerchantAmount(
-      event.resources,
-      merchant.merchantCapacity,
-    );
-
-    if (merchantAmount > marketplaceLevel) {
-      throw new Error('Not enough merchants');
+    if (!route || route.paused || route.villageId !== event.villageId) {
+      throw new Error('Active trade route does not exist');
     }
 
     return;

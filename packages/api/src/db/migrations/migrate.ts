@@ -80,6 +80,7 @@ import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?r
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
 import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
+import createTradeRoutesTable from '../schemas/trade-routes-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
@@ -364,6 +365,7 @@ export const migrateAndSeed = (
 
     // Events
     db.execMulti({ sql: createEventsTable });
+    db.execMulti({ sql: createTradeRoutesTable });
     eventsSeeder(db, server);
 
     // Scheduled building upgrades

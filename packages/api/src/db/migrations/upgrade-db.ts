@@ -15,6 +15,7 @@ import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
+import createTradeRoutesTable from '../schemas/trade-routes-schema.sql?raw';
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
 import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
 import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
@@ -732,6 +733,44 @@ export const upgradeDb = (
           bind: { $quest_id: `celebrationCount-${count}` },
         });
       }
+    });
+  });
+
+  migrate('0.4.81', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({ sql: createTradeRoutesTable });
+
+      tx.exec({
+        sql: `
+          INSERT INTO trade_routes (
+            id,
+            village_id,
+            target_village_id,
+            resources,
+            interval,
+            starts_at
+          )
+          SELECT
+            id,
+            village_id,
+            JSON_EXTRACT(meta, '$.targetVillageId'),
+            JSON_EXTRACT(meta, '$.resources'),
+            JSON_EXTRACT(meta, '$.interval'),
+            starts_at
+          FROM events
+          WHERE type = 'tradeRoute';
+        `,
+      });
+
+      tx.exec({
+        sql: `
+          UPDATE events
+          SET meta = JSON_OBJECT('tradeRouteId', id)
+          WHERE type = 'tradeRoute';
+        `,
+      });
+
+      setupGlobalWriteTriggers(tx);
     });
   });
 

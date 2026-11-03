@@ -71,6 +71,8 @@ import {
 import {
   createTradeRoute,
   deleteTradeRoute,
+  listTradeRoutes,
+  setTradeRoutePaused,
   transferResources,
   updateTradeRoute,
 } from './controllers/marketplace-controllers';
@@ -255,6 +257,8 @@ export const apiRoutes = [
   createRoute(transferResources),
   createRoute(createTradeRoute),
   createRoute(updateTradeRoute),
+  createRoute(listTradeRoutes),
+  createRoute(setTradeRoutePaused),
   createRoute(deleteTradeRoute),
 
   // Map Filters
