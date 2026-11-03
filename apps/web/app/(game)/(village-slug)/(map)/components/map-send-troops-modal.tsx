@@ -146,7 +146,7 @@ const ReinforceVillageModal = ({
             }
             form={form}
             target={{
-              selector: 'coordinates',
+              selector: 'playerVillage',
               isDisabled: true,
               extraContent: (
                 <ReinforcementRelocationActionSelector

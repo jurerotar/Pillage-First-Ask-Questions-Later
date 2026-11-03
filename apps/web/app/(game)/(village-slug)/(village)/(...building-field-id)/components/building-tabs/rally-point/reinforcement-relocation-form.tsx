@@ -42,7 +42,7 @@ export const ReinforcementRelocationForm = () => {
           form={form}
           onSubmit={onFormSubmit}
           target={{
-            selector: 'coordinates',
+            selector: 'playerVillage',
             extraContent: <ReinforcementRelocationActionSelector />,
           }}
           footer={{
