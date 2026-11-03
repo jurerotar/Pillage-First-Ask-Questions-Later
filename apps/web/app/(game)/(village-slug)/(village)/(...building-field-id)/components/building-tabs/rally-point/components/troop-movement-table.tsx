@@ -44,9 +44,9 @@ const getMovementLabel = (
     case 'troopMovementRelocation':
       return outgoing ? t('Relocation to') : t('Relocation from');
     case 'troopMovementAttack':
-      return t('Attack against');
+      return outgoing ? t('Attack against') : t('Attack from');
     case 'troopMovementRaid':
-      return t('Raid against');
+      return outgoing ? t('Raid against') : t('Raid from');
     case 'troopMovementReturn':
       return t('Return from');
     case 'troopMovementOasisOccupation':
