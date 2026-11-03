@@ -1,3 +1,10 @@
+## Version 0.4.80
+
+#### Oct 31, 2026
+
+- [Feature] Added global quests for holding Town Hall celebrations across your villages.
+- [BugFix] Fixed the village selector dropdown staying open after selecting a village.
+
 ## Version 0.4.79
 
 #### Oct 30, 2026
