@@ -251,15 +251,21 @@ export const relocateReinforcements = createController(
   },
 )(({ database, path: { tileId }, body: { sourceTileId, troops } }) => {
   database.transaction((db) => {
-    const { currentTileId, currentVillageId, sourceTileType, sourceVillageId } =
-      db.selectObject({
-        sql: selectSourceVillageByTileAndCurrentTileQuery,
-        bind: {
-          $source_tile_id: sourceTileId,
-          $current_tile_id: tileId,
-        },
-        schema: sourceVillageRowSchema,
-      })!;
+    const {
+      currentTileId,
+      currentVillageId,
+      sourceTileType,
+      sourceVillageId,
+      currentPlayerId,
+      sourcePlayerId,
+    } = db.selectObject({
+      sql: selectSourceVillageByTileAndCurrentTileQuery,
+      bind: {
+        $source_tile_id: sourceTileId,
+        $current_tile_id: tileId,
+      },
+      schema: sourceVillageRowSchema,
+    })!;
 
     if (sourceTileType === 'oasis') {
       throw new Error('Reinforcements from oases cannot be relocated');
@@ -267,6 +273,12 @@ export const relocateReinforcements = createController(
 
     if (sourceVillageId === null) {
       throw new Error('Source village not found');
+    }
+
+    if (currentPlayerId !== sourcePlayerId) {
+      throw new Error(
+        'Reinforcements can only be relocated between villages of the same player',
+      );
     }
 
     moveStationedTroops(
@@ -410,6 +422,8 @@ export const relocateSentReinforcements = createController(
 )(({ database, path: { tileId }, body: { stationedTileId, troops } }) => {
   database.transaction((db) => {
     const {
+      currentPlayerId,
+      stationedPlayerId,
       currentTileId,
       currentVillageId,
       stationedTileType,
@@ -429,6 +443,12 @@ export const relocateSentReinforcements = createController(
 
     if (stationedTileType === 'oasis') {
       throw new Error('Relocations cannot be sent to oases');
+    }
+
+    if (currentPlayerId !== stationedPlayerId) {
+      throw new Error(
+        'Reinforcements can only be relocated between villages of the same player',
+      );
     }
 
     moveStationedTroops(

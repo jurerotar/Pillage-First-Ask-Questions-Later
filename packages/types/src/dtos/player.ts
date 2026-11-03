@@ -25,6 +25,7 @@ export const playerVillageWithPopulationDtoSchema =
   });
 
 export const villageTroopDtoSchema = z.strictObject({
+  canRelocate: z.boolean(),
   unitId: unitIdSchema,
   amount: z.number(),
   tileId: z.number(),
@@ -45,6 +46,7 @@ export const woundedTroopDtoSchema = z.strictObject({
 });
 
 export const sentReinforcementDtoSchema = z.strictObject({
+  canRelocate: z.boolean(),
   targetType: z.enum(['village', 'oasis']),
   village: playerVillageDtoSchema,
   troops: z.array(villageTroopDtoSchema),

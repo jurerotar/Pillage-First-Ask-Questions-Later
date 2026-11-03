@@ -89,7 +89,7 @@ export const RallyPointReinforcementsTab = () => {
         sourceVillageName:
           villagesByTileId.get(sourceTileId)?.name ?? t('Oasis'),
         sourceTileType,
-        canRelocate: sourceTileType !== 'oasis',
+        canRelocate: troops[0]?.canRelocate ?? false,
         tribe: sourceTribe,
         troops,
         sortedTroops: sortTroops(sourceTribe, troops),

@@ -71,6 +71,7 @@ export const mapVillageTroop = (
   row: z.infer<typeof getStationedTroopsByTileSchema>,
 ): z.infer<typeof villageTroopDtoSchema> => {
   const dto = {
+    canRelocate: row.can_relocate === 1,
     unitId: row.unit_id,
     amount: row.amount,
     tileId: row.tile_id,
@@ -104,6 +105,7 @@ const mapSentReinforcement = (
   row: z.infer<typeof getSentReinforcementsByTileSchema>,
 ): z.infer<typeof sentReinforcementDtoSchema> => {
   const dto = {
+    canRelocate: row.can_relocate === 1,
     targetType: row.target_type,
     village: playerVillageDtoSchema.parse({
       id: row.village_id,
@@ -115,6 +117,7 @@ const mapSentReinforcement = (
     }),
     troops: [
       mapVillageTroop({
+        can_relocate: row.can_relocate,
         unit_id: row.unit_id,
         amount: row.amount,
         tile_id: row.tile_id,

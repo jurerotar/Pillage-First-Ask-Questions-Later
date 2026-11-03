@@ -51,12 +51,15 @@ export const RallyPointSentReinforcementsTab = () => {
   } = useDialog<ReinforcementDialogData>();
 
   const sentReinforcementEntries = useMemo(() => {
-    return sentReinforcements.map(({ targetType, village, troops }) => ({
-      targetType,
-      village,
-      troops,
-      sortedTroops: sortTroops(tribe, troops),
-    }));
+    return sentReinforcements.map(
+      ({ canRelocate, targetType, village, troops }) => ({
+        targetType,
+        canRelocate,
+        village,
+        troops,
+        sortedTroops: sortTroops(tribe, troops),
+      }),
+    );
   }, [sentReinforcements, tribe]);
 
   const page = Number.parseInt(
@@ -81,9 +84,11 @@ export const RallyPointSentReinforcementsTab = () => {
     : null;
 
   const selectedRelocateSentReinforcements = relocateModalArgs.current?.tileId
-    ? (sentReinforcements.find(
-        ({ village }) => village.tileId === relocateModalArgs.current?.tileId,
-      ) ?? null)
+    ? (sentReinforcementEntries.find(({ canRelocate, village }) => {
+        return (
+          canRelocate && village.tileId === relocateModalArgs.current?.tileId
+        );
+      }) ?? null)
     : null;
 
   return (
@@ -106,7 +111,7 @@ export const RallyPointSentReinforcementsTab = () => {
         ) : (
           <>
             {pagination.currentPageItems.map(
-              ({ targetType, village, sortedTroops }) => (
+              ({ canRelocate, village, sortedTroops }) => (
                 <UnitTable
                   key={village.tileId}
                   tribe={tribe}
@@ -132,7 +137,7 @@ export const RallyPointSentReinforcementsTab = () => {
                         >
                           <IoReturnUpForwardOutline className="size-4" />
                         </Button>
-                        {targetType !== 'oasis' && (
+                        {canRelocate && (
                           <Button
                             variant="outline"
                             size="sm"

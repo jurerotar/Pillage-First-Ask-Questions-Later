@@ -32,6 +32,7 @@ export const getPlayerVillagesWithPopulationSchema = z
 
 export const getStationedTroopsByTileSchema = z
   .strictObject({
+    can_relocate: z.union([z.literal(0), z.literal(1)]),
     unit_id: unitIdSchema,
     amount: z.number().min(1),
     tile_id: z.number(),
@@ -58,6 +59,7 @@ export const getWoundedTroopsByVillageSchema = z
 
 export const getSentReinforcementsByTileSchema = z
   .strictObject({
+    can_relocate: z.union([z.literal(0), z.literal(1)]),
     village_id: z.number(),
     target_type: z.enum(['village', 'oasis']),
     tile_id: z.number(),
@@ -74,6 +76,8 @@ export const getSentReinforcementsByTileSchema = z
   .meta({ id: 'GetSentReinforcementsByTileRow' });
 
 export const sourceVillageRowSchema = z.strictObject({
+  sourcePlayerId: z.number().nullable(),
+  currentPlayerId: z.number(),
   sourceVillageId: z.number().nullable(),
   sourceTileType: tileTypeSchema.nullable(),
   currentVillageId: z.number(),
@@ -81,6 +85,8 @@ export const sourceVillageRowSchema = z.strictObject({
 });
 
 export const stationedVillageRowSchema = z.strictObject({
+  stationedPlayerId: z.number().nullable(),
+  currentPlayerId: z.number(),
   currentVillageId: z.number(),
   currentTileId: z.number(),
   stationedTileType: tileTypeSchema.nullable(),

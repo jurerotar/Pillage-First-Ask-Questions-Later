@@ -127,9 +127,14 @@ export const selectStationedTroopsByTileQuery = `
     t.amount,
     t.tile_id,
     t.source_tile_id,
-    source_tt.type AS source_tile_type
+    source_tt.type AS source_tile_type,
+    CASE WHEN source_v.player_id = stationed_v.player_id
+      AND t.source_tile_id != t.tile_id
+      THEN 1 ELSE 0 END AS can_relocate
   FROM
     troops t
+      LEFT JOIN villages source_v ON source_v.tile_id = t.source_tile_id
+      LEFT JOIN villages stationed_v ON stationed_v.tile_id = t.tile_id
       LEFT JOIN tiles source_t ON source_t.id = t.source_tile_id
       LEFT JOIN tile_type_ids source_tt ON source_tt.id = source_t.type_id
       JOIN unit_ids ui ON ui.id = t.unit_id
@@ -253,9 +258,12 @@ export const selectSentReinforcementsByTileQuery = `
     ui.unit AS unit_id,
     tr.amount,
     tr.source_tile_id,
-    source_tt.type AS source_tile_type
+    source_tt.type AS source_tile_type,
+    CASE WHEN source_v.player_id = v.player_id
+      THEN 1 ELSE 0 END AS can_relocate
   FROM
     troops tr
+      LEFT JOIN villages source_v ON source_v.tile_id = tr.source_tile_id
       JOIN tiles t
            ON t.id = tr.tile_id
       LEFT JOIN tiles source_t
@@ -302,6 +310,8 @@ export const selectSourceVillageByTileAndCurrentTileQuery = `
           so.tile_id = $source_tile_id
       )
     END AS sourceVillageId,
+    sv.player_id AS sourcePlayerId,
+    cv.player_id AS currentPlayerId,
     stt.type AS sourceTileType,
     cv.id AS currentVillageId,
     cv.tile_id AS currentTileId
@@ -316,6 +326,8 @@ export const selectStationedVillageByTileAndCurrentTileQuery = `
   SELECT
     cv.id AS currentVillageId,
     cv.tile_id AS currentTileId,
+    sv.player_id AS stationedPlayerId,
+    cv.player_id AS currentPlayerId,
     stt.type AS stationedTileType,
     CASE
       WHEN stt.type = 'free' THEN sv.id
