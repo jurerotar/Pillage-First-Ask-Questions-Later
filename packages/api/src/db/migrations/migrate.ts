@@ -1,3 +1,4 @@
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import createBuildingDataIndexes from '../indexes/building-data-indexes.sql?raw';
@@ -206,10 +207,6 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createFiltersTable });
     filtersSeeder(db);
 
-    // Faction reputations
-    db.execMulti({ sql: createFactionReputationTable });
-    factionReputationSeeder(db);
-
     // Tiles
     db.execMulti({ sql: createTilesTable });
     tilesSeeder(db, server);
@@ -235,6 +232,10 @@ export const migrateAndSeed = (
     playersSeeder(db, server);
     db.execMulti({ sql: createPlayersIndexes });
     db.execMulti({ sql: createHuntingCaptureHistoryTable });
+
+    // Player faction reputations
+    db.execMulti({ sql: createFactionReputationTable });
+    factionReputationSeeder(db, PLAYER_ID);
 
     // Culture points
     db.execMulti({ sql: createCulturePointsTable });
@@ -360,7 +361,7 @@ export const migrateAndSeed = (
 
     // Quests
     db.execMulti({ sql: createQuestsTable });
-    questsSeeder(db);
+    questsSeeder(db, PLAYER_ID);
 
     // Events
     db.execMulti({ sql: createEventsTable });

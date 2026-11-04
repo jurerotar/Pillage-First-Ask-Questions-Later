@@ -28,11 +28,12 @@ export const getQuests = createController('/me/quests', {
     }),
   },
   response: z.array(questSchema),
-})(({ database, query: { villageId } }) => {
+})(({ database, context: { playerId }, query: { villageId } }) => {
   const rows = database.selectObjects({
     sql: selectVillageQuestsQuery,
     bind: {
       $village_id: villageId,
+      $player_id: playerId,
     },
     schema: getQuestsRowSchema,
   });
@@ -53,11 +54,12 @@ export const getCollectableQuestCount = createController(
       collectableQuestCount: z.number(),
     }),
   },
-)(({ database, query: { villageId } }) => {
+)(({ database, context: { playerId }, query: { villageId } }) => {
   const collectableQuestCount = database.selectValue({
     sql: selectCollectableQuestCountQuery,
     bind: {
       $village_id: villageId,
+      $player_id: playerId,
     },
     schema: z.number(),
   })!;
@@ -86,38 +88,46 @@ export const collectQuest = createController(
     path: { questId },
     body: { villageId },
   }) => {
-    database.exec({
-      sql: collectQuestQuery,
-      bind: {
-        $collected_at: Date.now(),
-        $quest_id: questId,
-        $village_id: villageId,
-      },
+    database.transaction(() => {
+      const collectedQuestId = database.selectValue({
+        sql: collectQuestQuery,
+        bind: {
+          $collected_at: Date.now(),
+          $quest_id: questId,
+          $village_id: villageId,
+          $player_id: playerId,
+        },
+        schema: z.number(),
+      });
+
+      if (collectedQuestId === undefined) {
+        throw new Error('Quest is unavailable or already collected');
+      }
+
+      const questRewards = getQuestRewards(questId);
+
+      for (const reward of questRewards) {
+        if (reward.type === 'culture-points') {
+          addPlayerCulturePoints(database, reward.amount, Date.now(), playerId);
+          continue;
+        }
+
+        if (isResourceQuestReward(reward)) {
+          const { amount } = reward;
+
+          addResourceSiteResourcesAt(
+            database,
+            getVillageTileId(database, villageId),
+            Date.now(),
+            [amount, amount, amount, amount],
+          );
+          continue;
+        }
+
+        if (isHeroExperienceQuestReward(reward)) {
+          addHeroExperience(database, reward.amount, playerId);
+        }
+      }
     });
-
-    const questRewards = getQuestRewards(questId);
-
-    for (const reward of questRewards) {
-      if (reward.type === 'culture-points') {
-        addPlayerCulturePoints(database, reward.amount, Date.now(), playerId);
-        continue;
-      }
-
-      if (isResourceQuestReward(reward)) {
-        const { amount } = reward;
-
-        addResourceSiteResourcesAt(
-          database,
-          getVillageTileId(database, villageId),
-          Date.now(),
-          [amount, amount, amount, amount],
-        );
-        continue;
-      }
-
-      if (isHeroExperienceQuestReward(reward)) {
-        addHeroExperience(database, reward.amount, playerId);
-      }
-    }
   },
 );

@@ -1,4 +1,3 @@
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { Building } from '@pillage-first/types/models/building';
 import type { NatureUnitId, Unit } from '@pillage-first/types/models/unit';
@@ -7,6 +6,7 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 export const assessAdventureCountQuestCompletion = (
   database: DbFacade,
   timestamp: number,
+  playerId: number,
 ): void => {
   database.exec({
     sql: `
@@ -14,7 +14,8 @@ export const assessAdventureCountQuestCompletion = (
       SET
         completed_at = $completed_at
       WHERE
-        completed_at IS NULL
+        player_id = $player_id
+        AND completed_at IS NULL
         AND quest_id GLOB 'adventureCount-*'
         AND substr(quest_id, length('adventureCount-') + 1) GLOB '[0-9]*'
         AND (
@@ -33,7 +34,7 @@ export const assessAdventureCountQuestCompletion = (
     `,
     bind: {
       $completed_at: timestamp,
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
     },
   });
 };
@@ -41,6 +42,7 @@ export const assessAdventureCountQuestCompletion = (
 export const assessQueuedTroopCountQuestCompletion = (
   database: DbFacade,
   timestamp: number,
+  playerId: number,
 ): void => {
   database.exec({
     sql: `
@@ -48,7 +50,8 @@ export const assessQueuedTroopCountQuestCompletion = (
       SET
         completed_at = $completed_at
       WHERE
-        completed_at IS NULL
+        player_id = $player_id
+        AND completed_at IS NULL
         AND village_id IS NULL
         AND quest_id LIKE 'queuedTroopCount-%'
         AND substr(quest_id, length('queuedTroopCount-') + 1) GLOB '[0-9]*'
@@ -76,7 +79,7 @@ export const assessQueuedTroopCountQuestCompletion = (
     `,
     bind: {
       $completed_at: timestamp,
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
     },
   });
 };
@@ -85,6 +88,7 @@ export const assessQueuedTroopCountByIdQuestCompletion = (
   database: DbFacade,
   unitId: Unit['id'],
   timestamp: number,
+  playerId: number,
 ): void => {
   database.exec({
     sql: `
@@ -92,7 +96,8 @@ export const assessQueuedTroopCountByIdQuestCompletion = (
       SET
         completed_at = $completed_at
       WHERE
-        completed_at IS NULL
+        player_id = $player_id
+        AND completed_at IS NULL
         AND village_id IS NULL
         AND quest_id LIKE 'queuedTroopCountById-' || $unit_id || '-%'
         AND substr(quest_id, length('queuedTroopCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
@@ -124,7 +129,7 @@ export const assessQueuedTroopCountByIdQuestCompletion = (
     bind: {
       $completed_at: timestamp,
       $unit_id: unitId,
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
     },
   });
 };
@@ -133,6 +138,7 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
   database: DbFacade,
   unitId: NatureUnitId,
   timestamp: number,
+  playerId: number,
 ): void => {
   database.exec({
     sql: `
@@ -140,7 +146,8 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
       SET
         completed_at = $completed_at
       WHERE
-        completed_at IS NULL
+        player_id = $player_id
+        AND completed_at IS NULL
         AND village_id IS NULL
         AND quest_id GLOB $quest_pattern
         AND substr(quest_id, length('captureAnimalCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
@@ -160,7 +167,7 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
       $completed_at: timestamp,
       $unit_id: unitId,
       $quest_pattern: `captureAnimalCountById-${unitId}-*`,
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
     },
   });
 };
@@ -168,6 +175,7 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
 export const assessCaptureAnimalKindCountQuestCompletion = (
   database: DbFacade,
   timestamp: number,
+  playerId: number,
 ): void => {
   database.exec({
     sql: `
@@ -175,7 +183,8 @@ export const assessCaptureAnimalKindCountQuestCompletion = (
       SET
         completed_at = $completed_at
       WHERE
-        completed_at IS NULL
+        player_id = $player_id
+        AND completed_at IS NULL
         AND village_id IS NULL
         AND quest_id GLOB 'captureAnimalKindCount-*'
         AND substr(quest_id, length('captureAnimalKindCount-') + 1) GLOB '[0-9]*'
@@ -202,7 +211,7 @@ export const assessCaptureAnimalKindCountQuestCompletion = (
     `,
     bind: {
       $completed_at: timestamp,
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
       $unit_ids: JSON.stringify(getHunterLodgeCatchableAnimals(5)),
     },
   });
@@ -211,6 +220,7 @@ export const assessCaptureAnimalKindCountQuestCompletion = (
 export const assessGatheredResourceCountQuestCompletion = (
   database: DbFacade,
   timestamp: number,
+  playerId: number,
 ): void => {
   database.exec({
     sql: `
@@ -218,7 +228,8 @@ export const assessGatheredResourceCountQuestCompletion = (
       SET
         completed_at = $completed_at
       WHERE
-        completed_at IS NULL
+        player_id = $player_id
+        AND completed_at IS NULL
         AND village_id IS NULL
         AND quest_id GLOB 'gatheredResourceCount-*'
         AND substr(quest_id, length('gatheredResourceCount-') + 1) GLOB '[0-9]*'
@@ -244,7 +255,7 @@ export const assessGatheredResourceCountQuestCompletion = (
     `,
     bind: {
       $completed_at: timestamp,
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
     },
   });
 };

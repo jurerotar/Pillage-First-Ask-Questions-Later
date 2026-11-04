@@ -22,9 +22,7 @@ describe('reputation-controllers', () => {
         SELECT fi.faction, fr.reputation
         FROM faction_reputation fr
         JOIN faction_ids fi ON fi.id = fr.target_faction_id
-        WHERE fr.source_faction_id = (
-          SELECT faction_id FROM players WHERE id = $player_id
-        );
+        WHERE fr.player_id = $player_id;
       `,
       bind: { $player_id: PLAYER_ID },
       schema: z.strictObject({

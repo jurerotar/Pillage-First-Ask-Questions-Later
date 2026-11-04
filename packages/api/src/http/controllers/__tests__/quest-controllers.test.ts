@@ -54,9 +54,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, NULL)
+          (1, $quest_id, $completed_at, NULL)
       `,
       bind: {
         $quest_id: 'test-global-quest',
@@ -68,9 +68,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, $village_id)
+          (1, $quest_id, $completed_at, $village_id)
       `,
       bind: {
         $quest_id: 'test-village-quest',
@@ -83,9 +83,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, $village_id)
+          (1, $quest_id, $completed_at, $village_id)
       `,
       bind: {
         $quest_id: 'test-other-village-quest',
@@ -115,8 +115,8 @@ describe('quest-controllers', () => {
     const questId = 'gatheredResourceCount-1';
     database.exec({
       sql: `
-        INSERT INTO quests (quest_id, completed_at, village_id)
-        VALUES ($quest_id, $completed_at, $village_id);
+        INSERT INTO quests (player_id, quest_id, completed_at, village_id)
+        VALUES (1, $quest_id, $completed_at, $village_id);
       `,
       bind: {
         $quest_id: questId,
