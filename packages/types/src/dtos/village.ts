@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { buildingFieldSchema } from '../models/building-field';
 import { coordinatesSchema } from '../models/coordinates';
 import { resourceSchema } from '../models/resource';
@@ -26,7 +27,7 @@ export type VillageStorageResourceDto = z.infer<
 
 export const villageBySlugDtoSchema = z.strictObject({
   id: z.number(),
-  tileId: z.number(),
+  tileId: tileIdSchema,
   playerId: z.number(),
   name: z.string(),
   slug: z.string(),

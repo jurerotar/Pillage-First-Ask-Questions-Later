@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
-import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
+import {
+  oasisBonusTypeSchema,
+  tileIdSchema,
+} from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -29,6 +32,350 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('player-controllers', () => {
   const playerId = PLAYER_ID;
+
+  test('allows incoming relocation between villages of the same non-human player', async () => {
+    using database = await prepareTestDatabase();
+
+    const targetTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: tileIdSchema,
+    })!;
+
+    const source = database.selectObject({
+      sql: 'SELECT tile_id, player_id FROM villages WHERE player_id != $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: z.object({ tile_id: tileIdSchema, player_id: z.number() }),
+    })!;
+
+    database.exec({
+      sql: 'UPDATE villages SET player_id = $owner WHERE tile_id = $tile_id',
+      bind: { $owner: source.player_id, $tile_id: targetTileId },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES ($target, $source, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5)
+        ON CONFLICT(tile_id, source_tile_id, unit_id) DO UPDATE SET amount = 5
+      `,
+      bind: { $target: targetTileId, $source: source.tile_id },
+    });
+
+    const stationed = getStationedTroopsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/stationed-troops'>({
+        path: { tileId: targetTileId },
+      }),
+    );
+
+    expect(
+      stationed.find((t) => t.sourceTileId === source.tile_id)?.canRelocate,
+    ).toBe(true);
+
+    const sent = getSentReinforcementsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/sent-reinforcements'>({
+        path: { tileId: source.tile_id },
+      }),
+    );
+
+    expect(
+      sent.find((entry) => entry.village.tileId === targetTileId)?.canRelocate,
+    ).toBe(true);
+
+    relocateReinforcements(
+      database,
+      createControllerArgs<'/tiles/:tileId/relocate-reinforcements', 'post'>({
+        path: { tileId: targetTileId },
+        body: {
+          sourceTileId: source.tile_id,
+          troops: [{ unitId: 'LEGIONNAIRE', amount: 2 }],
+        },
+      }),
+    );
+
+    expect(
+      database.selectValue({
+        sql: `
+          SELECT amount
+          FROM troops
+          WHERE
+            tile_id = $target
+            AND source_tile_id = $source
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')
+        `,
+        bind: { $target: targetTileId, $source: source.tile_id },
+        schema: z.number(),
+      }),
+    ).toBe(3);
+  });
+
+  test('allows outgoing relocation between villages of the same non-human player', async () => {
+    using database = await prepareTestDatabase();
+
+    const targetTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: tileIdSchema,
+    })!;
+
+    const source = database.selectObject({
+      sql: 'SELECT tile_id, player_id FROM villages WHERE player_id != $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: z.object({ tile_id: tileIdSchema, player_id: z.number() }),
+    })!;
+
+    database.exec({
+      sql: 'UPDATE villages SET player_id = $owner WHERE tile_id = $tile_id',
+      bind: { $owner: source.player_id, $tile_id: targetTileId },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES ($target, $source, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5)
+        ON CONFLICT(tile_id, source_tile_id, unit_id) DO UPDATE SET amount = 5
+      `,
+      bind: { $target: targetTileId, $source: source.tile_id },
+    });
+
+    const stationed = getStationedTroopsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/stationed-troops'>({
+        path: { tileId: targetTileId },
+      }),
+    );
+
+    expect(
+      stationed.find((t) => t.sourceTileId === source.tile_id)?.canRelocate,
+    ).toBe(true);
+
+    const sent = getSentReinforcementsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/sent-reinforcements'>({
+        path: { tileId: source.tile_id },
+      }),
+    );
+
+    expect(
+      sent.find((entry) => entry.village.tileId === targetTileId)?.canRelocate,
+    ).toBe(true);
+
+    relocateSentReinforcements(
+      database,
+      createControllerArgs<
+        '/tiles/:tileId/relocate-sent-reinforcements',
+        'post'
+      >({
+        path: { tileId: source.tile_id },
+        body: {
+          stationedTileId: targetTileId,
+          troops: [{ unitId: 'LEGIONNAIRE', amount: 2 }],
+        },
+      }),
+    );
+
+    expect(
+      database.selectValue({
+        sql: `
+          SELECT amount
+          FROM troops
+          WHERE
+            tile_id = $target
+            AND source_tile_id = $source
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')
+        `,
+        bind: { $target: targetTileId, $source: source.tile_id },
+        schema: z.number(),
+      }),
+    ).toBe(3);
+  });
+
+  test('rejects incoming relocation involving another player without changing troops', async () => {
+    using database = await prepareTestDatabase();
+
+    const ownTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: tileIdSchema,
+    })!;
+
+    const otherTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE player_id != $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: tileIdSchema,
+    })!;
+
+    expect(otherTileId).toBeTypeOf('number');
+
+    const tileId = ownTileId;
+
+    const sourceTileId = otherTileId;
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES ($tile_id, $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5)
+        ON CONFLICT(tile_id, source_tile_id, unit_id) DO UPDATE SET amount = 5
+      `,
+      bind: { $tile_id: tileId, $source_tile_id: sourceTileId },
+    });
+
+    const stationed = getStationedTroopsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/stationed-troops'>({
+        path: { tileId },
+      }),
+    );
+
+    expect(
+      stationed.find((t) => t.sourceTileId === sourceTileId)?.canRelocate,
+    ).toBe(false);
+
+    const sent = getSentReinforcementsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/sent-reinforcements'>({
+        path: { tileId: sourceTileId },
+      }),
+    );
+
+    expect(
+      sent.find((entry) => entry.village.tileId === tileId)?.canRelocate,
+    ).toBe(false);
+
+    const before = database.selectObjects({
+      sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
+      schema: z.object({
+        tile_id: tileIdSchema,
+        source_tile_id: tileIdSchema,
+        unit_id: z.number(),
+        amount: z.number(),
+      }),
+    });
+
+    expect(() => {
+      relocateReinforcements(
+        database,
+        createControllerArgs<'/tiles/:tileId/relocate-reinforcements', 'post'>({
+          path: { tileId: ownTileId },
+          body: {
+            sourceTileId: otherTileId,
+            troops: [{ unitId: 'LEGIONNAIRE', amount: 2 }],
+          },
+        }),
+      );
+    }).toThrow(
+      'Reinforcements can only be relocated between villages of the same player',
+    );
+
+    expect(
+      database.selectObjects({
+        sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
+        schema: z.object({
+          tile_id: tileIdSchema,
+          source_tile_id: tileIdSchema,
+          unit_id: z.number(),
+          amount: z.number(),
+        }),
+      }),
+    ).toEqual(before);
+  });
+
+  test('rejects outgoing relocation involving another player without changing troops', async () => {
+    using database = await prepareTestDatabase();
+
+    const ownTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: tileIdSchema,
+    })!;
+
+    const otherTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE player_id != $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: tileIdSchema,
+    })!;
+
+    expect(otherTileId).toBeTypeOf('number');
+
+    const tileId = otherTileId;
+
+    const sourceTileId = ownTileId;
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES ($tile_id, $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5)
+        ON CONFLICT(tile_id, source_tile_id, unit_id) DO UPDATE SET amount = 5
+      `,
+      bind: { $tile_id: tileId, $source_tile_id: sourceTileId },
+    });
+
+    const stationed = getStationedTroopsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/stationed-troops'>({
+        path: { tileId },
+      }),
+    );
+
+    expect(
+      stationed.find((t) => t.sourceTileId === sourceTileId)?.canRelocate,
+    ).toBe(false);
+
+    const sent = getSentReinforcementsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/sent-reinforcements'>({
+        path: { tileId: sourceTileId },
+      }),
+    );
+
+    expect(
+      sent.find((entry) => entry.village.tileId === tileId)?.canRelocate,
+    ).toBe(false);
+
+    const before = database.selectObjects({
+      sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
+      schema: z.object({
+        tile_id: tileIdSchema,
+        source_tile_id: tileIdSchema,
+        unit_id: z.number(),
+        amount: z.number(),
+      }),
+    });
+
+    expect(() => {
+      relocateSentReinforcements(
+        database,
+        createControllerArgs<
+          '/tiles/:tileId/relocate-sent-reinforcements',
+          'post'
+        >({
+          path: { tileId: ownTileId },
+          body: {
+            stationedTileId: otherTileId,
+            troops: [{ unitId: 'LEGIONNAIRE', amount: 2 }],
+          },
+        }),
+      );
+    }).toThrow(
+      'Reinforcements can only be relocated between villages of the same player',
+    );
+
+    expect(
+      database.selectObjects({
+        sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
+        schema: z.object({
+          tile_id: tileIdSchema,
+          source_tile_id: tileIdSchema,
+          unit_id: z.number(),
+          amount: z.number(),
+        }),
+      }),
+    ).toEqual(before);
+  });
 
   const getTroopWheatProductionEffectValue = (
     database: DbFacade,
@@ -81,7 +428,7 @@ describe('player-controllers', () => {
         $tile_id: database.selectValue({
           sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
           bind: { $village_id: villageId },
-          schema: z.number(),
+          schema: tileIdSchema,
         })!,
         $source_specifier: null,
       },
@@ -91,7 +438,7 @@ describe('player-controllers', () => {
   test('getMe should return current player details', async () => {
     using database = await prepareTestDatabase();
 
-    const player = getMe(database, createControllerArgs<'/players/me'>({}));
+    const player = getMe(database, createControllerArgs<'/me'>({}));
 
     expect(player).toMatchObject({ id: playerId });
   });
@@ -101,8 +448,8 @@ describe('player-controllers', () => {
 
     const result = getPlayerVillageListing(
       database,
-      createControllerArgs<'/players/:playerId/villages'>({
-        path: { playerId },
+      createControllerArgs<'/me/villages'>({
+        context: { playerId },
       }),
     );
 
@@ -125,7 +472,7 @@ describe('player-controllers', () => {
       bind: { $player_id: playerId },
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         player_id: z.number(),
       }),
     })!;
@@ -176,7 +523,7 @@ describe('player-controllers', () => {
 
     const result = getPlayerVillagesWithPopulation(
       database,
-      createControllerArgs<'/players/:playerId/villages-with-population'>({
+      createControllerArgs<'/players/:playerId/villages'>({
         path: { playerId: village.player_id },
       }),
     );
@@ -200,7 +547,7 @@ describe('player-controllers', () => {
       bind: { $player_id: playerId },
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
 
@@ -225,7 +572,7 @@ describe('player-controllers', () => {
         LIMIT 2
       `,
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         resource: resourceSchema,
         bonus_type: oasisBonusTypeSchema,
       }),
@@ -251,7 +598,7 @@ describe('player-controllers', () => {
 
     const result = getPlayerVillagesWithPopulation(
       database,
-      createControllerArgs<'/players/:playerId/villages-with-population'>({
+      createControllerArgs<'/players/:playerId/villages'>({
         path: { playerId },
       }),
     );
@@ -277,7 +624,7 @@ describe('player-controllers', () => {
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const troops = getStationedTroopsByTile(
@@ -305,13 +652,13 @@ describe('player-controllers', () => {
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const otherTileId = database.selectValue({
       sql: 'SELECT id FROM tiles WHERE id != $tile_id LIMIT 1;',
       bind: { $tile_id: village.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const foreignSourceTileId = database.selectValue({
@@ -322,7 +669,7 @@ describe('player-controllers', () => {
         LIMIT 1;
       `,
       bind: { $tile_id: village.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.exec({
@@ -544,7 +891,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const targetTileId = database.selectValue({
@@ -557,7 +904,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $source_tile_id: sourceVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.selectValue({
@@ -597,6 +944,19 @@ describe('player-controllers', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].village.tileId).toBe(targetTileId);
+    expect(result[0].canRelocate).toBe(true);
+    expect(result[0].troops.every((troop) => troop.canRelocate)).toBe(true);
+    const stationed = getStationedTroopsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/stationed-troops'>({
+        path: { tileId: targetTileId },
+      }),
+    );
+    expect(
+      stationed
+        .filter((troop) => troop.sourceTileId === sourceVillage.tile_id)
+        .every((troop) => troop.canRelocate),
+    ).toBe(true);
     expect(result[0].troops).toHaveLength(2);
     expect(
       result[0].troops.map(({ unitId }) => unitId).toSorted(),
@@ -641,7 +1001,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -654,7 +1014,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const sourceVillageId = database.selectValue({
@@ -766,7 +1126,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -779,7 +1139,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.selectValue({
@@ -875,7 +1235,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -982,7 +1342,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -995,7 +1355,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const sourceVillageId = database.selectValue({
@@ -1100,8 +1460,8 @@ describe('player-controllers', () => {
         type: z.string(),
         unit_id: unitIdSchema,
         amount: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         original_movement_type: z.string(),
       }),
     })!;
@@ -1136,7 +1496,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1149,7 +1509,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.selectValue({
@@ -1260,7 +1620,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1273,7 +1633,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.selectValue({
@@ -1333,7 +1693,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1346,7 +1706,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.exec({
@@ -1428,7 +1788,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1441,7 +1801,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const sourceVillageId = database.selectValue({
@@ -1576,7 +1936,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -1589,7 +1949,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $source_tile_id: sourceVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const stationedVillageId = database.selectValue({
@@ -1696,8 +2056,8 @@ describe('player-controllers', () => {
         type: z.string(),
         unit_id: unitIdSchema,
         amount: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         original_movement_type: z.string(),
       }),
     })!;
@@ -1731,7 +2091,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -1825,7 +2185,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -1838,7 +2198,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $source_tile_id: sourceVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetTileId = database.selectValue({
@@ -1854,7 +2214,7 @@ describe('player-controllers', () => {
         $source_tile_id: sourceVillage.tile_id,
         $stationed_tile_id: stationedTileId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.exec({
@@ -1956,7 +2316,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -2012,6 +2372,26 @@ describe('player-controllers', () => {
         }),
       ),
     ).toThrow('Relocations cannot be sent to oases');
+    const sent = getSentReinforcementsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/sent-reinforcements'>({
+        path: { tileId: sourceVillage.tile_id },
+      }),
+    );
+    expect(
+      sent.find((entry) => entry.village.tileId === stationedTileId)
+        ?.canRelocate,
+    ).toBe(false);
+    const stationed = getStationedTroopsByTile(
+      database,
+      createControllerArgs<'/tiles/:tileId/stationed-troops'>({
+        path: { tileId: stationedTileId },
+      }),
+    );
+    expect(
+      stationed.find((troop) => troop.sourceTileId === sourceVillage.tile_id)
+        ?.canRelocate,
+    ).toBe(false);
   });
 
   test('relocateReinforcements should relocate hero and update hero effects village', async () => {
@@ -2026,7 +2406,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -2039,7 +2419,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const sourceVillageId = database.selectValue({
@@ -2179,7 +2559,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -2192,7 +2572,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $source_tile_id: sourceVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const stationedVillageId = database.selectValue({

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { villageStorageDtoSchema } from '@pillage-first/types/dtos/village';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { insertEffectByEffectNameQuery } from '../../../queries/effect-queries';
 import { insertEvents } from '../../../utils/events';
@@ -15,7 +16,7 @@ const now = 2_000_000_000_000;
 const prepareVillage = (database: DbFacade) => {
   const village = database.selectObject({
     sql: 'SELECT id, tile_id AS tileId FROM villages ORDER BY id LIMIT 1;',
-    schema: z.strictObject({ id: z.number(), tileId: z.number() }),
+    schema: z.strictObject({ id: z.number(), tileId: tileIdSchema }),
   })!;
 
   database.exec({ sql: 'DELETE FROM events;' });
@@ -108,7 +109,7 @@ describe('village storage endpoint', () => {
     const other = database.selectObject({
       sql: 'SELECT id, tile_id AS tileId FROM villages WHERE id != $id LIMIT 1;',
       bind: { $id: village.id },
-      schema: z.strictObject({ id: z.number(), tileId: z.number() }),
+      schema: z.strictObject({ id: z.number(), tileId: tileIdSchema }),
     })!;
 
     const base = {

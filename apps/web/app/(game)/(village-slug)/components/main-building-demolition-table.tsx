@@ -31,13 +31,13 @@ export const MainBuildingDemolitionTable = () => {
     toggleModal: toggleCancelDemolitionDialog,
     openModal,
     closeModal,
-    modalArgs,
+    data,
   } = useDialog<{ eventId: number }>();
   const { buildingDowngradeEvents } = use(CurrentVillageBuildingQueueContext);
   const { mutate: cancelDemolition } = useCancelDemolition();
 
   const hasDemolitionEvents = buildingDowngradeEvents.length > 0;
-  const eventIdToBeCancelled = modalArgs.current?.eventId;
+  const eventIdToBeCancelled = data?.eventId;
 
   const onDemolitionCancel = (eventId: number) => {
     openModal({ eventId });

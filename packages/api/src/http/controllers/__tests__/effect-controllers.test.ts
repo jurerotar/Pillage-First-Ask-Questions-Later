@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { getTileEffects } from '../effect-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -11,7 +11,7 @@ describe('effect-controllers', () => {
     // Find a village to test with
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages LIMIT 1',
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const effects = getTileEffects(

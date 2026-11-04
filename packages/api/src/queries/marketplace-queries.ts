@@ -275,28 +275,3 @@ export const selectMerchantMovementStatsByVillageIdQuery = `
   WHERE
     v.id = $village_id;
 `;
-
-export const updateTradeRouteQuery = `
-  UPDATE events
-  SET
-    starts_at = $starts_at,
-    meta = $meta
-  WHERE
-    id = $event_id
-    AND village_id = $village_id
-    AND type = 'tradeRoute'
-  RETURNING changes();
-`;
-
-export const deleteTradeRouteByTileIdQuery = `
-  DELETE
-  FROM events
-  WHERE
-    id = $event_id
-    AND village_id = (
-      SELECT id
-      FROM villages
-      WHERE tile_id = $tile_id
-    )
-    AND type = 'tradeRoute';
-`;

@@ -72,7 +72,7 @@ export const useDeveloperActions = () => {
     UpdateVillageResourcesArgs
   >({
     mutationFn: async ({ villageId, resource, amount, direction }) => {
-      await apiClient.patch('/developer-settings/:villageId/resources', {
+      await apiClient.patch('/developer/villages/:villageId/resources', {
         path: {
           villageId,
         },
@@ -94,8 +94,7 @@ export const useDeveloperActions = () => {
     AdjustCulturePointsArgs
   >({
     mutationFn: async ({ amount }) => {
-      await apiClient.patch('/developer-settings/:villageId/culture-points', {
-        path: { villageId: currentVillage.id },
+      await apiClient.patch('/developer/me/culture-points', {
         body: { amount },
       });
     },
@@ -107,7 +106,7 @@ export const useDeveloperActions = () => {
   const { mutate: spawnHeroItem } = useMutation<void, Error, SpawnHeroItemArgs>(
     {
       mutationFn: async ({ itemId, amount }) => {
-        await apiClient.patch('/developer-settings/:heroId/spawn-item', {
+        await apiClient.patch('/developer/heroes/:heroId/spawn-item', {
           path: {
             heroId: hero.id,
           },
@@ -129,7 +128,7 @@ export const useDeveloperActions = () => {
   const { mutate: incrementHeroAdventurePoints } = useMutation<void>({
     mutationFn: async () => {
       await apiClient.patch(
-        '/developer-settings/:heroId/increment-adventure-points',
+        '/developer/heroes/:heroId/increment-adventure-points',
         {
           path: {
             heroId: hero.id,
@@ -144,7 +143,7 @@ export const useDeveloperActions = () => {
 
   const { mutate: levelUpHero } = useMutation<void>({
     mutationFn: async () => {
-      await apiClient.patch('/developer-settings/:heroId/level-up', {
+      await apiClient.patch('/developer/heroes/:heroId/level-up', {
         path: {
           heroId: hero.id,
         },
@@ -157,7 +156,7 @@ export const useDeveloperActions = () => {
 
   const { mutate: killHero } = useMutation<void>({
     mutationFn: async () => {
-      await apiClient.patch('/developer-settings/:heroId/kill', {
+      await apiClient.patch('/developer/heroes/:heroId/kill', {
         path: {
           heroId: hero.id,
         },
@@ -175,7 +174,7 @@ export const useDeveloperActions = () => {
   const { mutate: adjustLoyalty } = useMutation<void, Error, AdjustLoyaltyArgs>(
     {
       mutationFn: async ({ amount }) => {
-        await apiClient.patch('/developer-settings/:tileId/adjustLoyalty', {
+        await apiClient.patch('/developer/tiles/:tileId/loyalty', {
           path: { tileId: currentVillage.tileId },
           body: { amount },
         });

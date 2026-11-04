@@ -13,8 +13,9 @@ describe('filter-controllers', () => {
 
     const filters = getFilters(
       database,
-      createControllerArgs<'/players/:playerId/filters/:name'>({
-        path: { playerId: 1, name: reportFilterNameByScope.global },
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
       }),
     );
 
@@ -28,16 +29,18 @@ describe('filter-controllers', () => {
 
     updateFilters(
       database,
-      createControllerArgs<'/players/:playerId/filters/:name', 'patch'>({
-        path: { playerId: 1, name: reportFilterNameByScope.global },
+      createControllerArgs<'/me/filters/:name', 'patch'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
         body: { filters: ['battle', 'unitResearch', 'unitImprovement'] },
       }),
     );
 
     const filters = getFilters(
       database,
-      createControllerArgs<'/players/:playerId/filters/:name'>({
-        path: { playerId: 1, name: reportFilterNameByScope.global },
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
       }),
     );
 
@@ -53,22 +56,25 @@ describe('filter-controllers', () => {
 
     updateFilters(
       database,
-      createControllerArgs<'/players/:playerId/filters/:name', 'patch'>({
-        path: { playerId: 1, name: reportFilterNameByScope.unread },
+      createControllerArgs<'/me/filters/:name', 'patch'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.unread },
         body: { filters: ['battle'] },
       }),
     );
 
     const unreadFilters = getFilters(
       database,
-      createControllerArgs<'/players/:playerId/filters/:name'>({
-        path: { playerId: 1, name: reportFilterNameByScope.unread },
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.unread },
       }),
     );
     const globalFilters = getFilters(
       database,
-      createControllerArgs<'/players/:playerId/filters/:name'>({
-        path: { playerId: 1, name: reportFilterNameByScope.global },
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
       }),
     );
 
@@ -83,16 +89,18 @@ describe('filter-controllers', () => {
 
     updateFilters(
       database,
-      createControllerArgs<'/players/:playerId/filters/:name', 'patch'>({
-        path: { playerId: 1, name: reportFilterNameByScope.global },
+      createControllerArgs<'/me/filters/:name', 'patch'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
         body: { filters: ['battle', 'battle'] },
       }),
     );
 
     const filters = getFilters(
       database,
-      createControllerArgs<'/players/:playerId/filters/:name'>({
-        path: { playerId: 1, name: reportFilterNameByScope.global },
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
       }),
     );
 

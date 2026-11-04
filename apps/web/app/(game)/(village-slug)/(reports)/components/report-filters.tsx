@@ -95,6 +95,7 @@ export const ReportFilters = ({
             render={
               <Button
                 aria-label={t('Report filters')}
+                className="w-fit"
                 size="sm"
                 variant="outline"
               >

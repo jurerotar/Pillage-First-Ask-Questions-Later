@@ -4,6 +4,7 @@ import { items } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Server } from '@pillage-first/types/models/server';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { WorldItem } from '@pillage-first/types/models/world-item';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -16,7 +17,7 @@ import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 
 const rowSchema = z.strictObject({
-  tile_id: z.number(),
+  tile_id: tileIdSchema,
   x: z.number(),
   y: z.number(),
 });

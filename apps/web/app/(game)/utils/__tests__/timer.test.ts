@@ -46,4 +46,36 @@ describe('timer', () => {
 
     unsubscribe();
   });
+
+  test('mounting countdowns does not refresh an active timer or notify existing subscribers', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval'] });
+    vi.setSystemTime(1000);
+
+    const { getCurrentTime, subscribeToTimer } = await import(
+      'app/(game)/utils/timer'
+    );
+    const listeners = Array.from({ length: 21 }, () => vi.fn());
+    const unsubscribers = [subscribeToTimer(listeners[0])];
+
+    for (const [index, listener] of listeners.slice(1).entries()) {
+      vi.setSystemTime(1100 + index);
+      unsubscribers.push(subscribeToTimer(listener));
+      await Promise.resolve();
+    }
+
+    expect(getCurrentTime()).toBe(1000);
+    for (const listener of listeners) {
+      expect(listener).not.toHaveBeenCalled();
+    }
+
+    vi.advanceTimersByTime(1000);
+
+    for (const listener of listeners) {
+      expect(listener).toHaveBeenCalledTimes(1);
+    }
+
+    for (const unsubscribe of unsubscribers) {
+      unsubscribe();
+    }
+  });
 });

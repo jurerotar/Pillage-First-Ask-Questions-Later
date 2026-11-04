@@ -4,13 +4,13 @@ import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
 import { addPlayerCulturePoints } from '../../utils/culture-points';
 import { onHeroDeath } from '../../utils/hero';
 import { adjustLoyalty, createLoyaltyIncreaseEvent } from '../../utils/loyalty';
 import {
   addResourceSiteResourcesAt,
-  getVillagePlayerId,
   getVillageTileId,
   subtractResourceSiteResourcesAt,
 } from '../../utils/village';
@@ -56,7 +56,7 @@ export const updateDeveloperSettings = createController(
     summary: 'Update developer setting',
     requestParams: {
       path: z.strictObject({
-        developerSettingName: z.string(),
+        developerSettingName: developerSettingsSchema.keyof(),
       }),
     },
     requestBody: z.strictObject({
@@ -128,6 +128,18 @@ export const updateDeveloperSettings = createController(
         eventTypes = ['heroRevival'];
         break;
       }
+      case 'isFreeBuildingConstructionEnabled':
+      case 'isFreeCelebrationsEnabled':
+      case 'isFreeHeroReviveEnabled':
+      case 'isFreeHuntingPartiesEnabled':
+      case 'isFreeUnitImprovementEnabled':
+      case 'isFreeUnitResearchEnabled':
+      case 'isFreeUnitTrainingEnabled': {
+        break;
+      }
+      default: {
+        throw new Error('Unknown developer setting');
+      }
     }
 
     if (eventTypes.length > 0) {
@@ -151,7 +163,7 @@ export const updateDeveloperSettings = createController(
 });
 
 export const levelUpHero = createController(
-  '/developer-settings/:heroId/level-up',
+  '/developer/heroes/:heroId/level-up',
   'patch',
   {
     summary: 'Level up hero',
@@ -186,7 +198,7 @@ export const levelUpHero = createController(
 });
 
 export const spawnHeroItem = createController(
-  '/developer-settings/:heroId/spawn-item',
+  '/developer/heroes/:heroId/spawn-item',
   'patch',
   {
     summary: 'Spawn hero item',
@@ -219,7 +231,7 @@ export const spawnHeroItem = createController(
 });
 
 export const updateVillageResources = createController(
-  '/developer-settings/:villageId/resources',
+  '/developer/villages/:villageId/resources',
   'patch',
   {
     summary: 'Update village resources',
@@ -259,13 +271,10 @@ export const updateVillageResources = createController(
 });
 
 export const adjustCulturePoints = createController(
-  '/developer-settings/:villageId/culture-points',
+  '/developer/me/culture-points',
   'patch',
   {
     summary: 'Adjust player culture points',
-    requestParams: {
-      path: z.strictObject({ villageId: z.coerce.number() }),
-    },
     requestBody: z.strictObject({
       amount: z.union([
         z.literal(-10_000),
@@ -275,17 +284,12 @@ export const adjustCulturePoints = createController(
       ]),
     }),
   },
-)(({ database, path: { villageId }, body: { amount } }) => {
-  addPlayerCulturePoints(
-    database,
-    amount,
-    Date.now(),
-    getVillagePlayerId(database, villageId),
-  );
+)(({ database, context: { playerId }, body: { amount } }) => {
+  addPlayerCulturePoints(database, amount, Date.now(), playerId);
 });
 
 export const incrementHeroAdventurePoints = createController(
-  '/developer-settings/:heroId/increment-adventure-points',
+  '/developer/heroes/:heroId/increment-adventure-points',
   'patch',
   {
     summary: 'Increment hero adventure points',
@@ -317,7 +321,7 @@ export const incrementHeroAdventurePoints = createController(
 });
 
 export const killHero = createController(
-  '/developer-settings/:heroId/kill',
+  '/developer/heroes/:heroId/kill',
   'patch',
   {
     summary: 'Kill hero',
@@ -374,12 +378,12 @@ export const killHero = createController(
 });
 
 export const adjustVillageLoyalty = createController(
-  '/developer-settings/:tileId/adjustLoyalty',
+  '/developer/tiles/:tileId/loyalty',
   'patch',
   {
     summary: 'Adjust village loyalty',
     requestParams: {
-      path: z.strictObject({ tileId: z.coerce.number() }),
+      path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
     },
     requestBody: z.strictObject({ amount: z.number() }),
   },

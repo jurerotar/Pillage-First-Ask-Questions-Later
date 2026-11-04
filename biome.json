@@ -44,11 +44,13 @@
     "rules": {
       "preset": "recommended",
       "nursery": {
-        "noDuplicateMapKeys": "error",
-        "noInvalidFileInputAccept": "error",
-        "noMisplacedListElements": "error",
-        "noReactObjectTypeAsDefaultProp": "error",
-        "noTailwindLegacyUtilities": "warn"
+        "noArrayForEach": "error",
+        "noAwaitInPromiseMethods": "error",
+        "noLateEventControl": "error",
+        "noMismatchedMapKey": "error",
+        "noMisusedPromises": "error",
+        "noTailwindLegacyUtilities": "warn",
+        "noUselessTypeAssertion": "error"
       },
       "suspicious": {
         "noDocumentCookie": "off",

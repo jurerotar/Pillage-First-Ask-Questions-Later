@@ -21,8 +21,8 @@ describe('unit-improvement-controllers', () => {
 
     const improvements = getUnitImprovements(
       database,
-      createControllerArgs<'/players/:playerId/unit-improvements'>({
-        path: { playerId },
+      createControllerArgs<'/me/unit-improvements'>({
+        context: { playerId },
       }),
     );
 

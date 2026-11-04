@@ -90,8 +90,8 @@ type BaseMerchantMovementEvent = BaseMerchantRouteEvent & {
   repeatResources: Resources;
 };
 
-type TradeRouteEvent = BaseMerchantRouteEvent & {
-  interval: number;
+type TradeRouteEvent = {
+  tradeRouteId: number;
 };
 
 export const culturePointsCelebrationTypeSchema = z.enum(['small', 'large']);
@@ -168,6 +168,17 @@ export const gameEventTypeSchema = z.enum([
   'culturePointsCelebration',
   'resourceTransfer',
   'tradeRoute',
+]);
+
+export const troopMovementTypeSchema = gameEventTypeSchema.extract([
+  'troopMovementReinforcements',
+  'troopMovementRelocation',
+  'troopMovementReturn',
+  'troopMovementFindNewVillage',
+  'troopMovementAttack',
+  'troopMovementRaid',
+  'troopMovementOasisOccupation',
+  'troopMovementAdventure',
 ]);
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;

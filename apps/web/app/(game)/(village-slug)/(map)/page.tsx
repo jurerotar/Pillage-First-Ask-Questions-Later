@@ -74,19 +74,19 @@ const MapPageContents = () => {
     isOpen: isTileModalOpened,
     openModal,
     closeModal: closeTileModal,
-    modalArgs,
+    data,
   } = useDialog<Tile>();
   const {
     isOpen: isSendTroopsModalOpen,
     openModal: openSendTroopsModal,
     closeModal: closeSendTroopsModal,
-    modalArgs: sendTroopsModalArgs,
+    data: sendTroopsModalData,
   } = useDialog<MapSendTroopsAction>();
   const {
     isOpen: isSendResourcesModalOpen,
     openModal: openSendResourcesModal,
     closeModal: closeSendResourcesModal,
-    modalArgs: sendResourcesModalArgs,
+    data: sendResourcesModalData,
   } = useDialog<MapSendResourcesAction>();
   const { map } = useMap();
   const { height, width } = useWindowSize();
@@ -427,7 +427,7 @@ const MapPageContents = () => {
             }}
             deleteMapMarker={deleteMapMarker}
             mapMarkersByTileId={mapMarkersByTileId}
-            tile={modalArgs.current!}
+            tile={data!}
             onAttackOrRaid={(tile) => {
               const isOasis = tile.type === 'oasis';
               const isTargetUnoccupiedOasis =
@@ -475,12 +475,12 @@ const MapPageContents = () => {
         </Suspense>
       </Dialog>
       <MapSendTroopsModal
-        action={sendTroopsModalArgs.current}
+        action={sendTroopsModalData}
         isOpen={isSendTroopsModalOpen}
         onClose={closeSendTroopsModal}
       />
       <MapSendResourcesModal
-        action={sendResourcesModalArgs.current}
+        action={sendResourcesModalData}
         isOpen={isSendResourcesModalOpen}
         onClose={closeSendResourcesModal}
       />

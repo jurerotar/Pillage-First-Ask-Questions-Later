@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   insertEffectQuery,
   selectWheatProductionEffectIdQuery,
@@ -23,7 +24,7 @@ describe('map-controllers', () => {
       sql: 'SELECT id, tile_id, player_id FROM villages ORDER BY id LIMIT 1;',
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         player_id: z.number(),
       }),
     })!;
@@ -123,7 +124,7 @@ describe('map-controllers', () => {
     // 1. Create a test village
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -291,8 +292,8 @@ describe('map-controllers', () => {
     // 1. Add marker
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: { tileId, description, color, icon: 'mapMarkerAttack' },
       }),
     );
@@ -300,8 +301,8 @@ describe('map-controllers', () => {
     // 2. Get markers
     const markers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
@@ -315,8 +316,8 @@ describe('map-controllers', () => {
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId,
           description: 'Updated target',
@@ -328,8 +329,8 @@ describe('map-controllers', () => {
 
     const updatedMarkers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
@@ -344,16 +345,17 @@ describe('map-controllers', () => {
     // 3. Remove marker
     removeMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers/:tileId', 'delete'>({
-        path: { playerId, tileId },
+      createControllerArgs<'/me/map-markers/:tileId', 'delete'>({
+        context: { playerId },
+        path: { tileId },
       }),
     );
 
     // 4. Get markers again
     const markersAfterRemoval = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
@@ -367,8 +369,8 @@ describe('map-controllers', () => {
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId: 123,
           description: 'Forward village target',
@@ -380,8 +382,8 @@ describe('map-controllers', () => {
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId: 124,
           description: '',
@@ -393,8 +395,8 @@ describe('map-controllers', () => {
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId: 125,
           description: '   ',
@@ -406,8 +408,8 @@ describe('map-controllers', () => {
 
     const markers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 

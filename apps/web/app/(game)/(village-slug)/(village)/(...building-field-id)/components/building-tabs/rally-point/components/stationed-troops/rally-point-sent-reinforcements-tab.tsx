@@ -41,22 +41,25 @@ export const RallyPointSentReinforcementsTab = () => {
     isOpen: isReturnModalOpen,
     openModal: openReturnModal,
     closeModal: closeReturnModal,
-    modalArgs: returnModalArgs,
+    data: returnModalData,
   } = useDialog<ReinforcementDialogData>();
   const {
     isOpen: isRelocateModalOpen,
     openModal: openRelocateModal,
     closeModal: closeRelocateModal,
-    modalArgs: relocateModalArgs,
+    data: relocateModalData,
   } = useDialog<ReinforcementDialogData>();
 
   const sentReinforcementEntries = useMemo(() => {
-    return sentReinforcements.map(({ targetType, village, troops }) => ({
-      targetType,
-      village,
-      troops,
-      sortedTroops: sortTroops(tribe, troops),
-    }));
+    return sentReinforcements.map(
+      ({ canRelocate, targetType, village, troops }) => ({
+        targetType,
+        canRelocate,
+        village,
+        troops,
+        sortedTroops: sortTroops(tribe, troops),
+      }),
+    );
   }, [sentReinforcements, tribe]);
 
   const page = Number.parseInt(
@@ -74,16 +77,16 @@ export const RallyPointSentReinforcementsTab = () => {
     });
   };
 
-  const selectedReturnSentReinforcements = returnModalArgs.current?.tileId
+  const selectedReturnSentReinforcements = returnModalData?.tileId
     ? (sentReinforcements.find(
-        ({ village }) => village.tileId === returnModalArgs.current?.tileId,
+        ({ village }) => village.tileId === returnModalData?.tileId,
       ) ?? null)
     : null;
 
-  const selectedRelocateSentReinforcements = relocateModalArgs.current?.tileId
-    ? (sentReinforcements.find(
-        ({ village }) => village.tileId === relocateModalArgs.current?.tileId,
-      ) ?? null)
+  const selectedRelocateSentReinforcements = relocateModalData?.tileId
+    ? (sentReinforcementEntries.find(({ canRelocate, village }) => {
+        return canRelocate && village.tileId === relocateModalData?.tileId;
+      }) ?? null)
     : null;
 
   return (
@@ -106,7 +109,7 @@ export const RallyPointSentReinforcementsTab = () => {
         ) : (
           <>
             {pagination.currentPageItems.map(
-              ({ targetType, village, sortedTroops }) => (
+              ({ canRelocate, village, sortedTroops }) => (
                 <UnitTable
                   key={village.tileId}
                   tribe={tribe}
@@ -132,7 +135,7 @@ export const RallyPointSentReinforcementsTab = () => {
                         >
                           <IoReturnUpForwardOutline className="size-4" />
                         </Button>
-                        {targetType !== 'oasis' && (
+                        {canRelocate && (
                           <Button
                             variant="outline"
                             size="sm"

@@ -45,6 +45,7 @@ import type {
   TroopMovementEvent,
 } from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   playableTribeSchema,
   tribeSchema,
@@ -117,6 +118,7 @@ import {
   assessQueuedTroopCountByIdQuestCompletion,
   assessQueuedTroopCountQuestCompletion,
 } from './quests';
+import { getTradeRouteById } from './trade-route-state';
 import {
   materializeWoundedTroopsAt,
   removeTroops,
@@ -559,7 +561,7 @@ export const validateEventCreationPrerequisites = (
       `,
       bind: { $village_id: villageId },
       schema: z.strictObject({
-        villageTileId: z.number(),
+        villageTileId: tileIdSchema,
         playerTribe: playableTribeSchema,
       }),
     })!;
@@ -823,6 +825,7 @@ export const validateEventCreationPrerequisites = (
     const { available: adventurePoints } = getPlayerHeroAdventureStateAt(
       database,
       Date.now(),
+      getVillagePlayerId(database, event.villageId),
     );
 
     if (adventurePoints === 0) {
@@ -921,48 +924,10 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTradeRouteEvent(event)) {
-    const { village, merchant, marketplaceLevel } = getVillageMerchantStats(
-      database,
-      event.villageId,
-    );
-    const targetVillage = getMarketplaceVillage(
-      database,
-      event.targetVillageId,
-    );
+    const route = getTradeRouteById(database, event.tradeRouteId);
 
-    if (!targetVillage || targetVillage.playerId !== village.playerId) {
-      throw new Error(
-        'Target village does not exist or does not belong to player',
-      );
-    }
-
-    if (event.targetVillageId === event.villageId) {
-      throw new Error('Target village must be different from source village');
-    }
-
-    if (village.tileId !== event.originTileId) {
-      throw new Error('Origin tile does not belong to source village');
-    }
-
-    if (targetVillage.tileId !== event.targetTileId) {
-      throw new Error('Target tile does not belong to target village');
-    }
-
-    if (getTotalResourceAmount(event.resources) <= 0) {
-      throw new Error('Trade route must include resources');
-    }
-
-    if (!Number.isFinite(event.interval) || event.interval <= 0) {
-      throw new Error('Trade route interval must be positive');
-    }
-
-    const merchantAmount = getMerchantAmount(
-      event.resources,
-      merchant.merchantCapacity,
-    );
-
-    if (merchantAmount > marketplaceLevel) {
-      throw new Error('Not enough merchants');
+    if (!route || route.paused || route.villageId !== event.villageId) {
+      throw new Error('Active trade route does not exist');
     }
 
     return;
@@ -1083,8 +1048,16 @@ export const runEventCreationSideEffects = (
       return;
     }
 
-    assessQueuedTroopCountQuestCompletion(database, now);
-    assessQueuedTroopCountByIdQuestCompletion(database, event.unitId, now);
+    const playerId = getVillagePlayerId(database, event.villageId);
+
+    assessQueuedTroopCountQuestCompletion(database, now, playerId);
+
+    assessQueuedTroopCountByIdQuestCompletion(
+      database,
+      event.unitId,
+      now,
+      playerId,
+    );
   }
 
   if (isCulturePointsCelebrationEvent(event)) {
@@ -1116,12 +1089,16 @@ export const runEventCreationSideEffects = (
     });
 
     database.exec({
-      sql: `UPDATE quests SET completed_at = $timestamp
-        WHERE completed_at IS NULL AND village_id IS NULL
+      sql: `
+        UPDATE quests
+        SET completed_at = $timestamp
+        WHERE completed_at IS NULL
+          AND village_id IS NULL
           AND quest_id GLOB 'celebrationCount-*'
           AND CAST(substr(quest_id, length('celebrationCount-') + 1) AS INTEGER)
-            <= (SELECT celebrations_held FROM culture_points WHERE player_id = $player_id)
-          AND $player_id = ${PLAYER_ID};`,
+          <= (SELECT celebrations_held FROM culture_points WHERE player_id = $player_id)
+          AND player_id = $player_id;
+      `,
       bind: { $timestamp: event.startsAt, $player_id: playerId },
     });
   }
@@ -1338,7 +1315,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const { total } = calculateComputedEffect(
@@ -1380,7 +1357,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const { total: unitResearchDurationModifier } = calculateComputedEffect(
@@ -1417,7 +1394,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const { total: unitImprovementDurationModifier } = calculateComputedEffect(
@@ -1457,7 +1434,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const { total } = calculateComputedEffect(

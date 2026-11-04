@@ -10,6 +10,7 @@ import {
 } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { rollLootTable } from '@pillage-first/utils/loot-table';
@@ -69,15 +70,18 @@ export const adventureMovementResolver: Resolver<
 > = (database, args) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
-  const { heroId, healthBefore, adventureId } = database.selectObject({
-    sql: selectHeroAdventureContextByVillageIdQuery,
-    bind: { $village_id: villageId },
-    schema: z.strictObject({
-      heroId: z.number(),
-      healthBefore: z.number(),
-      adventureId: z.int(),
-    }),
-  })!;
+  const { heroId, playerId, healthBefore, adventureId } = database.selectObject(
+    {
+      sql: selectHeroAdventureContextByVillageIdQuery,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        heroId: z.number(),
+        playerId: z.number(),
+        healthBefore: z.number(),
+        adventureId: z.int(),
+      }),
+    },
+  )!;
 
   const healthAfter = database.selectValue({
     sql: updateHeroAfterAdventureByHeroIdQuery,
@@ -123,7 +127,7 @@ export const adventureMovementResolver: Resolver<
     bind: { $hero_id: heroId },
   });
 
-  assessAdventureCountQuestCompletion(database, resolvesAt);
+  assessAdventureCountQuestCompletion(database, resolvesAt, playerId);
 
   if (healthAfter < 100) {
     createHeroHealthRegenerationEventByVillageId(
@@ -437,7 +441,7 @@ export const reinforcementMovementResolver: Resolver<
       sql: selectVillageIdAndTileIdQuery,
       bind: { $tile_id: targetTileId },
       schema: z.strictObject({
-        tileId: z.number(),
+        tileId: tileIdSchema,
         tileType: z.enum(['free', 'oasis']),
         villageId: z.number(),
       }),

@@ -15,6 +15,9 @@
     "./dtos/combat-simulator": {
       "default": "./src/dtos/combat-simulator.ts"
     },
+    "./models/trade-route": {
+      "default": "./src/models/trade-route.ts"
+    },
     "./dtos/preferences": {
       "default": "./src/dtos/preferences.ts"
     },

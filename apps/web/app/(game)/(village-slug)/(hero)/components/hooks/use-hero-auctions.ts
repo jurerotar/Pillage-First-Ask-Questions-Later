@@ -3,7 +3,6 @@ import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
-import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import {
   heroAuctionBuyListingsCacheKey,
   heroAuctionHistoryCacheKey,
@@ -21,20 +20,12 @@ type SellHeroItemArgs = {
 
 export const useHeroAuctionBuyListings = () => {
   const { apiClient } = use(ApiContext);
-  const { player } = useMe();
   const { t } = useTranslation();
 
   const { data: buyListings } = useSuspenseQuery({
     queryKey: [heroAuctionBuyListingsCacheKey],
     queryFn: async () => {
-      const { data } = await apiClient.get(
-        '/players/:playerId/hero/auctions/buy',
-        {
-          path: {
-            playerId: player.id,
-          },
-        },
-      );
+      const { data } = await apiClient.get('/me/hero/auctions/buy');
 
       return data;
     },
@@ -46,9 +37,8 @@ export const useHeroAuctionBuyListings = () => {
     number
   >({
     mutationFn: async (listingId) => {
-      await apiClient.post('/players/:playerId/hero/auctions/buy/:listingId', {
+      await apiClient.post('/me/hero/auctions/buy/:listingId', {
         path: {
-          playerId: player.id,
           listingId,
         },
       });
@@ -90,19 +80,11 @@ export const useHeroAuctionBuyListings = () => {
 
 export const useHeroAuctionSellListings = () => {
   const { apiClient } = use(ApiContext);
-  const { player } = useMe();
 
   const { data: sellListings } = useSuspenseQuery({
     queryKey: [heroAuctionSellListingsCacheKey],
     queryFn: async () => {
-      const { data } = await apiClient.get(
-        '/players/:playerId/hero/auctions/sell',
-        {
-          path: {
-            playerId: player.id,
-          },
-        },
-      );
+      const { data } = await apiClient.get('/me/hero/auctions/sell');
 
       return data;
     },
@@ -114,10 +96,7 @@ export const useHeroAuctionSellListings = () => {
     SellHeroItemArgs
   >({
     mutationFn: async ({ itemId, amount, mode }) => {
-      await apiClient.post('/players/:playerId/hero/auctions/sell', {
-        path: {
-          playerId: player.id,
-        },
+      await apiClient.post('/me/hero/auctions/sell', {
         body: {
           itemId,
           amount,

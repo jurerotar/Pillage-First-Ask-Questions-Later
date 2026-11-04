@@ -7,7 +7,6 @@ import {
   reportFilterNameByScope,
   reportFiltersDtoSchema,
 } from '@pillage-first/types/dtos/report';
-import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import {
   filtersCacheKey,
   reportListingsCacheKey,
@@ -17,16 +16,14 @@ import { invalidateQueries } from 'app/utils/react-query';
 
 export const useReportFilters = (scope: ReportScope) => {
   const { apiClient } = use(ApiContext);
-  const { player } = useMe();
   const [searchParams, setSearchParams] = useSearchParams();
   const filterName = reportFilterNameByScope[scope];
 
   const { data: filters } = useSuspenseQuery({
     queryKey: [filtersCacheKey, filterName],
     queryFn: async () => {
-      const { data } = await apiClient.get('/players/:playerId/filters/:name', {
+      const { data } = await apiClient.get('/me/filters/:name', {
         path: {
-          playerId: player.id,
           name: filterName,
         },
       });
@@ -41,9 +38,8 @@ export const useReportFilters = (scope: ReportScope) => {
     ReportListingFilter[]
   >({
     mutationFn: async (nextFilters) => {
-      await apiClient.patch('/players/:playerId/filters/:name', {
+      await apiClient.patch('/me/filters/:name', {
         path: {
-          playerId: player.id,
           name: filterName,
         },
         body: {

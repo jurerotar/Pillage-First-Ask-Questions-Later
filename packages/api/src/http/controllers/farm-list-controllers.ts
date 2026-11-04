@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   farmListDetailsDtoSchema,
   farmListDtoSchema,
   updateFarmListDtoSchema,
 } from '@pillage-first/types/dtos/farm-list';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   deleteFarmListQuery,
   deleteFarmListTileQuery,
@@ -28,21 +28,13 @@ import {
   farmListTileRowSchema,
 } from './schemas/farm-list-schemas';
 
-export const getMeFarmLists = createController(
-  '/players/:playerId/farm-lists',
-  {
-    summary: 'Get player farm lists',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: z.array(farmListDtoSchema),
-  },
-)(({ database }) => {
+export const getMeFarmLists = createController('/me/farm-lists', {
+  summary: 'Get player farm lists',
+  response: z.array(farmListDtoSchema),
+})(({ database, context: { playerId } }) => {
   return database.selectObjects({
     sql: selectPlayerFarmListsQuery,
-    bind: { $player_id: PLAYER_ID },
+    bind: { $player_id: playerId },
     schema: farmListSchema,
   });
 });
@@ -143,7 +135,7 @@ export const addTileToFarmList = createController(
       }),
     },
     requestBody: z.strictObject({
-      tileId: z.number(),
+      tileId: tileIdSchema,
     }),
   },
 )(({ database, path: { farmListId }, body: { tileId } }) => {
@@ -173,7 +165,7 @@ export const removeTileFromFarmList = createController(
     requestParams: {
       path: z.strictObject({
         farmListId: z.coerce.number(),
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
   },
@@ -185,23 +177,18 @@ export const removeTileFromFarmList = createController(
 });
 
 export const removeTileFromAllPlayerFarmLists = createController(
-  '/players/:playerId/farm-lists/tiles',
+  '/me/farm-lists/tiles/:tileId',
   'delete',
   {
     summary: 'Remove tile from all player farm lists',
     requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
+      path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
     },
-    requestBody: z.strictObject({
-      tileId: z.number(),
-    }),
   },
-)(({ database, body: { tileId } }) => {
+)(({ database, context: { playerId }, path: { tileId } }) => {
   database.exec({
     sql: deletePlayerFarmListTileQuery,
-    bind: { $tile_id: tileId, $player_id: PLAYER_ID },
+    bind: { $tile_id: tileId, $player_id: playerId },
   });
 });
 

@@ -72,6 +72,8 @@ import {
 import {
   createTradeRoute,
   deleteTradeRoute,
+  listTradeRoutes,
+  setTradeRoutePaused,
   transferResources,
   updateTradeRoute,
 } from './controllers/marketplace-controllers';
@@ -145,8 +147,6 @@ import {
 } from './controllers/village-controllers';
 import { getArtifactsAroundVillage } from './controllers/world-items-controllers';
 import { createRoute, type Route } from './route';
-
-// NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
 export const apiRoutes = [
   // Server
@@ -256,6 +256,8 @@ export const apiRoutes = [
   createRoute(transferResources),
   createRoute(createTradeRoute),
   createRoute(updateTradeRoute),
+  createRoute(listTradeRoutes),
+  createRoute(setTradeRoutePaused),
   createRoute(deleteTradeRoute),
 
   // Map Filters

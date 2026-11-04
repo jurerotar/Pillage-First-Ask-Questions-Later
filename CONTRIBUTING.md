@@ -19,6 +19,7 @@ See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for detai
 
 **Pillage First, Ask Questions Later** requires [Node.js version 24.22.1 (LTS)](https://nodejs.org/en/download) or
 newer.
+
 1. Fork the project
 2. Clone the forked project
 3. Run `npm install` at the root of the repository
@@ -31,6 +32,7 @@ newer.
 
 This repository is set up as a monorepo with [Turborepo](https://turborepo.com). It currently consists of the following
 apps & packages:
+
 - **apps**
 -
 - [web](/apps/web/README.md) (frontend client)
@@ -121,6 +123,7 @@ TypeScript compiler errors.
 Please refer to the `.github/workflows/` directory for details on each action.
 
 You may run these checks locally.
+
 - lint - `turbo run lint` or `turbo run lint:check`
 - format - `turbo run format` or `turbo run format:check`
 - typecheck - `turbo run type-check`

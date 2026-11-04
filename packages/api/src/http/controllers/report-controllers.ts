@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   reportFilterNameByScope,
   reportListingDtoSchema,
@@ -10,6 +9,7 @@ import {
   reportSchema,
   reportTagSchema,
 } from '@pillage-first/types/models/report';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
@@ -73,13 +73,13 @@ export const getReports = createController('/reports', {
     }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, query }) => {
+})(({ database, context: { playerId }, query }) => {
   const scope = query.scope ?? 'global';
 
   const rows = database.selectObjects({
     sql: selectReportListingsQuery,
     bind: {
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
       $village_id: query.villageId ?? null,
       $scope: scope,
       $filter_name: reportFilterNameByScope[scope],
@@ -93,13 +93,13 @@ export const getReports = createController('/reports', {
 export const getTileReports = createController('/tiles/:tileId/reports', {
   summary: 'Get the latest player battle and scouting reports targeting a tile',
   requestParams: {
-    path: z.strictObject({ tileId: z.coerce.number() }),
+    path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, path: { tileId } }) => {
+})(({ database, context: { playerId }, path: { tileId } }) => {
   const rows = database.selectObjects({
     sql: selectTileReportListingsQuery,
-    bind: { $tile_id: tileId, $player_id: PLAYER_ID },
+    bind: { $tile_id: tileId, $player_id: playerId },
     schema: getReportListingsRowSchema,
   });
 
@@ -235,7 +235,7 @@ export const getReport = createController('/reports/:reportId', {
       bind: { $id: row.scouting_id },
       schema: z.strictObject({
         role: z.enum(['defender', 'reinforcement']),
-        tileId: z.int(),
+        tileId: tileIdSchema,
         unitId: unitIdSchema,
         amount: z.int(),
         tribe: tribeSchema,

@@ -70,18 +70,19 @@ const renderInlineMarkdown = (text: string): ReactNode[] => {
 
 const releases = parseChangelogFromMarkdown(changelogRaw);
 
-const buildReleaseMarkdown = (release: ChangelogEntry): string => {
+const buildReleaseMarkdown = (
+  release: ChangelogEntry,
+  platform: 'Reddit' | 'Discord',
+): string => {
   const lines: string[] = [];
 
-  lines.push(`Version ${release.version} released`);
-
-  lines.push(
-    release.date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    }),
-  );
+  if (platform === 'Discord') {
+    lines.push('Hey, all! 😄');
+    lines.push('');
+    lines.push(`I've just released version ${release.version} 🥳`);
+  } else {
+    lines.push(`Version ${release.version} released`);
+  }
 
   lines.push('');
 
@@ -158,7 +159,16 @@ export const ChangelogRenderer = () => {
           style={{ position: 'relative' }}
         >
           {import.meta.env.DEV && (
-            <CopyReleaseButton text={buildReleaseMarkdown(release)} />
+            <div className="absolute top-0 right-0 flex gap-2">
+              <CopyReleaseButton
+                platform="Reddit"
+                text={buildReleaseMarkdown(release, 'Reddit')}
+              />
+              <CopyReleaseButton
+                platform="Discord"
+                text={buildReleaseMarkdown(release, 'Discord')}
+              />
+            </div>
           )}
           <h2 className="group">
             Version {release.version}

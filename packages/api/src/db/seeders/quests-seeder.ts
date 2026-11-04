@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   createQueuedTroopCountByIdQuests,
   globalQuests,
@@ -10,7 +9,7 @@ import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 
-export const questsSeeder = (database: DbFacade): void => {
+export const questsSeeder = (database: DbFacade, playerId: number): void => {
   const playerStartingVillageId = database.selectValue({
     sql: `
       SELECT id
@@ -19,7 +18,7 @@ export const questsSeeder = (database: DbFacade): void => {
       WHERE
         player_id = $player_id;
     `,
-    bind: { $player_id: PLAYER_ID },
+    bind: { $player_id: playerId },
     schema: z.number(),
   })!;
 
@@ -38,7 +37,7 @@ export const questsSeeder = (database: DbFacade): void => {
       WHERE
         p.id = $player_id;
     `,
-      bind: { $player_id: PLAYER_ID },
+      bind: { $player_id: playerId },
       schema: z.strictObject({
         playerTribe: playableTribeSchema,
         playerResourceFieldComposition: resourceFieldCompositionSchema,
@@ -58,19 +57,19 @@ export const questsSeeder = (database: DbFacade): void => {
     createQueuedTroopCountByIdQuests(playerTribe);
 
   for (const { id } of villageQuests) {
-    questsToSeed.push([id, null, null, playerStartingVillageId]);
+    questsToSeed.push([id, playerId, null, null, playerStartingVillageId]);
   }
 
   const seedableGlobalQuests = [...globalQuests, ...queuedTroopCountByIdQuests];
 
   for (const { id } of seedableGlobalQuests) {
-    questsToSeed.push([id, null, null, null]);
+    questsToSeed.push([id, playerId, null, null, null]);
   }
 
   batchInsert(
     database,
     'quests',
-    ['quest_id', 'completed_at', 'collected_at', 'village_id'],
+    ['quest_id', 'player_id', 'completed_at', 'collected_at', 'village_id'],
     questsToSeed,
   );
 

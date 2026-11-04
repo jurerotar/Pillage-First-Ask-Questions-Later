@@ -168,12 +168,12 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     form.clearErrors('root');
 
     if (errors.length > 0) {
-      errors.forEach((error, index) => {
+      for (const [index, error] of errors.entries()) {
         form.setError(`root.${index}`, {
           type: 'manual',
           message: error,
         });
-      });
+      }
 
       return false;
     }

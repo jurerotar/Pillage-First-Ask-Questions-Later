@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Tile } from './tile';
+import { tileIdSchema } from './tile';
 
 export const effectIdSchema = z
   .enum([
@@ -74,7 +75,7 @@ export const effectSchema = z
     type: effectTypeSchema,
     scope: effectScopeSchema,
     source: effectSourceSchema,
-    tileId: z.number().nullable().optional(),
+    tileId: tileIdSchema.nullable().optional(),
     sourceSpecifier: z.number().nullable(),
   })
   .meta({ id: 'Effect' });

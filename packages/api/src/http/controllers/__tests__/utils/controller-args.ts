@@ -1,4 +1,8 @@
 import type { ControllerArgs } from '../../../controller';
+import {
+  createRequestContext,
+  type RequestContext,
+} from '../../../request-context';
 
 type Method = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'query';
 
@@ -8,6 +12,7 @@ export const createControllerArgs = <
   TBody = undefined,
 >(
   args: Partial<{
+    context: RequestContext;
     path: Record<string, unknown>;
     query: Record<string, unknown>;
     body: unknown;
@@ -15,6 +20,7 @@ export const createControllerArgs = <
   }>,
 ): ControllerArgs<TPath, TMethod, TBody, never> => {
   return {
+    context: args.context ?? createRequestContext(),
     path: (args.path ?? {}) as ControllerArgs<
       TPath,
       TMethod,

@@ -18,8 +18,8 @@ export const useQuests = () => {
   const { data: quests } = useSuspenseQuery({
     queryKey: [questsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await apiClient.get('/villages/:villageId/quests', {
-        path: {
+      const { data } = await apiClient.get('/me/quests', {
+        query: {
           villageId: currentVillage.id,
         },
       });
@@ -34,9 +34,9 @@ export const useQuests = () => {
     { questId: Quest['id'] }
   >({
     mutationFn: async ({ questId }) => {
-      await apiClient.patch('/villages/:villageId/quests/:questId/collect', {
+      await apiClient.post('/me/quests/:questId/collect', {
+        body: { villageId: currentVillage.id },
         path: {
-          villageId: currentVillage.id,
           questId,
         },
       });
@@ -44,7 +44,7 @@ export const useQuests = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [questsCacheKey, currentVillage.id],
-        [collectableQuestCountCacheKey, currentVillage.id],
+        [collectableQuestCountCacheKey],
         [currentVillageCacheKey],
         [heroCacheKey],
       ]);

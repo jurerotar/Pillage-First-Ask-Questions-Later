@@ -1,5 +1,7 @@
 import { useSearchParams } from 'react-router';
 
+const EMPTY_FILTERS: never[] = [];
+
 type UseFiltersProps<T extends string> = {
   paramName: string;
   defaultFilters?: T[];
@@ -7,7 +9,7 @@ type UseFiltersProps<T extends string> = {
 
 export const useFilters = <T extends string>({
   paramName,
-  defaultFilters = [],
+  defaultFilters = EMPTY_FILTERS,
 }: UseFiltersProps<T>) => {
   const [searchParams, setSearchParams] = useSearchParams();
 

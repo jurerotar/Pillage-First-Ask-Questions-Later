@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { merchantsMap } from '@pillage-first/game-assets/merchants';
 import type { Resources } from '@pillage-first/types/models/resource';
 import { speedSchema } from '@pillage-first/types/models/server';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { Village } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -20,7 +21,7 @@ import { apiEffectSchema } from './zod/effect-schemas';
 
 const marketplaceVillageSchema = z.strictObject({
   id: z.number(),
-  tileId: z.number(),
+  tileId: tileIdSchema,
   playerId: z.number(),
   tribe: tribeSchema,
 });
@@ -33,13 +34,13 @@ const marketplaceVillageMerchantStatsSchema = marketplaceVillageSchema.extend({
 
 const marketplaceVillageWithTargetSchema = marketplaceVillageSchema.extend({
   targetVillageId: z.number().nullable(),
-  targetVillageTileId: z.number().nullable(),
+  targetVillageTileId: tileIdSchema.nullable(),
 });
 
 const marketplaceVillageMerchantStatsWithTargetSchema =
   marketplaceVillageMerchantStatsSchema.extend({
     targetVillageId: z.number().nullable(),
-    targetVillageTileId: z.number().nullable(),
+    targetVillageTileId: tileIdSchema.nullable(),
   });
 
 const getTargetVillageFromRow = (row: {

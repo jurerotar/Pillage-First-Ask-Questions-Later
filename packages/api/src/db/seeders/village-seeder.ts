@@ -6,6 +6,7 @@ import {
   npcVillageNameNouns,
 } from '@pillage-first/game-assets/village';
 import type { Server } from '@pillage-first/types/models/server';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { VillageSize } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { FenwickTree } from '@pillage-first/utils/fenwick-tree';
@@ -101,7 +102,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
   // Player village (fixed)
   const playerStartingTileId = database.selectValue({
     sql: 'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
   database.exec({

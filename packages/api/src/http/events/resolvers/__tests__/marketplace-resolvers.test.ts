@@ -12,6 +12,7 @@ import {
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { resolveEvent } from '../../resolve-event';
 
 const NOW = 1_000_000;
@@ -30,7 +31,7 @@ const getPlayerVillage = (
     bind: { $player_id: PLAYER_ID },
     schema: z.strictObject({
       id: z.number(),
-      tile_id: z.number(),
+      tile_id: tileIdSchema,
     }),
   })!;
 
@@ -47,7 +48,7 @@ const createPlayerVillage = (
       ORDER BY id
       LIMIT 1;
     `,
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
   const villageId = database.selectValue({
@@ -163,19 +164,19 @@ const insertEvent = (
       $starts_at: event.startsAt,
       $duration: event.duration,
       $village_id: event.villageId,
-      $meta: JSON.stringify({
-        targetVillageId: event.targetVillageId,
-        originTileId: event.originTileId,
-        targetTileId: event.targetTileId,
-        resources: event.resources,
-        ...(event.type === 'resourceTransfer'
+      $meta: JSON.stringify(
+        event.type === 'resourceTransfer'
           ? {
+              targetVillageId: event.targetVillageId,
+              originTileId: event.originTileId,
+              targetTileId: event.targetTileId,
+              resources: event.resources,
               merchantAmount: event.merchantAmount,
               repeatRemaining: event.repeatRemaining,
               repeatResources: event.repeatResources,
             }
-          : { interval: event.interval }),
-      }),
+          : { tradeRouteId: event.tradeRouteId },
+      ),
     },
     schema: z.number(),
   })!;
@@ -252,8 +253,8 @@ describe('marketplace resolvers', () => {
         timestamp: z.number(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -330,8 +331,8 @@ describe('marketplace resolvers', () => {
         duration: z.number(),
         village_id: z.number(),
         target_village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -457,8 +458,8 @@ describe('marketplace resolvers', () => {
         starts_at: z.number(),
         village_id: z.number(),
         target_village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -561,17 +562,40 @@ describe('marketplace resolvers', () => {
       wheat: 500,
     });
 
+    const routeId = database.selectValue({
+      sql: `
+        INSERT INTO trade_routes (
+          village_id,
+          target_village_id,
+          resources,
+          interval,
+          starts_at
+        )
+        VALUES ($source, $target, $resources, $interval, $starts_at)
+        RETURNING id;
+      `,
+      bind: {
+        $source: sourceVillage.id,
+        $target: targetVillage.id,
+        $resources: JSON.stringify({
+          wood: 100,
+          clay: 50,
+          iron: 25,
+          wheat: 10,
+        }),
+        $interval: interval,
+        $starts_at: NOW,
+      },
+      schema: z.number(),
+    })!;
+
     const eventId = insertEvent(
       database,
       createTradeRouteEventMock({
         villageId: sourceVillage.id,
-        targetVillageId: targetVillage.id,
-        originTileId: sourceVillage.tile_id,
-        targetTileId: targetVillage.tileId,
+        tradeRouteId: routeId,
         startsAt: NOW,
         duration: 0,
-        interval,
-        resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
       }),
     );
 
@@ -596,7 +620,11 @@ describe('marketplace resolvers', () => {
           starts_at,
           duration,
           village_id,
-          JSON_EXTRACT(meta, '$.interval') AS interval,
+          (
+            SELECT interval
+            FROM trade_routes
+            WHERE id = JSON_EXTRACT(events.meta, '$.tradeRouteId')
+          ) AS interval,
           JSON_TYPE(meta, '$.merchantAmount') AS merchant_amount_type
         FROM events
         WHERE type = 'tradeRoute';
@@ -651,8 +679,8 @@ describe('marketplace resolvers', () => {
       schema: z.strictObject({
         village_id: z.number(),
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
       }),
     });
 
@@ -685,17 +713,35 @@ describe('marketplace resolvers', () => {
       wheat: 0,
     });
 
+    const routeId = database.selectValue({
+      sql: `
+        INSERT INTO trade_routes (
+          village_id,
+          target_village_id,
+          resources,
+          interval,
+          starts_at
+        )
+        VALUES ($source, $target, $resources, $interval, $starts_at)
+        RETURNING id;
+      `,
+      bind: {
+        $source: sourceVillage.id,
+        $target: targetVillage.id,
+        $resources: JSON.stringify({ wood: 100, clay: 0, iron: 0, wheat: 0 }),
+        $interval: interval,
+        $starts_at: NOW,
+      },
+      schema: z.number(),
+    })!;
+
     const eventId = insertEvent(
       database,
       createTradeRouteEventMock({
         villageId: sourceVillage.id,
-        targetVillageId: targetVillage.id,
-        originTileId: sourceVillage.tile_id,
-        targetTileId: targetVillage.tileId,
+        tradeRouteId: routeId,
         startsAt: NOW,
         duration: 0,
-        interval,
-        resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       }),
     );
 

@@ -34,6 +34,7 @@ export const insertMapMarkerQuery = `
 export const selectVillageAndFirstOasisTileIdsQuery = `
   SELECT
     v.tile_id AS villageTileId,
+    v.player_id AS playerId,
     (
       SELECT tile_id
       FROM

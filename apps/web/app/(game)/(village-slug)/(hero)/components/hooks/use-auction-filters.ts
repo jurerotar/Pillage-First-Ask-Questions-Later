@@ -17,7 +17,7 @@ export const useAuctionFilters = () => {
   const { filters, onFiltersChange, page, handlePageChange } =
     useFilters<HeroItemSlot>({
       paramName: 'slot',
-      defaultFilters: [...auctionFilterSlots],
+      defaultFilters: auctionFilterSlots,
     });
 
   return {

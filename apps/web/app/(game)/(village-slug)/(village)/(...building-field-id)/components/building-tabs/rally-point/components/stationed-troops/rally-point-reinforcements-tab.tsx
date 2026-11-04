@@ -44,13 +44,13 @@ export const RallyPointReinforcementsTab = () => {
     isOpen: isReturnModalOpen,
     openModal: openReturnModal,
     closeModal: closeReturnModal,
-    modalArgs: returnModalArgs,
+    data: returnModalData,
   } = useDialog<ReinforcementDialogData>();
   const {
     isOpen: isRelocateModalOpen,
     openModal: openRelocateModal,
     closeModal: closeRelocateModal,
-    modalArgs: relocateModalArgs,
+    data: relocateModalData,
   } = useDialog<ReinforcementDialogData>();
 
   const reinforcements = useMemo(() => {
@@ -89,7 +89,7 @@ export const RallyPointReinforcementsTab = () => {
         sourceVillageName:
           villagesByTileId.get(sourceTileId)?.name ?? t('Oasis'),
         sourceTileType,
-        canRelocate: sourceTileType !== 'oasis',
+        canRelocate: troops[0]?.canRelocate ?? false,
         tribe: sourceTribe,
         troops,
         sortedTroops: sortTroops(sourceTribe, troops),
@@ -112,16 +112,16 @@ export const RallyPointReinforcementsTab = () => {
     });
   };
 
-  const selectedReturnSourceReinforcements = returnModalArgs.current?.tileId
+  const selectedReturnSourceReinforcements = returnModalData?.tileId
     ? (reinforcements.find(
-        ({ sourceTileId }) => sourceTileId === returnModalArgs.current?.tileId,
+        ({ sourceTileId }) => sourceTileId === returnModalData?.tileId,
       ) ?? null)
     : null;
 
-  const selectedRelocateSourceReinforcements = relocateModalArgs.current?.tileId
+  const selectedRelocateSourceReinforcements = relocateModalData?.tileId
     ? (reinforcements.find(
         ({ canRelocate, sourceTileId }) =>
-          canRelocate && sourceTileId === relocateModalArgs.current?.tileId,
+          canRelocate && sourceTileId === relocateModalData?.tileId,
       ) ?? null)
     : null;
 

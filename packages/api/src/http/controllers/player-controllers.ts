@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import {
   playerVillageListingDtoSchema,
@@ -10,6 +9,7 @@ import {
   woundedTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import { playerSchema } from '@pillage-first/types/models/player';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   selectPlayerByIdQuery,
@@ -62,29 +62,21 @@ const isAnimalTroop = ({ unitId }: ReinforcementTroopSelection) => {
   return getUnitDefinition(unitId).tribe === 'nature';
 };
 
-export const getMe = createController('/players/me', {
+export const getMe = createController('/me', {
   summary: 'Get current player details',
   response: playerSchema,
-})(({ database }) => {
+})(({ database, context: { playerId } }) => {
   return database.selectObject({
     sql: selectPlayerByIdQuery,
-    bind: { $player_id: PLAYER_ID },
+    bind: { $player_id: playerId },
     schema: playerSchema,
   })!;
 });
 
-export const getPlayerVillageListing = createController(
-  '/players/:playerId/villages',
-  {
-    summary: 'Get player village listing',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: z.array(playerVillageListingDtoSchema),
-  },
-)(({ database, path: { playerId } }) => {
+export const getPlayerVillageListing = createController('/me/villages', {
+  summary: 'Get player village listing',
+  response: z.array(playerVillageListingDtoSchema),
+})(({ database, context: { playerId } }) => {
   const rows = database.selectObjects({
     sql: selectPlayerVillageListingQuery,
     bind: { $player_id: playerId },
@@ -95,7 +87,7 @@ export const getPlayerVillageListing = createController(
 });
 
 export const getPlayerVillagesWithPopulation = createController(
-  '/players/:playerId/villages-with-population',
+  '/players/:playerId/villages',
   {
     summary: 'Get player villages with population',
     requestParams: {
@@ -121,7 +113,7 @@ export const getStationedTroopsByTile = createController(
     summary: 'Get stationed troops by tile',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     response: z.array(villageTroopDtoSchema),
@@ -222,7 +214,7 @@ export const getSentReinforcementsByTile = createController(
     summary: 'Get sent reinforcements by tile',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     response: z.array(sentReinforcementDtoSchema),
@@ -244,22 +236,28 @@ export const relocateReinforcements = createController(
     summary: 'Relocate reinforcements to the current village',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: relocateReinforcementsSchema,
   },
 )(({ database, path: { tileId }, body: { sourceTileId, troops } }) => {
   database.transaction((db) => {
-    const { currentTileId, currentVillageId, sourceTileType, sourceVillageId } =
-      db.selectObject({
-        sql: selectSourceVillageByTileAndCurrentTileQuery,
-        bind: {
-          $source_tile_id: sourceTileId,
-          $current_tile_id: tileId,
-        },
-        schema: sourceVillageRowSchema,
-      })!;
+    const {
+      currentTileId,
+      currentVillageId,
+      sourceTileType,
+      sourceVillageId,
+      currentPlayerId,
+      sourcePlayerId,
+    } = db.selectObject({
+      sql: selectSourceVillageByTileAndCurrentTileQuery,
+      bind: {
+        $source_tile_id: sourceTileId,
+        $current_tile_id: tileId,
+      },
+      schema: sourceVillageRowSchema,
+    })!;
 
     if (sourceTileType === 'oasis') {
       throw new Error('Reinforcements from oases cannot be relocated');
@@ -267,6 +265,12 @@ export const relocateReinforcements = createController(
 
     if (sourceVillageId === null) {
       throw new Error('Source village not found');
+    }
+
+    if (currentPlayerId !== sourcePlayerId) {
+      throw new Error(
+        'Reinforcements can only be relocated between villages of the same player',
+      );
     }
 
     moveStationedTroops(
@@ -289,7 +293,7 @@ export const returnReinforcements = createController(
     summary: 'Return reinforcements to their source village',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: returnReinforcementsSchema,
@@ -351,7 +355,7 @@ export const returnSentReinforcements = createController(
     summary: 'Return sent reinforcements to the current village',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: returnSentReinforcementsSchema,
@@ -402,7 +406,7 @@ export const relocateSentReinforcements = createController(
     summary: 'Relocate sent reinforcements to their stationed village',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: relocateSentReinforcementsSchema,
@@ -410,6 +414,8 @@ export const relocateSentReinforcements = createController(
 )(({ database, path: { tileId }, body: { stationedTileId, troops } }) => {
   database.transaction((db) => {
     const {
+      currentPlayerId,
+      stationedPlayerId,
       currentTileId,
       currentVillageId,
       stationedTileType,
@@ -429,6 +435,12 @@ export const relocateSentReinforcements = createController(
 
     if (stationedTileType === 'oasis') {
       throw new Error('Relocations cannot be sent to oases');
+    }
+
+    if (currentPlayerId !== stationedPlayerId) {
+      throw new Error(
+        'Reinforcements can only be relocated between villages of the same player',
+      );
     }
 
     moveStationedTroops(
