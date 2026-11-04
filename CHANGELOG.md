@@ -687,7 +687,6 @@
 
 #### Apr 25, 2026
 
-fix: building downgrade fixes
 - [Feature] Added a table of current ongoing demolishments to the "Demolish buildings" tab of Village management.
 - [Feature] Added a confirmation modal with details of what will happen if you confirm downgrading or demolishing
   buildings.

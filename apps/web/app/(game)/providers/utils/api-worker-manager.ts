@@ -123,12 +123,13 @@ const createWorkerWithReadySignal = (
   });
 };
 
-export const getApiWorkerHandle = (
+export const getApiWorkerHandle = async (
   serverSlug: Server['slug'],
 ): Promise<ApiWorkerHandle> => {
   const existingHandle = apiWorkerHandles.get(serverSlug);
 
-  if (existingHandle) {
+  // Just check whether the handle exists, parent will await it
+  if (existingHandle !== undefined) {
     return existingHandle;
   }
 
