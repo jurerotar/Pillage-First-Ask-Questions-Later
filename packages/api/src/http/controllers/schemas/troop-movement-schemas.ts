@@ -40,7 +40,7 @@ export const getVillageTroopMovementsRowSchema = z
     player_tribe: tribeSchema,
     target_village_id: z.number().nullable(),
     target_village_name: z.string().nullable(),
-    target_tile_id: z.number().nullable(),
+    target_tile_id: z.number(),
   })
   .meta({ id: 'GetVillageTroopMovementsRow' });
 

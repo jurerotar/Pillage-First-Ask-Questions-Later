@@ -155,7 +155,7 @@ export const selectTroopMovementsByTileIdQuery = `
   LEFT JOIN villages v_origin ON v_origin.tile_id = t_orig.id
   JOIN players p_orig ON v_orig.player_id = p_orig.id
   JOIN tribe_ids ti_orig ON p_orig.tribe_id = ti_orig.id
-  LEFT JOIN tiles t_target ON JSON_EXTRACT(e.meta, '$.targetTileId') = t_target.id
+  JOIN tiles t_target ON JSON_EXTRACT(e.meta, '$.targetTileId') = t_target.id
   LEFT JOIN villages v_target ON t_target.id = v_target.tile_id
   WHERE
     e.type IN (

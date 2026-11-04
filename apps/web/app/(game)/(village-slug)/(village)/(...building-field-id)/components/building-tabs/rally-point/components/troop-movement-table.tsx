@@ -17,6 +17,7 @@ import {
   UnitTableTitle,
   UnitTableUnitIcons,
 } from 'app/(game)/components/unit-table';
+import { CancelTroopMovementButton } from './cancel-troop-movement-button';
 
 const getMovementBackground = (category: TroopMovementFilterType): string => {
   switch (category) {
@@ -126,17 +127,26 @@ export const TroopMovementTable = ({ movement }: TroopMovementTableProps) => {
   return (
     <UnitTable tribe={movement.playerTribe}>
       <UnitTableTitle className={getMovementBackground(category)}>
-        {getMovementLabel(movement.type, outgoing, t)}
-        {otherVillage?.tileId != null && (
-          <>
-            {' '}
-            <TileLink
-              name={otherVillage.name}
-              tileId={otherVillage.tileId}
-              mapSize={mapSize}
-            />
-          </>
-        )}
+        <div className="flex items-center justify-between gap-2">
+          <span>
+            {getMovementLabel(movement.type, outgoing, t)}
+            {otherVillage && (
+              <>
+                {' '}
+                <TileLink
+                  name={otherVillage.name}
+                  tileId={otherVillage.tileId}
+                  mapSize={mapSize}
+                />
+              </>
+            )}
+          </span>
+          {outgoing &&
+            movement.playerId === currentVillage.playerId &&
+            movement.type !== 'troopMovementReturn' && (
+              <CancelTroopMovementButton movement={movement} />
+            )}
+        </div>
       </UnitTableTitle>
       <UnitTableUnitIcons />
       {isIncomingOffensive ? (

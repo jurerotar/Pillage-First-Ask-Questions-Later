@@ -31,6 +31,7 @@ export const mapTroopMovementRowToDto = (
     playerName: row.player_name,
     playerId: row.player_id,
     playerTribe: row.player_tribe,
+    startsAt: row.starts_at,
     resolvesAt: row.resolves_at,
     ...(row.type === 'troopMovementReturn' &&
     row.player_id === PLAYER_ID &&
