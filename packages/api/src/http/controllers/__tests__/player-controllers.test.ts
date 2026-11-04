@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
-import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
+import {
+  oasisBonusTypeSchema,
+  tileIdSchema,
+} from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -36,13 +39,13 @@ describe('player-controllers', () => {
     const targetTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const source = database.selectObject({
       sql: 'SELECT tile_id, player_id FROM villages WHERE player_id != $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.object({ tile_id: z.number(), player_id: z.number() }),
+      schema: z.object({ tile_id: tileIdSchema, player_id: z.number() }),
     })!;
 
     database.exec({
@@ -114,13 +117,13 @@ describe('player-controllers', () => {
     const targetTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const source = database.selectObject({
       sql: 'SELECT tile_id, player_id FROM villages WHERE player_id != $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.object({ tile_id: z.number(), player_id: z.number() }),
+      schema: z.object({ tile_id: tileIdSchema, player_id: z.number() }),
     })!;
 
     database.exec({
@@ -195,13 +198,13 @@ describe('player-controllers', () => {
     const ownTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const otherTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE player_id != $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     expect(otherTileId).toBeTypeOf('number');
@@ -245,8 +248,8 @@ describe('player-controllers', () => {
     const before = database.selectObjects({
       sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
       schema: z.object({
-        tile_id: z.number(),
-        source_tile_id: z.number(),
+        tile_id: tileIdSchema,
+        source_tile_id: tileIdSchema,
         unit_id: z.number(),
         amount: z.number(),
       }),
@@ -271,8 +274,8 @@ describe('player-controllers', () => {
       database.selectObjects({
         sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
         schema: z.object({
-          tile_id: z.number(),
-          source_tile_id: z.number(),
+          tile_id: tileIdSchema,
+          source_tile_id: tileIdSchema,
           unit_id: z.number(),
           amount: z.number(),
         }),
@@ -286,13 +289,13 @@ describe('player-controllers', () => {
     const ownTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const otherTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE player_id != $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     expect(otherTileId).toBeTypeOf('number');
@@ -336,8 +339,8 @@ describe('player-controllers', () => {
     const before = database.selectObjects({
       sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
       schema: z.object({
-        tile_id: z.number(),
-        source_tile_id: z.number(),
+        tile_id: tileIdSchema,
+        source_tile_id: tileIdSchema,
         unit_id: z.number(),
         amount: z.number(),
       }),
@@ -365,8 +368,8 @@ describe('player-controllers', () => {
       database.selectObjects({
         sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
         schema: z.object({
-          tile_id: z.number(),
-          source_tile_id: z.number(),
+          tile_id: tileIdSchema,
+          source_tile_id: tileIdSchema,
           unit_id: z.number(),
           amount: z.number(),
         }),
@@ -425,7 +428,7 @@ describe('player-controllers', () => {
         $tile_id: database.selectValue({
           sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
           bind: { $village_id: villageId },
-          schema: z.number(),
+          schema: tileIdSchema,
         })!,
         $source_specifier: null,
       },
@@ -469,7 +472,7 @@ describe('player-controllers', () => {
       bind: { $player_id: playerId },
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         player_id: z.number(),
       }),
     })!;
@@ -544,7 +547,7 @@ describe('player-controllers', () => {
       bind: { $player_id: playerId },
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
 
@@ -569,7 +572,7 @@ describe('player-controllers', () => {
         LIMIT 2
       `,
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         resource: resourceSchema,
         bonus_type: oasisBonusTypeSchema,
       }),
@@ -621,7 +624,7 @@ describe('player-controllers', () => {
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const troops = getStationedTroopsByTile(
@@ -649,13 +652,13 @@ describe('player-controllers', () => {
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const otherTileId = database.selectValue({
       sql: 'SELECT id FROM tiles WHERE id != $tile_id LIMIT 1;',
       bind: { $tile_id: village.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const foreignSourceTileId = database.selectValue({
@@ -666,7 +669,7 @@ describe('player-controllers', () => {
         LIMIT 1;
       `,
       bind: { $tile_id: village.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.exec({
@@ -888,7 +891,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const targetTileId = database.selectValue({
@@ -901,7 +904,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $source_tile_id: sourceVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.selectValue({
@@ -998,7 +1001,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1011,7 +1014,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const sourceVillageId = database.selectValue({
@@ -1123,7 +1126,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1136,7 +1139,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.selectValue({
@@ -1232,7 +1235,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1339,7 +1342,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1352,7 +1355,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const sourceVillageId = database.selectValue({
@@ -1457,8 +1460,8 @@ describe('player-controllers', () => {
         type: z.string(),
         unit_id: unitIdSchema,
         amount: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         original_movement_type: z.string(),
       }),
     })!;
@@ -1493,7 +1496,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1506,7 +1509,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.selectValue({
@@ -1617,7 +1620,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1630,7 +1633,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.selectValue({
@@ -1690,7 +1693,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1703,7 +1706,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.exec({
@@ -1785,7 +1788,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -1798,7 +1801,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const sourceVillageId = database.selectValue({
@@ -1933,7 +1936,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -1946,7 +1949,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $source_tile_id: sourceVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const stationedVillageId = database.selectValue({
@@ -2053,8 +2056,8 @@ describe('player-controllers', () => {
         type: z.string(),
         unit_id: unitIdSchema,
         amount: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         original_movement_type: z.string(),
       }),
     })!;
@@ -2088,7 +2091,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -2182,7 +2185,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -2195,7 +2198,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $source_tile_id: sourceVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetTileId = database.selectValue({
@@ -2211,7 +2214,7 @@ describe('player-controllers', () => {
         $source_tile_id: sourceVillage.tile_id,
         $stationed_tile_id: stationedTileId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.exec({
@@ -2313,7 +2316,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -2403,7 +2406,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const sourceTileId = database.selectValue({
@@ -2416,7 +2419,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $target_tile_id: targetVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const sourceVillageId = database.selectValue({
@@ -2556,7 +2559,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const stationedTileId = database.selectValue({
@@ -2569,7 +2572,7 @@ describe('player-controllers', () => {
         LIMIT 1
       `,
       bind: { $source_tile_id: sourceVillage.tile_id },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const stationedVillageId = database.selectValue({

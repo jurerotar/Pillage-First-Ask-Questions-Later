@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitsByTribe } from '@pillage-first/game-assets/utils/units';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
@@ -15,7 +16,7 @@ export const troopMovementsSeeder = (database: DbFacade): void => {
       ORDER BY v.id;`,
     schema: z.strictObject({
       id: z.number(),
-      tile_id: z.number(),
+      tile_id: tileIdSchema,
       player_id: z.number(),
       tribe: tribeSchema,
     }),

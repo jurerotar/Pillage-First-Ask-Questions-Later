@@ -10,6 +10,7 @@ import {
   woundedTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import { playerSchema } from '@pillage-first/types/models/player';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   selectPlayerByIdQuery,
@@ -121,7 +122,7 @@ export const getStationedTroopsByTile = createController(
     summary: 'Get stationed troops by tile',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     response: z.array(villageTroopDtoSchema),
@@ -222,7 +223,7 @@ export const getSentReinforcementsByTile = createController(
     summary: 'Get sent reinforcements by tile',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     response: z.array(sentReinforcementDtoSchema),
@@ -244,7 +245,7 @@ export const relocateReinforcements = createController(
     summary: 'Relocate reinforcements to the current village',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: relocateReinforcementsSchema,
@@ -301,7 +302,7 @@ export const returnReinforcements = createController(
     summary: 'Return reinforcements to their source village',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: returnReinforcementsSchema,
@@ -363,7 +364,7 @@ export const returnSentReinforcements = createController(
     summary: 'Return sent reinforcements to the current village',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: returnSentReinforcementsSchema,
@@ -414,7 +415,7 @@ export const relocateSentReinforcements = createController(
     summary: 'Relocate sent reinforcements to their stationed village',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: relocateSentReinforcementsSchema,

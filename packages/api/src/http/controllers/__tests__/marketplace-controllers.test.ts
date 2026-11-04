@@ -8,6 +8,7 @@ import {
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectTribeByVillageId } from '../../../queries/village-queries';
@@ -40,7 +41,7 @@ const getPlayerVillage = (database: DbFacade) =>
     bind: { $player_id: PLAYER_ID },
     schema: z.strictObject({
       id: z.number(),
-      tileId: z.number(),
+      tileId: tileIdSchema,
       tribe: tribeSchema,
     }),
   })!;
@@ -55,7 +56,7 @@ const createPlayerVillage = (database: DbFacade, name: string) => {
       ORDER BY id
       LIMIT 1;
     `,
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
   const villageId = database.selectValue({
@@ -299,8 +300,8 @@ describe('marketplace-controllers', () => {
         duration: z.number(),
         village_id: z.number(),
         target_village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -731,7 +732,7 @@ describe('marketplace-controllers', () => {
         LIMIT 1;
       `,
       bind: { $player_id: PLAYER_ID },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     setMarketplaceLevel(database, sourceVillage.id, 1);
@@ -808,8 +809,8 @@ describe('marketplace-controllers', () => {
         duration: z.number(),
         village_id: z.number(),
         target_village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -1015,8 +1016,8 @@ describe('marketplace-controllers', () => {
         duration: z.number(),
         village_id: z.number(),
         target_village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),

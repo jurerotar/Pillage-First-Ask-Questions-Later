@@ -1,62 +1,78 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { coordinatesSchema } from '../models/coordinates';
-import { gameEventTypeSchema } from '../models/game-event';
+import { troopMovementTypeSchema } from '../models/game-event';
 import { resourceBundleSchema } from '../models/resource';
 import { tribeSchema } from '../models/tribe';
 import { troopSchema } from '../models/troop';
 
-const villageTargetTroopMovementTypeSchema = gameEventTypeSchema.extract([
-  'troopMovementReinforcements',
-  'troopMovementRelocation',
-  'troopMovementReturn',
-  'troopMovementFindNewVillage',
-  'troopMovementAttack',
-  'troopMovementRaid',
-  'troopMovementOasisOccupation',
+const villageTargetTroopMovementTypeSchema = troopMovementTypeSchema.exclude([
+  'troopMovementAdventure',
 ]);
 
+const lootSchema = resourceBundleSchema.refine(
+  (amounts) => amounts.every((amount) => amount >= 0),
+  'Loot amounts must be nonnegative',
+);
+
 export const tileTroopMovementDtoSchema = z.strictObject({
-  id: z.number(),
+  id: z.int().positive(),
   type: villageTargetTroopMovementTypeSchema,
   originName: z.string().nullable(),
   originCoordinates: coordinatesSchema,
-  targetTileId: z.number(),
+  targetTileId: tileIdSchema,
   targetName: z.string().nullable(),
   targetCoordinates: coordinatesSchema,
   resolvesAt: z.number(),
 });
 
+const movementShape = {
+  id: z.int().positive(),
+  originatingVillageId: z.int().positive().nullable(),
+  originatingVillageName: z.string().nullable(),
+  originatingTileId: tileIdSchema,
+  playerName: z.string(),
+  playerId: z.int().positive(),
+  playerTribe: tribeSchema,
+  startsAt: z.number(),
+  resolvesAt: z.number(),
+  troops: z.array(troopSchema),
+};
+
+const targetedMovementShape = {
+  ...movementShape,
+  targetVillageId: z.int().positive().nullable(),
+  targetVillageName: z.string().nullable(),
+  targetTileId: tileIdSchema,
+};
+
 export const troopMovementItemDtoSchema = z
-  .union([
+  .discriminatedUnion('type', [
     z.strictObject({
-      id: z.number(),
+      ...movementShape,
       type: z.literal('troopMovementAdventure'),
-      originatingVillageId: z.number().nullable(),
-      originatingVillageName: z.string().nullable(),
-      originatingTileId: z.number(),
-      playerName: z.string(),
-      playerId: z.number(),
-      playerTribe: tribeSchema,
-      startsAt: z.number(),
-      resolvesAt: z.number(),
+    }),
+    z.strictObject({
+      ...targetedMovementShape,
+      type: troopMovementTypeSchema.extract([
+        'troopMovementReinforcements',
+        'troopMovementRelocation',
+        'troopMovementFindNewVillage',
+      ]),
+    }),
+    z.strictObject({
+      ...targetedMovementShape,
+      type: troopMovementTypeSchema.extract([
+        'troopMovementAttack',
+        'troopMovementRaid',
+        'troopMovementOasisOccupation',
+      ]),
       troops: z.array(troopSchema).nullable(),
     }),
     z.strictObject({
-      id: z.number(),
-      type: villageTargetTroopMovementTypeSchema,
-      originatingVillageId: z.number().nullable(),
-      originatingVillageName: z.string().nullable(),
-      originatingTileId: z.number(),
-      playerName: z.string(),
-      playerId: z.number(),
-      playerTribe: tribeSchema,
-      startsAt: z.number(),
-      resolvesAt: z.number(),
-      targetVillageId: z.number().nullable(),
-      targetVillageName: z.string().nullable(),
-      targetTileId: z.number(),
-      troops: z.array(troopSchema).nullable(),
-      loot: resourceBundleSchema.optional(),
+      ...targetedMovementShape,
+      type: z.literal('troopMovementReturn'),
+      loot: lootSchema.optional(),
     }),
   ])
   .meta({ id: 'TroopMovementItemDto' });
@@ -73,7 +89,7 @@ export const troopMovementStatsItemDtoSchema = z
       'adventure',
       'findNewVillage',
     ]),
-    count: z.number(),
+    count: z.int().positive(),
     earliestResolvesAt: z.number(),
   })
   .meta({ id: 'TroopMovementStatsItemDto' });

@@ -6,6 +6,7 @@ import type {
   GameEventType,
   ScoutingTarget,
 } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   cancelTroopMovement,
@@ -69,7 +70,7 @@ describe('troop-movement-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: PLAYER_ID },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
   const createVillage = (
@@ -84,7 +85,7 @@ describe('troop-movement-controllers', () => {
         ORDER BY id
         LIMIT 1
       `,
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const villageId = database.selectValue({
@@ -305,7 +306,7 @@ describe('troop-movement-controllers', () => {
       const enemy = database.selectObject({
         sql: 'SELECT id, tile_id FROM villages WHERE player_id != $player_id LIMIT 1',
         bind: { $player_id: PLAYER_ID },
-        schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+        schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
       })!;
 
       insertTroopMovementEvent(database, {
@@ -438,7 +439,7 @@ describe('troop-movement-controllers', () => {
 
     const enemy = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE player_id != 1 LIMIT 1;',
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const base = {
@@ -531,7 +532,7 @@ describe('troop-movement-controllers', () => {
 
     const enemy = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE player_id != 1 LIMIT 1;',
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const oasisTileId = database.selectValue({
@@ -700,8 +701,8 @@ describe('troop-movement-controllers', () => {
         type: z.string(),
         starts_at: z.number(),
         duration: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         original_movement_type: z.string(),
       }),
     })!;

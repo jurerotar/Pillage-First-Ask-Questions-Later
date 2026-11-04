@@ -4,6 +4,7 @@ import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { artifacts, silverItem } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { effectIdSchema } from '@pillage-first/types/models/effect';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { insertEffectQuery } from '../../../queries/effect-queries';
 import { resolveEvent } from '../../events/resolve-event';
 import {
@@ -295,7 +296,7 @@ describe('hero-controllers', () => {
       bind: { $player_id: playerId },
       schema: z.strictObject({
         id: z.number(),
-        tileId: z.number(),
+        tileId: tileIdSchema,
       }),
     })!;
 
@@ -394,8 +395,8 @@ describe('hero-controllers', () => {
       `,
       schema: z.strictObject({
         amount: z.number(),
-        tileId: z.number(),
-        sourceTileId: z.number(),
+        tileId: tileIdSchema,
+        sourceTileId: tileIdSchema,
       }),
     });
 
@@ -420,7 +421,7 @@ describe('hero-controllers', () => {
         LIMIT 1;
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const reinforcedVillage = database.selectObject({
@@ -446,7 +447,7 @@ describe('hero-controllers', () => {
         $home_tile_id: homeVillage.tile_id,
         $player_id: playerId,
       },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     database.exec({
@@ -507,7 +508,7 @@ describe('hero-controllers', () => {
         LIMIT 1;
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const reinforcedVillage = database.selectObject({
@@ -533,7 +534,7 @@ describe('hero-controllers', () => {
         $home_tile_id: homeVillage.tile_id,
         $player_id: playerId,
       },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     database.exec({
@@ -681,7 +682,10 @@ describe('hero-controllers', () => {
           WHERE h.player_id = $player_id
         `,
         bind: { $player_id: playerId },
-        schema: z.strictObject({ tileId: z.number(), villageSlug: z.string() }),
+        schema: z.strictObject({
+          tileId: tileIdSchema,
+          villageSlug: z.string(),
+        }),
       })!;
 
       expect(result).toStrictEqual(village);
@@ -1403,7 +1407,10 @@ describe('hero-controllers', () => {
           WHERE h.player_id = $player_id
         `,
         bind: { $player_id: playerId },
-        schema: z.strictObject({ tileId: z.number(), villageSlug: z.string() }),
+        schema: z.strictObject({
+          tileId: tileIdSchema,
+          villageSlug: z.string(),
+        }),
       })!;
 
       expect(result).toStrictEqual(village);

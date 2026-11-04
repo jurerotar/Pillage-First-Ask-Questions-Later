@@ -3,6 +3,8 @@ import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 
+export const tileIdSchema = z.int().positive().meta({ id: 'TileId' });
+
 const tileVillageSchema = z
   .strictObject({
     id: z.number(),
@@ -25,7 +27,7 @@ export const oasisBonusTypeSchema = z
 
 export const baseTileSchema = z
   .strictObject({
-    id: z.number(),
+    id: tileIdSchema,
     coordinates: coordinatesSchema,
     type: tileTypeSchema,
     owner: playerSchema.nullable(),

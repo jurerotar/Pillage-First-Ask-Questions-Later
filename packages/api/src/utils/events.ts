@@ -45,6 +45,7 @@ import type {
   TroopMovementEvent,
 } from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   playableTribeSchema,
   tribeSchema,
@@ -559,7 +560,7 @@ export const validateEventCreationPrerequisites = (
       `,
       bind: { $village_id: villageId },
       schema: z.strictObject({
-        villageTileId: z.number(),
+        villageTileId: tileIdSchema,
         playerTribe: playableTribeSchema,
       }),
     })!;
@@ -1338,7 +1339,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const { total } = calculateComputedEffect(
@@ -1380,7 +1381,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const { total: unitResearchDurationModifier } = calculateComputedEffect(
@@ -1417,7 +1418,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const { total: unitImprovementDurationModifier } = calculateComputedEffect(
@@ -1457,7 +1458,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const { total } = calculateComputedEffect(

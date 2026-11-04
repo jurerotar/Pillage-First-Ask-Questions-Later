@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { createLoyaltyIncreaseEvent } from '../../../utils/loyalty';
 import type { Resolver } from '../resolver';
 
@@ -22,7 +23,7 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
     bind: { $player_id: PLAYER_ID },
     schema: z.strictObject({
       villageId: z.number(),
-      tileId: z.number(),
+      tileId: tileIdSchema,
     }),
   });
 

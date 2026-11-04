@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { createTroopMovementFindNewVillageEventMock } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   addPlayerCulturePoints,
   calculatePlayerCulturePointsProduction,
@@ -79,7 +80,10 @@ test('pending founding missions reserve culture-point capacity until removed', a
   const { villageId, originTileId } = database.selectObject({
     sql: 'SELECT id AS villageId, tile_id AS originTileId FROM villages WHERE player_id = $player_id LIMIT 1;',
     bind: { $player_id: PLAYER_ID },
-    schema: z.strictObject({ villageId: z.number(), originTileId: z.number() }),
+    schema: z.strictObject({
+      villageId: z.number(),
+      originTileId: tileIdSchema,
+    }),
   })!;
 
   const [firstTarget, secondTarget] = database.selectValues({

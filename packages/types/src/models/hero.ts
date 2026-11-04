@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { tileIdSchema } from './tile';
 
 export const heroResourceToProduceSchema = z
   .enum(['wood', 'clay', 'iron', 'wheat', 'shared'])
@@ -9,7 +10,7 @@ export type HeroResourceToProduce = z.infer<typeof heroResourceToProduceSchema>;
 export const heroStatusSchema = z.discriminatedUnion('type', [
   z.strictObject({
     type: z.enum(['stationed', 'reinforcing']),
-    tileId: z.number(),
+    tileId: tileIdSchema,
   }),
   z.strictObject({
     type: z.enum(['adventure', 'travel']),

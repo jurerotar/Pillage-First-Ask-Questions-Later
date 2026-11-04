@@ -12,8 +12,10 @@ import type {
 } from '../schemas/troop-movement-schemas';
 
 const troopMovementMetaSchema = z.object({
-  troops: z.array(troopSchema).default([]),
-  loot: resourceBundleSchema.optional(),
+  troops: z.array(troopSchema),
+  loot: resourceBundleSchema
+    .refine((amounts) => amounts.every((amount) => amount >= 0))
+    .optional(),
 });
 
 export const mapTroopMovementRowToDto = (

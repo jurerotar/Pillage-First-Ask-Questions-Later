@@ -1,7 +1,10 @@
 import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
-import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
+import {
+  oasisBonusTypeSchema,
+  tileIdSchema,
+} from '@pillage-first/types/models/tile';
 
 export const oasisBonusSchema = z.strictObject({
   bonus: z.union([z.literal(25), z.literal(50)]),
@@ -12,7 +15,7 @@ export const oasisBonusSlotSchema = z.array(oasisBonusSchema).max(2);
 
 export const getTilesWithBonusesRowSchema = z
   .strictObject({
-    tile_id: z.number(),
+    tile_id: tileIdSchema,
     coordinates_x: z.number(),
     coordinates_y: z.number(),
     resource_field_composition: resourceFieldCompositionSchema,
@@ -27,7 +30,7 @@ export const getTilesWithBonusesRowSchema = z
 
 export const nearbyOasisRowSchema = z
   .strictObject({
-    oasis_tile_id: z.number(),
+    oasis_tile_id: tileIdSchema,
     oasis_x: z.number(),
     oasis_y: z.number(),
     resource: resourceSchema,

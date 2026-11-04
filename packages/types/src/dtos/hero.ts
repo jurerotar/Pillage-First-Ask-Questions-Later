@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { heroResourceToProduceSchema, heroStatusSchema } from '../models/hero';
 import { heroLoadoutSlotSchema } from '../models/hero-loadout';
 
 export const heroProductionUpdateDtoSchema = z.strictObject({
-  tileId: z.number(),
+  tileId: tileIdSchema,
   villageSlug: z.string(),
 });
 

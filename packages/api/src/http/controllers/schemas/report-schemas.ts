@@ -6,6 +6,7 @@ import {
   reportTypeSchema,
   scheduledConstructionCancellationReasonSchema,
 } from '@pillage-first/types/models/report';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 
@@ -46,8 +47,8 @@ const nullableReportDetailColumns = z
     movement_id: z.int().nullable(),
     movement_type: z.enum(['reinforcement', 'relocation']).nullable(),
     movement_tribe: tribeSchema.nullable(),
-    movement_origin_tile_id: z.int().nullable(),
-    movement_target_tile_id: z.int().nullable(),
+    movement_origin_tile_id: tileIdSchema.nullable(),
+    movement_target_tile_id: tileIdSchema.nullable(),
     movement_origin_player_name: z.string().nullable(),
     movement_origin_player_slug: z.string().nullable(),
     movement_origin_name: z.string().nullable(),
@@ -59,8 +60,8 @@ const nullableReportDetailColumns = z
     movement_target_x: z.int().nullable(),
     movement_target_y: z.int().nullable(),
     trade_id: z.int().nullable(),
-    trade_origin_tile_id: z.int().nullable(),
-    trade_target_tile_id: z.int().nullable(),
+    trade_origin_tile_id: tileIdSchema.nullable(),
+    trade_target_tile_id: tileIdSchema.nullable(),
     trade_origin_player_name: z.string().nullable(),
     trade_origin_player_slug: z.string().nullable(),
     trade_origin_name: z.string().nullable(),
@@ -97,8 +98,8 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   battle_target_x: z.int(),
   battle_target_y: z.int(),
   battle_id: z.int(),
-  origin_tile_id: z.int(),
-  target_tile_id: z.int(),
+  origin_tile_id: tileIdSchema,
+  target_tile_id: tileIdSchema,
   loot_wood: z.int(),
   loot_clay: z.int(),
   loot_iron: z.int(),
@@ -110,7 +111,7 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   item_amount: z.int().nullable(),
   participant_id: z.int(),
   participant_player_id: z.int().nullable(),
-  participant_tile_id: z.int(),
+  participant_tile_id: tileIdSchema,
   participant_role: reportSideSchema,
   participant_tribe: tribeSchema,
   participant_is_reinforcement: z.int(),
@@ -151,8 +152,8 @@ export const movementReportRowSchema = baseReportRowSchema.extend({
   movement_id: z.int(),
   movement_type: z.enum(['reinforcement', 'relocation']),
   movement_tribe: tribeSchema,
-  movement_origin_tile_id: z.int(),
-  movement_target_tile_id: z.int(),
+  movement_origin_tile_id: tileIdSchema,
+  movement_target_tile_id: tileIdSchema,
   movement_origin_player_name: z.string(),
   movement_origin_player_slug: z.string(),
   movement_origin_name: z.string(),
@@ -166,8 +167,8 @@ export const movementReportRowSchema = baseReportRowSchema.extend({
 export const tradeReportRowSchema = baseReportRowSchema.extend({
   type: z.literal('trade'),
   trade_id: z.int(),
-  trade_origin_tile_id: z.int(),
-  trade_target_tile_id: z.int(),
+  trade_origin_tile_id: tileIdSchema,
+  trade_target_tile_id: tileIdSchema,
   trade_origin_player_name: z.string(),
   trade_origin_player_slug: z.string(),
   trade_origin_name: z.string(),
@@ -250,8 +251,8 @@ export const unitImprovementReportRowSchema = baseReportRowSchema.extend({
 
 export const villageFoundedReportRowSchema = baseReportRowSchema.extend({
   type: z.literal('villageFounded'),
-  origin_tile_id: z.int(),
-  target_tile_id: z.int(),
+  origin_tile_id: tileIdSchema,
+  target_tile_id: tileIdSchema,
   origin_name: z.string(),
   origin_x: z.int(),
   origin_y: z.int(),

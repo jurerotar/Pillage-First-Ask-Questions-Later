@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { coordinatesSchema } from '../models/coordinates';
 import { factionSchema } from '../models/faction';
 import { mapMarkerIconSchema } from '../models/map-marker';
@@ -25,7 +26,7 @@ export const mapOwnerVillageDtoSchema = z.strictObject({
 
 export const mapTileDtoSchema = z.discriminatedUnion('type', [
   z.strictObject({
-    id: z.number(),
+    id: tileIdSchema,
     coordinates: coordinatesSchema,
     type: z.literal('free'),
     owner: z.union([mapOwnerDtoSchema, z.null()]),
@@ -35,7 +36,7 @@ export const mapTileDtoSchema = z.discriminatedUnion('type', [
     }),
   }),
   z.strictObject({
-    id: z.number(),
+    id: tileIdSchema,
     coordinates: coordinatesSchema,
     type: z.literal('oasis'),
     owner: z.union([mapOwnerDtoSchema, z.null()]),
@@ -50,8 +51,8 @@ export const mapTileDtoSchema = z.discriminatedUnion('type', [
 export const mapTileTroopDtoSchema = z.strictObject({
   unitId: unitIdSchema,
   amount: z.number(),
-  tileId: z.number(),
-  sourceTileId: z.number(),
+  tileId: tileIdSchema,
+  sourceTileId: tileIdSchema,
 });
 
 export const mapTileOasisBonusDtoSchema = z.strictObject({
@@ -68,7 +69,7 @@ export const mapTileWorldItemDtoSchema = z.strictObject({
 
 export const mapMarkerDtoSchema = z.strictObject({
   icon: mapMarkerIconSchema,
-  tileId: z.number(),
+  tileId: tileIdSchema,
   description: z.string(),
   color: z.string().regex(/^#[\dA-Fa-f]{6}$/u, 'Expected a hex color value'),
 });

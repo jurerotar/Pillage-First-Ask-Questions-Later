@@ -5,6 +5,7 @@ import {
   mapTileOasisBonusDtoSchema,
   mapTileTroopDtoSchema,
 } from '@pillage-first/types/dtos/map';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import {
   deleteMapMarkerQuery,
@@ -64,7 +65,7 @@ export const addMapMarker = createController(
       }),
     },
     requestBody: z.strictObject({
-      tileId: z.number(),
+      tileId: tileIdSchema,
       description: z.string(),
       color: mapMarkerDtoSchema.shape.color,
       icon: mapMarkerDtoSchema.shape.icon,
@@ -107,7 +108,7 @@ export const removeMapMarker = createController(
     requestParams: {
       path: z.strictObject({
         playerId: z.coerce.number(),
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
   },
@@ -153,7 +154,7 @@ export const getTileTroops = createController('/tiles/:tileId/troops', {
   summary: 'Get troops on a tile',
   requestParams: {
     path: z.strictObject({
-      tileId: z.coerce.number(),
+      tileId: z.coerce.number().pipe(tileIdSchema),
     }),
   },
   response: z.array(mapTileTroopDtoSchema),
@@ -173,7 +174,7 @@ export const getTileOasisBonuses = createController('/tiles/:tileId/bonuses', {
   summary: 'Get oasis bonuses on a tile',
   requestParams: {
     path: z.strictObject({
-      tileId: z.coerce.number(),
+      tileId: z.coerce.number().pipe(tileIdSchema),
     }),
   },
   response: z.array(mapTileOasisBonusDtoSchema),
