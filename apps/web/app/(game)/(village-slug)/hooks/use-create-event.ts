@@ -5,7 +5,11 @@ import type {
   GameEventTypeToEventArgsMap,
 } from '@pillage-first/types/models/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { eventsCacheKey } from 'app/(game)/constants/query-keys';
+import {
+  collectableQuestCountCacheKey,
+  eventsCacheKey,
+  questsCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
 
@@ -42,6 +46,10 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
     ) => {
       await invalidateQueries(context, [
         ...cachesToClearImmediately,
+        ...(eventType === 'troopTraining' ||
+        eventType === 'culturePointsCelebration'
+          ? [[questsCacheKey], [collectableQuestCountCacheKey]]
+          : []),
         [eventsCacheKey, eventType, currentVillage.id],
       ]);
     },

@@ -29,12 +29,16 @@ export const useReport = (reportId: BaseReport['id']) => {
         },
       });
 
+      if (!data) {
+        return data;
+      }
+
       queryClient.setQueriesData<ReportListingDto[]>(
         {
           queryKey: [reportListingsCacheKey],
           predicate: (query) => query.queryKey[2] === 'unread',
         },
-        (reports) => reports!.filter(({ id }) => id !== reportId),
+        (reports) => reports?.filter(({ id }) => id !== reportId),
       );
 
       queryClient.setQueriesData<ReportListingDto[]>(
@@ -43,7 +47,7 @@ export const useReport = (reportId: BaseReport['id']) => {
           predicate: (query) => query.queryKey[2] !== 'unread',
         },
         (reports) =>
-          reports!.map((report) =>
+          reports?.map((report) =>
             report.id === reportId ? markRead(report) : report,
           ),
       );

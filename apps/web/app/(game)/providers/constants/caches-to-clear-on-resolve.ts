@@ -167,7 +167,7 @@ export const cachesToClearOnResolve: Handlers = {
       ...getVillageUnitCountQueryKeys(affectedVillageIds),
     ];
   },
-  troopMovementAdventure: ({ affectedVillageIds }) => {
+  troopMovementAdventure: () => {
     return [
       [heroCacheKey],
       [adventurePointsCacheKey],
@@ -175,9 +175,8 @@ export const cachesToClearOnResolve: Handlers = {
       [reportListingsCacheKey],
       [effectsCacheKey],
       [troopMovementsCacheKey],
-      ...affectedVillageIds.flatMap((villageId) => [
-        [questsCacheKey, villageId],
-      ]),
+      [questsCacheKey],
+      [collectableQuestCountCacheKey],
     ];
   },
   unitResearch: ({ affectedVillageIds }) => {
@@ -209,6 +208,8 @@ export const cachesToClearOnResolve: Handlers = {
   },
   huntersLodgeHunt: ({ affectedVillageIds, affectedTileIds }) => {
     return [
+      [questsCacheKey],
+      [collectableQuestCountCacheKey],
       [currentVillageCacheKey],
       [reportListingsCacheKey],
       ...affectedTileIds.map((tileId) => [villageTroopsCacheKey, tileId]),
@@ -235,6 +236,8 @@ export const cachesToClearOnResolve: Handlers = {
   },
   gatherersHutGatheringTrip: ({ affectedVillageIds, affectedTileIds }) => {
     return [
+      [questsCacheKey],
+      [collectableQuestCountCacheKey],
       [currentVillageCacheKey],
       [reportListingsCacheKey],
       ...getVillageUnitCountQueryKeys(affectedVillageIds),

@@ -106,9 +106,7 @@ export const useFarmLists = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [
-        [farmListsCacheKey, currentVillage.id],
-      ]);
+      await invalidateQueries(context, [[farmListsCacheKey]]);
     },
   });
 
@@ -128,9 +126,7 @@ export const useFarmLists = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [
-        [farmListsCacheKey, currentVillage.id],
-      ]);
+      await invalidateQueries(context, [[farmListsCacheKey]]);
     },
   });
 

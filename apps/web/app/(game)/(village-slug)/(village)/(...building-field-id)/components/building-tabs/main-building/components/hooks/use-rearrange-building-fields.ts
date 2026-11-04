@@ -7,7 +7,9 @@ import {
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   currentVillageCacheKey,
+  effectsCacheKey,
   eventsCacheKey,
+  scheduledBuildingUpgradesCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -45,6 +47,10 @@ export const useRearrangeBuildingFields = () => {
       await invalidateQueries(context, [
         [currentVillageCacheKey, currentVillage.slug],
         [eventsCacheKey, 'buildingLevelChange', currentVillage.id],
+        [eventsCacheKey, 'buildingConstruction', currentVillage.id],
+        [eventsCacheKey, 'buildingDestruction', currentVillage.id],
+        [effectsCacheKey, currentVillage.tileId],
+        [scheduledBuildingUpgradesCacheKey, currentVillage.id],
       ]);
     },
   });

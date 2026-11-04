@@ -16,7 +16,7 @@ export const useQuests = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: quests } = useSuspenseQuery({
-    queryKey: [questsCacheKey],
+    queryKey: [questsCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await apiClient.get('/me/quests', {
         query: {
