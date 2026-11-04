@@ -300,9 +300,8 @@ const SavedTradeRoutes = ({
 
   const { mutate: deleteTradeRoute, isPending } = useMutation({
     mutationFn: async (routeId: number) => {
-      await apiClient.delete('/tiles/:tileId/trade-routes/:routeId', {
+      await apiClient.delete('/trade-routes/:routeId', {
         path: {
-          tileId: currentVillage.tileId,
           routeId,
         },
       });
@@ -321,8 +320,8 @@ const SavedTradeRoutes = ({
 
   const { mutate: togglePaused, isPending: isPausePending } = useMutation({
     mutationFn: async (route: TradeRoute) => {
-      await apiClient.patch('/tiles/:tileId/trade-routes/:routeId/paused', {
-        path: { tileId: currentVillage.tileId, routeId: route.id },
+      await apiClient.patch('/trade-routes/:routeId/paused', {
+        path: { routeId: route.id },
         body: { paused: !route.paused },
       });
     },
@@ -544,9 +543,8 @@ export const MarketplaceTradeRoutes = () => {
         (village) => village.id === values.targetVillageId,
       )!;
 
-      await apiClient.patch('/tiles/:tileId/trade-routes/:routeId', {
+      await apiClient.patch('/trade-routes/:routeId', {
         path: {
-          tileId: currentVillage.tileId,
           routeId: editingTradeRoute!.id,
         },
         body: {

@@ -934,15 +934,49 @@ describe('marketplace-controllers', () => {
     expect(original.paused).toBe(false);
     expect(original.nextAt).toBe(original.startsAt);
 
-    const path = { tileId: source.tileId, routeId: original.id };
+    const otherPlayerId = database.selectValue({
+      sql: 'SELECT id FROM players WHERE id != $player_id LIMIT 1;',
+      bind: { $player_id: PLAYER_ID },
+      schema: z.number(),
+    })!;
+    expect(
+      listTradeRoutes(
+        database,
+        createControllerArgs<'/tiles/:tileId/trade-routes'>({
+          context: { playerId: otherPlayerId },
+          path: { tileId: source.tileId },
+        }),
+      ),
+    ).toStrictEqual([]);
+    expect(() =>
+      createTradeRoute(
+        database,
+        createControllerArgs<'/tiles/:tileId/trade-routes', 'post'>({
+          context: { playerId: otherPlayerId },
+          path: { tileId: source.tileId },
+          body,
+        }),
+      ),
+    ).toThrow('Source village does not belong to player');
+    const path = { routeId: original.id };
+    expect(() =>
+      updateTradeRoute(
+        database,
+        createControllerArgs<'/trade-routes/:routeId', 'patch'>({
+          context: { playerId: otherPlayerId },
+          path,
+          body,
+        }),
+      ),
+    ).toThrow('Trade route does not exist');
 
     const toggle = (paused: boolean) =>
       setTradeRoutePaused(
         database,
-        createControllerArgs<
-          '/tiles/:tileId/trade-routes/:routeId/paused',
-          'patch'
-        >({ path, body: { paused } }),
+        createControllerArgs<'/trade-routes/:routeId/paused', 'patch'>({
+          path,
+          body: { paused },
+        }),
       );
 
     const eventCount = () =>
@@ -954,7 +988,7 @@ describe('marketplace-controllers', () => {
     expect(() =>
       updateTradeRoute(
         database,
-        createControllerArgs<'/tiles/:tileId/trade-routes/:routeId', 'patch'>({
+        createControllerArgs<'/trade-routes/:routeId', 'patch'>({
           path,
           body: {
             ...body,
@@ -975,11 +1009,9 @@ describe('marketplace-controllers', () => {
     expect(() =>
       setTradeRoutePaused(
         database,
-        createControllerArgs<
-          '/tiles/:tileId/trade-routes/:routeId/paused',
-          'patch'
-        >({
-          path: { ...path, tileId: target.tileId },
+        createControllerArgs<'/trade-routes/:routeId/paused', 'patch'>({
+          path,
+          context: { playerId: otherPlayerId },
           body: { paused: false },
         }),
       ),
@@ -996,7 +1028,7 @@ describe('marketplace-controllers', () => {
 
     updateTradeRoute(
       database,
-      createControllerArgs<'/tiles/:tileId/trade-routes/:routeId', 'patch'>({
+      createControllerArgs<'/trade-routes/:routeId', 'patch'>({
         path,
         body: { ...body, intervalHours: 12 },
       }),
@@ -1016,7 +1048,7 @@ describe('marketplace-controllers', () => {
 
     updateTradeRoute(
       database,
-      createControllerArgs<'/tiles/:tileId/trade-routes/:routeId', 'patch'>({
+      createControllerArgs<'/trade-routes/:routeId', 'patch'>({
         path,
         body,
       }),
@@ -1027,15 +1059,16 @@ describe('marketplace-controllers', () => {
     expect(() =>
       deleteTradeRoute(
         database,
-        createControllerArgs<'/tiles/:tileId/trade-routes/:routeId', 'delete'>({
-          path: { ...path, tileId: target.tileId },
+        createControllerArgs<'/trade-routes/:routeId', 'delete'>({
+          path,
+          context: { playerId: otherPlayerId },
         }),
       ),
     ).toThrow('Trade route does not exist');
 
     deleteTradeRoute(
       database,
-      createControllerArgs<'/tiles/:tileId/trade-routes/:routeId', 'delete'>({
+      createControllerArgs<'/trade-routes/:routeId', 'delete'>({
         path,
       }),
     );

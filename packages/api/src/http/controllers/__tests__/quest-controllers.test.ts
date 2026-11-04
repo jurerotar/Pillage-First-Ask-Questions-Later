@@ -19,8 +19,8 @@ describe('quest-controllers', () => {
 
     const quests = getQuests(
       database,
-      createControllerArgs<'/villages/:villageId/quests'>({
-        path: { villageId },
+      createControllerArgs<'/me/quests'>({
+        query: { villageId },
       }),
     );
 
@@ -45,8 +45,8 @@ describe('quest-controllers', () => {
     // It should include global quests (village_id IS NULL) and village-specific quests.
     const { collectableQuestCount: initialCount } = getCollectableQuestCount(
       database,
-      createControllerArgs<'/villages/:villageId/quests/collectables/count'>({
-        path: { villageId },
+      createControllerArgs<'/me/quests/collectable-count'>({
+        query: { villageId },
       }),
     );
 
@@ -54,9 +54,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, NULL)
+          (1, $quest_id, $completed_at, NULL)
       `,
       bind: {
         $quest_id: 'test-global-quest',
@@ -68,9 +68,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, $village_id)
+          (1, $quest_id, $completed_at, $village_id)
       `,
       bind: {
         $quest_id: 'test-village-quest',
@@ -83,9 +83,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, $village_id)
+          (1, $quest_id, $completed_at, $village_id)
       `,
       bind: {
         $quest_id: 'test-other-village-quest',
@@ -96,8 +96,8 @@ describe('quest-controllers', () => {
 
     const { collectableQuestCount: finalCount } = getCollectableQuestCount(
       database,
-      createControllerArgs<'/villages/:villageId/quests/collectables/count'>({
-        path: { villageId },
+      createControllerArgs<'/me/quests/collectable-count'>({
+        query: { villageId },
       }),
     );
 
@@ -115,8 +115,8 @@ describe('quest-controllers', () => {
     const questId = 'gatheredResourceCount-1';
     database.exec({
       sql: `
-        INSERT INTO quests (quest_id, completed_at, village_id)
-        VALUES ($quest_id, $completed_at, $village_id);
+        INSERT INTO quests (player_id, quest_id, completed_at, village_id)
+        VALUES (1, $quest_id, $completed_at, $village_id);
       `,
       bind: {
         $quest_id: questId,
@@ -127,11 +127,9 @@ describe('quest-controllers', () => {
 
     collectQuest(
       database,
-      createControllerArgs<
-        '/villages/:villageId/quests/:questId/collect',
-        'patch'
-      >({
-        path: { villageId, questId },
+      createControllerArgs<'/me/quests/:questId/collect', 'post'>({
+        path: { questId },
+        body: { villageId },
       }),
     );
 

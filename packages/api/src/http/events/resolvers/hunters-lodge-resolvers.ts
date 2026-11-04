@@ -48,6 +48,7 @@ export const huntersLodgeHuntResolver: Resolver<
     },
     schema: z.strictObject({
       villageTileId: tileIdSchema,
+      playerId: z.number(),
       sourceTileId: tileIdSchema,
     }),
   })!;
@@ -75,20 +76,29 @@ export const huntersLodgeHuntResolver: Resolver<
   database.exec({
     sql: `
       INSERT INTO hunting_capture_history (player_id, unit_id, amount)
-      SELECT v.player_id, ui.id, 1
-      FROM villages v CROSS JOIN unit_ids ui
-      WHERE v.id = $village_id AND ui.unit = $unit_id
+      SELECT $player_id, ui.id, 1
+      FROM unit_ids ui
+      WHERE ui.unit = $unit_id
       ON CONFLICT (player_id, unit_id) DO UPDATE SET
         amount = hunting_capture_history.amount + EXCLUDED.amount;
     `,
     bind: {
-      $village_id: villageId,
+      $player_id: huntersLodge.playerId,
       $unit_id: unitId,
     },
   });
 
-  assessCaptureAnimalCountByIdQuestCompletion(database, unitId, resolvesAt);
-  assessCaptureAnimalKindCountQuestCompletion(database, resolvesAt);
+  assessCaptureAnimalCountByIdQuestCompletion(
+    database,
+    unitId,
+    resolvesAt,
+    huntersLodge.playerId,
+  );
+  assessCaptureAnimalKindCountQuestCompletion(
+    database,
+    resolvesAt,
+    huntersLodge.playerId,
+  );
 
   return {
     affectedVillageIds: [villageId],

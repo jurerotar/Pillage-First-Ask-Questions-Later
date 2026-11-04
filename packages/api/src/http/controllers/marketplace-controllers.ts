@@ -43,12 +43,17 @@ export const transferResources = createController(
 )(
   ({
     database,
+    context: { playerId },
     path: { tileId },
     body: { targetTileId, resources, repeatCount = 1 },
   }) => {
     database.transaction((db) => {
       const { village, merchant, targetVillage } =
         getVillageMerchantStatsWithTargetByTileId(db, tileId, targetTileId);
+
+      if (village.playerId !== playerId) {
+        throw new Error('Source village does not belong to player');
+      }
 
       if (!targetVillage) {
         throw new Error('Target village does not exist');
@@ -82,8 +87,8 @@ export const listTradeRoutes = createController('/tiles/:tileId/trade-routes', {
     }),
   },
   response: z.array(tradeRouteSchema),
-})(({ database, path: { tileId } }) => {
-  return getTradeRoutes(database, tileId);
+})(({ database, context: { playerId }, path: { tileId } }) => {
+  return getTradeRoutes(database, tileId, playerId);
 });
 
 export const createTradeRoute = createController(
@@ -98,9 +103,9 @@ export const createTradeRoute = createController(
     },
     requestBody: createTradeRouteBodySchema,
   },
-)(({ database, path: { tileId }, body }) => {
+)(({ database, context: { playerId }, path: { tileId }, body }) => {
   database.transaction((db) => {
-    const { startsAt, event } = getTradeRoute(db, tileId, body);
+    const { startsAt, event } = getTradeRoute(db, tileId, body, playerId);
 
     validateTradeRoute(db, { ...event, startsAt });
 
@@ -121,18 +126,23 @@ export const createTradeRoute = createController(
 });
 
 export const updateTradeRoute = createController(
-  '/tiles/:tileId/trade-routes/:routeId',
+  '/trade-routes/:routeId',
   'patch',
   {
     summary: 'Update a marketplace trade route',
     requestParams: { path: tradeRoutePathSchema },
     requestBody: createTradeRouteBodySchema,
   },
-)(({ database, path: { tileId, routeId }, body }) => {
+)(({ database, context: { playerId }, path: { routeId }, body }) => {
   database.transaction((db) => {
-    const route = requireTradeRoute(db, tileId, routeId);
+    const route = requireTradeRoute(db, playerId, routeId);
 
-    const { startsAt, event } = getTradeRoute(db, tileId, body);
+    const { startsAt, event } = getTradeRoute(
+      db,
+      route.originTileId,
+      body,
+      playerId,
+    );
 
     validateTradeRoute(db, { ...event, startsAt });
 
@@ -161,57 +171,64 @@ export const updateTradeRoute = createController(
 });
 
 export const setTradeRoutePaused = createController(
-  '/tiles/:tileId/trade-routes/:routeId/paused',
+  '/trade-routes/:routeId/paused',
   'patch',
   {
     summary: 'Pause or resume a marketplace trade route',
     requestParams: { path: tradeRoutePathSchema },
     requestBody: z.strictObject({ paused: z.boolean() }),
   },
-)(({ database, path: { tileId, routeId }, body: { paused } }) => {
-  database.transaction((db) => {
-    const route = requireTradeRoute(db, tileId, routeId);
+)(
+  ({
+    database,
+    context: { playerId },
+    path: { routeId },
+    body: { paused },
+  }) => {
+    database.transaction((db) => {
+      const route = requireTradeRoute(db, playerId, routeId);
 
-    if (route.paused === paused) {
-      return;
-    }
+      if (route.paused === paused) {
+        return;
+      }
 
-    db.exec({
-      sql: setTradeRoutePausedQuery,
-      bind: { $route_id: routeId, $paused: Number(paused) },
+      db.exec({
+        sql: setTradeRoutePausedQuery,
+        bind: { $route_id: routeId, $paused: Number(paused) },
+      });
+
+      if (paused) {
+        db.exec({
+          sql: deleteTradeRouteEventQuery,
+          bind: { $route_id: routeId },
+        });
+      } else {
+        const now = Date.now();
+        const startsAt =
+          route.startsAt > now
+            ? route.startsAt
+            : route.startsAt +
+              (Math.floor((now - route.startsAt) / route.interval) + 1) *
+                route.interval;
+
+        scheduleTradeRoute(db, routeId, route.villageId, startsAt);
+      }
     });
 
-    if (paused) {
-      db.exec({
-        sql: deleteTradeRouteEventQuery,
-        bind: { $route_id: routeId },
-      });
-    } else {
-      const now = Date.now();
-      const startsAt =
-        route.startsAt > now
-          ? route.startsAt
-          : route.startsAt +
-            (Math.floor((now - route.startsAt) / route.interval) + 1) *
-              route.interval;
-
-      scheduleTradeRoute(db, routeId, route.villageId, startsAt);
-    }
-  });
-
-  triggerKick();
-});
+    triggerKick();
+  },
+);
 
 export const deleteTradeRoute = createController(
-  '/tiles/:tileId/trade-routes/:routeId',
+  '/trade-routes/:routeId',
   'delete',
   {
     summary: 'Delete a marketplace trade route',
     requestParams: { path: tradeRoutePathSchema },
   },
-)(({ database, path: { tileId, routeId } }) => {
+)(({ database, context: { playerId }, path: { routeId } }) => {
   database.transaction((db) => {
-    requireTradeRoute(db, tileId, routeId);
+    requireTradeRoute(db, playerId, routeId);
 
     db.exec({
       sql: deleteTradeRouteEventQuery,

@@ -25,6 +25,5 @@ export const createTradeRouteBodySchema = resourceTransferPayloadSchema.extend({
 export type TradeRouteBody = z.infer<typeof createTradeRouteBodySchema>;
 
 export const tradeRoutePathSchema = z.strictObject({
-  tileId: z.coerce.number().pipe(tileIdSchema),
   routeId: z.coerce.number(),
 });

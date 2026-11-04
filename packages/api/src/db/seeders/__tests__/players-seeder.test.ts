@@ -60,19 +60,13 @@ describe('playersSeeder', () => {
   test('all NPC reputation tiers (by faction) are represented by at least one player', async () => {
     using database = await prepareTestDatabase();
 
-    const playerFactionId = database.selectValue({
-      sql: 'SELECT faction_id FROM players WHERE id = $player_id;',
-      bind: { $player_id: PLAYER_ID },
-      schema: z.number(),
-    })!;
-
     const targetFactionIds = database.selectValues({
       sql: `
         SELECT target_faction_id
         FROM faction_reputation
-        WHERE source_faction_id = $src
+        WHERE player_id = $src
       `,
-      bind: { $src: playerFactionId },
+      bind: { $src: PLAYER_ID },
       schema: z.number(),
     });
 

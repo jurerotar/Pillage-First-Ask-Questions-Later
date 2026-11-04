@@ -6,6 +6,7 @@ import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 import createCulturePointsTable from '../schemas/culture-points-schema.sql?raw';
+import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
 import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
@@ -13,6 +14,7 @@ import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-lis
 import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
+import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createTradeRoutesTable from '../schemas/trade-routes-schema.sql?raw';
@@ -769,6 +771,54 @@ export const upgradeDb = (
           WHERE type = 'tradeRoute';
         `,
       });
+
+      const hasPlayerId = (table: string) =>
+        tx.selectValue({
+          sql: "SELECT COUNT(*) FROM pragma_table_info($table) WHERE name = 'player_id';",
+          bind: { $table: table },
+          schema: z.number(),
+        });
+
+      if (!hasPlayerId('quests')) {
+        tx.execMulti({
+          sql: `
+            ALTER TABLE quests RENAME TO legacy_quests;
+            DROP INDEX IF EXISTS idx_quests_village_id_notnull;
+            DROP INDEX IF EXISTS idx_quests_quest_id;
+          `,
+        });
+
+        tx.execMulti({ sql: createQuestsTable });
+
+        tx.exec({
+          sql: `
+            INSERT INTO quests (id, quest_id, player_id, completed_at, collected_at, village_id)
+            SELECT q.id, q.quest_id, COALESCE(v.player_id, $player_id), q.completed_at, q.collected_at, q.village_id
+            FROM legacy_quests q LEFT JOIN villages v ON v.id = q.village_id;
+            `,
+          bind: { $player_id: PLAYER_ID },
+        });
+
+        tx.exec({ sql: 'DROP TABLE legacy_quests;' });
+      }
+
+      if (!hasPlayerId('faction_reputation')) {
+        tx.exec({
+          sql: 'ALTER TABLE faction_reputation RENAME TO legacy_faction_reputation;',
+        });
+
+        tx.execMulti({ sql: createFactionReputationTable });
+
+        tx.exec({
+          sql: `
+            INSERT INTO faction_reputation (player_id, target_faction_id, reputation)
+            SELECT p.id, fr.target_faction_id, fr.reputation
+            FROM legacy_faction_reputation fr JOIN players p ON p.faction_id = fr.source_faction_id;
+          `,
+        });
+
+        tx.exec({ sql: 'DROP TABLE legacy_faction_reputation;' });
+      }
 
       setupGlobalWriteTriggers(tx);
     });

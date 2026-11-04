@@ -4,7 +4,10 @@ import { factionSchema } from '@pillage-first/types/models/faction';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 
-export const factionReputationSeeder = (database: DbFacade): void => {
+export const factionReputationSeeder = (
+  database: DbFacade,
+  playerId: number,
+): void => {
   const rows = database.selectObjects({
     sql: 'SELECT faction, id FROM faction_ids;',
     schema: z.strictObject({
@@ -17,23 +20,21 @@ export const factionReputationSeeder = (database: DbFacade): void => {
     rows.map((r) => [r.faction, r.id] as const),
   );
 
-  const playerFactionId = factionToIdMap.player;
-
   const relations: [number, number, number][] = [
-    [playerFactionId, factionToIdMap.npc1, reputationLevels.get('ecstatic')!],
-    [playerFactionId, factionToIdMap.npc2, reputationLevels.get('honored')!],
-    [playerFactionId, factionToIdMap.npc3, reputationLevels.get('respected')!],
-    [playerFactionId, factionToIdMap.npc4, reputationLevels.get('friendly')!],
-    [playerFactionId, factionToIdMap.npc5, reputationLevels.get('neutral')!],
-    [playerFactionId, factionToIdMap.npc6, reputationLevels.get('unfriendly')!],
-    [playerFactionId, factionToIdMap.npc7, reputationLevels.get('hostile')!],
-    [playerFactionId, factionToIdMap.npc8, reputationLevels.get('hated')!],
+    [playerId, factionToIdMap.npc1, reputationLevels.get('ecstatic')!],
+    [playerId, factionToIdMap.npc2, reputationLevels.get('honored')!],
+    [playerId, factionToIdMap.npc3, reputationLevels.get('respected')!],
+    [playerId, factionToIdMap.npc4, reputationLevels.get('friendly')!],
+    [playerId, factionToIdMap.npc5, reputationLevels.get('neutral')!],
+    [playerId, factionToIdMap.npc6, reputationLevels.get('unfriendly')!],
+    [playerId, factionToIdMap.npc7, reputationLevels.get('hostile')!],
+    [playerId, factionToIdMap.npc8, reputationLevels.get('hated')!],
   ];
 
   batchInsert(
     database,
     'faction_reputation',
-    ['source_faction_id', 'target_faction_id', 'reputation'],
+    ['player_id', 'target_faction_id', 'reputation'],
     relations,
   );
 };

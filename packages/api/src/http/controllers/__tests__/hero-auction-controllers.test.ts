@@ -30,8 +30,8 @@ describe('hero-auction-controllers', () => {
 
     const listings = getHeroAuctionBuyListings(
       database,
-      createControllerArgs<'/players/:playerId/hero/auctions/buy'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/auctions/buy'>({
+        context: { playerId },
       }),
     );
 
@@ -62,18 +62,16 @@ describe('hero-auction-controllers', () => {
 
     const [listing] = getHeroAuctionBuyListings(
       database,
-      createControllerArgs<'/players/:playerId/hero/auctions/buy'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/auctions/buy'>({
+        context: { playerId },
       }),
     ).toSorted((a, b) => b.id - a.id);
 
     buyHeroAuctionListing(
       database,
-      createControllerArgs<
-        '/players/:playerId/hero/auctions/buy/:listingId',
-        'post'
-      >({
-        path: { playerId, listingId: listing.id },
+      createControllerArgs<'/me/hero/auctions/buy/:listingId', 'post'>({
+        context: { playerId },
+        path: { listingId: listing.id },
       }),
     );
 
@@ -116,8 +114,8 @@ describe('hero-auction-controllers', () => {
 
     const history = getHeroAuctionHistory(
       database,
-      createControllerArgs<'/players/:playerId/hero/auctions/history'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/auctions/history'>({
+        context: { playerId },
       }),
     );
 
@@ -159,8 +157,8 @@ describe('hero-auction-controllers', () => {
 
     sellHeroAuctionItem(
       database,
-      createControllerArgs<'/players/:playerId/hero/auctions/sell', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/auctions/sell', 'post'>({
+        context: { playerId },
         body: { itemId, amount: 2, mode: 'instant' },
       }),
     );
@@ -205,8 +203,8 @@ describe('hero-auction-controllers', () => {
 
     const history = getHeroAuctionHistory(
       database,
-      createControllerArgs<'/players/:playerId/hero/auctions/history'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/auctions/history'>({
+        context: { playerId },
       }),
     );
 
@@ -243,8 +241,8 @@ describe('hero-auction-controllers', () => {
 
     sellHeroAuctionItem(
       database,
-      createControllerArgs<'/players/:playerId/hero/auctions/sell', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/auctions/sell', 'post'>({
+        context: { playerId },
         body: { itemId, amount: 2, mode: 'auction' },
       }),
     );
@@ -305,8 +303,8 @@ describe('hero-auction-controllers', () => {
 
     const pendingListings = getHeroAuctionSellListings(
       database,
-      createControllerArgs<'/players/:playerId/hero/auctions/sell'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/auctions/sell'>({
+        context: { playerId },
       }),
     );
 
@@ -328,8 +326,8 @@ describe('hero-auction-controllers', () => {
 
     const history = getHeroAuctionHistory(
       database,
-      createControllerArgs<'/players/:playerId/hero/auctions/history'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/auctions/history'>({
+        context: { playerId },
       }),
     );
 

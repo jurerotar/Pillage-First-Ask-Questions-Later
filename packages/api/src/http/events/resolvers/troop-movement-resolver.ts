@@ -70,15 +70,18 @@ export const adventureMovementResolver: Resolver<
 > = (database, args) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
-  const { heroId, healthBefore, adventureId } = database.selectObject({
-    sql: selectHeroAdventureContextByVillageIdQuery,
-    bind: { $village_id: villageId },
-    schema: z.strictObject({
-      heroId: z.number(),
-      healthBefore: z.number(),
-      adventureId: z.int(),
-    }),
-  })!;
+  const { heroId, playerId, healthBefore, adventureId } = database.selectObject(
+    {
+      sql: selectHeroAdventureContextByVillageIdQuery,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        heroId: z.number(),
+        playerId: z.number(),
+        healthBefore: z.number(),
+        adventureId: z.int(),
+      }),
+    },
+  )!;
 
   const healthAfter = database.selectValue({
     sql: updateHeroAfterAdventureByHeroIdQuery,
@@ -124,7 +127,7 @@ export const adventureMovementResolver: Resolver<
     bind: { $hero_id: heroId },
   });
 
-  assessAdventureCountQuestCompletion(database, resolvesAt);
+  assessAdventureCountQuestCompletion(database, resolvesAt, playerId);
 
   if (healthAfter < 100) {
     createHeroHealthRegenerationEventByVillageId(

@@ -62,10 +62,14 @@ export const setTradeRoutePausedQuery =
   'UPDATE trade_routes SET paused = $paused WHERE id = $route_id;';
 
 export const selectTradeRoutesByTileIdQuery = `${selectTradeRoutesQuery}
-  WHERE origin.tile_id = $tile_id
+  WHERE origin.tile_id = $tile_id AND origin.player_id = $player_id
   ORDER BY r.id;
 `;
 
 export const selectTradeRouteByIdQuery = `${selectTradeRoutesQuery}
   WHERE r.id = $route_id;
+`;
+
+export const selectPlayerTradeRouteByIdQuery = `${selectTradeRoutesQuery}
+  WHERE r.id = $route_id AND origin.player_id = $player_id;
 `;

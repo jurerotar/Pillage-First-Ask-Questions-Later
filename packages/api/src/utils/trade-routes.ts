@@ -1,12 +1,8 @@
-import { z } from 'zod';
-import {
-  type TradeRoute,
-  tradeRouteSchema,
-} from '@pillage-first/types/models/trade-route';
+import type { TradeRoute } from '@pillage-first/types/models/trade-route';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import type { TradeRouteBody } from '../http/controllers/schemas/marketplace-schemas';
 import {
-  selectTradeRouteByIdQuery,
+  selectPlayerTradeRouteByIdQuery,
   selectTradeRoutesByTileIdQuery,
 } from '../queries/trade-route-queries';
 import { createEvents } from './create-event';
@@ -17,27 +13,18 @@ import {
   getTotalResourceAmount,
   getVillageMerchantStats,
 } from './marketplace';
+import { tradeRouteRowSchema } from './trade-route-state';
 
-const tradeRouteRowSchema = tradeRouteSchema.extend({
-  resources: z
-    .string()
-    .transform((value): unknown => JSON.parse(value))
-    .pipe(tradeRouteSchema.shape.resources),
-  paused: z.coerce.boolean(),
-});
+export { getTradeRouteById } from './trade-route-state';
 
-export const getTradeRoutes = (database: DbFacade, tileId: number) => {
+export const getTradeRoutes = (
+  database: DbFacade,
+  tileId: number,
+  playerId: number,
+) => {
   return database.selectObjects({
     sql: selectTradeRoutesByTileIdQuery,
-    bind: { $tile_id: tileId },
-    schema: tradeRouteRowSchema,
-  });
-};
-
-export const getTradeRouteById = (database: DbFacade, routeId: number) => {
-  return database.selectObject({
-    sql: selectTradeRouteByIdQuery,
-    bind: { $route_id: routeId },
+    bind: { $tile_id: tileId, $player_id: playerId },
     schema: tradeRouteRowSchema,
   });
 };
@@ -105,12 +92,17 @@ export const getTradeRoute = (
   database: DbFacade,
   tileId: number,
   { targetTileId, resources, startHour, intervalHours }: TradeRouteBody,
+  playerId: number,
 ) => {
   const { village, targetVillage } = getMarketplaceVillageWithTargetByTileId(
     database,
     tileId,
     targetTileId,
   );
+
+  if (village.playerId !== playerId) {
+    throw new Error('Source village does not belong to player');
+  }
 
   if (!targetVillage) {
     throw new Error('Target village does not exist');
@@ -132,12 +124,16 @@ export const getTradeRoute = (
 
 export const requireTradeRoute = (
   database: DbFacade,
-  tileId: number,
+  playerId: number,
   routeId: number,
 ) => {
-  const route = getTradeRouteById(database, routeId);
+  const route = database.selectObject({
+    sql: selectPlayerTradeRouteByIdQuery,
+    bind: { $route_id: routeId, $player_id: playerId },
+    schema: tradeRouteRowSchema,
+  });
 
-  if (!route || route.originTileId !== tileId) {
+  if (!route) {
     throw new Error('Trade route does not exist');
   }
 

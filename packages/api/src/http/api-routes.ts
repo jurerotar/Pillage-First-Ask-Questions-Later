@@ -147,8 +147,6 @@ import {
 import { getArtifactsAroundVillage } from './controllers/world-items-controllers';
 import { createRoute, type Route } from './route';
 
-// NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
-
 export const apiRoutes = [
   // Server
   createRoute(getServer),

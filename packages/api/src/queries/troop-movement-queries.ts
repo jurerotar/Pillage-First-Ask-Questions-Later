@@ -76,6 +76,7 @@ export const selectBattleReportParticipantsByTargetTileIdQuery = `
 export const selectHeroAdventureContextByVillageIdQuery = `
   SELECT
     h.id AS heroId,
+    h.player_id AS playerId,
     h.health AS healthBefore,
     ha.completed + 1 AS adventureId
   FROM
@@ -223,7 +224,7 @@ export const insertResourceSiteByTileIdQuery = `
 `;
 
 export const insertNewVillageQuestsQuery = `
-  INSERT INTO quests (quest_id, completed_at, collected_at, village_id)
+  INSERT INTO quests (quest_id, completed_at, collected_at, village_id, player_id)
   SELECT
     quest.value,
     CASE
@@ -231,7 +232,8 @@ export const insertNewVillageQuestsQuery = `
       ELSE NULL
     END,
     NULL,
-    $village_id
+    $village_id,
+    (SELECT player_id FROM villages WHERE id = $village_id)
   FROM json_each($quests) AS quest;
 `;
 

@@ -118,7 +118,7 @@ import {
   assessQueuedTroopCountByIdQuestCompletion,
   assessQueuedTroopCountQuestCompletion,
 } from './quests';
-import { getTradeRouteById } from './trade-routes';
+import { getTradeRouteById } from './trade-route-state';
 import {
   materializeWoundedTroopsAt,
   removeTroops,
@@ -825,6 +825,7 @@ export const validateEventCreationPrerequisites = (
     const { available: adventurePoints } = getPlayerHeroAdventureStateAt(
       database,
       Date.now(),
+      getVillagePlayerId(database, event.villageId),
     );
 
     if (adventurePoints === 0) {
@@ -1047,8 +1048,16 @@ export const runEventCreationSideEffects = (
       return;
     }
 
-    assessQueuedTroopCountQuestCompletion(database, now);
-    assessQueuedTroopCountByIdQuestCompletion(database, event.unitId, now);
+    const playerId = getVillagePlayerId(database, event.villageId);
+
+    assessQueuedTroopCountQuestCompletion(database, now, playerId);
+
+    assessQueuedTroopCountByIdQuestCompletion(
+      database,
+      event.unitId,
+      now,
+      playerId,
+    );
   }
 
   if (isCulturePointsCelebrationEvent(event)) {
@@ -1080,12 +1089,16 @@ export const runEventCreationSideEffects = (
     });
 
     database.exec({
-      sql: `UPDATE quests SET completed_at = $timestamp
-        WHERE completed_at IS NULL AND village_id IS NULL
+      sql: `
+        UPDATE quests
+        SET completed_at = $timestamp
+        WHERE completed_at IS NULL
+          AND village_id IS NULL
           AND quest_id GLOB 'celebrationCount-*'
           AND CAST(substr(quest_id, length('celebrationCount-') + 1) AS INTEGER)
-            <= (SELECT celebrations_held FROM culture_points WHERE player_id = $player_id)
-          AND $player_id = ${PLAYER_ID};`,
+          <= (SELECT celebrations_held FROM culture_points WHERE player_id = $player_id)
+          AND player_id = $player_id;
+      `,
       bind: { $timestamp: event.startsAt, $player_id: playerId },
     });
   }

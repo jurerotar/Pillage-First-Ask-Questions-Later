@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   tileTroopMovementDtoSchema,
   troopMovementItemDtoSchema,
@@ -71,10 +70,10 @@ export const getTileTroopMovements = createController(
     },
     response: z.array(tileTroopMovementDtoSchema),
   },
-)(({ database, path: { tileId } }) => {
+)(({ database, context: { playerId }, path: { tileId } }) => {
   return database.selectObjects({
     sql: selectTileTroopMovementsQuery,
-    bind: { $tile_id: tileId, $player_id: PLAYER_ID, $now: Date.now() },
+    bind: { $tile_id: tileId, $player_id: playerId, $now: Date.now() },
     schema: getTileTroopMovementsRowSchema,
   });
 });
@@ -90,7 +89,7 @@ export const getVillageTroopMovements = createController(
     },
     response: z.array(troopMovementItemDtoSchema),
   },
-)(({ database, path: { tileId } }) => {
+)(({ database, context: { playerId }, path: { tileId } }) => {
   const rows = database.selectObjects({
     sql: selectTroopMovementsByTileIdQuery,
     bind: {
@@ -99,7 +98,7 @@ export const getVillageTroopMovements = createController(
     schema: getVillageTroopMovementsRowSchema,
   });
 
-  return rows.map(mapTroopMovementRowToDto);
+  return rows.map((row) => mapTroopMovementRowToDto(row, playerId));
 });
 
 export const getVillageTroopMovementStats = createController(

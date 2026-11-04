@@ -3,7 +3,6 @@ import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import type { MapMarker } from '@pillage-first/types/models/map-marker';
-import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { mapMarkersCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -11,16 +10,11 @@ import { invalidateQueries } from 'app/utils/react-query';
 export const useMapMarkers = () => {
   const { t } = useTranslation();
   const { apiClient } = use(ApiContext);
-  const { player } = useMe();
 
   const { data: mapMarkers } = useSuspenseQuery<MapMarker[]>({
     queryKey: [mapMarkersCacheKey],
     queryFn: async () => {
-      const { data } = await apiClient.get('/players/:playerId/map-markers', {
-        path: {
-          playerId: player.id,
-        },
-      });
+      const { data } = await apiClient.get('/me/map-markers');
 
       return data;
     },
@@ -47,10 +41,7 @@ export const useMapMarkers = () => {
   >({
     onMutate: ({ tileId }) => mapMarkersByTileId.has(tileId),
     mutationFn: async ({ tileId, description, color, icon }) => {
-      await apiClient.post('/players/:playerId/map-markers', {
-        path: {
-          playerId: player.id,
-        },
+      await apiClient.post('/me/map-markers', {
         body: { tileId, description, color, icon },
       });
     },
@@ -65,9 +56,8 @@ export const useMapMarkers = () => {
   const { mutate: deleteMapMarker, isPending: isDeletingMapMarker } =
     useMutation<void, Error, { tileId: number }>({
       mutationFn: async ({ tileId }) => {
-        await apiClient.delete('/players/:playerId/map-markers/:tileId', {
+        await apiClient.delete('/me/map-markers/:tileId', {
           path: {
-            playerId: player.id,
             tileId,
           },
         });
