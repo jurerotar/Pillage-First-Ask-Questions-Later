@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { insertReport } from '../report';
 
 describe(insertReport, () => {
@@ -78,7 +79,7 @@ describe(insertReport, () => {
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
 
@@ -218,7 +219,7 @@ describe(insertReport, () => {
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
 
@@ -330,7 +331,7 @@ describe(insertReport, () => {
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
 
@@ -442,7 +443,7 @@ describe(insertReport, () => {
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
 
@@ -457,7 +458,7 @@ describe(insertReport, () => {
       bind: {
         $tile_id: sourceVillage.tile_id,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.exec({
@@ -569,7 +570,7 @@ describe(insertReport, () => {
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
       schema: z.strictObject({
         id: z.number(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
 

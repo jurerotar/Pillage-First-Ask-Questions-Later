@@ -27,7 +27,7 @@ export const RallyPointFarmList = () => {
     isOpen: isEditFarmListModalOpen,
     openModal: openEditFarmListModalOpen,
     closeModal: closeEditFarmListModal,
-    modalArgs: editModalArgs,
+    data: editModalData,
   } = useDialog<number>();
   const { farmLists, deleteFarmList } = useFarmLists();
   const { playerVillages } = usePlayerVillageListing();
@@ -143,7 +143,7 @@ export const RallyPointFarmList = () => {
       />
       <EditFarmListModal
         isOpen={isEditFarmListModalOpen}
-        id={editModalArgs.current!}
+        id={editModalData!}
         onClose={closeEditFarmListModal}
       />
     </Section>

@@ -4,6 +4,7 @@ import {
   getHunterLodgeCatchableAnimals,
 } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { randomArrayElement } from '@pillage-first/utils/random';
 import { insertHeroItemIntoHeroInventoryQuery } from '../../../queries/hero-queries';
 import { selectVillageAndFirstOasisTileIdsQuery } from '../../../queries/map-queries';
@@ -46,8 +47,8 @@ export const huntersLodgeHuntResolver: Resolver<
       $village_id: villageId,
     },
     schema: z.strictObject({
-      villageTileId: z.number(),
-      sourceTileId: z.number(),
+      villageTileId: tileIdSchema,
+      sourceTileId: tileIdSchema,
     }),
   })!;
 

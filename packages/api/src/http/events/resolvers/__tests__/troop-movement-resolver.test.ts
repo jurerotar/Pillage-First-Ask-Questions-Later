@@ -18,6 +18,7 @@ import {
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -105,14 +106,14 @@ const getTileIdByCoordinates = (
   database.selectValue({
     sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
     bind: { $x: coordinates.x, $y: coordinates.y },
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
 const getVillageTileId = (database: DbFacade, villageId: number) =>
   database.selectValue({
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
     bind: { $village_id: villageId },
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
 describe(oasisOccupationMovementResolver, () => {
@@ -165,8 +166,8 @@ describe(oasisOccupationMovementResolver, () => {
         LIMIT 1;
       `,
       schema: z.strictObject({
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         original_movement_type: z.string(),
       }),
     })!;
@@ -537,8 +538,8 @@ describe(relocationMovementResolver, () => {
         timestamp: z.int(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.int(),
-        target_tile_id: z.int(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         movement_type: z.string(),
         unit_id: unitIdSchema,
         amount: z.int(),
@@ -568,7 +569,7 @@ describe(relocationMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetVillageTileId = database.selectValue({
@@ -631,7 +632,7 @@ describe(reinforcementMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetVillageTileId = database.selectValue({
@@ -715,8 +716,8 @@ describe(reinforcementMovementResolver, () => {
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
         movement_type: z.string(),
-        origin_tile_id: z.int(),
-        target_tile_id: z.int(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         unit_id: unitIdSchema,
         amount: z.int(),
       }),
@@ -742,7 +743,7 @@ describe(reinforcementMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetVillageTileId = database.selectValue({
@@ -815,7 +816,7 @@ describe(reinforcementMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetVillageTileId = database.selectValue({
@@ -877,7 +878,7 @@ describe(reinforcementMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetOasisTileId = database.selectValue({
@@ -1089,7 +1090,7 @@ describe(findNewVillageMovementResolver, () => {
         id: z.number(),
         name: z.string(),
         slug: z.string(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
 
@@ -1113,8 +1114,8 @@ describe(findNewVillageMovementResolver, () => {
         timestamp: z.number(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
       }),
     })!;
 
@@ -1305,7 +1306,7 @@ describe(attackMovementResolver, () => {
     const target = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE id != $village_id LIMIT 1;',
       bind: { $village_id: villageId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const resolvesAt = 5500;
@@ -1402,8 +1403,8 @@ describe(attackMovementResolver, () => {
         timestamp: z.number(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         is_raid: z.number(),
         loot_wood: z.number(),
         loot_clay: z.number(),
@@ -1499,7 +1500,7 @@ describe(attackMovementResolver, () => {
     const target = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE id != $village_id LIMIT 1;',
       bind: { $village_id: villageId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const resolvesAt = 5500;
@@ -1735,7 +1736,7 @@ describe(raidMovementResolver, () => {
         LIMIT 1;
       `,
       schema: z.strictObject({
-        target_tile_id: z.number(),
+        target_tile_id: tileIdSchema,
         is_raid: z.number(),
         loot_wood: z.number(),
         loot_clay: z.number(),

@@ -2,7 +2,10 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { resourceSchema } from '@pillage-first/types/models/resource';
-import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
+import {
+  oasisBonusTypeSchema,
+  tileIdSchema,
+} from '@pillage-first/types/models/tile';
 import { getOasesWithAnimals } from '../oasis-animal-finder-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -17,7 +20,7 @@ describe('oasis-animal-finder-controllers', () => {
 
     const villageTileIds = database.selectValues({
       sql: 'SELECT tile_id FROM villages ORDER BY id LIMIT 2;',
-      schema: z.number(),
+      schema: tileIdSchema,
     });
 
     database.exec({

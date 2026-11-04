@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { insertHeroEffectsQuery } from '../../../queries/effect-queries';
 import { createEvents } from '../../../utils/create-event';
 import { addTroops } from '../../../utils/troops';
@@ -32,7 +33,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
       },
       schema: z.strictObject({
         villageId: z.number(),
-        tileId: z.number(),
+        tileId: tileIdSchema,
         healthRegeneration: z.number(),
         speed: z.number(),
       }),
@@ -106,7 +107,7 @@ export const heroHealthRegenerationResolver: Resolver<
       },
       schema: z.strictObject({
         health: z.number(),
-        tileId: z.number(),
+        tileId: tileIdSchema,
         villageId: z.number(),
         healthRegeneration: z.number(),
         speed: z.number(),

@@ -44,7 +44,7 @@ export const useTroopMovementForm = <
     isOpen: isConfirmationStepOpen,
     openModal: openConfirmationStep,
     closeModal: closeConfirmationStep,
-    modalArgs: formData,
+    data: formData,
   } = useDialog<T>();
 
   const onFormSubmit: SubmitHandler<T> = async (data) => {
@@ -59,7 +59,7 @@ export const useTroopMovementForm = <
   };
 
   const onConfirm = () => {
-    if (!formData.current) {
+    if (!formData) {
       return;
     }
 

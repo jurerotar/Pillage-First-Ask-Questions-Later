@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { assessGatheredResourceCountQuestCompletion } from '../../../utils/quests';
 import { insertGatheringExpeditionReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
@@ -40,7 +41,7 @@ export const gatherersHutGatheringTripResolver: Resolver<
     `,
     bind: { $village_id: villageId },
     schema: z.strictObject({
-      tile_id: z.int(),
+      tile_id: tileIdSchema,
       tribe_id: z.int(),
     }),
   })!;

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { buildingIdSchema } from './building';
 import { coordinatesSchema } from './coordinates';
 import { resourceBundleSchema } from './resource';
+import { tileIdSchema } from './tile';
 import { tribeSchema } from './tribe';
 import { unitIdSchema } from './unit';
 
@@ -34,7 +35,7 @@ export const battlePlayerSchema = z.strictObject({
 
 export const battleVillageSchema = z.strictObject({
   id: z.int().nullable(),
-  tileId: z.int(),
+  tileId: tileIdSchema,
   name: z.string(),
   coordinates: coordinatesSchema,
 });

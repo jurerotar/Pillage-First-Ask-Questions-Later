@@ -15,6 +15,7 @@ import {
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { calculatePlayerCulturePointsProduction } from '../../../utils/culture-points';
 import { insertEvents } from '../../../utils/events';
 import {
@@ -91,7 +92,7 @@ describe('developer-tools-controllers', () => {
         using database = await prepareTestDatabase();
         const tileId = database.selectValue({
           sql: 'SELECT tile_id FROM villages WHERE id = 1',
-          schema: z.number(),
+          schema: tileIdSchema,
         })!;
 
         const eventCountBefore = database.selectValue({
@@ -413,7 +414,7 @@ describe('developer-tools-controllers', () => {
           bind: { $player_id: playerId },
           schema: z.strictObject({
             id: z.number(),
-            tileId: z.number(),
+            tileId: tileIdSchema,
           }),
         })!;
 
@@ -487,8 +488,8 @@ describe('developer-tools-controllers', () => {
           `,
           schema: z.strictObject({
             amount: z.number(),
-            tileId: z.number(),
-            sourceTileId: z.number(),
+            tileId: tileIdSchema,
+            sourceTileId: tileIdSchema,
           }),
         });
 

@@ -6,6 +6,7 @@ import {
   reportOutcomeSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { createEvents } from '../../../../utils/create-event';
 import { resolveEvent } from '../../resolve-event';
@@ -201,7 +202,7 @@ describe('hunters lodge resolvers', () => {
       schema: z.strictObject({
         unitId: unitIdSchema,
         amount: z.number(),
-        sourceTileId: z.number(),
+        sourceTileId: tileIdSchema,
       }),
     });
 
@@ -250,7 +251,7 @@ describe('hunters lodge resolvers', () => {
         timestamp: z.int(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        village_tile_id: z.int(),
+        village_tile_id: tileIdSchema,
         unit_id: unitIdSchema,
         amount: z.int(),
       }),
@@ -262,7 +263,7 @@ describe('hunters lodge resolvers', () => {
       report_outcome: 'huntingParty',
       village_tile_id: database.selectValue({
         sql: 'SELECT tile_id FROM villages WHERE id = 1;',
-        schema: z.int(),
+        schema: tileIdSchema,
       }),
       unit_id: caughtAnimals[0].unitId,
       amount: 1,

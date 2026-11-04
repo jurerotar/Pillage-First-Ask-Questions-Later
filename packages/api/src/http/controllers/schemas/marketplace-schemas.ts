@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 
 const resourceTransferPayloadSchema = z.strictObject({
-  targetTileId: z.number().int().positive(),
+  targetTileId: tileIdSchema,
   resources: z.strictObject({
     wood: z.number().int().min(0),
     clay: z.number().int().min(0),
@@ -24,6 +25,6 @@ export const createTradeRouteBodySchema = resourceTransferPayloadSchema.extend({
 export type TradeRouteBody = z.infer<typeof createTradeRouteBodySchema>;
 
 export const tradeRoutePathSchema = z.strictObject({
-  tileId: z.coerce.number(),
+  tileId: z.coerce.number().pipe(tileIdSchema),
   routeId: z.coerce.number(),
 });

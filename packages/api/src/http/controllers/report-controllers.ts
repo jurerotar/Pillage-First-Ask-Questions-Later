@@ -10,6 +10,7 @@ import {
   reportSchema,
   reportTagSchema,
 } from '@pillage-first/types/models/report';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
@@ -93,7 +94,7 @@ export const getReports = createController('/reports', {
 export const getTileReports = createController('/tiles/:tileId/reports', {
   summary: 'Get the latest player battle and scouting reports targeting a tile',
   requestParams: {
-    path: z.strictObject({ tileId: z.coerce.number() }),
+    path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
   },
   response: z.array(reportListingDtoSchema),
 })(({ database, path: { tileId } }) => {
@@ -235,7 +236,7 @@ export const getReport = createController('/reports/:reportId', {
       bind: { $id: row.scouting_id },
       schema: z.strictObject({
         role: z.enum(['defender', 'reinforcement']),
-        tileId: z.int(),
+        tileId: tileIdSchema,
         unitId: unitIdSchema,
         amount: z.int(),
         tribe: tribeSchema,

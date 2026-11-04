@@ -10,6 +10,7 @@ import {
 } from '@pillage-first/mocks/event';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectEventByIdQuery } from '../../../queries/event-queries';
 import { updateResourceSiteResourcesByTileIdToValuesQuery } from '../../../queries/village-queries';
@@ -34,7 +35,7 @@ const createPlayerVillage = (database: DbFacade, name: string) => {
       ORDER BY id
       LIMIT 1;
     `,
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
   const villageId = database.selectValue({
@@ -62,7 +63,7 @@ const getVillageTileId = (database: DbFacade, villageId: number) =>
   database.selectValue({
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
     bind: { $village_id: villageId },
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
 describe('event-controllers', () => {
@@ -373,7 +374,7 @@ describe('event-controllers', () => {
       bind: { $player_id: PLAYER_ID },
       schema: z.strictObject({
         id: z.number(),
-        tileId: z.number(),
+        tileId: tileIdSchema,
       }),
     })!;
     const targetVillage = createPlayerVillage(database, 'Target Village');

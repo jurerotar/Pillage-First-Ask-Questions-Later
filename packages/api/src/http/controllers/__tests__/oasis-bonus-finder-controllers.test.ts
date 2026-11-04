@@ -3,11 +3,12 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import type { Resource } from '@pillage-first/types/models/resource';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { getTilesWithBonuses } from '../oasis-bonus-finder-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 const occupiedTileRowSchema = z.strictObject({
-  tile_id: z.number(),
+  tile_id: tileIdSchema,
 });
 
 type OasisBonus = {

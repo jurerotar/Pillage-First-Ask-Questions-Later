@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import { useMemo } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
@@ -28,7 +28,7 @@ export const UnitSelector = ({
   maxUnits = EMPTY_MAX_UNITS,
   maxTotalUnits,
 }: UnitSelectorProps) => {
-  const { control, setValue, watch } = useFormContext<{
+  const { control, setValue } = useFormContext<{
     units: {
       unitId: Unit['id'];
       selected: number;
@@ -38,7 +38,7 @@ export const UnitSelector = ({
     }[];
   }>();
 
-  const units = watch('units') || [];
+  const units = useWatch({ control, name: 'units' }) || [];
 
   const maxAmountByUnitId = useMemo(() => {
     return new Map(maxUnits.map(({ unitId, amount }) => [unitId, amount]));
