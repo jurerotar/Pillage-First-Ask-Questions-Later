@@ -382,6 +382,10 @@ const ConstructionQueueContent = () => {
   const dropSourceId = draggedId;
 
   const containerRef = useClickOutside<HTMLElement>(() => {
+    if (isWiderThanLg) {
+      return;
+    }
+
     setIsExtended(false);
     setSelectedEventKey(null);
   });
@@ -415,7 +419,7 @@ const ConstructionQueueContent = () => {
     }),
   ];
 
-  const visibleSlots = isWiderThanLg ? slots : slots.slice(0, 1);
+  const visibleSlots = slots.slice(0, 1);
 
   const totalCost = orderedScheduledEvents.length > 0 && (
     <div className="min-w-0 self-stretch rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 ml-1 shadow-xs transition-[background-color,border-color,color]">
@@ -454,15 +458,14 @@ const ConstructionQueueContent = () => {
       className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-safe z-30 flex max-w-[calc(100vw-var(--twsa-safe-area-inset-left)-var(--twsa-safe-area-inset-right)-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color,left] lg:bottom-14 lg:z-10"
       ref={containerRef}
     >
-      {isWiderThanLg && totalCost}
-      {!isWiderThanLg && !isExtended && selectedEvent && (
+      {!isExtended && selectedEvent && (
         <ConstructionQueueBuilding
           buildingEvent={selectedEvent}
           isDragging={false}
           onCancel={cancelBuildingUpgradeQueueEntry}
         />
       )}
-      {!isWiderThanLg && isExtended && (
+      {isExtended && (
         <>
           {totalCost}
           <ul className="flex max-w-full flex-col items-stretch gap-1 overflow-visible rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color]">
@@ -470,39 +473,31 @@ const ConstructionQueueContent = () => {
           </ul>
         </>
       )}
-      <ul
-        className={clsx(
-          'flex max-w-full gap-1 rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color] lg:flex-col lg:items-stretch lg:overflow-visible',
-          isWiderThanLg
-            ? 'flex-col items-stretch overflow-visible'
-            : 'items-center overflow-x-auto',
-        )}
-      >
-        {visibleSlots.map((slot) => renderSlot(slot, isWiderThanLg))}
+      <ul className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color]">
+        {visibleSlots.map((slot) => renderSlot(slot, false))}
 
-        {!isWiderThanLg && (
-          <li className="shrink-0">
-            <button
-              aria-label={
-                isExtended
-                  ? t('Close construction queue')
-                  : t('Expand construction queue')
-              }
-              className="inline-flex flex-col items-center gap-0.5 rounded-xs border border-border bg-muted px-0.5 py-1 text-muted-foreground transition-colors"
-              onClick={() => setIsExtended(!isExtended)}
-              type="button"
-            >
-              {isExtended ? (
-                <LuChevronDown className="text-2xl" />
-              ) : (
-                <LuChevronUp className="text-2xl" />
-              )}
-              <span className="min-w-7 text-center text-xs font-semibold tabular-nums leading-none">
-                {orderedEvents.length}/{totalSlotsCount}
-              </span>
-            </button>
-          </li>
-        )}
+        <li className="shrink-0">
+          <button
+            aria-expanded={isExtended}
+            aria-label={
+              isExtended
+                ? t('Close construction queue')
+                : t('Expand construction queue')
+            }
+            className="inline-flex flex-col items-center gap-0.5 rounded-xs border border-border bg-muted px-0.5 py-1 text-muted-foreground transition-colors"
+            onClick={() => setIsExtended((current) => !current)}
+            type="button"
+          >
+            {isExtended ? (
+              <LuChevronDown className="text-2xl" />
+            ) : (
+              <LuChevronUp className="text-2xl" />
+            )}
+            <span className="min-w-7 text-center text-xs font-semibold tabular-nums leading-none">
+              {orderedEvents.length}/{totalSlotsCount}
+            </span>
+          </button>
+        </li>
       </ul>
     </aside>
   );
