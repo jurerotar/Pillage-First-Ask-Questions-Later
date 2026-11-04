@@ -3,6 +3,7 @@ import {
   type Resources,
   resourcesSchema,
 } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
@@ -73,8 +74,6 @@ type CalculateResourceSiteResourcesAtReturn = {
   previousUpdatedAt: number;
 };
 
-const villageTileIdSchema = z.number();
-
 const resourceSiteStateSchema = resourcesSchema.extend({
   last_updated_at: z.number(),
 });
@@ -91,7 +90,7 @@ export const getVillageTileId = (
   database.selectValue({
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
     bind: { $village_id: villageId },
-    schema: villageTileIdSchema,
+    schema: tileIdSchema,
   })!;
 
 export const getVillagePlayerId = (

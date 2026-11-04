@@ -44,7 +44,7 @@ export const ReturnReinforcementsModal = ({
     isOpen: isConfirmationStepOpen,
     openModal: openConfirmationStep,
     closeModal: closeConfirmationStep,
-    modalArgs: confirmationStepData,
+    data: confirmationStepData,
   } = useDialog<BaseTroopFormValues>();
   const { form, hasSelectedTroops, maxUnits } = useTroopSelectionForm({
     isOpen,
@@ -54,9 +54,7 @@ export const ReturnReinforcementsModal = ({
   });
 
   const selectedConfirmationUnits =
-    confirmationStepData.current?.units.filter(
-      ({ selected }) => selected > 0,
-    ) ?? [];
+    confirmationStepData?.units.filter(({ selected }) => selected > 0) ?? [];
 
   const isReturningOnlyAnimals =
     selectedConfirmationUnits.length > 0 &&
@@ -75,7 +73,7 @@ export const ReturnReinforcementsModal = ({
   };
 
   const onConfirmReturnAction = () => {
-    const pendingReturnData = confirmationStepData.current;
+    const pendingReturnData = confirmationStepData;
 
     if (pendingReturnData?.target.tileId === undefined) {
       return;
@@ -128,11 +126,11 @@ export const ReturnReinforcementsModal = ({
       onOpenChange={(open) => !open && onClose()}
     >
       <DialogContent>
-        {isConfirmationStepOpen && confirmationStepData.current ? (
+        {isConfirmationStepOpen && confirmationStepData ? (
           <TroopMovementConfirmationContent
             onBack={closeConfirmationStep}
             onConfirm={onConfirmReturnAction}
-            formData={confirmationStepData.current}
+            formData={confirmationStepData}
             title={title}
             tribe={tribe}
             originTileId={mode === 'outgoing' ? tileId : undefined}

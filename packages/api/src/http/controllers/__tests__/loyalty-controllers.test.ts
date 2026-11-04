@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { selectTileLoyaltyQuery } from '../../../queries/loyalty-queries';
 import { loyaltyIncreaseResolver } from '../../events/resolvers/loyalty-resolvers';
 import { getTileLoyalty } from '../loyalty-controllers';
@@ -53,12 +54,12 @@ describe('loyalty-controllers', () => {
     const tileId1 = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId1 },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
     const tileId2 = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId2 },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     // Ensure we have a residence in both villages

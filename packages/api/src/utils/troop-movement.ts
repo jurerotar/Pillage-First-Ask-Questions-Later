@@ -6,6 +6,7 @@ import {
 } from '@pillage-first/game-assets/utils/troops';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectBattleReportParticipantsByTargetTileIdQuery } from '../queries/troop-movement-queries';
@@ -106,7 +107,7 @@ const getBattleReportParticipants = (
     },
     schema: z.strictObject({
       role: z.enum(['attacker', 'defender', 'reinforcement']),
-      tile_id: z.number(),
+      tile_id: tileIdSchema,
       player_id: z.number().nullable(),
       unit_id: unitIdSchema.nullable(),
       amount: z.number().nullable(),

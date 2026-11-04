@@ -12,6 +12,7 @@ import {
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { resolveEvent } from '../../resolve-event';
 
 const NOW = 1_000_000;
@@ -30,7 +31,7 @@ const getPlayerVillage = (
     bind: { $player_id: PLAYER_ID },
     schema: z.strictObject({
       id: z.number(),
-      tile_id: z.number(),
+      tile_id: tileIdSchema,
     }),
   })!;
 
@@ -47,7 +48,7 @@ const createPlayerVillage = (
       ORDER BY id
       LIMIT 1;
     `,
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
   const villageId = database.selectValue({
@@ -252,8 +253,8 @@ describe('marketplace resolvers', () => {
         timestamp: z.number(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -330,8 +331,8 @@ describe('marketplace resolvers', () => {
         duration: z.number(),
         village_id: z.number(),
         target_village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -457,8 +458,8 @@ describe('marketplace resolvers', () => {
         starts_at: z.number(),
         village_id: z.number(),
         target_village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -651,8 +652,8 @@ describe('marketplace resolvers', () => {
       schema: z.strictObject({
         village_id: z.number(),
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
       }),
     });
 

@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { buildingLevelChangeResolver } from '../../events/resolvers/building-resolvers';
@@ -12,7 +13,7 @@ describe('oasis-controllers', () => {
   const villageRowSchema = z.strictObject({
     id: z.number(),
     player_id: z.number(),
-    tile_id: z.number(),
+    tile_id: tileIdSchema,
   });
 
   const insertResourceSite = (database: DbFacade, tileId: number) => {
@@ -390,7 +391,7 @@ describe('oasis-controllers', () => {
         $oasis_tile_id: oasisTileId,
         $owning_tile_id: owningVillage.tile_id,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     });
 
     expect(sourceTileIds).toHaveLength(2);
@@ -453,8 +454,8 @@ describe('oasis-controllers', () => {
       },
       schema: z.strictObject({
         village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         first_unit_id: unitIdSchema,
         first_amount: z.number(),
         troop_groups: z.number(),

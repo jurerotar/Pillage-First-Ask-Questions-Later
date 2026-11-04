@@ -7,6 +7,7 @@ import {
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { resourceSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../testing';
 
@@ -66,7 +67,7 @@ describe('effectsSeeder', () => {
           v.tile_id;
       `,
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         building_id: buildingIdSchema,
         level: z.number(),
       }),
@@ -93,7 +94,7 @@ describe('effectsSeeder', () => {
       `,
       bind: { $effect_id: wheatEffectId },
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         value: z.number(),
       }),
     });
@@ -122,7 +123,7 @@ describe('effectsSeeder', () => {
             JOIN villages AS v ON tr.tile_id = v.tile_id;
       `,
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         unit_id: unitIdSchema,
         amount: z.number(),
       }),
@@ -152,7 +153,7 @@ describe('effectsSeeder', () => {
       `,
       bind: { $effect_id: wheatEffectId },
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         value: z.number(),
       }),
     });
@@ -198,7 +199,7 @@ describe('effectsSeeder', () => {
             JOIN resource_ids ri ON ri.id = o.resource_id;
       `,
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         resource: resourceSchema,
         bonus: z.number(),
       }),
@@ -221,7 +222,7 @@ describe('effectsSeeder', () => {
           AND e.tile_id = e.source_specifier;
       `,
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         effect: z.enum([
           'woodProduction',
           'clayProduction',
@@ -274,7 +275,7 @@ describe('effectsSeeder', () => {
         GROUP BY tile_id;
       `,
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         capacity: z.number(),
       }),
     });
@@ -296,7 +297,7 @@ describe('effectsSeeder', () => {
           AND e.tile_id = e.source_specifier;
       `,
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         effect: z.enum(['warehouseCapacity', 'granaryCapacity']),
         value: z.number(),
       }),

@@ -13,6 +13,7 @@ import {
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { getPlayerHeroAdventureStateAt } from '../../utils/adventures';
 import { createEvents } from '../../utils/create-event';
@@ -239,8 +240,8 @@ export const startHeroAdventure = createController(
     schema: z.strictObject({
       health: z.number(),
       isHeroStationedInOwnVillage: z.coerce.boolean(),
-      tileId: z.number(),
-      sourceTileId: z.number(),
+      tileId: tileIdSchema,
+      sourceTileId: tileIdSchema,
       villageId: z.number(),
     }),
   })!;
@@ -255,7 +256,7 @@ export const startHeroAdventure = createController(
 
   const adventureTargetTileId = database.selectValue({
     sql: 'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
   createEvents<'troopMovementAdventure'>(database, {
@@ -604,7 +605,7 @@ export const equipHeroItem = createController(
       const tileId = database.selectValue({
         sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
         bind: { $player_id: playerId },
-        schema: z.number(),
+        schema: tileIdSchema,
       });
 
       database.exec({

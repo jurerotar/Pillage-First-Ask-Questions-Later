@@ -59,11 +59,11 @@ const FoundNewVillageModal = ({
       onOpenChange={(open) => !open && onClose()}
     >
       <DialogContent>
-        {isConfirmationStepOpen && formData.current ? (
+        {isConfirmationStepOpen && formData ? (
           <TroopMovementConfirmationContent
             onBack={closeConfirmationStep}
             onConfirm={onConfirm}
-            formData={formData.current}
+            formData={formData}
             title={t('Found a new village')}
             tribe={tribe}
             backLabel={t('Back')}
@@ -118,9 +118,7 @@ const ReinforceVillageModal = ({
   });
 
   const confirmationTitle =
-    formData.current?.action === 'reinforcement'
-      ? t('Reinforcement')
-      : t('Relocation');
+    formData?.action === 'reinforcement' ? t('Reinforcement') : t('Relocation');
 
   return (
     <Dialog
@@ -128,11 +126,11 @@ const ReinforceVillageModal = ({
       onOpenChange={(open) => !open && onClose()}
     >
       <DialogContent>
-        {isConfirmationStepOpen && formData.current ? (
+        {isConfirmationStepOpen && formData ? (
           <TroopMovementConfirmationContent
             onBack={closeConfirmationStep}
             onConfirm={onConfirm}
-            formData={formData.current}
+            formData={formData}
             title={confirmationTitle}
             tribe={tribe}
             backLabel={t('Back')}
@@ -148,7 +146,7 @@ const ReinforceVillageModal = ({
             }
             form={form}
             target={{
-              selector: 'coordinates',
+              selector: 'playerVillage',
               isDisabled: true,
               extraContent: (
                 <ReinforcementRelocationActionSelector

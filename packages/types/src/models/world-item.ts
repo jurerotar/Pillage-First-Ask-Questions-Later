@@ -1,9 +1,10 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 import { heroItemSchema } from './hero-item';
+import { tileIdSchema } from './tile';
 
 export const worldItemSchema = heroItemSchema
   .extend({
-    tileId: z.number(),
+    tileId: tileIdSchema,
   })
   .meta({ id: 'WorldItem' });
 

@@ -4,6 +4,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitByTribeAndTier } from '@pillage-first/game-assets/utils/units';
 import type { Resource } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';
 import {
   type NatureUnitId,
@@ -716,7 +717,7 @@ export const troopSeeder = (database: DbFacade, server: Server): void => {
     schema: z.strictObject({
       player_id: z.number(),
       tribe: tribeSchema,
-      tile_id: z.number(),
+      tile_id: tileIdSchema,
       x: z.number(),
       y: z.number(),
     }),
@@ -768,7 +769,7 @@ export const troopSeeder = (database: DbFacade, server: Server): void => {
         MAX(o.village_id) IS NULL;
     `,
     schema: z.strictObject({
-      tile_id: z.number(),
+      tile_id: tileIdSchema,
       resources: z.string(),
     }),
   });

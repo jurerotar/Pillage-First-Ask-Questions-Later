@@ -26,9 +26,10 @@ const refreshAndNotify = () => {
 };
 
 export const subscribeToTimer = (callback: () => void) => {
+  const isFirstSubscriber = listeners.size === 0;
   listeners.add(callback);
 
-  if (refreshCurrentTime()) {
+  if (isFirstSubscriber && refreshCurrentTime()) {
     queueMicrotask(notifyListeners);
   }
 

@@ -13,6 +13,7 @@ import type {
   ResourceBundle,
   Resources,
 } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -554,7 +555,7 @@ export const insertMovementReport = (
     database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: villageId },
-      schema: z.int(),
+      schema: tileIdSchema,
     })!;
 
   const reportId = insertReport(database, {

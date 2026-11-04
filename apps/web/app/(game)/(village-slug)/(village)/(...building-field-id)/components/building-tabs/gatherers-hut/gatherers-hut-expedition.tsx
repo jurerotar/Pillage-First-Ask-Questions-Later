@@ -28,6 +28,7 @@ import {
   TroopConfirmationHeader,
   TroopConfirmationUnitTable,
 } from 'app/(game)/(village-slug)/components/send-troops/components/confirmation-modal';
+import { UnitSelectionActions } from 'app/(game)/(village-slug)/components/send-troops/components/unit-selection-actions';
 import { UnitSelector } from 'app/(game)/(village-slug)/components/send-troops/components/unit-selector';
 import { unitSelectionSchema } from 'app/(game)/(village-slug)/components/send-troops/utils/schema';
 import { createUnitSelections } from 'app/(game)/(village-slug)/components/send-troops/utils/troop-form';
@@ -225,7 +226,7 @@ export const GatherersHutExpedition = () => {
     isOpen: isConfirmationStepOpen,
     openModal: openConfirmationStep,
     closeModal: closeConfirmationStep,
-    modalArgs: confirmationData,
+    data: confirmationData,
   } = useDialog<GatheringExpeditionConfirmationData>();
 
   const level = buildingField?.level ?? 0;
@@ -361,7 +362,7 @@ export const GatherersHutExpedition = () => {
   };
 
   const handleConfirm = () => {
-    const data = confirmationData.current;
+    const data = confirmationData;
 
     if (!data) {
       return;
@@ -441,7 +442,11 @@ export const GatherersHutExpedition = () => {
                       <Resources resources={expectedResources} />
                     </div>
                   </div>
-                  <div className="flex w-full justify-end">
+                  <div className="flex w-full justify-between gap-4">
+                    <UnitSelectionActions
+                      disabledUnitTiers={['hero']}
+                      maxTotalUnits={maxPartySize}
+                    />
                     <Button
                       type="submit"
                       size="fit"
@@ -457,12 +462,12 @@ export const GatherersHutExpedition = () => {
             </form>
           </Form>
 
-          {confirmationData.current ? (
+          {confirmationData ? (
             <GatheringExpeditionConfirmationModal
               isOpen={isConfirmationStepOpen}
               onClose={closeConfirmationStep}
               onConfirm={handleConfirm}
-              formData={confirmationData.current}
+              formData={confirmationData}
             />
           ) : null}
         </div>

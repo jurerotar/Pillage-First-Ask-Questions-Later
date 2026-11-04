@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { oasisReinforcementToReturnSchema } from '../http/controllers/schemas/oasis-schemas';
 import {
@@ -20,9 +21,9 @@ type OccupyOasisForVillageResult = {
 };
 
 const oasisOccupationContextSchema = z.strictObject({
-  village_tile_id: z.number(),
+  village_tile_id: tileIdSchema,
   previous_owner_village_id: z.number().nullable(),
-  previous_owner_tile_id: z.number().nullable(),
+  previous_owner_tile_id: tileIdSchema.nullable(),
 });
 
 export const updateOasisEffectsForVillage = (

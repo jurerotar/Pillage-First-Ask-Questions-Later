@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { selectTileLoyaltyQuery } from '../../../../queries/loyalty-queries';
 import { loyaltyIncreaseResolver } from '../loyalty-resolvers';
 
@@ -14,7 +15,7 @@ describe(loyaltyIncreaseResolver, () => {
     const v1Tile = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: v1 },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
     database.exec({
       sql: `INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
@@ -42,7 +43,7 @@ describe(loyaltyIncreaseResolver, () => {
     const v2Tile = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: v2 },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
     database.exec({
       sql: 'INSERT INTO loyalties (tile_id, loyalty) VALUES ($tile_id, 60)',
@@ -98,7 +99,7 @@ describe(loyaltyIncreaseResolver, () => {
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     // Ensure NO Residence exists
@@ -144,7 +145,7 @@ describe(loyaltyIncreaseResolver, () => {
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     // Level 1 Residence (+2% increase)
@@ -188,7 +189,7 @@ describe(loyaltyIncreaseResolver, () => {
 
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = 1',
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     database.exec({

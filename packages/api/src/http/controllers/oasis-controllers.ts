@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   abandonOasisQuery,
   deleteOasisEffectsQuery,
@@ -18,8 +19,8 @@ export const occupyOasis = createController(
     summary: 'Occupy oasis',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
-        oasisTileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
+        oasisTileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
   },
@@ -44,8 +45,8 @@ export const abandonOasis = createController(
     summary: 'Abandon oasis',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
-        oasisTileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
+        oasisTileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
   },

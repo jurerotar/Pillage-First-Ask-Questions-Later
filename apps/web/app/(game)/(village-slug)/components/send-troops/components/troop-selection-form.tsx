@@ -12,6 +12,7 @@ import { Form } from 'app/components/ui/form';
 import { getFormErrorBag } from 'app/utils/forms';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
 import { CoordinateSelector, PlayerVillageSelector } from './target-selectors';
+import { UnitSelectionActions } from './unit-selection-actions';
 import { UnitSelector } from './unit-selector';
 
 export type TroopSelectionFormUnitsOptions = {
@@ -106,27 +107,32 @@ export const TroopSelectionForm = <T extends BaseTroopFormValues>({
 
           <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
-          {resolvedActions ?? (
-            <DialogFooter>
-              {resolvedOnCancel ? (
+          <DialogFooter>
+            <UnitSelectionActions {...units} />
+            {resolvedActions ? (
+              <div className="ml-auto flex gap-2">{resolvedActions}</div>
+            ) : (
+              <>
+                {resolvedOnCancel ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={resolvedOnCancel}
+                    className="ml-auto"
+                  >
+                    {resolvedCancelLabel ?? t('Cancel')}
+                  </Button>
+                ) : null}
                 <Button
-                  type="button"
-                  variant="outline"
-                  onClick={resolvedOnCancel}
-                  className="ml-auto"
+                  type="submit"
+                  disabled={resolvedIsSubmitDisabled}
+                  className={resolvedOnCancel ? undefined : 'ml-auto'}
                 >
-                  {resolvedCancelLabel ?? t('Cancel')}
+                  {resolvedSubmitLabel ?? t('Confirm')}
                 </Button>
-              ) : null}
-              <Button
-                type="submit"
-                disabled={resolvedIsSubmitDisabled}
-                className={resolvedOnCancel ? undefined : 'ml-auto'}
-              >
-                {resolvedSubmitLabel ?? t('Confirm')}
-              </Button>
-            </DialogFooter>
-          )}
+              </>
+            )}
+          </DialogFooter>
         </form>
       </Form>
     </>

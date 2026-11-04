@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 
 export const getHeroSchema = z
   .strictObject({
@@ -19,8 +20,8 @@ export const getHeroSchema = z
     village_id: z.number(),
     natarian_attack_bonus: z.number(),
     resource_to_produce: heroResourceToProduceSchema,
-    home_tile_id: z.number(),
-    stationed_tile_id: z.number().nullable(),
+    home_tile_id: tileIdSchema,
+    stationed_tile_id: tileIdSchema.nullable(),
     movement_type: z.enum(['adventure', 'travel']).nullable(),
     movement_ends_at: z.number().nullable(),
   })

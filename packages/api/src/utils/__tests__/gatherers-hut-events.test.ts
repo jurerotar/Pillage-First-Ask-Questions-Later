@@ -6,6 +6,7 @@ import {
   GATHERERS_HUT_RESOURCES_PER_UNIT,
 } from '@pillage-first/game-assets/utils/gatherers-hut';
 import { createGatherersHutGatheringTripEventMock } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createEvents } from '../create-event';
 import {
@@ -53,7 +54,7 @@ const getVillageTileId = (database: DbFacade, villageId: number): number => {
     bind: {
       $village_id: villageId,
     },
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 };
 

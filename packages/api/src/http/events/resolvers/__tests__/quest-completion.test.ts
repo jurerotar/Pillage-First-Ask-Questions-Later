@@ -7,6 +7,7 @@ import {
   createHuntersLodgeHuntEventMock,
 } from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   assessCaptureAnimalCountByIdQuestCompletion,
@@ -269,7 +270,7 @@ describe('quest completion on building level up', () => {
       `,
       bind: { $village_id: villageId },
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         tribe_id: z.number(),
       }),
     })!;

@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 
 const resourceTransferPayloadSchema = z.strictObject({
-  targetTileId: z.number().int().positive(),
+  targetTileId: tileIdSchema,
   resources: z.strictObject({
     wood: z.number().int().min(0),
     clay: z.number().int().min(0),

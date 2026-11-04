@@ -224,9 +224,9 @@ export const useAttackOrRaidForm = ({
     await troopMovementForm.onFormSubmit(dataWithDefaults);
   };
 
-  const confirmationOption = troopMovementForm.formData.current
+  const confirmationOption = troopMovementForm.formData
     ? getRequiredConfirmationOption({
-        data: troopMovementForm.formData.current,
+        data: troopMovementForm.formData,
         getCatapultConfirmationOption,
         isTargetUnoccupiedOasis,
       })

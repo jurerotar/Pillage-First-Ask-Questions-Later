@@ -55,6 +55,7 @@ export const TroopMovementFilters = ({
           render={
             <Button
               aria-label={t('Troop movement filters')}
+              className="w-fit"
               size="sm"
               variant="outline"
             >

@@ -170,6 +170,17 @@ export const gameEventTypeSchema = z.enum([
   'tradeRoute',
 ]);
 
+export const troopMovementTypeSchema = gameEventTypeSchema.extract([
+  'troopMovementReinforcements',
+  'troopMovementRelocation',
+  'troopMovementReturn',
+  'troopMovementFindNewVillage',
+  'troopMovementAttack',
+  'troopMovementRaid',
+  'troopMovementOasisOccupation',
+  'troopMovementAdventure',
+]);
+
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {

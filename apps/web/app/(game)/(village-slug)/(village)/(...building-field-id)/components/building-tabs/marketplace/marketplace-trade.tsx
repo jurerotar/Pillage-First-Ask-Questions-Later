@@ -97,6 +97,7 @@ const ResourceFilterPopover = ({
         render={
           <Button
             aria-label={ariaLabel}
+            className="w-fit"
             size="sm"
             variant="outline"
           >

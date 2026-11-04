@@ -4,9 +4,11 @@ import {
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/troop-movement-filters';
 import { useFilters } from 'app/hooks/use-filters';
 
+const defaultFilters = [...troopMovementFilterTypes];
+
 export const useTroopMovementFilters = () => {
   return useFilters<TroopMovementFilterType>({
     paramName: 'filters',
-    defaultFilters: [...troopMovementFilterTypes],
+    defaultFilters,
   });
 };

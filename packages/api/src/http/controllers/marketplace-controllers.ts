@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   deleteTradeRouteByTileIdQuery,
@@ -71,7 +72,7 @@ export const transferResources = createController(
     summary: 'Transfer resources between player villages',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: transferResourcesBodySchema,
@@ -117,7 +118,7 @@ export const createTradeRoute = createController(
     summary: 'Create a marketplace trade route',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     requestBody: createTradeRouteBodySchema,
@@ -137,7 +138,7 @@ export const updateTradeRoute = createController(
     summary: 'Update a marketplace trade route',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
         eventId: z.coerce.number(),
       }),
     },
@@ -181,7 +182,7 @@ export const deleteTradeRoute = createController(
     summary: 'Delete a marketplace trade route',
     requestParams: {
       path: z.strictObject({
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
         eventId: z.coerce.number(),
       }),
     },

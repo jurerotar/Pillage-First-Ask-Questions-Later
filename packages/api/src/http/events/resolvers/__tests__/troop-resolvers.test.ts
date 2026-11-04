@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
 import {
@@ -80,7 +81,7 @@ describe(troopTrainingEventResolver, () => {
     const villageTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: villageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const mockEvent = createTroopTrainingEventMock({

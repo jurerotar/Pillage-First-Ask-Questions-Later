@@ -1,12 +1,13 @@
 import { z } from 'zod';
+import { tileIdSchema } from './tile';
 import { unitIdSchema } from './unit';
 
 export const troopSchema = z
   .strictObject({
     unitId: unitIdSchema,
-    amount: z.number().min(1),
-    tileId: z.number(),
-    sourceTileId: z.number(),
+    amount: z.int().positive(),
+    tileId: tileIdSchema,
+    sourceTileId: tileIdSchema,
   })
   .meta({ id: 'Troop' });
 

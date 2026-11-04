@@ -5,6 +5,7 @@ import {
   farmListDtoSchema,
   updateFarmListDtoSchema,
 } from '@pillage-first/types/dtos/farm-list';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   deleteFarmListQuery,
   deleteFarmListTileQuery,
@@ -143,7 +144,7 @@ export const addTileToFarmList = createController(
       }),
     },
     requestBody: z.strictObject({
-      tileId: z.number(),
+      tileId: tileIdSchema,
     }),
   },
 )(({ database, path: { farmListId }, body: { tileId } }) => {
@@ -173,7 +174,7 @@ export const removeTileFromFarmList = createController(
     requestParams: {
       path: z.strictObject({
         farmListId: z.coerce.number(),
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
   },
@@ -195,7 +196,7 @@ export const removeTileFromAllPlayerFarmLists = createController(
       }),
     },
     requestBody: z.strictObject({
-      tileId: z.number(),
+      tileId: tileIdSchema,
     }),
   },
 )(({ database, body: { tileId } }) => {

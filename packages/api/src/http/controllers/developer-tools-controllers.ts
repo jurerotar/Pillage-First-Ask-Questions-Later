@@ -4,6 +4,7 @@ import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
 import { addPlayerCulturePoints } from '../../utils/culture-points';
 import { onHeroDeath } from '../../utils/hero';
@@ -379,7 +380,7 @@ export const adjustVillageLoyalty = createController(
   {
     summary: 'Adjust village loyalty',
     requestParams: {
-      path: z.strictObject({ tileId: z.coerce.number() }),
+      path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
     },
     requestBody: z.strictObject({ amount: z.number() }),
   },

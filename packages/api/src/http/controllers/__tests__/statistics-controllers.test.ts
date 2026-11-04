@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   insertEffectQuery,
   selectWheatProductionEffectIdQuery,
@@ -29,7 +30,7 @@ describe('statistics-controllers', () => {
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -106,7 +107,7 @@ describe('statistics-controllers', () => {
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const wheatEffectId = database.selectValue({

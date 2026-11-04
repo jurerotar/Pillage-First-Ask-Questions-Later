@@ -3,6 +3,7 @@ import { battleSchema } from './battle';
 import { buildingIdSchema } from './building';
 import { coordinatesSchema } from './coordinates';
 import { resourceBundleSchema } from './resource';
+import { tileIdSchema } from './tile';
 import { tribeSchema } from './tribe';
 import { unitIdSchema } from './unit';
 
@@ -106,8 +107,8 @@ export const tradeReportSchema = baseReportSchema.extend({
   }),
   trade: z.strictObject({
     id: z.int(),
-    originTileId: z.int(),
-    targetTileId: z.int(),
+    originTileId: tileIdSchema,
+    targetTileId: tileIdSchema,
     resources: resourceBundleSchema,
   }),
 });
@@ -135,8 +136,8 @@ export const movementReportSchema = baseReportSchema.extend({
   movement: z.strictObject({
     id: z.int(),
     tribe: tribeSchema,
-    originTileId: z.int(),
-    targetTileId: z.int(),
+    originTileId: tileIdSchema,
+    targetTileId: tileIdSchema,
     movementType: z.enum(['reinforcement', 'relocation']),
     units: z.array(movementReportUnitSchema),
   }),
@@ -258,8 +259,8 @@ export const villageFoundedReportSchema = baseReportSchema.extend({
     targetName: z.string(),
     targetCoordinates: coordinatesSchema,
   }),
-  originTileId: z.int(),
-  targetTileId: z.int(),
+  originTileId: tileIdSchema,
+  targetTileId: tileIdSchema,
 });
 
 export const scheduledConstructionCancellationReasonSchema = z.enum([

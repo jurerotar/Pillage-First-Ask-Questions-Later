@@ -49,9 +49,7 @@ export const RallyPointSendTroops = () => {
       >
         <TabList>
           {/*<Tab value="attack-or-raid">{t('Attack or raid')}</Tab>*/}
-          <Tab value="reinforce-or-relocate">
-            {t('Reinforce or reloca  te')}
-          </Tab>
+          <Tab value="reinforce-or-relocate">{t('Reinforce or relocate')}</Tab>
           {/*<Tab value="occupy-oasis">{t('Occupy oasis')}</Tab>*/}
           <Tab value="found-new-village">{t('Found new village')}</Tab>
         </TabList>
