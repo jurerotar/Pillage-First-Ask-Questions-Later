@@ -2,11 +2,8 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
-import { troopMovementsSeeder } from './troop-movements-seeder';
 
 export const eventsSeeder = (database: DbFacade, _server: Server): void => {
-  troopMovementsSeeder(database);
-
   const eventsToInsert: [
     GameEvent['type'],
     GameEvent['startsAt'],
