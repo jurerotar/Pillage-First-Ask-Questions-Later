@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { addHeroExperience, onHeroDeath } from '../hero';
 
 describe('hero utils resolvers', () => {
@@ -35,7 +36,7 @@ describe('hero utils resolvers', () => {
       sql: 'UPDATE heroes SET experience_modifier = 15;',
     });
 
-    addHeroExperience(database, 10);
+    addHeroExperience(database, 10, PLAYER_ID);
 
     const experience = database.selectValue({
       sql: 'SELECT experience FROM heroes LIMIT 1;',

@@ -12,20 +12,13 @@ import { createController } from '../controller';
 import { mapPreferences } from './mappers/preferences-mapper';
 import { getPreferencesSchema } from './schemas/preferences-schemas';
 
-export const getPreferences = createController(
-  '/players/:playerId/preferences',
-  {
-    summary: 'Get player preferences',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: preferencesSchema,
-  },
-)(({ database }) => {
+export const getPreferences = createController('/me/preferences', {
+  summary: 'Get player preferences',
+  response: preferencesSchema,
+})(({ database, context: { playerId } }) => {
   const row = database.selectObject({
     sql: selectPreferencesQuery,
+    bind: { $player_id: playerId },
     schema: getPreferencesSchema,
   })!;
 
@@ -33,27 +26,35 @@ export const getPreferences = createController(
 });
 
 export const updatePreference = createController(
-  '/players/:playerId/preferences/:preferenceName',
+  '/me/preferences/:preferenceName',
   'patch',
   {
     summary: 'Update player preference',
     requestParams: {
       path: z.strictObject({
-        playerId: z.coerce.number(),
-        preferenceName: z.string(),
+        preferenceName: preferencesSchema.keyof(),
       }),
     },
     requestBody: z.strictObject({
       value: z.union([z.boolean(), villageSortSchema]),
     }),
   },
-)(({ database, path: { preferenceName }, body: { value } }) => {
-  const column = snakeCase(preferenceName);
+)(
+  ({
+    database,
+    context: { playerId },
+    path: { preferenceName },
+    body: { value },
+  }) => {
+    const validatedValue = preferencesSchema.shape[preferenceName].parse(value);
+    const column = snakeCase(preferenceName);
 
-  database.exec({
-    sql: createUpdatePreferenceQuery(column),
-    bind: {
-      $value: value,
-    },
-  });
-});
+    database.exec({
+      sql: createUpdatePreferenceQuery(column),
+      bind: {
+        $player_id: playerId,
+        $value: validatedValue,
+      },
+    });
+  },
+);

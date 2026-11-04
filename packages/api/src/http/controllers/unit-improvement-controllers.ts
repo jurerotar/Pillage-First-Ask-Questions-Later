@@ -5,18 +5,10 @@ import { createController } from '../controller';
 import { mapUnitImprovementRowToDto } from './mappers/unit-mapper';
 import { getUnitImprovementsRowSchema } from './schemas/unit-improvement-schemas';
 
-export const getUnitImprovements = createController(
-  '/players/:playerId/unit-improvements',
-  {
-    summary: 'Get unit improvements',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: z.array(unitImprovementDtoSchema),
-  },
-)(({ database, path: { playerId } }) => {
+export const getUnitImprovements = createController('/me/unit-improvements', {
+  summary: 'Get unit improvements',
+  response: z.array(unitImprovementDtoSchema),
+})(({ database, context: { playerId } }) => {
   const rows = database.selectObjects({
     sql: selectPlayerUnitImprovementsQuery,
     bind: {

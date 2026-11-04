@@ -214,6 +214,7 @@ export const updateHeroEquipmentBonuses = (
 export const addHeroExperience = (
   database: DbFacade,
   experience: number,
+  playerId: number,
 ): void => {
   database.exec({
     sql: `
@@ -225,7 +226,7 @@ export const addHeroExperience = (
     `,
     bind: {
       $experience: experience,
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
     },
   });
 };

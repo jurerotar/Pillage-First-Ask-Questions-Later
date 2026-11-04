@@ -116,11 +116,12 @@ const getHeroAdventureStateAt = (
 export const getPlayerHeroAdventureStateAt = (
   database: DbFacade,
   timestamp: number,
+  playerId: number,
 ) => {
   const heroId = database.selectValue({
     sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
     bind: {
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
     },
     schema: z.number(),
   })!;

@@ -12,8 +12,8 @@ describe('reputation-controllers', () => {
 
     const reputations = getReputations(
       database,
-      createControllerArgs<'/players/:playerId/reputations'>({
-        path: { playerId: PLAYER_ID },
+      createControllerArgs<'/me/reputations'>({
+        context: { playerId: PLAYER_ID },
       }),
     );
 

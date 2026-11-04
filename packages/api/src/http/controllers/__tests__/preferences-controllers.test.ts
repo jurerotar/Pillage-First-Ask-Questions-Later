@@ -12,8 +12,8 @@ describe('preferences-controllers', () => {
 
     const preferences = getPreferences(
       database,
-      createControllerArgs<'/players/:playerId/preferences'>({
-        path: { playerId },
+      createControllerArgs<'/me/preferences'>({
+        context: { playerId },
       }),
     );
 
@@ -30,12 +30,9 @@ describe('preferences-controllers', () => {
 
     updatePreference(
       database,
-      createControllerArgs<
-        '/players/:playerId/preferences/:preferenceName',
-        'patch'
-      >({
+      createControllerArgs<'/me/preferences/:preferenceName', 'patch'>({
+        context: { playerId },
         path: {
-          playerId,
           preferenceName: 'villageSort',
         },
         body: { value: 'populationDesc' },
@@ -45,8 +42,8 @@ describe('preferences-controllers', () => {
     expect(
       getPreferences(
         database,
-        createControllerArgs<'/players/:playerId/preferences'>({
-          path: { playerId },
+        createControllerArgs<'/me/preferences'>({
+          context: { playerId },
         }),
       ).villageSort,
     ).toBe('populationDesc');
@@ -57,12 +54,9 @@ describe('preferences-controllers', () => {
 
     updatePreference(
       database,
-      createControllerArgs<
-        '/players/:playerId/preferences/:preferenceName',
-        'patch'
-      >({
+      createControllerArgs<'/me/preferences/:preferenceName', 'patch'>({
+        context: { playerId },
         path: {
-          playerId,
           preferenceName: 'isAccessibilityModeEnabled',
         },
         body: { value: true },
@@ -72,8 +66,8 @@ describe('preferences-controllers', () => {
     expect(
       getPreferences(
         database,
-        createControllerArgs<'/players/:playerId/preferences'>({
-          path: { playerId },
+        createControllerArgs<'/me/preferences'>({
+          context: { playerId },
         }),
       ).isAccessibilityModeEnabled,
     ).toBe(true);

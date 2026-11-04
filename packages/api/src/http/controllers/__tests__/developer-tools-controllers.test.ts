@@ -41,12 +41,6 @@ describe('developer-tools-controllers', () => {
   test('culture-point adjustments settle accrued points and apply each signed amount', async () => {
     using database = await prepareTestDatabase();
 
-    const villageId = database.selectValue({
-      sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1;',
-      bind: { $player_id: playerId },
-      schema: z.number(),
-    })!;
-
     const start = database.selectValue({
       sql: 'SELECT culture_points_updated_at FROM culture_points WHERE player_id = $player_id;',
       bind: { $player_id: playerId },
@@ -60,11 +54,7 @@ describe('developer-tools-controllers', () => {
     for (const amount of [1_000, 10_000, -1_000, -10_000]) {
       adjustCulturePoints(
         database,
-        createControllerArgs<
-          '/developer-settings/:villageId/culture-points',
-          'patch'
-        >({
-          path: { villageId },
+        createControllerArgs<'/developer/me/culture-points', 'patch'>({
           body: { amount },
         }),
       );
@@ -104,10 +94,7 @@ describe('developer-tools-controllers', () => {
 
         adjustVillageLoyalty(
           database,
-          createControllerArgs<
-            '/developer-settings/:tileId/adjustLoyalty',
-            'patch'
-          >({
+          createControllerArgs<'/developer/tiles/:tileId/loyalty', 'patch'>({
             path: { tileId },
             body: { amount: -10 },
           }),
@@ -433,8 +420,8 @@ describe('developer-tools-controllers', () => {
 
         startHeroAdventure(
           database,
-          createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
-            path: { playerId },
+          createControllerArgs<'/me/hero/adventures', 'post'>({
+            context: { playerId },
           }),
         );
 
@@ -520,12 +507,10 @@ describe('developer-tools-controllers', () => {
 
       spawnHeroItem(
         database,
-        createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
-          {
-            path: { heroId },
-            body: { itemId: 1, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/developer/heroes/:heroId/spawn-item', 'patch'>({
+          path: { heroId },
+          body: { itemId: 1, amount: 1 },
+        }),
       );
 
       const inventory = database.selectObjects({
@@ -539,12 +524,10 @@ describe('developer-tools-controllers', () => {
       // Spawn again
       spawnHeroItem(
         database,
-        createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
-          {
-            path: { heroId },
-            body: { itemId: 1, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/developer/heroes/:heroId/spawn-item', 'patch'>({
+          path: { heroId },
+          body: { itemId: 1, amount: 1 },
+        }),
       );
 
       const inventoryUpdated = database.selectObjects({
@@ -593,7 +576,7 @@ describe('developer-tools-controllers', () => {
       incrementHeroAdventurePoints(
         database,
         createControllerArgs<
-          '/developer-settings/:heroId/increment-adventure-points',
+          '/developer/heroes/:heroId/increment-adventure-points',
           'patch'
         >({
           path: { heroId },
@@ -629,7 +612,7 @@ describe('developer-tools-controllers', () => {
 
       levelUpHero(
         database,
-        createControllerArgs<'/developer-settings/:heroId/level-up', 'patch'>({
+        createControllerArgs<'/developer/heroes/:heroId/level-up', 'patch'>({
           path: { heroId },
         }),
       );
@@ -646,7 +629,7 @@ describe('developer-tools-controllers', () => {
       // Level up again
       levelUpHero(
         database,
-        createControllerArgs<'/developer-settings/:heroId/level-up', 'patch'>({
+        createControllerArgs<'/developer/heroes/:heroId/level-up', 'patch'>({
           path: { heroId },
         }),
       );

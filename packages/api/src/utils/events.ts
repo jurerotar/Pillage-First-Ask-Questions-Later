@@ -824,6 +824,7 @@ export const validateEventCreationPrerequisites = (
     const { available: adventurePoints } = getPlayerHeroAdventureStateAt(
       database,
       Date.now(),
+      getVillagePlayerId(database, event.villageId),
     );
 
     if (adventurePoints === 0) {
