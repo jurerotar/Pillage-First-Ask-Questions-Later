@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import {
   createBuildingLevelChangeEventMock,
@@ -43,8 +44,8 @@ describe('quest completion on building level up', () => {
     // 1. Ensure the quest exists and is NOT completed
     database.exec({
       sql: `
-        INSERT OR IGNORE INTO quests (quest_id, village_id, completed_at)
-        VALUES ($quest_id, $village_id, NULL)
+        INSERT OR IGNORE INTO quests (player_id, quest_id, village_id, completed_at)
+        VALUES (1, $quest_id, $village_id, NULL)
       `,
       bind: {
         $quest_id: questId,
@@ -124,8 +125,8 @@ describe('quest completion on building level up', () => {
     // 2. Ensure the "every" quest exists and is NOT completed
     database.exec({
       sql: `
-        INSERT OR IGNORE INTO quests (quest_id, village_id, completed_at)
-        VALUES ($quest_id, $village_id, NULL)
+        INSERT OR IGNORE INTO quests (player_id, quest_id, village_id, completed_at)
+        VALUES (1, $quest_id, $village_id, NULL)
       `,
       bind: {
         $quest_id: questId,
@@ -179,7 +180,7 @@ describe('quest completion on building level up', () => {
       database.exec({ sql: 'DELETE FROM reports;' });
     }
 
-    assessCaptureAnimalKindCountQuestCompletion(database, timestamp);
+    assessCaptureAnimalKindCountQuestCompletion(database, timestamp, PLAYER_ID);
 
     const completedQuest = database.selectValue({
       sql: `
@@ -251,7 +252,12 @@ describe('quest completion on building level up', () => {
 
       expect(completion()).toBe(3);
 
-      assessCaptureAnimalCountByIdQuestCompletion(database, 'TIGER', 4);
+      assessCaptureAnimalCountByIdQuestCompletion(
+        database,
+        'TIGER',
+        4,
+        PLAYER_ID,
+      );
 
       expect(completion()).toBe(3);
     },
@@ -289,7 +295,7 @@ describe('quest completion on building level up', () => {
       ],
     });
 
-    assessGatheredResourceCountQuestCompletion(database, timestamp);
+    assessGatheredResourceCountQuestCompletion(database, timestamp, PLAYER_ID);
 
     const completedQuest = database.selectValue({
       sql: `

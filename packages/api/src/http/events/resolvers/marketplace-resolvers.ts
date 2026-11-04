@@ -9,6 +9,7 @@ import {
   getVillageMerchantStats,
 } from '../../../utils/marketplace';
 import { insertTradeReport } from '../../../utils/report';
+import { getTradeRouteById } from '../../../utils/trade-routes';
 import { addResourceSiteResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
@@ -148,15 +149,22 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
   database,
   event,
 ) => {
+  const route = getTradeRouteById(database, event.tradeRouteId);
+
+  if (!route || route.paused || route.villageId !== event.villageId) {
+    return { affectedVillageIds: [], affectedTileIds: [] };
+  }
+
   const {
     villageId,
     targetVillageId,
     originTileId,
     targetTileId,
     resources,
-    resolvesAt,
     interval,
-  } = event;
+  } = route;
+
+  const { resolvesAt } = event;
 
   try {
     const { merchant } = getVillageMerchantStats(database, villageId);
@@ -183,12 +191,8 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
 
   createEvents<'tradeRoute'>(database, {
     type: 'tradeRoute',
+    tradeRouteId: route.id,
     villageId,
-    targetVillageId,
-    originTileId,
-    targetTileId,
-    resources,
-    interval,
     startsAt: resolvesAt + interval,
   });
 

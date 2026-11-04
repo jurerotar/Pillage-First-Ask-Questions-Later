@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   reportFilterNameByScope,
   reportListingDtoSchema,
@@ -74,13 +73,13 @@ export const getReports = createController('/reports', {
     }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, query }) => {
+})(({ database, context: { playerId }, query }) => {
   const scope = query.scope ?? 'global';
 
   const rows = database.selectObjects({
     sql: selectReportListingsQuery,
     bind: {
-      $player_id: PLAYER_ID,
+      $player_id: playerId,
       $village_id: query.villageId ?? null,
       $scope: scope,
       $filter_name: reportFilterNameByScope[scope],
@@ -97,10 +96,10 @@ export const getTileReports = createController('/tiles/:tileId/reports', {
     path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, path: { tileId } }) => {
+})(({ database, context: { playerId }, path: { tileId } }) => {
   const rows = database.selectObjects({
     sql: selectTileReportListingsQuery,
-    bind: { $tile_id: tileId, $player_id: PLAYER_ID },
+    bind: { $tile_id: tileId, $player_id: playerId },
     schema: getReportListingsRowSchema,
   });
 

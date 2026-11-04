@@ -1,3 +1,17 @@
+## Version 0.4.81
+
+#### Nov 4, 2026
+
+- [Feature] Added troop movement details to the Rally Point, with the ability to cancel outgoing movements.
+- [Feature] Added the ability to pause and resume trade routes while keeping their settings. Transfers already in
+  progress continue when a route is paused.
+- [UIUXImprovement] The construction queue can now be collapsed on desktop.
+- [UIUXImprovement] Added controls to select or deselect all troops on troop selection forms, respecting selection
+  limits where applicable.
+- [BugFix] Fixed quest counts not refreshing after progress changes.
+- [Performance] Reduced repeated date and time formatter creation by sharing formatters across components.
+- [TechnicalImprovement] Reworked API endpoints to use player request context.
+
 ## Version 0.4.80
 
 #### Oct 31, 2026

@@ -38,15 +38,10 @@ import {
   getHeroSchema,
 } from './schemas/hero-schemas';
 
-export const getHero = createController('/players/:playerId/hero', {
+export const getHero = createController('/me/hero', {
   summary: 'Get hero details',
-  requestParams: {
-    path: z.strictObject({
-      playerId: z.coerce.number(),
-    }),
-  },
   response: heroDtoSchema,
-})(({ database, path: { playerId } }) => {
+})(({ database, context: { playerId } }) => {
   const row = database.selectObject({
     sql: `
         SELECT
@@ -113,18 +108,10 @@ export const getHero = createController('/players/:playerId/hero', {
   return mapHero(row);
 });
 
-export const getHeroLoadout = createController(
-  '/players/:playerId/hero/equipped-items',
-  {
-    summary: 'Get hero loadout',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: z.array(heroLoadoutEntryDtoSchema),
-  },
-)(({ database }) => {
+export const getHeroLoadout = createController('/me/hero/equipped-items', {
+  summary: 'Get hero loadout',
+  response: z.array(heroLoadoutEntryDtoSchema),
+})(({ database, context: { playerId } }) => {
   const rows = database.selectObjects({
     sql: `
       SELECT slot, item_id, amount
@@ -135,27 +122,20 @@ export const getHeroLoadout = createController(
           SELECT id
           FROM
             heroes
-          LIMIT 1
+          WHERE player_id = $player_id
           )
     `,
+    bind: { $player_id: playerId },
     schema: getHeroLoadoutSchema,
   });
 
   return rows.map(mapHeroLoadoutEntry);
 });
 
-export const getHeroInventory = createController(
-  '/players/:playerId/hero/inventory',
-  {
-    summary: 'Get hero inventory',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: z.array(heroInventoryEntryDtoSchema),
-  },
-)(({ database, path: { playerId } }) => {
+export const getHeroInventory = createController('/me/hero/inventory', {
+  summary: 'Get hero inventory',
+  response: z.array(heroInventoryEntryDtoSchema),
+})(({ database, context: { playerId } }) => {
   const heroId = syncHeroAuctionState(database, playerId, Date.now());
 
   const rows = database.selectObjects({
@@ -175,20 +155,12 @@ export const getHeroInventory = createController(
   return rows.map(mapHeroInventoryEntry);
 });
 
-export const getHeroAdventures = createController(
-  '/players/:playerId/hero/adventures',
-  {
-    summary: 'Get hero adventures',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: heroAdventuresSchema,
-  },
-)(({ database }) => {
+export const getHeroAdventures = createController('/me/hero/adventures', {
+  summary: 'Get hero adventures',
+  response: heroAdventuresSchema,
+})(({ database, context: { playerId } }) => {
   const { available, completed, nextAvailableAt } =
-    getPlayerHeroAdventureStateAt(database, Date.now());
+    getPlayerHeroAdventureStateAt(database, Date.now(), playerId);
 
   return heroAdventuresSchema.parse({
     available,
@@ -198,17 +170,12 @@ export const getHeroAdventures = createController(
 });
 
 export const startHeroAdventure = createController(
-  '/players/:playerId/hero/adventures',
+  '/me/hero/adventures',
   'post',
   {
     summary: 'Start hero adventure',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
   },
-)(({ database, path: { playerId } }) => {
+)(({ database, context: { playerId } }) => {
   const {
     health,
     isHeroStationedInOwnVillage,
@@ -276,15 +243,10 @@ export const startHeroAdventure = createController(
 });
 
 export const changeHeroAttributes = createController(
-  '/players/:playerId/hero/attributes',
+  '/me/hero/attributes',
   'patch',
   {
     summary: 'Change hero attributes',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
     requestBody: z.strictObject({
       attackPower: z.number().int().min(0).max(100),
       resourceProduction: z.number().int().min(0).max(100),
@@ -296,7 +258,7 @@ export const changeHeroAttributes = createController(
 )(
   ({
     database,
-    path: { playerId },
+    context: { playerId },
     body: { attackPower, resourceProduction, attackBonus, defenceBonus },
   }) => {
     const { villageId, tileId, villageSlug } = database.selectObject({
@@ -423,21 +385,16 @@ export const changeHeroAttributes = createController(
 );
 
 export const changeHeroResourceToProduce = createController(
-  '/players/:playerId/hero/resource-to-produce',
+  '/me/hero/resource-to-produce',
   'patch',
   {
     summary: 'Change hero resource to produce',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
     requestBody: z.strictObject({
       resource: heroResourceToProduceSchema,
     }),
     response: heroProductionUpdateDtoSchema,
   },
-)(({ database, path: { playerId }, body: { resource } }) => {
+)(({ database, context: { playerId }, body: { resource } }) => {
   const { villageId, tileId, villageSlug } = database.selectObject({
     sql: `
       SELECT v.id AS villageId, v.tile_id AS tileId, v.slug AS villageSlug
@@ -497,22 +454,17 @@ export const changeHeroResourceToProduce = createController(
 });
 
 export const equipHeroItem = createController(
-  '/players/:playerId/hero/equipped-items',
+  '/me/hero/equipped-items',
   'patch',
   {
     summary: 'Equip hero item',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
     requestBody: z.strictObject({
       itemId: z.number(),
       slot: heroLoadoutSlotSchema,
       amount: z.number(),
     }),
   },
-)(({ database, path: { playerId }, body: { itemId, slot, amount } }) => {
+)(({ database, context: { playerId }, body: { itemId, slot, amount } }) => {
   database.transaction(() => {
     const heroId = database.selectValue({
       sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -655,18 +607,17 @@ export const equipHeroItem = createController(
 });
 
 export const unequipHeroItem = createController(
-  '/players/:playerId/hero/equipped-items/:slot',
+  '/me/hero/equipped-items/:slot',
   'delete',
   {
     summary: 'Unequip hero item',
     requestParams: {
       path: z.strictObject({
-        playerId: z.coerce.number(),
         slot: heroLoadoutSlotSchema,
       }),
     },
   },
-)(({ database, path: { playerId, slot } }) => {
+)(({ database, context: { playerId }, path: { slot } }) => {
   database.transaction(() => {
     const heroId = database.selectValue({
       sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -715,22 +666,13 @@ export const unequipHeroItem = createController(
   });
 });
 
-export const useHeroItem = createController(
-  '/players/:playerId/hero/item',
-  'post',
-  {
-    summary: 'Use hero item',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    requestBody: z.strictObject({
-      itemId: z.number(),
-      amount: z.number(),
-    }),
-  },
-)(({ database, path: { playerId }, body: { itemId, amount } }) => {
+export const useHeroItem = createController('/me/hero/item', 'post', {
+  summary: 'Use hero item',
+  requestBody: z.strictObject({
+    itemId: z.number(),
+    amount: z.number(),
+  }),
+})(({ database, context: { playerId }, body: { itemId, amount } }) => {
   database.transaction(() => {
     const heroId = database.selectValue({
       sql: 'SELECT id FROM heroes WHERE player_id = $player_id',

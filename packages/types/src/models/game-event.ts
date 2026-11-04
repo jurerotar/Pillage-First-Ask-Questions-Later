@@ -90,8 +90,8 @@ type BaseMerchantMovementEvent = BaseMerchantRouteEvent & {
   repeatResources: Resources;
 };
 
-type TradeRouteEvent = BaseMerchantRouteEvent & {
-  interval: number;
+type TradeRouteEvent = {
+  tradeRouteId: number;
 };
 
 export const culturePointsCelebrationTypeSchema = z.enum(['small', 'large']);

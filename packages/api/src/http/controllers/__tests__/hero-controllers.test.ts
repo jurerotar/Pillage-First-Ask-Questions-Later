@@ -49,8 +49,8 @@ describe('hero-controllers', () => {
 
     const hero = getHero(
       database,
-      createControllerArgs<'/players/:playerId/hero'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
       }),
     );
 
@@ -82,8 +82,8 @@ describe('hero-controllers', () => {
 
     const hero = getHero(
       database,
-      createControllerArgs<'/players/:playerId/hero'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
       }),
     );
 
@@ -115,8 +115,8 @@ describe('hero-controllers', () => {
 
     const hero = getHero(
       database,
-      createControllerArgs<'/players/:playerId/hero'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
       }),
     );
 
@@ -139,8 +139,8 @@ describe('hero-controllers', () => {
 
     const hero = getHero(
       database,
-      createControllerArgs<'/players/:playerId/hero'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
       }),
     );
 
@@ -152,8 +152,8 @@ describe('hero-controllers', () => {
 
     const hero = getHero(
       database,
-      createControllerArgs<'/players/:playerId/hero'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
       }),
     );
 
@@ -173,8 +173,8 @@ describe('hero-controllers', () => {
 
     const loadout = getHeroLoadout(
       database,
-      createControllerArgs<'/players/:playerId/hero/equipped-items'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/equipped-items'>({
+        context: { playerId },
       }),
     );
 
@@ -197,8 +197,8 @@ describe('hero-controllers', () => {
 
     const inventory = getHeroInventory(
       database,
-      createControllerArgs<'/players/:playerId/hero/inventory'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/inventory'>({
+        context: { playerId },
       }),
     );
 
@@ -246,8 +246,8 @@ describe('hero-controllers', () => {
 
     const inventory = getHeroInventory(
       database,
-      createControllerArgs<'/players/:playerId/hero/inventory'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/inventory'>({
+        context: { playerId },
       }),
     );
 
@@ -269,8 +269,8 @@ describe('hero-controllers', () => {
 
     const adventures = getHeroAdventures(
       database,
-      createControllerArgs<'/players/:playerId/hero/adventures'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/adventures'>({
+        context: { playerId },
       }),
     );
 
@@ -342,8 +342,8 @@ describe('hero-controllers', () => {
 
     startHeroAdventure(
       database,
-      createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/adventures', 'post'>({
+        context: { playerId },
       }),
     );
 
@@ -484,8 +484,8 @@ describe('hero-controllers', () => {
 
     const hero = getHero(
       database,
-      createControllerArgs<'/players/:playerId/hero'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
       }),
     );
 
@@ -572,8 +572,8 @@ describe('hero-controllers', () => {
     expect(() =>
       startHeroAdventure(
         database,
-        createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/adventures', 'post'>({
+          context: { playerId },
         }),
       ),
     ).toThrow('Hero is not stationed in his home village');
@@ -617,15 +617,15 @@ describe('hero-controllers', () => {
         sql: 'UPDATE heroes SET experience = 0 WHERE player_id = $player_id',
         bind: { $player_id: playerId },
       });
-      const args = createControllerArgs<'/players/:playerId/hero', 'get'>({
-        path: { playerId },
+      const args = createControllerArgs<'/me/hero', 'get'>({
+        context: { playerId },
       });
       const before = getHero(database, args);
       expect(() =>
         changeHeroAttributes(
           database,
-          createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
-            path: { playerId },
+          createControllerArgs<'/me/hero/attributes', 'patch'>({
+            context: { playerId },
             body,
           }),
         ),
@@ -637,15 +637,15 @@ describe('hero-controllers', () => {
       using database = await prepareTestDatabase();
       const body = getHero(
         database,
-        createControllerArgs<'/players/:playerId/hero', 'get'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero', 'get'>({
+          context: { playerId },
         }),
       ).selectableAttributes;
       expect(() =>
         changeHeroAttributes(
           database,
-          createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
-            path: { playerId },
+          createControllerArgs<'/me/hero/attributes', 'patch'>({
+            context: { playerId },
             body,
           }),
         ),
@@ -663,8 +663,8 @@ describe('hero-controllers', () => {
 
       const result = changeHeroAttributes(
         database,
-        createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/attributes', 'patch'>({
+          context: { playerId },
           body: {
             attackPower: 10,
             resourceProduction: 20,
@@ -762,12 +762,10 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot, amount: 1 },
+        }),
       );
 
       // Verify equipped
@@ -817,12 +815,10 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId: newItemId, slot, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId: newItemId, slot, amount: 1 },
+        }),
       );
 
       // Verify new item equipped
@@ -864,12 +860,10 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot, amount: 1 },
+        }),
       );
 
       // Verify effects added
@@ -901,12 +895,10 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId: helmetItemId, slot: 'head', amount: 1 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId: helmetItemId, slot: 'head', amount: 1 },
+        }),
       );
 
       const experienceModifier = database.selectValue({
@@ -924,8 +916,8 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/item', 'post'>({
+          context: { playerId },
           body: { itemId: scrollItemId, amount: 1 },
         }),
       );
@@ -957,12 +949,10 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot: 'legs', amount: 1 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot: 'legs', amount: 1 },
+        }),
       );
 
       const equippedHealthRegeneration = database.selectValue({
@@ -975,11 +965,9 @@ describe('hero-controllers', () => {
 
       unequipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items/:slot',
-          'delete'
-        >({
-          path: { playerId, slot: 'legs' },
+        createControllerArgs<'/me/hero/equipped-items/:slot', 'delete'>({
+          context: { playerId },
+          path: { slot: 'legs' },
         }),
       );
 
@@ -1013,12 +1001,10 @@ describe('hero-controllers', () => {
       // Equip 5
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot, amount: 5 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot, amount: 5 },
+        }),
       );
 
       // Verify equipped
@@ -1033,12 +1019,10 @@ describe('hero-controllers', () => {
       // Equip another 3 of the SAME item
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot, amount: 3 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot, amount: 3 },
+        }),
       );
 
       equipped = database.selectValue({
@@ -1081,11 +1065,9 @@ describe('hero-controllers', () => {
 
       unequipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items/:slot',
-          'delete'
-        >({
-          path: { playerId, slot: 'horse' },
+        createControllerArgs<'/me/hero/equipped-items/:slot', 'delete'>({
+          context: { playerId },
+          path: { slot: 'horse' },
         }),
       );
 
@@ -1147,11 +1129,9 @@ describe('hero-controllers', () => {
 
       unequipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items/:slot',
-          'delete'
-        >({
-          path: { playerId, slot },
+        createControllerArgs<'/me/hero/equipped-items/:slot', 'delete'>({
+          context: { playerId },
+          path: { slot },
         }),
       );
 
@@ -1193,8 +1173,8 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/item', 'post'>({
+          context: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -1244,8 +1224,8 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/item', 'post'>({
+          context: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -1303,8 +1283,8 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/item', 'post'>({
+          context: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -1375,8 +1355,8 @@ describe('hero-controllers', () => {
       expect(() => {
         useHeroItem(
           database,
-          createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-            path: { playerId },
+          createControllerArgs<'/me/hero/item', 'post'>({
+            context: { playerId },
             body: { itemId, amount },
           }),
         );
@@ -1390,11 +1370,8 @@ describe('hero-controllers', () => {
 
       const result = changeHeroResourceToProduce(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/resource-to-produce',
-          'patch'
-        >({
-          path: { playerId },
+        createControllerArgs<'/me/hero/resource-to-produce', 'patch'>({
+          context: { playerId },
           body: { resource: 'wood' },
         }),
       );
@@ -1459,11 +1436,8 @@ describe('hero-controllers', () => {
 
       changeHeroResourceToProduce(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/resource-to-produce',
-          'patch'
-        >({
-          path: { playerId },
+        createControllerArgs<'/me/hero/resource-to-produce', 'patch'>({
+          context: { playerId },
           body: { resource: 'clay' },
         }),
       );
@@ -1497,11 +1471,8 @@ describe('hero-controllers', () => {
 
       changeHeroResourceToProduce(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/resource-to-produce',
-          'patch'
-        >({
-          path: { playerId },
+        createControllerArgs<'/me/hero/resource-to-produce', 'patch'>({
+          context: { playerId },
           body: { resource: 'shared' },
         }),
       );

@@ -438,7 +438,7 @@ describe('player-controllers', () => {
   test('getMe should return current player details', async () => {
     using database = await prepareTestDatabase();
 
-    const player = getMe(database, createControllerArgs<'/players/me'>({}));
+    const player = getMe(database, createControllerArgs<'/me'>({}));
 
     expect(player).toMatchObject({ id: playerId });
   });
@@ -448,8 +448,8 @@ describe('player-controllers', () => {
 
     const result = getPlayerVillageListing(
       database,
-      createControllerArgs<'/players/:playerId/villages'>({
-        path: { playerId },
+      createControllerArgs<'/me/villages'>({
+        context: { playerId },
       }),
     );
 
@@ -523,7 +523,7 @@ describe('player-controllers', () => {
 
     const result = getPlayerVillagesWithPopulation(
       database,
-      createControllerArgs<'/players/:playerId/villages-with-population'>({
+      createControllerArgs<'/players/:playerId/villages'>({
         path: { playerId: village.player_id },
       }),
     );
@@ -598,7 +598,7 @@ describe('player-controllers', () => {
 
     const result = getPlayerVillagesWithPopulation(
       database,
-      createControllerArgs<'/players/:playerId/villages-with-population'>({
+      createControllerArgs<'/players/:playerId/villages'>({
         path: { playerId },
       }),
     );

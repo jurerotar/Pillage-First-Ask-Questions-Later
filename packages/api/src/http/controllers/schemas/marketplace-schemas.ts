@@ -21,3 +21,9 @@ export const createTradeRouteBodySchema = resourceTransferPayloadSchema.extend({
   startHour: z.number().int().min(0).max(23),
   intervalHours: z.number().int().positive(),
 });
+
+export type TradeRouteBody = z.infer<typeof createTradeRouteBodySchema>;
+
+export const tradeRoutePathSchema = z.strictObject({
+  routeId: z.coerce.number(),
+});

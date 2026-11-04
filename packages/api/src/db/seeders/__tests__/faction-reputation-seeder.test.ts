@@ -15,7 +15,8 @@ describe('factionReputationSeeder', () => {
           fr.reputation
         FROM
           faction_reputation fr
-            JOIN faction_ids source ON source.id = fr.source_faction_id
+            JOIN players p ON p.id = fr.player_id
+            JOIN faction_ids source ON source.id = p.faction_id
             JOIN faction_ids target ON target.id = fr.target_faction_id
         ORDER BY
           target.faction;
@@ -79,10 +80,11 @@ describe('factionReputationSeeder', () => {
         SELECT COUNT(*)
         FROM
           faction_reputation fr
-            JOIN faction_ids source ON source.id = fr.source_faction_id
+            JOIN players p ON p.id = fr.player_id
+            JOIN faction_ids source ON source.id = p.faction_id
         WHERE
           source.faction != 'player'
-          OR fr.source_faction_id = fr.target_faction_id;
+          OR p.faction_id = fr.target_faction_id;
       `,
       schema: z.number(),
     });

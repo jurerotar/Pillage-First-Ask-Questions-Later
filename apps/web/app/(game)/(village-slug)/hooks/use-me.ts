@@ -9,7 +9,7 @@ export const useMe = () => {
   const { data: player } = useSuspenseQuery({
     queryKey: [playersCacheKey],
     queryFn: async () => {
-      const { data } = await apiClient.get('/players/me');
+      const { data } = await apiClient.get('/me');
 
       return data;
     },

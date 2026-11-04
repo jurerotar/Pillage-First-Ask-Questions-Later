@@ -12,6 +12,9 @@
     "directory": "packages/types"
   },
   "exports": {
+    "./models/trade-route": {
+      "default": "./src/models/trade-route.ts"
+    },
     "./dtos/preferences": {
       "default": "./src/dtos/preferences.ts"
     },

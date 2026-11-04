@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   troopMovementItemDtoSchema,
   troopMovementStatsItemDtoSchema,
@@ -20,6 +19,7 @@ const troopMovementMetaSchema = z.object({
 
 export const mapTroopMovementRowToDto = (
   row: z.infer<typeof getVillageTroopMovementsRowSchema>,
+  playerId: number,
 ) => {
   const isAdventure = row.type === 'troopMovementAdventure';
   const { troops, loot } = troopMovementMetaSchema.parse(JSON.parse(row.meta));
@@ -35,13 +35,11 @@ export const mapTroopMovementRowToDto = (
     playerTribe: row.player_tribe,
     startsAt: row.starts_at,
     resolvesAt: row.resolves_at,
-    ...(row.type === 'troopMovementReturn' &&
-    row.player_id === PLAYER_ID &&
-    loot
+    ...(row.type === 'troopMovementReturn' && row.player_id === playerId && loot
       ? { loot }
       : {}),
     troops:
-      row.player_id !== PLAYER_ID &&
+      row.player_id !== playerId &&
       (row.type === 'troopMovementAttack' ||
         row.type === 'troopMovementRaid' ||
         row.type === 'troopMovementOasisOccupation')

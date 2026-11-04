@@ -79,7 +79,7 @@ export const useReports = (scope: ReportScope = 'global') => {
         });
       }
 
-      await invalidateQueries(context, [[reportListingsCacheKey, 'tile']]);
+      await invalidateQueries(context, [[reportListingsCacheKey]]);
 
       toast.success(
         reportIds.length === 1

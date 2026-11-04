@@ -198,8 +198,8 @@ export const createEventDtoSchema = z
     }),
     z.strictObject({
       type: z.literal('tradeRoute'),
-      ...merchantMovementEventSchema,
-      interval: z.number(),
+      ...villageEventSchema,
+      tradeRouteId: z.number(),
     }),
   ])
   .meta({ id: 'CreateEventDto' });

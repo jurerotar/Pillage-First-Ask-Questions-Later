@@ -1,3 +1,4 @@
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import createBuildingDataIndexes from '../indexes/building-data-indexes.sql?raw';
@@ -80,6 +81,7 @@ import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?r
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
 import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
+import createTradeRoutesTable from '../schemas/trade-routes-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
@@ -206,10 +208,6 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createFiltersTable });
     filtersSeeder(db);
 
-    // Faction reputations
-    db.execMulti({ sql: createFactionReputationTable });
-    factionReputationSeeder(db);
-
     // Tiles
     db.execMulti({ sql: createTilesTable });
     tilesSeeder(db, server);
@@ -235,6 +233,10 @@ export const migrateAndSeed = (
     playersSeeder(db, server);
     db.execMulti({ sql: createPlayersIndexes });
     db.execMulti({ sql: createHuntingCaptureHistoryTable });
+
+    // Player faction reputations
+    db.execMulti({ sql: createFactionReputationTable });
+    factionReputationSeeder(db, PLAYER_ID);
 
     // Culture points
     db.execMulti({ sql: createCulturePointsTable });
@@ -360,10 +362,11 @@ export const migrateAndSeed = (
 
     // Quests
     db.execMulti({ sql: createQuestsTable });
-    questsSeeder(db);
+    questsSeeder(db, PLAYER_ID);
 
     // Events
     db.execMulti({ sql: createEventsTable });
+    db.execMulti({ sql: createTradeRoutesTable });
     eventsSeeder(db, server);
 
     // Scheduled building upgrades

@@ -11,20 +11,14 @@ import {
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
-import { useMe } from './use-me';
 
 export const useHero = () => {
   const { apiClient } = use(ApiContext);
-  const { player } = useMe();
 
   const { data: hero } = useSuspenseQuery({
     queryKey: [heroCacheKey],
     queryFn: async () => {
-      const { data } = await apiClient.get('/players/:playerId/hero', {
-        path: {
-          playerId: player.id,
-        },
-      });
+      const { data } = await apiClient.get('/me/hero');
 
       return data;
     },
@@ -35,15 +29,9 @@ export const useHero = () => {
 
   const { mutate: updateHeroAttributes } = useMutation({
     mutationFn: async (attributes: Hero['selectableAttributes']) => {
-      const { data } = await apiClient.patch(
-        '/players/:playerId/hero/attributes',
-        {
-          path: {
-            playerId: player.id,
-          },
-          body: attributes,
-        },
-      );
+      const { data } = await apiClient.patch('/me/hero/attributes', {
+        body: attributes,
+      });
 
       return data;
     },
@@ -63,15 +51,9 @@ export const useHero = () => {
 
   const { mutate: updateHeroResourceToProduce } = useMutation({
     mutationFn: async (resource: HeroResourceToProduce) => {
-      const { data } = await apiClient.patch(
-        '/players/:playerId/hero/resource-to-produce',
-        {
-          path: {
-            playerId: player.id,
-          },
-          body: { resource },
-        },
-      );
+      const { data } = await apiClient.patch('/me/hero/resource-to-produce', {
+        body: { resource },
+      });
 
       return data;
     },

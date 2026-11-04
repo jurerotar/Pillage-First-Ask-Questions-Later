@@ -292,8 +292,8 @@ describe('map-controllers', () => {
     // 1. Add marker
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: { tileId, description, color, icon: 'mapMarkerAttack' },
       }),
     );
@@ -301,8 +301,8 @@ describe('map-controllers', () => {
     // 2. Get markers
     const markers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
@@ -316,8 +316,8 @@ describe('map-controllers', () => {
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId,
           description: 'Updated target',
@@ -329,8 +329,8 @@ describe('map-controllers', () => {
 
     const updatedMarkers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
@@ -345,16 +345,17 @@ describe('map-controllers', () => {
     // 3. Remove marker
     removeMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers/:tileId', 'delete'>({
-        path: { playerId, tileId },
+      createControllerArgs<'/me/map-markers/:tileId', 'delete'>({
+        context: { playerId },
+        path: { tileId },
       }),
     );
 
     // 4. Get markers again
     const markersAfterRemoval = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
@@ -368,8 +369,8 @@ describe('map-controllers', () => {
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId: 123,
           description: 'Forward village target',
@@ -381,8 +382,8 @@ describe('map-controllers', () => {
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId: 124,
           description: '',
@@ -394,8 +395,8 @@ describe('map-controllers', () => {
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId: 125,
           description: '   ',
@@ -407,8 +408,8 @@ describe('map-controllers', () => {
 
     const markers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 

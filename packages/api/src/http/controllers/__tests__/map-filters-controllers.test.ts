@@ -12,8 +12,8 @@ describe('map-filters-controllers', () => {
 
     const filters = getMapFilters(
       database,
-      createControllerArgs<'/players/:playerId/map-filters'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-filters'>({
+        context: { playerId },
       }),
     );
 
@@ -31,11 +31,9 @@ describe('map-filters-controllers', () => {
 
     updateMapFilter(
       database,
-      createControllerArgs<
-        '/players/:playerId/map-filters/:filterName',
-        'patch'
-      >({
-        path: { playerId, filterName: 'shouldShowOasisIcons' },
+      createControllerArgs<'/me/map-filters/:filterName', 'patch'>({
+        context: { playerId },
+        path: { filterName: 'shouldShowOasisIcons' },
         body: { value: true },
       }),
     );
@@ -43,8 +41,8 @@ describe('map-filters-controllers', () => {
     expect(
       getMapFilters(
         database,
-        createControllerArgs<'/players/:playerId/map-filters'>({
-          path: { playerId },
+        createControllerArgs<'/me/map-filters'>({
+          context: { playerId },
         }),
       ).shouldShowOasisIcons,
     ).toBe(true);

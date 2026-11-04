@@ -6,7 +6,7 @@ export const selectVillageQuestsQuery = `
       FROM
         quests
       WHERE
-        village_id = $village_id
+        player_id = $player_id AND village_id = $village_id
 
       UNION ALL
 
@@ -14,7 +14,7 @@ export const selectVillageQuestsQuery = `
       FROM
         quests
       WHERE
-        village_id IS NULL
+        player_id = $player_id AND village_id IS NULL
       ) AS q;
 `;
 
@@ -23,7 +23,8 @@ export const selectCollectableQuestCountQuery = `
   FROM
     quests
   WHERE
-    completed_at IS NOT NULL
+    player_id = $player_id
+    AND completed_at IS NOT NULL
     AND collected_at IS NULL
     AND (
       village_id = $village_id
@@ -41,9 +42,14 @@ export const collectQuestQuery = `
       FROM
         quests
       WHERE
-        quest_id = $quest_id
+        player_id = $player_id
+        AND quest_id = $quest_id
         AND (village_id = $village_id OR village_id IS NULL)
       ORDER BY (village_id = $village_id) DESC, (village_id IS NULL) DESC
       LIMIT 1
-    );
+    )
+    AND completed_at IS NOT NULL
+    AND collected_at IS NULL
+    AND EXISTS (SELECT 1 FROM villages WHERE id = $village_id AND player_id = $player_id)
+  RETURNING id;
 `;

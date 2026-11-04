@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import {
   playerVillageListingDtoSchema,
@@ -63,29 +62,21 @@ const isAnimalTroop = ({ unitId }: ReinforcementTroopSelection) => {
   return getUnitDefinition(unitId).tribe === 'nature';
 };
 
-export const getMe = createController('/players/me', {
+export const getMe = createController('/me', {
   summary: 'Get current player details',
   response: playerSchema,
-})(({ database }) => {
+})(({ database, context: { playerId } }) => {
   return database.selectObject({
     sql: selectPlayerByIdQuery,
-    bind: { $player_id: PLAYER_ID },
+    bind: { $player_id: playerId },
     schema: playerSchema,
   })!;
 });
 
-export const getPlayerVillageListing = createController(
-  '/players/:playerId/villages',
-  {
-    summary: 'Get player village listing',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: z.array(playerVillageListingDtoSchema),
-  },
-)(({ database, path: { playerId } }) => {
+export const getPlayerVillageListing = createController('/me/villages', {
+  summary: 'Get player village listing',
+  response: z.array(playerVillageListingDtoSchema),
+})(({ database, context: { playerId } }) => {
   const rows = database.selectObjects({
     sql: selectPlayerVillageListingQuery,
     bind: { $player_id: playerId },
@@ -96,7 +87,7 @@ export const getPlayerVillageListing = createController(
 });
 
 export const getPlayerVillagesWithPopulation = createController(
-  '/players/:playerId/villages-with-population',
+  '/players/:playerId/villages',
   {
     summary: 'Get player villages with population',
     requestParams: {
