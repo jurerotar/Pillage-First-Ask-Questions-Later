@@ -1,7 +1,27 @@
 import { describe, expect, test } from 'vitest';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { matchRoute } from '../route-matcher';
 
 describe(matchRoute, () => {
+  test('creates independent current-player context for each request', () => {
+    const first = matchRoute('/tiles/123/stationed-troops?playerId=999', 'GET');
+    const second = matchRoute('/tiles/123/stationed-troops', 'GET');
+
+    expect(first.context.playerId).toBe(PLAYER_ID);
+    expect(second.context.playerId).toBe(PLAYER_ID);
+    expect(first.context).not.toBe(second.context);
+  });
+
+  test('uses supplied context for /me without caching identity between requests', () => {
+    const context = { playerId: 42 };
+    const result = matchRoute('/me/villages', 'GET', undefined, context);
+    const next = matchRoute('/me/villages', 'GET');
+
+    expect(result.context).toBe(context);
+    expect(result.path.playerId).toBe(42);
+    expect(next.path.playerId).toBe(PLAYER_ID);
+  });
+
   test('casts path params using real schema (/tiles/:tileId/stationed-troops)', () => {
     // This route exists in http/api-routes.ts and has a request parameter schema.
     const result = matchRoute('/tiles/123/stationed-troops', 'GET');

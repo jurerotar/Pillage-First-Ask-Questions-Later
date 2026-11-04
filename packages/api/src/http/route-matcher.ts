@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { compiledApiRoutes } from './api-routes';
 import {
   type Controller,
   type ControllerOperationConfig,
   getJsonRequestBodySchema,
 } from './controller';
+import { createRequestContext, type RequestContext } from './request-context';
 
 const routesByMethodCache = new Map<string, typeof compiledApiRoutes>();
 const routeCandidatesCache = new Map<
@@ -74,14 +74,22 @@ const getRouteCandidates = (method: string, path: string) => {
   return candidates;
 };
 
-export const matchRoute = (url: string, method: string, body?: unknown) => {
+export const matchRoute = (
+  url: string,
+  method: string,
+  body?: unknown,
+  context: RequestContext = createRequestContext(),
+) => {
   const queryIndex = url.indexOf('?');
   const urlPath = queryIndex === -1 ? url : url.slice(0, queryIndex);
   const queryString = queryIndex === -1 ? undefined : url.slice(queryIndex + 1);
   const normalizedMethod = method.toUpperCase();
 
   // Replace only leading `/me` (either end or followed by slash), preserves trailing slash if present.
-  const path = urlPath.replace(/^\/me(?=\/|$)/u, `/players/${PLAYER_ID}`);
+  const path = urlPath.replace(
+    /^\/me(?=\/|$)/u,
+    `/players/${context.playerId}`,
+  );
 
   const routeCandidates = getRouteCandidates(normalizedMethod, path);
 
@@ -125,6 +133,7 @@ export const matchRoute = (url: string, method: string, body?: unknown) => {
     const parsedBody = bodySchema ? z.parse(bodySchema, body) : body;
 
     return {
+      context,
       controller: route.controller as Controller,
       path: pathParams as Record<string, string | number>,
       query: queryParams as Record<string, string | number>,

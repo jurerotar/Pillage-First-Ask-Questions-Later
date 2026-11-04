@@ -95,12 +95,15 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         const database = getInitializedDatabase();
         const {
           controller,
+          context,
           path,
           query,
           body: parsedBody,
           url: rawUrl,
         } = matchRoute(url, method, body);
+
         const result = controller(database, {
+          context,
           path,
           query,
           body: parsedBody as never,
