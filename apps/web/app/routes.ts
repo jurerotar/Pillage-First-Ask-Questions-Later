@@ -49,7 +49,9 @@ export default [
             route('village', '(game)/(village-slug)/(village)/page.tsx', {
               id: 'village-page',
             }),
-            route('map', '(game)/(village-slug)/(map)/page.tsx'),
+            route('map', '(game)/(village-slug)/(map)/page.tsx', {
+              id: 'map-page',
+            }),
             layout('(game)/(village-slug)/fixed-width-layout.tsx', [
               route(
                 'resources/:buildingFieldId',

@@ -13,9 +13,11 @@ export const useGameLayoutState = () => {
   const isVillagePageExact = matches.some(
     (match) => match?.id === 'village-page',
   );
+  const isMapPage = matches.some((match) => match?.id === 'map-page');
 
   const shouldShowSidebars =
-    hasSidebarViewport || isVillagePageExact || isResourcesPageExact;
+    !isMapPage &&
+    (hasSidebarViewport || isVillagePageExact || isResourcesPageExact);
 
   return {
     shouldShowSidebars,
