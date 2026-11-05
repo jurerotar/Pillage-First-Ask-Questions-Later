@@ -14,6 +14,8 @@ describe(calculateBattleUnitLosses, () => {
       amountAfter: 100,
       amountHospitalized: 0,
       amountImprisoned: 0,
+      amountBandaged: 0,
+      amountConsumed: 0,
     };
 
     const losses = calculateBattleUnitLosses(unit);
@@ -33,6 +35,8 @@ describe(calculateBattleUnitLosses, () => {
       amountAfter: 60,
       amountHospitalized: 10,
       amountImprisoned: 20,
+      amountBandaged: 0,
+      amountConsumed: 0,
     };
 
     const losses = calculateBattleUnitLosses(unit);
@@ -52,6 +56,8 @@ describe(calculateBattleUnitLosses, () => {
       amountAfter: 0,
       amountHospitalized: 0,
       amountImprisoned: 100,
+      amountBandaged: 0,
+      amountConsumed: 0,
     };
 
     const losses = calculateBattleUnitLosses(unit);
@@ -71,6 +77,8 @@ describe(calculateBattleUnitLosses, () => {
       amountAfter: 0,
       amountHospitalized: 100,
       amountImprisoned: 0,
+      amountBandaged: 0,
+      amountConsumed: 0,
     };
 
     const losses = calculateBattleUnitLosses(unit);
@@ -90,6 +98,8 @@ describe(calculateBattleUnitLosses, () => {
       amountAfter: 0,
       amountHospitalized: 0,
       amountImprisoned: 0,
+      amountBandaged: 0,
+      amountConsumed: 0,
     };
 
     const losses = calculateBattleUnitLosses(unit);
@@ -101,6 +111,82 @@ describe(calculateBattleUnitLosses, () => {
         unit.amountImprisoned +
         losses.dead,
     ).toBe(unit.amountBefore);
+  });
+});
+
+describe('combat recovery and consumed units', () => {
+  test('excludes bandaged troops from permanent deaths', () => {
+    const unit = {
+      amountBefore: 100,
+      amountAfter: 50,
+      amountHospitalized: 10,
+      amountImprisoned: 5,
+      amountBandaged: 8,
+      amountConsumed: 0,
+    };
+
+    const losses = calculateBattleUnitLosses(unit);
+
+    expect(losses).toStrictEqual({ casualties: 45, dead: 27 });
+    expect(
+      unit.amountAfter +
+        unit.amountHospitalized +
+        unit.amountImprisoned +
+        unit.amountBandaged +
+        unit.amountConsumed +
+        losses.dead,
+    ).toBe(unit.amountBefore);
+  });
+
+  test('does not count a consumed chief as a casualty or resource loss', () => {
+    const unit = {
+      unitId: 'ROMAN_CHIEF' as const,
+      amountBefore: 1,
+      amountAfter: 0,
+      amountHospitalized: 0,
+      amountImprisoned: 0,
+      amountBandaged: 0,
+      amountConsumed: 1,
+      unitWheatConsumption: 4,
+      baseRecruitmentCost: [100, 200, 300, 400] as [
+        number,
+        number,
+        number,
+        number,
+      ],
+    };
+
+    const losses = calculateBattleUnitLosses(unit);
+    const statistics = calculateCombatStatistics([unit]);
+
+    expect(losses).toStrictEqual({ casualties: 0, dead: 0 });
+    expect(statistics).toStrictEqual({
+      supplyBefore: 4,
+      supplyLost: 0,
+      resourcesLost: 0,
+    });
+  });
+
+  test('excludes bandage recoveries from replacement costs while retaining hospital healing costs', () => {
+    const statistics = calculateCombatStatistics([
+      {
+        unitId: 'LEGIONNAIRE',
+        amountBefore: 100,
+        amountAfter: 50,
+        amountHospitalized: 10,
+        amountImprisoned: 5,
+        amountBandaged: 8,
+        amountConsumed: 0,
+        unitWheatConsumption: 1,
+        baseRecruitmentCost: [120, 100, 150, 30],
+      },
+    ]);
+
+    expect(statistics).toStrictEqual({
+      supplyBefore: 100,
+      supplyLost: 45,
+      resourcesLost: 14800,
+    });
   });
 });
 
@@ -167,6 +253,8 @@ describe(calculateCombatStatistics, () => {
         amountAfter: 8,
         amountHospitalized: 0,
         amountImprisoned: 0,
+        amountBandaged: 0,
+        amountConsumed: 0,
         unitWheatConsumption: 1,
         baseRecruitmentCost: [120, 100, 150, 30],
       },
@@ -176,6 +264,8 @@ describe(calculateCombatStatistics, () => {
         amountAfter: 6,
         amountHospitalized: 1,
         amountImprisoned: 2,
+        amountBandaged: 0,
+        amountConsumed: 0,
         unitWheatConsumption: 3,
         baseRecruitmentCost: [550, 440, 320, 100],
       },
@@ -196,6 +286,8 @@ describe(calculateCombatStatistics, () => {
         amountAfter: 0,
         amountHospitalized: 0,
         amountImprisoned: 10,
+        amountBandaged: 0,
+        amountConsumed: 0,
         unitWheatConsumption: 1,
         baseRecruitmentCost: [120, 100, 150, 30],
       },

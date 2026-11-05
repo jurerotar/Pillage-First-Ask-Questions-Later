@@ -299,6 +299,27 @@ export const selectBattleReportQuery = `
     b.item_id, b.item_amount,
     b.can_attacker_see_full_report,
     b.attacker_points, b.defender_points,
+    conquest.loyalty_before, conquest.loyalty_after, conquest.succeeded AS conquest_succeeded,
+    CASE
+      WHEN conquest.battle_id IS NULL THEN NULL
+      WHEN target_type.type = 'oasis' THEN 'oasis'
+      ELSE 'village'
+    END AS conquest_target,
+    COALESCE(village_failure.reason, oasis_failure.reason) AS conquest_failure_reason,
+    b.village_destroyed, COALESCE(rescue.traps_destroyed, 0) AS traps_destroyed,
+    (SELECT json_group_array(json_object(
+      'playerId', ru.player_id, 'homeTileId', ru.home_tile_id, 'unitId', ui.unit,
+      'amountFreed', ru.amount_freed, 'amountDied', ru.amount_died
+    )) FROM battle_report_rescued_units ru JOIN unit_ids ui ON ui.id = ru.unit_id WHERE ru.battle_id = b.id) AS rescued_units_json,
+    (SELECT json_group_array(json_object('unitId', ui.unit, 'amount', ca.amount))
+      FROM battle_report_captured_animals ca JOIN unit_ids ui ON ui.id = ca.unit_id
+      WHERE ca.battle_id = b.id) AS captured_animals_json,
+    (SELECT json_group_array(json_object('itemId', ca.item_id, 'amount', ca.amount))
+      FROM battle_report_captured_artifacts ca WHERE ca.battle_id = b.id) AS captured_artifacts_json,
+    (SELECT json_object('heroId', h.hero_id, 'healthBefore', h.health_before, 'healthAfter', h.health_after,
+      'experienceGained', h.experience_gained, 'consumables', json((SELECT json_group_array(json_object('itemId', c.item_id, 'amount', c.amount))
+        FROM battle_report_consumables c WHERE c.battle_participant_id = h.battle_participant_id)))
+      FROM battle_report_heroes h WHERE h.battle_participant_id = bp.id) AS hero_json,
     bp.id AS participant_id,
     bp.player_id AS participant_player_id,
     bp.tile_id AS participant_tile_id,
@@ -319,12 +340,19 @@ export const selectBattleReportQuery = `
     bru.amount_before AS participant_amount_before,
     bru.amount_after AS participant_amount_after,
     bru.amount_hospitalized AS participant_amount_hospitalized,
+    bru.amount_bandaged AS participant_amount_bandaged,
+    bru.amount_consumed AS participant_amount_consumed,
     bru.amount_imprisoned AS participant_amount_imprisoned
   FROM report r
   JOIN battle_reports b ON b.report_id = r.id
+  LEFT JOIN battle_report_conquests conquest ON conquest.battle_id = b.id
+  LEFT JOIN battle_report_rescues rescue ON rescue.battle_id = b.id
+  LEFT JOIN village_conquest_failure_reason_ids village_failure ON village_failure.id = conquest.village_conquest_failure_reason_id
+  LEFT JOIN oasis_capture_failure_reason_ids oasis_failure ON oasis_failure.id = conquest.oasis_capture_failure_reason_id
   JOIN tiles origin_t ON origin_t.id = b.origin_tile_id
   LEFT JOIN villages origin_v ON origin_v.tile_id = origin_t.id
   JOIN tiles target_t ON target_t.id = b.target_tile_id
+  JOIN tile_type_ids target_type ON target_type.id = target_t.type_id
   LEFT JOIN villages target_v ON target_v.tile_id = target_t.id
   LEFT JOIN oasis target_o ON target_o.id = (
     SELECT MIN(id) FROM oasis WHERE tile_id = target_t.id
@@ -350,8 +378,9 @@ export const selectBattleReportDamagedBuildingsQuery = `
     brb.level_before AS levelBefore,
     brb.level_after AS levelAfter
   FROM battle_report_buildings brb
+  JOIN battle_reports b ON b.id = brb.battle_id
   JOIN building_ids bi ON bi.id = brb.building_id
-  WHERE brb.report_id = $report_id;
+  WHERE b.report_id = $report_id;
 `;
 
 export const selectAdventureReportQuery = `

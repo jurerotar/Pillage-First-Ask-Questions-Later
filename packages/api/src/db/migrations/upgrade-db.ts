@@ -5,7 +5,16 @@ import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
+import createBattleReportCapturedAnimalsTable from '../schemas/battle-report-captured-animals-schema.sql?raw';
+import createBattleReportCapturedArtifactsTable from '../schemas/battle-report-captured-artifacts-schema.sql?raw';
+import createBattleReportConquestsTable from '../schemas/battle-report-conquests-schema.sql?raw';
+import createBattleReportConsumablesTable from '../schemas/battle-report-consumables-schema.sql?raw';
+import createBattleReportHeroesTable from '../schemas/battle-report-heroes-schema.sql?raw';
+import createBattleReportRescuedUnitsTable from '../schemas/battle-report-rescued-units-schema.sql?raw';
+import createBattleReportRescuesTable from '../schemas/battle-report-rescues-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
+import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createCulturePointsTable from '../schemas/culture-points-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
 import createFiltersTable from '../schemas/filters-schema.sql?raw';
@@ -13,8 +22,10 @@ import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listi
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
 import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
+import createOasisCaptureFailureReasonIdsTable from '../schemas/lookup-tables/oasis-capture-failure-reason-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
+import createVillageConquestFailureReasonIdsTable from '../schemas/lookup-tables/village-conquest-failure-reason-ids-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
@@ -23,28 +34,12 @@ import createUnitImprovementReportsTable from '../schemas/unit-improvement-repor
 import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
 import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
 import { filtersSeeder } from '../seeders/filters-seeder';
+import { oasisCaptureFailureReasonIdsSeeder } from '../seeders/oasis-capture-failure-reason-ids-seeder';
+import { villageConquestFailureReasonIdsSeeder } from '../seeders/village-conquest-failure-reason-ids-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
-
-const huntersLodgeQuestAnimalUnitIds = [
-  'RAT',
-  'SPIDER',
-  'SERPENT',
-  'BAT',
-  'WILD_BOAR',
-  'WOLF',
-  'BEAR',
-  'CROCODILE',
-  'TIGER',
-  'ELEPHANT',
-] as const;
-
-const huntersLodgeQuestCaptureCounts = [1, 3, 5, 10, 20, 50] as const;
-const gatherersHutQuestResourceCounts = [
-  20, 100, 500, 1000, 5000, 10_000, 50_000, 100_000,
-] as const;
 
 const indexesMissedBySingleStatementExec = [
   'CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report ON battle_report_buildings(report_id);',
@@ -111,18 +106,6 @@ const indexesMissedBySingleStatementExec = [
   'CREATE INDEX IF NOT EXISTS idx_wounded_troops_unit_id ON wounded_troops(unit_id);',
 ];
 
-const huntersLodgeAndGatherersHutGlobalQuestIds = [
-  ...huntersLodgeQuestAnimalUnitIds.flatMap((unitId) =>
-    huntersLodgeQuestCaptureCounts.map(
-      (count) => `captureAnimalCountById-${unitId}-${count}`,
-    ),
-  ),
-  `captureAnimalKindCount-${huntersLodgeQuestAnimalUnitIds.length}`,
-  ...gatherersHutQuestResourceCounts.map(
-    (count) => `gatheredResourceCount-${count}`,
-  ),
-];
-
 // This function should only contain db upgrades between app's minor version bumps. At that point, these DB changes
 // should already be part of the new schema, so contents of this function should be deleted
 export const upgradeDb = (
@@ -150,151 +133,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.62', (db) => {
-    const completedAt = Date.now();
-
-    db.transaction((tx) => {
-      tx.exec({
-        sql: `
-          INSERT INTO quests (quest_id, completed_at, collected_at, village_id)
-          SELECT quest_id.value, NULL, NULL, NULL
-          FROM json_each($quest_ids) AS quest_id
-          WHERE NOT EXISTS (
-            SELECT 1
-            FROM quests q
-            WHERE
-              q.quest_id = quest_id.value
-              AND q.village_id IS NULL
-          );
-        `,
-        bind: {
-          $quest_ids: JSON.stringify(huntersLodgeAndGatherersHutGlobalQuestIds),
-        },
-      });
-
-      tx.exec({
-        sql: `
-          UPDATE quests
-          SET
-            completed_at = $completed_at
-          WHERE
-            completed_at IS NULL
-            AND village_id IS NULL
-            AND quest_id LIKE 'captureAnimalCountById-%'
-            AND EXISTS (
-              SELECT 1
-              FROM unit_ids captured_unit_ids
-              WHERE
-                captured_unit_ids.unit IN (
-                  SELECT value
-                  FROM json_each($animal_unit_ids)
-                )
-                AND quest_id LIKE 'captureAnimalCountById-' || captured_unit_ids.unit || '-%'
-                AND substr(
-                  quest_id,
-                  length('captureAnimalCountById-' || captured_unit_ids.unit || '-') + 1
-                ) GLOB '[0-9]*'
-                AND (
-                  SELECT COALESCE(SUM(hpru.amount), 0)
-                  FROM hunting_party_report_units hpru
-                  JOIN hunting_party_reports hpr
-                    ON hpr.id = hpru.hunting_party_report_id
-                  JOIN reports r ON r.id = hpr.report_id
-                  JOIN villages v ON v.id = r.village_id
-                  WHERE
-                    v.player_id = $player_id
-                    AND hpru.unit_id = captured_unit_ids.id
-                ) >= CAST(
-                  substr(
-                    quest_id,
-                    length('captureAnimalCountById-' || captured_unit_ids.unit || '-') + 1
-                  ) AS INTEGER
-                )
-            );
-        `,
-        bind: {
-          $completed_at: completedAt,
-          $animal_unit_ids: JSON.stringify(huntersLodgeQuestAnimalUnitIds),
-          $player_id: PLAYER_ID,
-        },
-      });
-
-      tx.exec({
-        sql: `
-          UPDATE quests
-          SET
-            completed_at = $completed_at
-          WHERE
-            completed_at IS NULL
-            AND village_id IS NULL
-            AND quest_id LIKE 'captureAnimalKindCount-%'
-            AND substr(quest_id, length('captureAnimalKindCount-') + 1) GLOB '[0-9]*'
-            AND (
-              SELECT COUNT(*)
-              FROM (
-                SELECT ui.unit
-                FROM hunting_party_report_units hpru
-                JOIN unit_ids ui ON ui.id = hpru.unit_id
-                JOIN hunting_party_reports hpr
-                  ON hpr.id = hpru.hunting_party_report_id
-                JOIN reports r ON r.id = hpr.report_id
-                JOIN villages v ON v.id = r.village_id
-                WHERE
-                  v.player_id = $player_id
-                  AND ui.unit IN (
-                    SELECT value
-                    FROM json_each($animal_unit_ids)
-                  )
-                GROUP BY ui.unit
-                HAVING SUM(hpru.amount) > 0
-              )
-            ) >= CAST(
-              substr(quest_id, length('captureAnimalKindCount-') + 1) AS INTEGER
-            );
-        `,
-        bind: {
-          $completed_at: completedAt,
-          $animal_unit_ids: JSON.stringify(huntersLodgeQuestAnimalUnitIds),
-          $player_id: PLAYER_ID,
-        },
-      });
-
-      tx.exec({
-        sql: `
-          UPDATE quests
-          SET
-            completed_at = $completed_at
-          WHERE
-            completed_at IS NULL
-            AND village_id IS NULL
-            AND quest_id LIKE 'gatheredResourceCount-%'
-            AND substr(quest_id, length('gatheredResourceCount-') + 1) GLOB '[0-9]*'
-            AND (
-              SELECT COALESCE(
-                SUM(
-                  ger.loot_wood +
-                  ger.loot_clay +
-                  ger.loot_iron +
-                  ger.loot_wheat
-                ),
-                0
-              )
-              FROM gathering_expedition_reports ger
-              JOIN reports r ON r.id = ger.report_id
-              JOIN villages v ON v.id = r.village_id
-              WHERE v.player_id = $player_id
-            ) >= CAST(
-              substr(quest_id, length('gatheredResourceCount-') + 1) AS INTEGER
-            );
-        `,
-        bind: {
-          $completed_at: completedAt,
-          $player_id: PLAYER_ID,
-        },
-      });
-    });
-  });
 
   migrate('0.4.64', (db) => {
     db.exec({
@@ -836,8 +674,32 @@ export const upgradeDb = (
       });
 
       tx.exec({ sql: 'DROP TABLE battle_report_units;' });
+      tx.exec({ sql: 'DROP TABLE battle_report_buildings;' });
 
       tx.execMulti({ sql: createBattleReportUnitsTable });
+
+      tx.execMulti({ sql: createVillageConquestFailureReasonIdsTable });
+      villageConquestFailureReasonIdsSeeder(tx);
+
+      tx.execMulti({ sql: createOasisCaptureFailureReasonIdsTable });
+      oasisCaptureFailureReasonIdsSeeder(tx);
+
+      tx.exec({ sql: 'DROP TABLE battle_reports;' });
+
+      tx.execMulti({ sql: createBattleReportsTable });
+
+      tx.execMulti({ sql: createBattleReportBuildingsTable });
+      tx.exec({
+        sql: 'CREATE INDEX idx_battle_report_buildings_battle ON battle_report_buildings(battle_id);',
+      });
+
+      tx.execMulti({ sql: createBattleReportHeroesTable });
+      tx.execMulti({ sql: createBattleReportConsumablesTable });
+      tx.execMulti({ sql: createBattleReportConquestsTable });
+      tx.execMulti({ sql: createBattleReportRescuesTable });
+      tx.execMulti({ sql: createBattleReportRescuedUnitsTable });
+      tx.execMulti({ sql: createBattleReportCapturedAnimalsTable });
+      tx.execMulti({ sql: createBattleReportCapturedArtifactsTable });
       tx.execMulti({ sql: createReportDeleteTriggers });
 
       setupGlobalWriteTriggers(tx);

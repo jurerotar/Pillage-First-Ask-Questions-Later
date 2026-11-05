@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  oasisCaptureFailureReasonSchema,
+  villageConquestFailureReasonSchema,
+} from '@pillage-first/types/models/battle';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportOutcomeSchema,
@@ -109,6 +113,22 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   defender_points: z.int(),
   item_id: z.int().nullable(),
   item_amount: z.int().nullable(),
+  loyalty_before: z.number().nullable(),
+  loyalty_after: z.number().nullable(),
+  conquest_target: z.enum(['village', 'oasis']).nullable(),
+  conquest_succeeded: z.int().nullable(),
+  conquest_failure_reason: z
+    .union([
+      villageConquestFailureReasonSchema,
+      oasisCaptureFailureReasonSchema,
+    ])
+    .nullable(),
+  village_destroyed: z.int(),
+  traps_destroyed: z.int(),
+  rescued_units_json: z.string(),
+  captured_animals_json: z.string(),
+  captured_artifacts_json: z.string(),
+  hero_json: z.string().nullable(),
   participant_id: z.int(),
   participant_player_id: z.int().nullable(),
   participant_tile_id: tileIdSchema,
@@ -126,6 +146,8 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   participant_amount_after: z.int().nullable(),
   participant_amount_hospitalized: z.int().nullable(),
   participant_amount_imprisoned: z.int().nullable(),
+  participant_amount_bandaged: z.int().nullable(),
+  participant_amount_consumed: z.int().nullable(),
 });
 
 export const battleReportDamagedBuildingRowSchema = z.strictObject({

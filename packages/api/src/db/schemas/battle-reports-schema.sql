@@ -17,6 +17,8 @@ CREATE TABLE battle_reports
   attacker_points INTEGER NOT NULL CHECK (attacker_points >= 0),
   defender_points INTEGER NOT NULL CHECK (defender_points >= 0),
 
+  village_destroyed INTEGER NOT NULL DEFAULT 0 CHECK (village_destroyed IN (0, 1)),
+
   CHECK ((item_id IS NULL) = (item_amount IS NULL)),
 
   FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,

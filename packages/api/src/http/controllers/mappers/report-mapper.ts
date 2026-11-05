@@ -5,6 +5,7 @@ import type {
   BattleDamagedBuilding,
   BattleType,
 } from '@pillage-first/types/models/battle';
+import { battleConquestSchema } from '@pillage-first/types/models/battle';
 import {
   type BattleReportSummary,
   type movementReportUnitSchema,
@@ -214,6 +215,10 @@ export const mapBattleReportRowToDto = (
           id: participantRow.participant_id,
           tribe: participantRow.participant_tribe,
           units: [],
+          hero:
+            participantRow.hero_json === null
+              ? null
+              : JSON.parse(participantRow.hero_json),
         },
       };
       participants.set(participantRow.participant_id, participant);
@@ -238,6 +243,8 @@ export const mapBattleReportRowToDto = (
         amountAfter: participantRow.participant_amount_after,
         amountHospitalized: participantRow.participant_amount_hospitalized ?? 0,
         amountImprisoned: participantRow.participant_amount_imprisoned ?? 0,
+        amountBandaged: participantRow.participant_amount_bandaged ?? 0,
+        amountConsumed: participantRow.participant_amount_consumed ?? 0,
       };
       participant.troops.units.push(battleUnit);
 
@@ -272,6 +279,21 @@ export const mapBattleReportRowToDto = (
       canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
       itemId: row.item_id,
       itemAmount: row.item_amount,
+      loyaltyBefore: row.loyalty_before,
+      loyaltyAfter: row.loyalty_after,
+      conquest:
+        row.conquest_target === null
+          ? null
+          : battleConquestSchema.parse({
+              target: row.conquest_target,
+              succeeded: Boolean(row.conquest_succeeded),
+              failureReason: row.conquest_failure_reason,
+            }),
+      villageDestroyed: Boolean(row.village_destroyed),
+      trapsDestroyed: row.traps_destroyed,
+      rescuedUnits: JSON.parse(row.rescued_units_json),
+      capturedAnimals: JSON.parse(row.captured_animals_json),
+      capturedArtifacts: JSON.parse(row.captured_artifacts_json),
     },
     damagedBuildings,
     statistics: {

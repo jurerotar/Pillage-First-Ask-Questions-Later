@@ -42,6 +42,8 @@ const mapTroopsToBattleReportUnits = (
     amountAfter: amount,
     amountHospitalized: 0,
     amountImprisoned: 0,
+    amountBandaged: 0,
+    amountConsumed: 0,
   }));
 };
 
@@ -142,6 +144,8 @@ const getBattleReportParticipants = (
         amountAfter: row.amount,
         amountHospitalized: 0,
         amountImprisoned: 0,
+        amountBandaged: 0,
+        amountConsumed: 0,
       });
     }
   }

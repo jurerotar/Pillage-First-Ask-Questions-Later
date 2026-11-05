@@ -4,7 +4,7 @@ import { coordinatesSchema } from './coordinates';
 import { resourceBundleSchema } from './resource';
 import { tileIdSchema } from './tile';
 import { tribeSchema } from './tribe';
-import { unitIdSchema } from './unit';
+import { natureUnitIdSchema, unitIdSchema } from './unit';
 
 export const battleStatisticsSchema = z.strictObject({
   points: z.int(),
@@ -13,27 +13,82 @@ export const battleStatisticsSchema = z.strictObject({
   resourcesLost: z.int(),
 });
 
-export const battleUnitSchema = z
-  .strictObject({
-    unitId: unitIdSchema,
-    amountBefore: z.int().nonnegative(),
-    amountAfter: z.int().nonnegative(),
-    amountHospitalized: z.int().nonnegative(),
-    amountImprisoned: z.int().nonnegative(),
-  })
-  .refine(
-    ({ amountBefore, amountAfter, amountHospitalized, amountImprisoned }) =>
-      amountAfter + amountHospitalized + amountImprisoned <= amountBefore,
-    {
-      message:
-        'Remaining, hospitalized, and imprisoned troops cannot exceed initial troops',
-    },
-  );
+export const battleUnitSchema = z.strictObject({
+  unitId: unitIdSchema,
+  amountBefore: z.int().nonnegative(),
+  amountAfter: z.int().nonnegative(),
+  amountHospitalized: z.int().nonnegative(),
+  amountImprisoned: z.int().nonnegative(),
+  amountBandaged: z.int().nonnegative(),
+  amountConsumed: z.int().nonnegative(),
+});
+
+export const battleHeroOutcomeSchema = z.strictObject({
+  heroId: z.int(),
+  healthBefore: z.int().min(0).max(100),
+  healthAfter: z.int().min(0).max(100),
+  experienceGained: z.int().nonnegative(),
+  consumables: z.array(
+    z.strictObject({ itemId: z.int(), amount: z.int().positive() }),
+  ),
+});
+
+export const battleRescuedUnitSchema = z.strictObject({
+  playerId: z.int(),
+  homeTileId: tileIdSchema,
+  unitId: unitIdSchema,
+  // Freed includes troops that die during the rescue.
+  amountFreed: z.int().positive(),
+  amountDied: z.int().nonnegative(),
+});
+
+export const battleCapturedAnimalSchema = z.strictObject({
+  unitId: natureUnitIdSchema,
+  amount: z.int().positive(),
+});
+
+export const battleCapturedArtifactSchema = z.strictObject({
+  itemId: z.int(),
+  amount: z.int().positive(),
+});
+
+export const villageConquestFailureReasonSchema = z.enum([
+  'no-surviving-administrator',
+  'defenders-survived',
+  'administration-building-present',
+  'target-is-capital',
+  'target-is-last-village',
+  'insufficient-culture-points',
+  'no-free-expansion-slot',
+  'loyalty-not-zero',
+]);
+
+export const oasisCaptureFailureReasonSchema = z.enum([
+  'no-surviving-hero',
+  'defenders-survived',
+  'out-of-range',
+  'no-free-oasis-slot',
+  'loyalty-not-zero',
+]);
+
+export const battleConquestSchema = z.discriminatedUnion('target', [
+  z.strictObject({
+    target: z.literal('village'),
+    succeeded: z.boolean(),
+    failureReason: villageConquestFailureReasonSchema.nullable(),
+  }),
+  z.strictObject({
+    target: z.literal('oasis'),
+    succeeded: z.boolean(),
+    failureReason: oasisCaptureFailureReasonSchema.nullable(),
+  }),
+]);
 
 export const battleTroopsSchema = z.strictObject({
   id: z.int(),
   tribe: tribeSchema,
   units: z.array(battleUnitSchema),
+  hero: battleHeroOutcomeSchema.nullable(),
 });
 
 export const battlePlayerSchema = z.strictObject({
@@ -59,21 +114,21 @@ export const battleDefenderSchema = battleParticipantSchema.extend({
   reinforcements: z.array(battleParticipantSchema),
 });
 
-export const battleOutcomeSchema = z
-  .strictObject({
-    loot: resourceBundleSchema,
-    totalCarryCapacity: z.int(),
-    canAttackerSeeFullReport: z.boolean(),
-    itemId: z.int().nullable(),
-    itemAmount: z.int().positive().nullable(),
-  })
-  .refine(
-    ({ itemId, itemAmount }) => (itemId === null) === (itemAmount === null),
-    {
-      message: 'Item id and amount must either both be set or both be null',
-      path: ['itemAmount'],
-    },
-  );
+export const battleOutcomeSchema = z.strictObject({
+  loot: resourceBundleSchema,
+  totalCarryCapacity: z.int(),
+  canAttackerSeeFullReport: z.boolean(),
+  itemId: z.int().nullable(),
+  itemAmount: z.int().positive().nullable(),
+  loyaltyBefore: z.number().min(0).max(125).nullable(),
+  loyaltyAfter: z.number().min(0).max(125).nullable(),
+  conquest: battleConquestSchema.nullable(),
+  villageDestroyed: z.boolean(),
+  trapsDestroyed: z.int().nonnegative(),
+  rescuedUnits: z.array(battleRescuedUnitSchema),
+  capturedAnimals: z.array(battleCapturedAnimalSchema),
+  capturedArtifacts: z.array(battleCapturedArtifactSchema),
+});
 
 export const battleDamagedBuildingSchema = z.strictObject({
   buildingId: buildingIdSchema,
@@ -103,11 +158,7 @@ export const battleSchema = z.strictObject({
 export type BattleStatistics = z.infer<typeof battleStatisticsSchema>;
 export type BattleUnit = z.infer<typeof battleUnitSchema>;
 export type BattleTroops = z.infer<typeof battleTroopsSchema>;
-export type BattlePlayer = z.infer<typeof battlePlayerSchema>;
-export type BattleVillage = z.infer<typeof battleVillageSchema>;
 export type BattleParticipant = z.infer<typeof battleParticipantSchema>;
-export type BattleDefender = z.infer<typeof battleDefenderSchema>;
 export type BattleOutcome = z.infer<typeof battleOutcomeSchema>;
 export type BattleDamagedBuilding = z.infer<typeof battleDamagedBuildingSchema>;
-export type BattleSummary = z.infer<typeof battleSummarySchema>;
 export type BattleType = z.infer<typeof battleSchema>;

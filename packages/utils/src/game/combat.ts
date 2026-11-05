@@ -10,15 +10,23 @@ export const calculateBattleUnitLosses = ({
   amountAfter,
   amountHospitalized,
   amountImprisoned,
+  amountBandaged,
+  amountConsumed,
 }: Pick<
   BattleUnit,
-  'amountBefore' | 'amountAfter' | 'amountHospitalized' | 'amountImprisoned'
+  | 'amountBefore'
+  | 'amountAfter'
+  | 'amountHospitalized'
+  | 'amountImprisoned'
+  | 'amountBandaged'
+  | 'amountConsumed'
 >) => {
-  const casualties = amountBefore - amountAfter - amountImprisoned;
+  const casualties =
+    amountBefore - amountAfter - amountImprisoned - amountConsumed;
 
   return {
     casualties,
-    dead: casualties - amountHospitalized,
+    dead: casualties - amountHospitalized - amountBandaged,
   };
 };
 
@@ -45,7 +53,7 @@ export const calculateCombatStatistics = (
 
     supplyBefore += unit.amountBefore * unit.unitWheatConsumption;
     supplyLost += casualties * unit.unitWheatConsumption;
-    resourcesLost += resourceCost * casualties;
+    resourcesLost += resourceCost * (casualties - unit.amountBandaged);
   }
 
   return { supplyBefore, supplyLost, resourcesLost };
