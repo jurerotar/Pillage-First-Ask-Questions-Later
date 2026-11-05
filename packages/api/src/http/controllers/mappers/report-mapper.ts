@@ -251,19 +251,25 @@ export const mapBattleReportRowToDto = (
         const amountLost =
           participantRow.participant_amount_before -
           participantRow.participant_amount_after;
+
         const statistics =
           participantRow.participant_role === 'attacker'
             ? attackerStatistics
             : defenderStatistics;
 
         let resourceCost = 0;
+
         for (const cost of unit.baseRecruitmentCost) {
           resourceCost += cost;
         }
 
-        statistics.supplyBefore += participantRow.participant_amount_before;
-        statistics.supplyLost += amountLost;
-        statistics.resourcesLost += resourceCost * amountLost;
+        const amountImprisoned =
+          participantRow.participant_amount_imprisoned ?? 0;
+        statistics.supplyBefore +=
+          participantRow.participant_amount_before * unit.unitWheatConsumption;
+        statistics.supplyLost += amountLost * unit.unitWheatConsumption;
+        statistics.resourcesLost +=
+          resourceCost * (amountLost - amountImprisoned);
 
         if (participantRow.participant_role === 'attacker') {
           totalCarryCapacity +=
