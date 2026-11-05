@@ -131,7 +131,6 @@ import { unitIdsSeeder } from '../seeders/unit-ids-seeder';
 import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
-import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
@@ -338,7 +337,6 @@ export const migrateAndSeed = (
 
     // Wounded troops
     db.execMulti({ sql: createWoundedTroopsTable });
-    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
 
     // Effects
     db.execMulti({ sql: createEffectsTable });

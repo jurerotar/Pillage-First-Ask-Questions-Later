@@ -136,7 +136,8 @@ type CreateNewBattleReportUnit = {
   unitId: UnitId;
   amountBefore: number;
   amountAfter: number;
-  amountImprisoned?: number;
+  amountHospitalized: number;
+  amountImprisoned: number;
 };
 
 type CreateNewBattleReportDamagedBuilding = {
@@ -724,6 +725,7 @@ export const insertBattleReport = (
           unit_id,
           amount_before,
           amount_after,
+          amount_hospitalized,
           amount_imprisoned
         )
         SELECT
@@ -731,7 +733,8 @@ export const insertBattleReport = (
           unit_ids.id,
           SUM(JSON_EXTRACT(unit.value, '$.amountBefore')),
           SUM(JSON_EXTRACT(unit.value, '$.amountAfter')),
-          SUM(COALESCE(JSON_EXTRACT(unit.value, '$.amountImprisoned'), 0))
+          SUM(JSON_EXTRACT(unit.value, '$.amountHospitalized')),
+          SUM(JSON_EXTRACT(unit.value, '$.amountImprisoned'))
         FROM
           JSON_EACH($units) AS unit
           JOIN unit_ids

@@ -824,6 +824,12 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.82', (db) => {
+    db.exec({
+      sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({
