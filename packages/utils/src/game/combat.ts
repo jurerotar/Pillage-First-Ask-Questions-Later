@@ -1,5 +1,9 @@
-import type { BattleUnit } from '@pillage-first/types/models/battle';
+import type {
+  BattleStatistics,
+  BattleUnit,
+} from '@pillage-first/types/models/battle';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
+import type { Unit } from '@pillage-first/types/models/unit';
 
 export const calculateBattleUnitLosses = ({
   amountBefore,
@@ -16,6 +20,47 @@ export const calculateBattleUnitLosses = ({
     casualties,
     dead: casualties - amountHospitalized,
   };
+};
+
+export type CombatUnit = BattleUnit &
+  Pick<
+    Unit,
+    'unitWheatConsumption' | 'baseRecruitmentCost' | 'unitCarryCapacity'
+  >;
+
+export const calculateCombatStatistics = (
+  units: readonly Omit<CombatUnit, 'unitCarryCapacity'>[],
+): Omit<BattleStatistics, 'points'> => {
+  let supplyBefore = 0;
+  let supplyLost = 0;
+  let resourcesLost = 0;
+
+  for (const unit of units) {
+    const { casualties } = calculateBattleUnitLosses(unit);
+    let resourceCost = 0;
+
+    for (const cost of unit.baseRecruitmentCost) {
+      resourceCost += cost;
+    }
+
+    supplyBefore += unit.amountBefore * unit.unitWheatConsumption;
+    supplyLost += casualties * unit.unitWheatConsumption;
+    resourcesLost += resourceCost * casualties;
+  }
+
+  return { supplyBefore, supplyLost, resourcesLost };
+};
+
+export const calculateSurvivingCarryCapacity = (
+  units: readonly Pick<CombatUnit, 'amountAfter' | 'unitCarryCapacity'>[],
+): number => {
+  let totalCarryCapacity = 0;
+
+  for (const { amountAfter, unitCarryCapacity } of units) {
+    totalCarryCapacity += amountAfter * unitCarryCapacity;
+  }
+
+  return totalCarryCapacity;
 };
 
 export const calculateLootableCarryCapacity = (

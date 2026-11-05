@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import {
   calculateBattleUnitLosses,
+  calculateCombatStatistics,
   calculateLootableCarryCapacity,
+  calculateSurvivingCarryCapacity,
   distributeLoot,
 } from '../combat';
 
@@ -145,5 +147,81 @@ describe(distributeLoot, () => {
 
   test('skips empty resource buckets', () => {
     expect(distributeLoot([0, 100, 0, 50], 75)).toStrictEqual([0, 38, 0, 37]);
+  });
+});
+
+describe(calculateCombatStatistics, () => {
+  test('returns zero statistics for an empty army', () => {
+    expect(calculateCombatStatistics([])).toStrictEqual({
+      supplyBefore: 0,
+      supplyLost: 0,
+      resourcesLost: 0,
+    });
+  });
+
+  test('totals mixed units using supplied upkeep and costs, excluding prisoners', () => {
+    const statistics = calculateCombatStatistics([
+      {
+        unitId: 'LEGIONNAIRE',
+        amountBefore: 10,
+        amountAfter: 8,
+        amountHospitalized: 0,
+        amountImprisoned: 0,
+        unitWheatConsumption: 1,
+        baseRecruitmentCost: [120, 100, 150, 30],
+      },
+      {
+        unitId: 'EQUITES_IMPERATORIS',
+        amountBefore: 10,
+        amountAfter: 6,
+        amountHospitalized: 1,
+        amountImprisoned: 2,
+        unitWheatConsumption: 3,
+        baseRecruitmentCost: [550, 440, 320, 100],
+      },
+    ]);
+
+    expect(statistics).toStrictEqual({
+      supplyBefore: 40,
+      supplyLost: 8,
+      resourcesLost: 3620,
+    });
+  });
+
+  test('counts no losses when all missing troops are prisoners', () => {
+    const statistics = calculateCombatStatistics([
+      {
+        unitId: 'LEGIONNAIRE',
+        amountBefore: 10,
+        amountAfter: 0,
+        amountHospitalized: 0,
+        amountImprisoned: 10,
+        unitWheatConsumption: 1,
+        baseRecruitmentCost: [120, 100, 150, 30],
+      },
+    ]);
+
+    expect(statistics).toStrictEqual({
+      supplyBefore: 10,
+      supplyLost: 0,
+      resourcesLost: 0,
+    });
+  });
+});
+
+describe(calculateSurvivingCarryCapacity, () => {
+  test('returns zero capacity for an empty army', () => {
+    expect(calculateSurvivingCarryCapacity([])).toBe(0);
+  });
+
+  test('uses surviving amounts and supplied carry values', () => {
+    const capacity = calculateSurvivingCarryCapacity([
+      { amountAfter: 8, unitCarryCapacity: 75 },
+      { amountAfter: 6, unitCarryCapacity: 150 },
+      { amountAfter: 0, unitCarryCapacity: 100 },
+      { amountAfter: 10, unitCarryCapacity: 0 },
+    ]);
+
+    expect(capacity).toBe(1500);
   });
 });
