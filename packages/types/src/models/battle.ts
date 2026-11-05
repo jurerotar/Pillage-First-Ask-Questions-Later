@@ -13,13 +13,22 @@ export const battleStatisticsSchema = z.strictObject({
   resourcesLost: z.int(),
 });
 
-export const battleUnitSchema = z.strictObject({
-  unitId: unitIdSchema,
-  amountBefore: z.int(),
-  amountAfter: z.int(),
-  amountHospitalized: z.int(),
-  amountImprisoned: z.int(),
-});
+export const battleUnitSchema = z
+  .strictObject({
+    unitId: unitIdSchema,
+    amountBefore: z.int().nonnegative(),
+    amountAfter: z.int().nonnegative(),
+    amountHospitalized: z.int().nonnegative(),
+    amountImprisoned: z.int().nonnegative(),
+  })
+  .refine(
+    ({ amountBefore, amountAfter, amountHospitalized, amountImprisoned }) =>
+      amountAfter + amountHospitalized + amountImprisoned <= amountBefore,
+    {
+      message:
+        'Remaining, hospitalized, and imprisoned troops cannot exceed initial troops',
+    },
+  );
 
 export const battleTroopsSchema = z.strictObject({
   id: z.int(),

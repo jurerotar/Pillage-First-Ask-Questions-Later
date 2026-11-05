@@ -26,6 +26,7 @@ import type {
   VillageFoundedReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
+import { calculateBattleUnitLosses } from '@pillage-first/utils/game/combat';
 import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
@@ -197,9 +198,9 @@ export const BattleParticipantTable = ({
 
     const troopsLost = sortTroops(
       troops.tribe,
-      troops.units.map(({ unitId, amountBefore, amountAfter }) => ({
-        unitId,
-        amount: amountBefore - amountAfter,
+      troops.units.map((unit) => ({
+        unitId: unit.unitId,
+        amount: calculateBattleUnitLosses(unit).casualties,
       })),
     );
 
@@ -232,15 +233,10 @@ export const BattleParticipantTable = ({
   let totalHospitalized = 0;
   let totalImprisoned = 0;
 
-  for (const {
-    amountBefore,
-    amountAfter,
-    amountHospitalized,
-    amountImprisoned,
-  } of troops.units) {
-    totalLosses += amountBefore - amountAfter;
-    totalHospitalized += amountHospitalized;
-    totalImprisoned += amountImprisoned;
+  for (const unit of troops.units) {
+    totalLosses += calculateBattleUnitLosses(unit).casualties;
+    totalHospitalized += unit.amountHospitalized;
+    totalImprisoned += unit.amountImprisoned;
   }
 
   const isSimulatorReport = 'playerRole' in report;

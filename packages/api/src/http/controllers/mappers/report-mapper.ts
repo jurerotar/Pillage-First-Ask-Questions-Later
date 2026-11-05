@@ -10,6 +10,7 @@ import {
   type movementReportUnitSchema,
   reportSchema,
 } from '@pillage-first/types/models/report';
+import { calculateBattleUnitLosses } from '@pillage-first/utils/game/combat';
 import type {
   getReportListingsRowSchema,
   getReportsRowSchema,
@@ -248,9 +249,13 @@ export const mapBattleReportRowToDto = (
 
       const unit = unitsMap.get(participantRow.participant_unit_id);
       if (unit) {
-        const amountLost =
-          participantRow.participant_amount_before -
-          participantRow.participant_amount_after;
+        const { casualties } = calculateBattleUnitLosses({
+          amountBefore: participantRow.participant_amount_before,
+          amountAfter: participantRow.participant_amount_after,
+          amountHospitalized:
+            participantRow.participant_amount_hospitalized ?? 0,
+          amountImprisoned: participantRow.participant_amount_imprisoned ?? 0,
+        });
 
         const statistics =
           participantRow.participant_role === 'attacker'
@@ -263,13 +268,10 @@ export const mapBattleReportRowToDto = (
           resourceCost += cost;
         }
 
-        const amountImprisoned =
-          participantRow.participant_amount_imprisoned ?? 0;
         statistics.supplyBefore +=
           participantRow.participant_amount_before * unit.unitWheatConsumption;
-        statistics.supplyLost += amountLost * unit.unitWheatConsumption;
-        statistics.resourcesLost +=
-          resourceCost * (amountLost - amountImprisoned);
+        statistics.supplyLost += casualties * unit.unitWheatConsumption;
+        statistics.resourcesLost += resourceCost * casualties;
 
         if (participantRow.participant_role === 'attacker') {
           totalCarryCapacity +=

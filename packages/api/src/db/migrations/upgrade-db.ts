@@ -5,6 +5,7 @@ import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createCulturePointsTable from '../schemas/culture-points-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
 import createFiltersTable from '../schemas/filters-schema.sql?raw';
@@ -825,8 +826,21 @@ export const upgradeDb = (
   });
 
   migrate('0.4.82', (db) => {
-    db.exec({
-      sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
+    db.transaction((tx) => {
+      tx.exec({
+        sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
+      });
+
+      tx.exec({
+        sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
+      });
+
+      tx.exec({ sql: 'DROP TABLE battle_report_units;' });
+
+      tx.execMulti({ sql: createBattleReportUnitsTable });
+      tx.execMulti({ sql: createReportDeleteTriggers });
+
+      setupGlobalWriteTriggers(tx);
     });
   });
 

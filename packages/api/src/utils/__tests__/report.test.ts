@@ -10,6 +10,7 @@ describe(insertReport, () => {
     database.exec({
       sql: 'DELETE FROM reports;',
     });
+
     database.exec({
       sql: `
         WITH RECURSIVE sequence(timestamp) AS (
@@ -31,6 +32,7 @@ describe(insertReport, () => {
         FROM sequence;
       `,
     });
+
     database.exec({
       sql: `
         INSERT INTO report_tags (report_id, report_tag_id)
@@ -49,6 +51,7 @@ describe(insertReport, () => {
       outcome: 'heroAdventure',
       tags: [],
     });
+
     const secondInsertedId = insertReport(database, {
       villageId: 1,
       timestamp: 1002,
@@ -77,6 +80,7 @@ describe(insertBattleReport, () => {
     'persists supplied hospitalized counts without changing wounded troops (hospital: %s)',
     async (hasHospital) => {
       using database = await prepareTestDatabase();
+
       const villages = database.selectObjects({
         sql: 'SELECT id, tile_id, player_id FROM villages ORDER BY id LIMIT 3;',
         schema: z.strictObject({
@@ -85,10 +89,13 @@ describe(insertBattleReport, () => {
           player_id: z.int(),
         }),
       });
+
       const [origin, target, reinforcement] = villages;
+
       database.exec({
         sql: "DELETE FROM building_fields WHERE building_id IN (SELECT id FROM building_ids WHERE building IN ('HOSPITAL', 'ASCLEPEION'));",
       });
+
       if (hasHospital) {
         database.exec({
           sql: `INSERT INTO building_fields (village_id, field_id, building_id, level)
@@ -97,11 +104,13 @@ describe(insertBattleReport, () => {
           bind: { $village_id: origin.id },
         });
       }
+
       database.exec({ sql: 'DELETE FROM wounded_troops;' });
       database.exec({
         sql: "INSERT INTO wounded_troops (village_id, unit_id, amount, updated_at) SELECT $village_id, id, 7, 100 FROM unit_ids WHERE unit = 'LEGIONNAIRE';",
         bind: { $village_id: origin.id },
       });
+
       const woundedBefore = database.selectObjects({
         sql: 'SELECT * FROM wounded_troops;',
         schema: z.object({
@@ -111,10 +120,12 @@ describe(insertBattleReport, () => {
           updated_at: z.int(),
         }),
       });
+
       const participant = (village: typeof origin) => ({
         playerId: village.player_id,
         tileId: village.tile_id,
       });
+
       const reportId = insertBattleReport(database, {
         villageId: origin.id,
         timestamp: 200,
@@ -172,6 +183,24 @@ describe(insertBattleReport, () => {
           },
         ],
       });
+
+      expect(() =>
+        database.exec({
+          sql: `UPDATE battle_report_units SET amount_hospitalized = 40, amount_imprisoned = 30
+          WHERE battle_participant_id IN (SELECT bp.id FROM battle_report_participants bp JOIN battle_reports b ON b.id = bp.battle_id WHERE b.report_id = $report_id);`,
+          bind: { $report_id: reportId },
+        }),
+      ).toThrow();
+
+      expect(() =>
+        database.exec({
+          sql: `INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after, amount_hospitalized, amount_imprisoned)
+          SELECT bp.id, (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, 50, 30, 30
+          FROM battle_report_participants bp JOIN battle_reports b ON b.id = bp.battle_id WHERE b.report_id = $report_id LIMIT 1;`,
+          bind: { $report_id: reportId },
+        }),
+      ).toThrow();
+
       expect(
         database.selectObjects({
           sql: `SELECT bp.tile_id, bu.amount_before, bu.amount_after, bu.amount_hospitalized, bu.amount_imprisoned
@@ -209,6 +238,7 @@ describe(insertBattleReport, () => {
           amount_imprisoned: 0,
         },
       ]);
+
       expect(
         database.selectObjects({
           sql: 'SELECT * FROM wounded_troops;',
@@ -220,6 +250,7 @@ describe(insertBattleReport, () => {
           }),
         }),
       ).toStrictEqual(woundedBefore);
+
       expect(
         database.selectValue({
           sql: "SELECT COUNT(*) FROM sqlite_schema WHERE type = 'trigger' AND name = 'battle_report_units_create_wounded_troops_after_insert';",

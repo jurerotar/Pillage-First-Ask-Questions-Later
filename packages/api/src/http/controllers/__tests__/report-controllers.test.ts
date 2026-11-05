@@ -643,8 +643,9 @@ describe('report-controllers', () => {
     expect(scoutingReport).toHaveProperty('scouting.itemAmount', 1);
   });
 
-  test('weights supply by crop consumption and excludes prisoners from resource losses', async () => {
+  test('weights supply by crop consumption and excludes prisoners from losses', async () => {
     using database = await prepareReportsTestDatabase();
+
     database.execMulti({
       sql: `INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
         SELECT 3, 1, player_id, tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 2;
@@ -655,27 +656,31 @@ describe('report-controllers', () => {
           (3, (SELECT id FROM unit_ids WHERE unit = 'EQUITES_IMPERATORIS'), 4, 1, 0, 1);
         UPDATE battle_report_units SET amount_imprisoned = 5 WHERE battle_participant_id = 2;`,
     });
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({
         path: { reportId: 1 },
       }),
     );
+
     expect(report?.type).toBe('battle');
+
     if (report?.type !== 'battle') {
       throw new Error('Expected a battle report');
     }
+
     expect(report.battle.statistics).toStrictEqual({
       attacker: {
         points: 100,
         supplyBefore: 40,
-        supplyLost: 14,
+        supplyLost: 8,
         resourcesLost: 3620,
       },
       defender: {
         points: 50,
         supplyBefore: 17,
-        supplyLost: 14,
+        supplyLost: 6,
         resourcesLost: 2820,
       },
     });
