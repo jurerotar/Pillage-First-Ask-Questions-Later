@@ -289,7 +289,7 @@ export const BattleParticipantTable = ({
             troops={troopsLost}
             textColor="text-red-500"
           />
-          {canSeeHospitalizedTroops && (
+          {canSeeHospitalizedTroops && totalHospitalized > 0 && (
             <UnitTableRow
               label={t('Hospitalized')}
               troops={troopsHospitalized}
@@ -319,7 +319,7 @@ export const BattleParticipantTable = ({
                 />
                 {formatNumber(totalLosses)}
               </span>
-              {canSeeHospitalizedTroops && (
+              {canSeeHospitalizedTroops && totalHospitalized > 0 && (
                 <span
                   className="inline-flex items-center gap-2"
                   title={t('Hospitalized')}
@@ -350,7 +350,7 @@ export const BattleParticipantTable = ({
 
       {canSeeHospitalizedTroops && troops.hero !== null && (
         <UnitTableContentRow label={t('Hero')}>
-          <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-4">
             <Text>
               {t('Health')}: {troops.hero.healthBefore}% →{' '}
               {troops.hero.healthAfter}%{' '}
