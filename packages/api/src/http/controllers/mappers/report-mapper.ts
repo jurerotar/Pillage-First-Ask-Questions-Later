@@ -277,8 +277,6 @@ export const mapBattleReportRowToDto = (
       loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
       totalCarryCapacity: calculateSurvivingCarryCapacity(attackerUnits),
       canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
-      itemId: row.item_id,
-      itemAmount: row.item_amount,
       loyaltyBefore: row.loyalty_before,
       loyaltyAfter: row.loyalty_after,
       conquest:
@@ -293,7 +291,7 @@ export const mapBattleReportRowToDto = (
       trapsDestroyed: row.traps_destroyed,
       rescuedUnits: JSON.parse(row.rescued_units_json),
       capturedAnimals: JSON.parse(row.captured_animals_json),
-      capturedArtifacts: JSON.parse(row.captured_artifacts_json),
+      stolenItems: JSON.parse(row.stolen_items_json),
     },
     damagedBuildings,
     statistics: {

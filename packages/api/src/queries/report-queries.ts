@@ -296,7 +296,6 @@ export const selectBattleReportQuery = `
     b.id AS battle_id,
     b.origin_tile_id, b.target_tile_id,
     b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
-    b.item_id, b.item_amount,
     b.can_attacker_see_full_report,
     b.attacker_points, b.defender_points,
     conquest.loyalty_before, conquest.loyalty_after, conquest.succeeded AS conquest_succeeded,
@@ -315,7 +314,7 @@ export const selectBattleReportQuery = `
       FROM battle_report_captured_animals ca JOIN unit_ids ui ON ui.id = ca.unit_id
       WHERE ca.battle_id = b.id) AS captured_animals_json,
     (SELECT json_group_array(json_object('itemId', ca.item_id, 'amount', ca.amount))
-      FROM battle_report_captured_artifacts ca WHERE ca.battle_id = b.id) AS captured_artifacts_json,
+      FROM battle_report_stolen_items ca WHERE ca.battle_id = b.id) AS stolen_items_json,
     (SELECT json_object('heroId', h.hero_id, 'healthBefore', h.health_before, 'healthAfter', h.health_after,
       'experienceGained', h.experience_gained, 'consumables', json((SELECT json_group_array(json_object('itemId', c.item_id, 'amount', c.amount))
         FROM battle_report_consumables c WHERE c.battle_participant_id = h.battle_participant_id)))

@@ -567,9 +567,8 @@ describe('report-controllers', () => {
 
     database.exec({
       sql: `
-        UPDATE battle_reports
-        SET item_id = 1021, item_amount = 3
-        WHERE report_id = 1;
+        INSERT INTO battle_report_stolen_items (battle_id, item_id, amount)
+        SELECT id, 1021, 3 FROM battle_reports WHERE report_id = 1;
       `,
     });
     database.execMulti({
@@ -642,8 +641,9 @@ describe('report-controllers', () => {
       }),
     );
 
-    expect(battleReport).toHaveProperty('battle.outcome.itemId', 1021);
-    expect(battleReport).toHaveProperty('battle.outcome.itemAmount', 3);
+    expect(battleReport).toHaveProperty('battle.outcome.stolenItems', [
+      { itemId: 1021, amount: 3 },
+    ]);
     expect(scoutingReport).toHaveProperty('scouting.itemId', 1022);
     expect(scoutingReport).toHaveProperty('scouting.itemAmount', 1);
   });
@@ -985,7 +985,10 @@ const createCombatOutcomeReport = (database: DbFacade) => {
       },
     ],
     capturedAnimals: [{ unitId: 'RAT', amount: 3 }],
-    capturedArtifacts: [{ itemId: 10001, amount: 1 }],
+    stolenItems: [
+      { itemId: 10001, amount: 1 },
+      { itemId: 1021, amount: 3 },
+    ],
     attacker: {
       playerId: origin.player_id,
       tileId: origin.tile_id,
@@ -1101,8 +1104,11 @@ describe('battle combat outcome reports', () => {
       trapsDestroyed: 12,
       rescuedUnits: input.rescuedUnits,
       capturedAnimals: input.capturedAnimals,
-      capturedArtifacts: input.capturedArtifacts,
+      stolenItems: expect.arrayContaining(input.stolenItems!),
     });
+    expect(report.battle.outcome.stolenItems).toHaveLength(
+      input.stolenItems!.length,
+    );
     expect(report.battle.damagedBuildings).toStrictEqual(
       input.damagedBuildings,
     );
@@ -1138,7 +1144,7 @@ describe('battle combat outcome reports', () => {
     expect(report).toHaveProperty('battle.outcome.trapsDestroyed', 0);
     expect(report).toHaveProperty('battle.outcome.rescuedUnits', []);
     expect(report).toHaveProperty('battle.outcome.capturedAnimals', []);
-    expect(report).toHaveProperty('battle.outcome.capturedArtifacts', []);
+    expect(report).toHaveProperty('battle.outcome.stolenItems', []);
     expect(
       database.selectValue({
         sql: 'SELECT COUNT(*) FROM battle_report_conquests;',
@@ -1182,7 +1188,7 @@ describe('battle combat outcome reports', () => {
       'battle_report_consumables',
       'battle_report_rescued_units',
       'battle_report_captured_animals',
-      'battle_report_captured_artifacts',
+      'battle_report_stolen_items',
     ]) {
       expect(
         database.selectValue({

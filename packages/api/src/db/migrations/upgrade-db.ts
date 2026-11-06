@@ -7,12 +7,12 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportCapturedAnimalsTable from '../schemas/battle-report-captured-animals-schema.sql?raw';
-import createBattleReportCapturedArtifactsTable from '../schemas/battle-report-captured-artifacts-schema.sql?raw';
 import createBattleReportConquestsTable from '../schemas/battle-report-conquests-schema.sql?raw';
 import createBattleReportConsumablesTable from '../schemas/battle-report-consumables-schema.sql?raw';
 import createBattleReportHeroesTable from '../schemas/battle-report-heroes-schema.sql?raw';
 import createBattleReportRescuedUnitsTable from '../schemas/battle-report-rescued-units-schema.sql?raw';
 import createBattleReportRescuesTable from '../schemas/battle-report-rescues-schema.sql?raw';
+import createBattleReportStolenItemsTable from '../schemas/battle-report-stolen-items-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createCulturePointsTable from '../schemas/culture-points-schema.sql?raw';
@@ -699,7 +699,7 @@ export const upgradeDb = (
       tx.execMulti({ sql: createBattleReportRescuesTable });
       tx.execMulti({ sql: createBattleReportRescuedUnitsTable });
       tx.execMulti({ sql: createBattleReportCapturedAnimalsTable });
-      tx.execMulti({ sql: createBattleReportCapturedArtifactsTable });
+      tx.execMulti({ sql: createBattleReportStolenItemsTable });
       tx.execMulti({ sql: createReportDeleteTriggers });
 
       setupGlobalWriteTriggers(tx);

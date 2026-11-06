@@ -1,4 +1,4 @@
-CREATE TABLE battle_report_captured_artifacts
+CREATE TABLE battle_report_stolen_items
 (
   battle_id INTEGER NOT NULL,
   item_id INTEGER NOT NULL,

@@ -41,8 +41,6 @@ export const simulateCombat = createController('/combat-simulator', 'query', {
         loot: [0, 0, 0, 0],
         totalCarryCapacity: 0,
         canAttackerSeeFullReport: true,
-        itemId: null,
-        itemAmount: null,
         loyaltyBefore: null,
         loyaltyAfter: null,
         conquest: null,
@@ -50,7 +48,7 @@ export const simulateCombat = createController('/combat-simulator', 'query', {
         trapsDestroyed: 0,
         rescuedUnits: [],
         capturedAnimals: [],
-        capturedArtifacts: [],
+        stolenItems: [],
       },
       damagedBuildings: [],
       statistics: {

@@ -13,13 +13,13 @@ import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createVillagesIndexes from '../indexes/villages-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportCapturedAnimalsTable from '../schemas/battle-report-captured-animals-schema.sql?raw';
-import createBattleReportCapturedArtifactsTable from '../schemas/battle-report-captured-artifacts-schema.sql?raw';
 import createBattleReportConquestsTable from '../schemas/battle-report-conquests-schema.sql?raw';
 import createBattleReportConsumablesTable from '../schemas/battle-report-consumables-schema.sql?raw';
 import createBattleReportHeroesTable from '../schemas/battle-report-heroes-schema.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
 import createBattleReportRescuedUnitsTable from '../schemas/battle-report-rescued-units-schema.sql?raw';
 import createBattleReportRescuesTable from '../schemas/battle-report-rescues-schema.sql?raw';
+import createBattleReportStolenItemsTable from '../schemas/battle-report-stolen-items-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
@@ -132,6 +132,7 @@ import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-com
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
 import { serverSeeder } from '../seeders/server-seeder';
+import { seedTemporaryBattleReports } from '../seeders/temporary-battle-reports-seeder';
 import { tileTypeIdsSeeder } from '../seeders/tile-type-ids-seeder';
 import { tilesSeeder } from '../seeders/tiles-seeder';
 import { tribeIdsSeeder } from '../seeders/tribe-ids-seeder';
@@ -301,7 +302,7 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createBattleReportRescuesTable });
     db.execMulti({ sql: createBattleReportRescuedUnitsTable });
     db.execMulti({ sql: createBattleReportCapturedAnimalsTable });
-    db.execMulti({ sql: createBattleReportCapturedArtifactsTable });
+    db.execMulti({ sql: createBattleReportStolenItemsTable });
     db.execMulti({ sql: createScoutingReportsTable });
     db.execMulti({ sql: createScoutingReportAttackerUnitsTable });
     db.execMulti({ sql: createScoutingReportUnitsTable });
@@ -401,4 +402,7 @@ export const migrateAndSeed = (
     setupHistoryTriggers(db);
     setupLoyaltyTriggers(db);
   });
+
+  // Temporary battle report fixtures for visual inspection of newly created worlds.
+  seedTemporaryBattleReports(database, PLAYER_ID);
 };

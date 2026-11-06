@@ -47,7 +47,7 @@ export const battleCapturedAnimalSchema = z.strictObject({
   amount: z.int().positive(),
 });
 
-export const battleCapturedArtifactSchema = z.strictObject({
+export const battleStolenItemSchema = z.strictObject({
   itemId: z.int(),
   amount: z.int().positive(),
 });
@@ -118,8 +118,6 @@ export const battleOutcomeSchema = z.strictObject({
   loot: resourceBundleSchema,
   totalCarryCapacity: z.int(),
   canAttackerSeeFullReport: z.boolean(),
-  itemId: z.int().nullable(),
-  itemAmount: z.int().positive().nullable(),
   loyaltyBefore: z.number().min(0).max(125).nullable(),
   loyaltyAfter: z.number().min(0).max(125).nullable(),
   conquest: battleConquestSchema.nullable(),
@@ -127,7 +125,7 @@ export const battleOutcomeSchema = z.strictObject({
   trapsDestroyed: z.int().nonnegative(),
   rescuedUnits: z.array(battleRescuedUnitSchema),
   capturedAnimals: z.array(battleCapturedAnimalSchema),
-  capturedArtifacts: z.array(battleCapturedArtifactSchema),
+  stolenItems: z.array(battleStolenItemSchema),
 });
 
 export const battleDamagedBuildingSchema = z.strictObject({

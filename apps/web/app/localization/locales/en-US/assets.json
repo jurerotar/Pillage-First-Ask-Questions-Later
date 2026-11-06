@@ -1418,5 +1418,18 @@
     "horseSlot": "Horse",
     "consumableSlot": "Consumable",
     "heroRevivalDuration": "Hero revival duration"
+  },
+  "CONQUEST_FAILURE_REASONS": {
+    "no-surviving-administrator": "No administrator survived.",
+    "defenders-survived": "Defending troops survived.",
+    "administration-building-present": "The administration building is still standing.",
+    "target-is-capital": "The target is a capital.",
+    "target-is-last-village": "The target is the player’s last village.",
+    "insufficient-culture-points": "Not enough culture points.",
+    "no-free-expansion-slot": "No expansion slot is available.",
+    "loyalty-not-zero": "Loyalty has not reached zero.",
+    "no-surviving-hero": "The hero did not survive.",
+    "out-of-range": "The oasis is outside capture range.",
+    "no-free-oasis-slot": "No oasis slot is available."
   }
 }

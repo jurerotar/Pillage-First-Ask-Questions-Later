@@ -26,11 +26,6 @@ import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-type ReportItem = {
-  itemId?: number | null;
-  itemAmount?: number | null;
-};
-
 export type CreateNewReport = Pick<
   BaseReport,
   'villageId' | 'timestamp' | 'type' | 'outcome' | 'tags'
@@ -159,7 +154,6 @@ export type CreateNewBattleReport = Pick<
   CreateNewReport,
   'villageId' | 'timestamp'
 > &
-  ReportItem &
   Partial<
     Pick<
       BattleOutcome,
@@ -170,7 +164,7 @@ export type CreateNewBattleReport = Pick<
       | 'trapsDestroyed'
       | 'rescuedUnits'
       | 'capturedAnimals'
-      | 'capturedArtifacts'
+      | 'stolenItems'
     >
   > & {
     outcome: Extract<
@@ -648,8 +642,6 @@ const persistBattleReport = (
     loot: report.loot,
     totalCarryCapacity: 0,
     canAttackerSeeFullReport: report.canAttackerSeeFullReport,
-    itemId: report.itemId ?? null,
-    itemAmount: report.itemAmount ?? null,
     loyaltyBefore: report.loyaltyBefore ?? null,
     loyaltyAfter: report.loyaltyAfter ?? null,
     conquest: report.conquest ?? null,
@@ -657,7 +649,7 @@ const persistBattleReport = (
     trapsDestroyed: report.trapsDestroyed ?? 0,
     rescuedUnits: report.rescuedUnits ?? [],
     capturedAnimals: report.capturedAnimals ?? [],
-    capturedArtifacts: report.capturedArtifacts ?? [],
+    stolenItems: report.stolenItems ?? [],
   });
 
   if (resolvedOutcome.conquest !== null) {
@@ -692,8 +684,6 @@ const persistBattleReport = (
         loot_clay,
         loot_iron,
         loot_wheat,
-        item_id,
-        item_amount,
         can_attacker_see_full_report,
         attacker_points,
         defender_points,
@@ -708,8 +698,6 @@ const persistBattleReport = (
         $loot_clay,
         $loot_iron,
         $loot_wheat,
-        $item_id,
-        $item_amount,
         $can_attacker_see_full_report,
         $attacker_points,
         $defender_points,
@@ -726,8 +714,6 @@ const persistBattleReport = (
       $loot_clay: report.loot[1],
       $loot_iron: report.loot[2],
       $loot_wheat: report.loot[3],
-      $item_id: report.itemId ?? null,
-      $item_amount: report.itemAmount ?? null,
       $can_attacker_see_full_report: report.canAttackerSeeFullReport ? 1 : 0,
       $attacker_points: report.attackerPoints,
       $defender_points: report.defenderPoints,
@@ -952,15 +938,15 @@ const persistBattleReport = (
     });
   }
 
-  if (resolvedOutcome.capturedArtifacts.length > 0) {
+  if (resolvedOutcome.stolenItems.length > 0) {
     database.exec({
-      sql: `INSERT INTO battle_report_captured_artifacts (battle_id, item_id, amount)
+      sql: `INSERT INTO battle_report_stolen_items (battle_id, item_id, amount)
         SELECT $battle_id, json_extract(item.value, '$.itemId'), SUM(json_extract(item.value, '$.amount'))
         FROM json_each($items) AS item
         GROUP BY json_extract(item.value, '$.itemId');`,
       bind: {
         $battle_id: battleReportId,
-        $items: JSON.stringify(resolvedOutcome.capturedArtifacts),
+        $items: JSON.stringify(resolvedOutcome.stolenItems),
       },
     });
   }

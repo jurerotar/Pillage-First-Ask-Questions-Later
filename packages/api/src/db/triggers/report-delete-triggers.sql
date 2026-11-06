@@ -21,7 +21,7 @@ BEGIN
   DELETE FROM battle_report_rescues WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
   DELETE FROM battle_report_conquests WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
   DELETE FROM battle_report_captured_animals WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
-  DELETE FROM battle_report_captured_artifacts WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
+  DELETE FROM battle_report_stolen_items WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
 
   DELETE FROM battle_report_units
   WHERE battle_participant_id IN (
