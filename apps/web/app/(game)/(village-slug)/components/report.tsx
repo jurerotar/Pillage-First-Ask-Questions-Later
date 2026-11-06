@@ -296,21 +296,6 @@ export const BattleParticipantTable = ({
               textColor="text-green-700"
             />
           )}
-          {canSeeHospitalizedTroops && troops.hero !== null && (
-            <UnitTableContentRow label={t('Hero')}>
-              <div className="flex flex-col gap-1">
-                <Text>
-                  {t('Health')}: {troops.hero.healthBefore}% →{' '}
-                  {troops.hero.healthAfter}%{' '}
-                  {troops.hero.healthAfter === 0 && t('(Died)')}
-                </Text>
-                <Text>
-                  {t('Experience gained')}:{' '}
-                  {formatNumber(troops.hero.experienceGained)}
-                </Text>
-              </div>
-            </UnitTableContentRow>
-          )}
           {canSeeImprisonedTroops && (
             <UnitTableRow
               label={t('Prisoners')}
@@ -361,6 +346,22 @@ export const BattleParticipantTable = ({
             </div>
           </UnitTableNoLabelContentRow>
         </>
+      )}
+
+      {canSeeHospitalizedTroops && troops.hero !== null && (
+        <UnitTableContentRow label={t('Hero')}>
+          <div className="flex flex-col gap-1">
+            <Text>
+              {t('Health')}: {troops.hero.healthBefore}% →{' '}
+              {troops.hero.healthAfter}%{' '}
+              {troops.hero.healthAfter === 0 && t('(Died)')}
+            </Text>
+            <Text>
+              {t('Experience gained')}:{' '}
+              {formatNumber(troops.hero.experienceGained)}
+            </Text>
+          </div>
+        </UnitTableContentRow>
       )}
 
       {participantRole === 'attacker' && (
