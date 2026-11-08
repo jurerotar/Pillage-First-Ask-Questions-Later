@@ -1,4 +1,4 @@
-import { Slider as SliderPrimitive } from '@base-ui/react';
+import { Slider as SliderPrimitive } from '@base-ui/react/slider';
 import { clsx } from 'clsx';
 import { type ComponentProps, useMemo } from 'react';
 

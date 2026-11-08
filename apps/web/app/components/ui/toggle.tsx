@@ -1,4 +1,4 @@
-import { Toggle as TogglePrimitive } from '@base-ui/react';
+import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import type { VariantProps } from 'class-variance-authority';
 import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';

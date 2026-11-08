@@ -1,4 +1,5 @@
-import { Radio, RadioGroup as RadioGroupPrimitive } from '@base-ui/react';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 import { LuCircle } from 'react-icons/lu';

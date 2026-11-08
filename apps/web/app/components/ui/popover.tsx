@@ -1,4 +1,4 @@
-import { Popover as PopoverPrimitive } from '@base-ui/react';
+import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 

@@ -1,4 +1,4 @@
-import { Progress as ProgressPrimitive } from '@base-ui/react';
+import { Progress as ProgressPrimitive } from '@base-ui/react/progress';
 import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 
