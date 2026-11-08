@@ -180,7 +180,6 @@ export type CreateNewBattleReport = Pick<
     targetTileId: number;
     isRaid: boolean;
     loot: ResourceBundle;
-    canAttackerSeeFullReport: boolean;
     attackerPoints: number;
     defenderPoints: number;
     attacker: CreateNewBattleReportParticipant;
@@ -641,7 +640,6 @@ const persistBattleReport = (
   const resolvedOutcome = battleOutcomeSchema.parse({
     loot: report.loot,
     totalCarryCapacity: 0,
-    canAttackerSeeFullReport: report.canAttackerSeeFullReport,
     loyaltyBefore: report.loyaltyBefore ?? null,
     loyaltyAfter: report.loyaltyAfter ?? null,
     conquest: report.conquest ?? null,
@@ -684,7 +682,6 @@ const persistBattleReport = (
         loot_clay,
         loot_iron,
         loot_wheat,
-        can_attacker_see_full_report,
         attacker_points,
         defender_points,
         village_destroyed
@@ -698,7 +695,6 @@ const persistBattleReport = (
         $loot_clay,
         $loot_iron,
         $loot_wheat,
-        $can_attacker_see_full_report,
         $attacker_points,
         $defender_points,
         $village_destroyed
@@ -714,7 +710,6 @@ const persistBattleReport = (
       $loot_clay: report.loot[1],
       $loot_iron: report.loot[2],
       $loot_wheat: report.loot[3],
-      $can_attacker_see_full_report: report.canAttackerSeeFullReport ? 1 : 0,
       $attacker_points: report.attackerPoints,
       $defender_points: report.defenderPoints,
       $village_destroyed: Number(resolvedOutcome.villageDestroyed),

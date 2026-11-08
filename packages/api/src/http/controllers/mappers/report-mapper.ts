@@ -276,7 +276,6 @@ export const mapBattleReportRowToDto = (
     outcome: {
       loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
       totalCarryCapacity: calculateSurvivingCarryCapacity(attackerUnits),
-      canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
       loyaltyBefore: row.loyalty_before,
       loyaltyAfter: row.loyalty_after,
       conquest:

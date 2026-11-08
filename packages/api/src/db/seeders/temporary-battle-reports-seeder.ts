@@ -84,7 +84,6 @@ export const seedTemporaryBattleReports = (
       targetTileId: defender.tile_id,
       isRaid: false,
       loot: [1200, 800, 400, 200],
-      canAttackerSeeFullReport: true,
       attackerPoints: 120,
       defenderPoints: 70,
       attacker: participant(attacker),
@@ -170,11 +169,12 @@ export const seedTemporaryBattleReports = (
       }
     }
     const hidden = base();
-    hidden.canAttackerSeeFullReport = false;
     hidden.attacker.units[0].amountAfter = 0;
+    hidden.defender.units[0].amountAfter = 100;
+    hidden.reinforcements = [participant(reinforcement)];
+    hidden.reinforcements[0].units[0].amountAfter = 100;
     hidden.outcome = 'attackerFullLoss';
     hidden.loot = [0, 0, 0, 0];
-    hidden.reinforcements = [participant(reinforcement)];
     add('Attack / hidden defender details', hidden);
     for (const role of ['attacker', 'defender'] as const) {
       for (const died of [false, true]) {

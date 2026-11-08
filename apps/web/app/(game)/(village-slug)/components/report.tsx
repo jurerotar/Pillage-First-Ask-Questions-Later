@@ -29,7 +29,10 @@ import type {
   VillageFoundedReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
-import { calculateBattleUnitLosses } from '@pillage-first/utils/game/combat';
+import {
+  calculateBattleUnitLosses,
+  canAttackerSeeDefendingTroops,
+} from '@pillage-first/utils/game/combat';
 import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
@@ -61,6 +64,30 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
+
+const canSeeDefendingTroops = (
+  report: BattleReport | CombatSimulatorReportDto,
+) => {
+  // Set in simulator
+  if ('playerRole' in report) {
+    return true;
+  }
+
+  if (report.villageId === report.battle.defender.village.id) {
+    return true;
+  }
+
+  if (report.villageId !== report.battle.attacker.village.id) {
+    return false;
+  }
+
+  return canAttackerSeeDefendingTroops(
+    report.battle.attacker.troops.units,
+    [report.battle.defender, ...report.battle.defender.reinforcements].flatMap(
+      ({ troops }) => troops.units,
+    ),
+  );
+};
 
 type ReportContextState = {
   report: ReportType | CombatSimulatorReportDto;
@@ -175,8 +202,7 @@ export const BattleParticipantTable = ({
   const { report: _report } = use(ReportContext);
 
   const report = _report as BattleReport | CombatSimulatorReportDto;
-  const { canAttackerSeeFullReport, loot, totalCarryCapacity } =
-    report.battle.outcome;
+  const { loot, totalCarryCapacity } = report.battle.outcome;
   const { troops, player, village } = participant;
 
   const {
@@ -251,10 +277,10 @@ export const BattleParticipantTable = ({
     : participant.village?.id === report.villageId;
 
   const canSeeTroopDetails =
-    isSimulatorReport ||
     isReportParticipant ||
     participantRole === 'attacker' ||
-    canAttackerSeeFullReport;
+    canSeeDefendingTroops(report);
+
   const canSeeHospitalizedTroops = isSimulatorReport || isReportParticipant;
   const canSeeImprisonedTroops = canSeeTroopDetails && totalImprisoned > 0;
 
@@ -369,13 +395,7 @@ export const BattleParticipantTable = ({
           <BattleInformationRow
             outcome={report.battle.outcome}
             damagedBuildings={report.battle.damagedBuildings}
-            canSeeOutcome={
-              isSimulatorReport ||
-              canAttackerSeeFullReport ||
-              ('villageId' in report &&
-                'village' in report.battle.defender &&
-                report.villageId === report.battle.defender.village.id)
-            }
+            canSeeOutcome={canSeeDefendingTroops(report)}
           />
           {!isSimulatorReport && (
             <UnitTableLoot
@@ -400,6 +420,10 @@ const BattleInformationRow = ({
 }) => {
   const { t } = useTranslation();
   const entries = new Map<string, ReactNode>();
+
+  if (!canSeeOutcome) {
+    return null;
+  }
 
   for (const { buildingId, levelBefore, levelAfter } of damagedBuildings) {
     const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
@@ -549,7 +573,7 @@ export const BattleReportTables = () => {
         participant={participants.defender}
         participantRole="defender"
       />
-      {report.battle.outcome.canAttackerSeeFullReport &&
+      {canSeeDefendingTroops(report) &&
         participants.reinforcements.map(({ key, participant }) => (
           <BattleParticipantTable
             key={key}
@@ -603,9 +627,9 @@ export const BattleStatisticsTable = () => {
   const { report: _report } = use(ReportContext);
 
   const report = _report as BattleReport | CombatSimulatorReportDto;
-  const { statistics, outcome } = report.battle;
+  const { statistics } = report.battle;
   const { attacker, defender } = statistics;
-  const showDefendingUnits = outcome.canAttackerSeeFullReport;
+  const showDefendingUnits = canSeeDefendingTroops(report);
 
   const rows: Omit<StatisticsRowProps, 'showDefendingUnits'>[] = [
     {

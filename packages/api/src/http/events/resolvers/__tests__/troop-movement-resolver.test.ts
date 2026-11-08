@@ -1380,7 +1380,6 @@ describe(attackMovementResolver, () => {
           br.loot_clay,
           br.loot_iron,
           br.loot_wheat,
-          br.can_attacker_see_full_report,
           ui.unit AS attacker_unit_id,
           bru.amount_before,
           bru.amount_after
@@ -1410,7 +1409,6 @@ describe(attackMovementResolver, () => {
         loot_clay: z.number(),
         loot_iron: z.number(),
         loot_wheat: z.number(),
-        can_attacker_see_full_report: z.number(),
         attacker_unit_id: unitIdSchema,
         amount_before: z.number(),
         amount_after: z.number(),
@@ -1430,7 +1428,6 @@ describe(attackMovementResolver, () => {
       loot_clay: 100,
       loot_iron: 100,
       loot_wheat: 100,
-      can_attacker_see_full_report: 1,
       attacker_unit_id: 'LEGIONNAIRE',
       amount_before: 10,
       amount_after: 10,

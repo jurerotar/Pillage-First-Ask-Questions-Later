@@ -85,7 +85,6 @@ const stringParameterValues = new Map<string, string>([
 
 const booleanParameters = new Set([
   '$available',
-  '$can_attacker_see_full_report',
   '$exclude_no_loss',
   '$exclude_own_trades',
   '$include_adventure',

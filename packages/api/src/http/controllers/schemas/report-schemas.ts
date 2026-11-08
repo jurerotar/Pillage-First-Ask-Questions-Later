@@ -108,7 +108,6 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   loot_clay: z.int(),
   loot_iron: z.int(),
   loot_wheat: z.int(),
-  can_attacker_see_full_report: z.int(),
   attacker_points: z.int(),
   defender_points: z.int(),
   loyalty_before: z.number().nullable(),

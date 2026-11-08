@@ -80,12 +80,12 @@ const prepareReportsTestDatabase = async () => {
       INSERT INTO battle_reports (
         id, report_id, origin_tile_id, target_tile_id, is_raid,
         loot_wood, loot_clay, loot_iron, loot_wheat,
-        can_attacker_see_full_report, attacker_points, defender_points
+        attacker_points, defender_points
       ) VALUES (
         1, 1,
         (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
         (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
-        0, 10, 20, 30, 40, 1, 100, 50
+        0, 10, 20, 30, 40, 100, 50
       );
     `,
   });
@@ -227,12 +227,12 @@ describe('report-controllers', () => {
         INSERT INTO battle_reports (
           report_id, origin_tile_id, target_tile_id, is_raid,
           loot_wood, loot_clay, loot_iron, loot_wheat,
-          can_attacker_see_full_report, attacker_points, defender_points
+          attacker_points, defender_points
         )
         SELECT r.id, b.origin_tile_id,
           CASE WHEN r.id = 9 THEN b.origin_tile_id ELSE b.target_tile_id END,
           b.is_raid, b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
-          b.can_attacker_see_full_report, b.attacker_points, b.defender_points
+          b.attacker_points, b.defender_points
         FROM reports r CROSS JOIN battle_reports b
         WHERE r.id IN (8, 9) AND b.report_id = 1;
       `,
@@ -275,11 +275,11 @@ describe('report-controllers', () => {
         INSERT INTO battle_reports (
           report_id, origin_tile_id, target_tile_id, is_raid,
           loot_wood, loot_clay, loot_iron, loot_wheat,
-          can_attacker_see_full_report, attacker_points, defender_points
+          attacker_points, defender_points
         )
         SELECT r.id, b.origin_tile_id, b.target_tile_id,
           b.is_raid, b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
-          b.can_attacker_see_full_report, b.attacker_points, b.defender_points
+          b.attacker_points, b.defender_points
         FROM reports r CROSS JOIN battle_reports b
         WHERE r.id >= 10 AND b.report_id = 1;
       `,
@@ -964,7 +964,6 @@ const createCombatOutcomeReport = (database: DbFacade) => {
     targetTileId: target.tile_id,
     isRaid: false,
     loot: [10, 20, 30, 40],
-    canAttackerSeeFullReport: true,
     attackerPoints: 50,
     defenderPoints: 20,
     loyaltyBefore: 20.5,

@@ -134,7 +134,6 @@ describe(insertBattleReport, () => {
         targetTileId: target.tile_id,
         isRaid: false,
         loot: [0, 0, 0, 0],
-        canAttackerSeeFullReport: true,
         attackerPoints: 0,
         defenderPoints: 0,
         attacker: {

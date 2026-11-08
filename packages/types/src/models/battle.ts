@@ -117,7 +117,6 @@ export const battleDefenderSchema = battleParticipantSchema.extend({
 export const battleOutcomeSchema = z.strictObject({
   loot: resourceBundleSchema,
   totalCarryCapacity: z.int(),
-  canAttackerSeeFullReport: z.boolean(),
   loyaltyBefore: z.number().min(0).max(125).nullable(),
   loyaltyAfter: z.number().min(0).max(125).nullable(),
   conquest: battleConquestSchema.nullable(),

@@ -10,8 +10,6 @@ CREATE TABLE battle_reports
   loot_clay INTEGER NOT NULL CHECK (loot_clay >= 0),
   loot_iron INTEGER NOT NULL CHECK (loot_iron >= 0),
   loot_wheat INTEGER NOT NULL CHECK (loot_wheat >= 0),
-  -- boolean
-  can_attacker_see_full_report INTEGER NOT NULL CHECK (can_attacker_see_full_report IN (0, 1)),
   attacker_points INTEGER NOT NULL CHECK (attacker_points >= 0),
   defender_points INTEGER NOT NULL CHECK (defender_points >= 0),
 

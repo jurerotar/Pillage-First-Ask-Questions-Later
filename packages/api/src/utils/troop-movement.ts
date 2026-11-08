@@ -186,7 +186,6 @@ const insertNoCombatBattleReport = (
     targetTileId,
     isRaid: args.type === 'troopMovementRaid',
     loot,
-    canAttackerSeeFullReport: true,
     attackerPoints: 0,
     defenderPoints: 0,
     attacker: {

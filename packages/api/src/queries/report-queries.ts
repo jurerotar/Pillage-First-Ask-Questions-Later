@@ -296,7 +296,6 @@ export const selectBattleReportQuery = `
     b.id AS battle_id,
     b.origin_tile_id, b.target_tile_id,
     b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
-    b.can_attacker_see_full_report,
     b.attacker_points, b.defender_points,
     conquest.loyalty_before, conquest.loyalty_after, conquest.succeeded AS conquest_succeeded,
     CASE

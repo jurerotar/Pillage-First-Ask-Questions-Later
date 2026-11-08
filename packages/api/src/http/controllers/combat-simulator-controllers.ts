@@ -40,7 +40,6 @@ export const simulateCombat = createController('/combat-simulator', 'query', {
       outcome: {
         loot: [0, 0, 0, 0],
         totalCarryCapacity: 0,
-        canAttackerSeeFullReport: true,
         loyaltyBefore: null,
         loyaltyAfter: null,
         conquest: null,

@@ -5,6 +5,41 @@ import type {
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Unit } from '@pillage-first/types/models/unit';
 
+export const canAttackerSeeDefendingTroops = (
+  attackingUnits: readonly BattleUnit[],
+  defendingUnits: readonly BattleUnit[],
+): boolean => {
+  let hasAttackingTroops = false;
+  let allTrapped = true;
+
+  for (const { amountBefore, amountImprisoned } of attackingUnits) {
+    hasAttackingTroops ||= amountBefore > 0;
+
+    if (amountBefore !== amountImprisoned) {
+      allTrapped = false;
+      break;
+    }
+  }
+
+  if (hasAttackingTroops && allTrapped) {
+    return false;
+  }
+
+  if (attackingUnits.some(({ amountAfter }) => amountAfter > 0)) {
+    return true;
+  }
+
+  let defendingCount = 0;
+  let defendingDeaths = 0;
+
+  for (const unit of defendingUnits) {
+    defendingCount += unit.amountBefore;
+    defendingDeaths += calculateBattleUnitLosses(unit).dead;
+  }
+
+  return defendingCount > 0 && defendingDeaths * 4 >= defendingCount;
+};
+
 export const calculateBattleUnitLosses = ({
   amountBefore,
   amountAfter,
