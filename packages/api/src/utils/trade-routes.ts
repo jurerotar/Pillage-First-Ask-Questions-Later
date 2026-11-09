@@ -10,6 +10,7 @@ import {
   selectTradeRouteByIdQuery,
   selectTradeRoutesByTileIdQuery,
 } from '../queries/trade-route-queries';
+import { createEvents } from './create-event';
 import {
   getMarketplaceVillage,
   getMarketplaceVillageWithTargetByTileId,
@@ -31,6 +32,20 @@ export const getTradeRouteById = (database: DbFacade, routeId: number) => {
     sql: selectTradeRouteByIdQuery,
     bind: { $route_id: routeId },
     schema: tradeRouteRowSchema,
+  });
+};
+
+export const scheduleTradeRoute = (
+  database: DbFacade,
+  routeId: number,
+  villageId: number,
+  startsAt: number,
+) => {
+  createEvents<'tradeRoute'>(database, {
+    type: 'tradeRoute',
+    tradeRouteId: routeId,
+    villageId,
+    startsAt,
   });
 };
 

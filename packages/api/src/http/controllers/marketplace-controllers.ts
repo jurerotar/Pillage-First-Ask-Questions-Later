@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tradeRouteSchema } from '@pillage-first/types/models/trade-route';
-import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   deleteTradeRouteEventQuery,
   deleteTradeRouteQuery,
@@ -18,6 +17,7 @@ import {
   getTradeRoute,
   getTradeRoutes,
   requireTradeRoute,
+  scheduleTradeRoute,
   validateTradeRoute,
 } from '../../utils/trade-routes';
 import { createController } from '../controller';
@@ -27,20 +27,6 @@ import {
   tradeRoutePathSchema,
   transferResourcesBodySchema,
 } from './schemas/marketplace-schemas';
-
-const scheduleTradeRoute = (
-  database: DbFacade,
-  routeId: number,
-  villageId: number,
-  startsAt: number,
-) => {
-  createEvents<'tradeRoute'>(database, {
-    type: 'tradeRoute',
-    tradeRouteId: routeId,
-    villageId,
-    startsAt,
-  });
-};
 
 export const transferResources = createController(
   '/tiles/:tileId/transfer-resources',
