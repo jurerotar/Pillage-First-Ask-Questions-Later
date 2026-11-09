@@ -319,14 +319,23 @@ const ConstructionQueueEventSlot = ({
   );
 };
 
-const ConstructionQueueContent = () => {
+type ConstructionQueueContentProps = {
+  isExtended: boolean;
+  onClose: () => void;
+  onToggle: () => void;
+};
+
+const ConstructionQueueContent = ({
+  isExtended,
+  onClose,
+  onToggle,
+}: ConstructionQueueContentProps) => {
   const { t } = useTranslation();
   const { mutate: cancelConstruction } = useCancelConstruction();
   const { cancelScheduledBuildingUpgrade, reorderScheduledBuildingUpgrades } =
     useScheduledBuildingUpgrades();
   const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const [isExtended, setIsExtended] = useState<boolean>(false);
   const [selectedEventKey, setSelectedEventKey] = useState<string | null>(null);
 
   const activeEvents = useMemo(
@@ -386,7 +395,7 @@ const ConstructionQueueContent = () => {
       return;
     }
 
-    setIsExtended(false);
+    onClose();
     setSelectedEventKey(null);
   });
 
@@ -485,7 +494,7 @@ const ConstructionQueueContent = () => {
                 : t('Expand construction queue')
             }
             className="inline-flex flex-col items-center gap-0.5 rounded-xs border border-border bg-muted px-0.5 py-1 text-muted-foreground transition-colors"
-            onClick={() => setIsExtended((current) => !current)}
+            onClick={onToggle}
             type="button"
           >
             {isExtended ? (
@@ -505,6 +514,7 @@ const ConstructionQueueContent = () => {
 
 export const ConstructionQueue = () => {
   const { shouldShowSidebars } = useGameLayoutState();
+  const [isExtended, setIsExtended] = useState<boolean>(false);
 
   if (!shouldShowSidebars) {
     return null;
@@ -512,7 +522,11 @@ export const ConstructionQueue = () => {
 
   return (
     <Suspense fallback={null}>
-      <ConstructionQueueContent />
+      <ConstructionQueueContent
+        isExtended={isExtended}
+        onClose={() => setIsExtended(false)}
+        onToggle={() => setIsExtended((current) => !current)}
+      />
     </Suspense>
   );
 };
