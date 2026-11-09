@@ -1159,10 +1159,7 @@ describe(findNewVillageMovementResolver, () => {
       sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
       bind: { $tile_id: targetTile.id },
       schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
+        ...resourcesSchema.shape,
         updated_at: z.number(),
       }),
     })!;
@@ -1406,10 +1403,10 @@ describe(attackMovementResolver, () => {
         origin_tile_id: tileIdSchema,
         target_tile_id: tileIdSchema,
         is_raid: z.number(),
-        loot_wood: z.number(),
-        loot_clay: z.number(),
-        loot_iron: z.number(),
-        loot_wheat: z.number(),
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
         can_attacker_see_full_report: z.number(),
         attacker_unit_id: unitIdSchema,
         amount_before: z.number(),
@@ -1588,10 +1585,10 @@ describe(attackMovementResolver, () => {
         LIMIT 1;
       `,
       schema: z.strictObject({
-        loot_wood: z.number(),
-        loot_clay: z.number(),
-        loot_iron: z.number(),
-        loot_wheat: z.number(),
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
       }),
     })!;
 
@@ -1738,10 +1735,10 @@ describe(raidMovementResolver, () => {
       schema: z.strictObject({
         target_tile_id: tileIdSchema,
         is_raid: z.number(),
-        loot_wood: z.number(),
-        loot_clay: z.number(),
-        loot_iron: z.number(),
-        loot_wheat: z.number(),
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
       }),
     })!;
 

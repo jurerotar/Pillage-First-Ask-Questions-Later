@@ -1,6 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use, useMemo, useState } from 'react';
-import { type UseFormReturn, useForm } from 'react-hook-form';
+import {
+  type DefaultValues,
+  type UseFormReturn,
+  useForm,
+} from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
@@ -27,14 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem } from 'app/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from 'app/components/ui/select';
+import { Form } from 'app/components/ui/form';
 import {
   Table,
   TableBody,
@@ -47,27 +45,17 @@ import { invalidateQueries } from 'app/utils/react-query';
 import { formatTime } from 'app/utils/time';
 import { ResourceSelector } from './components/resource-selector';
 import { TargetVillageSelector } from './components/target-village-selector';
+import { TradeRouteIntervalSelector } from './components/trade-route-interval-selector';
+import { TradeRouteStartTimeSelector } from './components/trade-route-start-time-selector';
 import { useMarketplaceMerchants } from './hooks/use-marketplace-merchants';
+import { emptyResources, getMerchantAmount } from './utils/resources';
 import {
-  emptyResources,
-  getMerchantAmount,
-  getTotalResources,
-} from './utils/resources';
+  createTradeRouteFormSchema,
+  type MarketplaceTradeRouteFormValues,
+} from './utils/trade-route-form';
 
 const DEFAULT_INTERVAL_HOURS = 24;
 const HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
-const START_HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) => hour);
-const INTERVAL_HOUR_OPTIONS = Array.from(
-  { length: 24 },
-  (_, index) => index + 1,
-);
-
-type MarketplaceTradeRouteFormValues = {
-  resources: typeof emptyResources;
-  targetVillageId?: number;
-  startHour: number;
-  intervalHours: number;
-};
 
 type MarketplaceTradeRouteFormProps = {
   capacityResources: typeof emptyResources;
@@ -92,14 +80,19 @@ const getTradeRouteFormValues = (
   resources: route.resources,
   targetVillageId: route.targetVillageId,
   startHour: new Date(route.startsAt).getHours(),
-  intervalHours: Math.round(route.interval / HOUR_IN_MILLISECONDS),
+  startMinute: new Date(route.startsAt).getMinutes(),
+  intervalHours: Math.floor(route.interval / HOUR_IN_MILLISECONDS),
+  intervalMinutes: Math.floor((route.interval % HOUR_IN_MILLISECONDS) / 60_000),
 });
 
-const getDefaultTradeRouteFormValues = (): MarketplaceTradeRouteFormValues => ({
-  resources: emptyResources,
-  startHour: new Date().getHours(),
-  intervalHours: DEFAULT_INTERVAL_HOURS,
-});
+const getDefaultTradeRouteFormValues =
+  (): DefaultValues<MarketplaceTradeRouteFormValues> => ({
+    resources: emptyResources,
+    startHour: new Date().getHours(),
+    startMinute: 0,
+    intervalHours: DEFAULT_INTERVAL_HOURS,
+    intervalMinutes: 0,
+  });
 
 const MarketplaceTradeRouteForm = ({
   capacityResources,
@@ -114,37 +107,12 @@ const MarketplaceTradeRouteForm = ({
 }: MarketplaceTradeRouteFormProps) => {
   const { t } = useTranslation();
   const selectedResources = form.watch('resources');
-  const targetVillageId = form.watch('targetVillageId');
-  const startHour = form.watch('startHour');
-  const intervalHours = form.watch('intervalHours');
-
-  const totalSelectedResources = getTotalResources(selectedResources);
-  const merchantAmount = getMerchantAmount(
-    selectedResources,
-    merchant.merchantCapacity,
-  );
-  const hasTargetVillage = targetVillages.some(
-    (village) => village.id === targetVillageId,
-  );
-  const isStartHourValid = startHour >= 0 && startHour <= 23;
-  const isIntervalValid = intervalHours > 0;
-  const canSubmit =
-    hasTargetVillage &&
-    totalSelectedResources > 0 &&
-    totalSelectedResources <= totalCapacity &&
-    merchantAmount > 0 &&
-    isStartHourValid &&
-    isIntervalValid;
 
   return (
     <Form {...form}>
       <form
         className="space-y-4"
-        onSubmit={form.handleSubmit((values) => {
-          if (canSubmit) {
-            onSubmit(values);
-          }
-        })}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <ResourceSelector
           availableLabel={t('Capacity')}
@@ -157,87 +125,8 @@ const MarketplaceTradeRouteForm = ({
         <div className="flex gap-2 flex-wrap">
           <TargetVillageSelector targetVillages={targetVillages} />
 
-          <FormField
-            control={form.control}
-            name="startHour"
-            render={({ field }) => (
-              <FormItem className="flex flex-col gap-2">
-                <label
-                  htmlFor="trade-route-start-hour"
-                  className="text-sm font-medium"
-                >
-                  {t('Begin at')}
-                </label>
-                <Select
-                  value={field.value.toString()}
-                  onValueChange={(value) => {
-                    field.onChange(Number.parseInt(value, 10));
-                  }}
-                >
-                  <FormControl>
-                    <SelectTrigger
-                      id="trade-route-start-hour"
-                      className="bg-emerald-50/50 dark:bg-emerald-950/20"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {START_HOUR_OPTIONS.map((hour) => (
-                      <SelectItem
-                        key={hour}
-                        value={hour.toString()}
-                      >
-                        {hour.toString().padStart(2, '0')}:00
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="intervalHours"
-            render={({ field }) => (
-              <FormItem className="flex flex-col gap-2">
-                <label
-                  htmlFor="trade-route-interval"
-                  className="text-sm font-medium"
-                >
-                  {t('Repeat every')}
-                </label>
-                <Select
-                  value={field.value.toString()}
-                  onValueChange={(value) => {
-                    field.onChange(Number.parseInt(value, 10));
-                  }}
-                >
-                  <FormControl>
-                    <SelectTrigger
-                      id="trade-route-interval"
-                      className="bg-emerald-50/50 dark:bg-emerald-950/20"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {INTERVAL_HOUR_OPTIONS.map((hours) => (
-                      <SelectItem
-                        key={hours}
-                        value={hours.toString()}
-                      >
-                        {hours === 1
-                          ? t('1 hour')
-                          : t('{{count}} hours', { count: hours })}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+          <TradeRouteStartTimeSelector />
+          <TradeRouteIntervalSelector />
         </div>
 
         <div className="flex justify-end">
@@ -254,7 +143,7 @@ const MarketplaceTradeRouteForm = ({
           ) : null}
           <Button
             type="submit"
-            disabled={!canSubmit || isSubmitting}
+            disabled={!form.formState.isValid || isSubmitting}
           >
             {submitLabel}
           </Button>
@@ -484,13 +373,6 @@ export const MarketplaceTradeRoutes = () => {
     null,
   );
 
-  const createForm = useForm<MarketplaceTradeRouteFormValues>({
-    defaultValues: getDefaultTradeRouteFormValues(),
-  });
-  const editForm = useForm<MarketplaceTradeRouteFormValues>({
-    defaultValues: getDefaultTradeRouteFormValues(),
-  });
-
   const targetVillages = useMemo(() => {
     return playerVillages.filter((village) => village.id !== currentVillage.id);
   }, [currentVillage.id, playerVillages]);
@@ -506,6 +388,25 @@ export const MarketplaceTradeRoutes = () => {
     [totalCapacity],
   );
 
+  const formSchema = useMemo(
+    () =>
+      createTradeRouteFormSchema(
+        targetVillages.map((village) => village.id),
+        totalCapacity,
+      ),
+    [targetVillages, totalCapacity],
+  );
+  const createForm = useForm<MarketplaceTradeRouteFormValues>({
+    resolver: zodResolver(formSchema),
+    mode: 'onChange',
+    defaultValues: getDefaultTradeRouteFormValues(),
+  });
+  const editForm = useForm<MarketplaceTradeRouteFormValues>({
+    resolver: zodResolver(formSchema),
+    mode: 'onChange',
+    defaultValues: getDefaultTradeRouteFormValues(),
+  });
+
   const { mutate: createTradeRoute, isPending } = useMutation({
     mutationFn: async (values: MarketplaceTradeRouteFormValues) => {
       const targetVillage = targetVillages.find(
@@ -520,7 +421,9 @@ export const MarketplaceTradeRoutes = () => {
           targetTileId: targetVillage.tileId,
           resources: values.resources,
           startHour: values.startHour,
+          startMinute: values.startMinute,
           intervalHours: values.intervalHours,
+          intervalMinutes: values.intervalMinutes,
         },
       });
     },
@@ -551,7 +454,9 @@ export const MarketplaceTradeRoutes = () => {
           targetTileId: targetVillage.tileId,
           resources: values.resources,
           startHour: values.startHour,
+          startMinute: values.startMinute,
           intervalHours: values.intervalHours,
+          intervalMinutes: values.intervalMinutes,
         },
       });
     },
@@ -593,6 +498,14 @@ export const MarketplaceTradeRoutes = () => {
         <Text as="h2">{t('Trade routes')}</Text>
       </SectionContent>
       <SectionContent>
+        <SavedTradeRoutes
+          merchant={merchant}
+          routes={tradeRoutes}
+          onEdit={startEditingTradeRoute}
+        />
+      </SectionContent>
+      <SectionContent>
+        <Text as="h3">{t('Create new trade route')}</Text>
         <MarketplaceTradeRouteForm
           capacityResources={capacityResources}
           form={createForm}
@@ -603,19 +516,6 @@ export const MarketplaceTradeRoutes = () => {
           submitLabel={t('Create trade route')}
           targetVillages={targetVillages}
           totalCapacity={totalCapacity}
-        />
-      </SectionContent>
-      <SectionContent>
-        <Text
-          as="h3"
-          className="font-medium"
-        >
-          {t('Saved trade routes')}
-        </Text>
-        <SavedTradeRoutes
-          merchant={merchant}
-          routes={tradeRoutes}
-          onEdit={startEditingTradeRoute}
         />
       </SectionContent>
       <Dialog

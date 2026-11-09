@@ -2741,7 +2741,7 @@ describe('events utils', () => {
             sql: 'SELECT wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
             bind: { $tile_id: tileId },
             schema: z.strictObject({
-              wheat: z.number(),
+              wheat: resourcesSchema.shape.wheat,
               updated_at: z.number(),
             }),
           }),

@@ -9,7 +9,7 @@ import {
   heroOasisAnimalActionSchema,
   scoutingTargetSchema,
 } from '../models/game-event';
-import { resourceBundleSchema } from '../models/resource';
+import { resourceBundleSchema, resourcesSchema } from '../models/resource';
 import { troopSchema } from '../models/troop';
 import { unitIdSchema } from '../models/unit';
 
@@ -57,13 +57,6 @@ const troopMovementEventSchema = {
   catapultTargets: catapultTargetsSchema.optional(),
   heroOasisAnimalAction: heroOasisAnimalActionSchema.optional(),
 };
-
-const resourcesSchema = z.strictObject({
-  wood: z.number(),
-  clay: z.number(),
-  iron: z.number(),
-  wheat: z.number(),
-});
 
 const merchantMovementEventSchema = {
   ...villageEventSchema,

@@ -255,10 +255,7 @@ describe('marketplace resolvers', () => {
         report_outcome: reportOutcomeSchema,
         origin_tile_id: tileIdSchema,
         target_tile_id: tileIdSchema,
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
+        ...resourcesSchema.shape,
       }),
     })!;
 
@@ -333,10 +330,7 @@ describe('marketplace resolvers', () => {
         target_village_id: z.number(),
         origin_tile_id: tileIdSchema,
         target_tile_id: tileIdSchema,
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
+        ...resourcesSchema.shape,
         merchant_amount: z.number(),
       }),
     })!;
@@ -460,13 +454,10 @@ describe('marketplace resolvers', () => {
         target_village_id: z.number(),
         origin_tile_id: tileIdSchema,
         target_tile_id: tileIdSchema,
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
+        ...resourcesSchema.shape,
         merchant_amount: z.number(),
         repeat_remaining: z.number(),
-        repeat_wood: z.number(),
+        repeat_wood: resourcesSchema.shape.wood,
       }),
     })!;
 

@@ -118,7 +118,7 @@ import {
   assessQueuedTroopCountByIdQuestCompletion,
   assessQueuedTroopCountQuestCompletion,
 } from './quests';
-import { getTradeRouteById } from './trade-route-state';
+import { getTradeRouteById } from './trade-routes';
 import {
   materializeWoundedTroopsAt,
   removeTroops,

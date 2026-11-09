@@ -6,6 +6,7 @@ import {
   reportTypeSchema,
   scheduledConstructionCancellationReasonSchema,
 } from '@pillage-first/types/models/report';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -72,10 +73,10 @@ const nullableReportDetailColumns = z
     trade_target_name: z.string().nullable(),
     trade_target_x: z.int().nullable(),
     trade_target_y: z.int().nullable(),
-    trade_wood: z.int().nullable(),
-    trade_clay: z.int().nullable(),
-    trade_iron: z.int().nullable(),
-    trade_wheat: z.int().nullable(),
+    trade_wood: resourcesSchema.shape.wood.nullable(),
+    trade_clay: resourcesSchema.shape.clay.nullable(),
+    trade_iron: resourcesSchema.shape.iron.nullable(),
+    trade_wheat: resourcesSchema.shape.wheat.nullable(),
   })
   .partial().shape;
 
@@ -100,10 +101,10 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   battle_id: z.int(),
   origin_tile_id: tileIdSchema,
   target_tile_id: tileIdSchema,
-  loot_wood: z.int(),
-  loot_clay: z.int(),
-  loot_iron: z.int(),
-  loot_wheat: z.int(),
+  loot_wood: resourcesSchema.shape.wood,
+  loot_clay: resourcesSchema.shape.clay,
+  loot_iron: resourcesSchema.shape.iron,
+  loot_wheat: resourcesSchema.shape.wheat,
   can_attacker_see_full_report: z.int(),
   attacker_points: z.int(),
   defender_points: z.int(),
@@ -179,10 +180,10 @@ export const tradeReportRowSchema = baseReportRowSchema.extend({
   trade_target_name: z.string(),
   trade_target_x: z.int(),
   trade_target_y: z.int(),
-  trade_wood: z.int(),
-  trade_clay: z.int(),
-  trade_iron: z.int(),
-  trade_wheat: z.int(),
+  trade_wood: resourcesSchema.shape.wood,
+  trade_clay: resourcesSchema.shape.clay,
+  trade_iron: resourcesSchema.shape.iron,
+  trade_wheat: resourcesSchema.shape.wheat,
 });
 
 const expeditionReportRowSchema = baseReportRowSchema.extend({
@@ -191,10 +192,10 @@ const expeditionReportRowSchema = baseReportRowSchema.extend({
   expedition_village_name: z.string(),
   expedition_village_x: z.int(),
   expedition_village_y: z.int(),
-  loot_wood: z.int().nullable(),
-  loot_clay: z.int().nullable(),
-  loot_iron: z.int().nullable(),
-  loot_wheat: z.int().nullable(),
+  loot_wood: resourcesSchema.shape.wood.nullable(),
+  loot_clay: resourcesSchema.shape.clay.nullable(),
+  loot_iron: resourcesSchema.shape.iron.nullable(),
+  loot_wheat: resourcesSchema.shape.wheat.nullable(),
 });
 
 export const huntingPartyReportRowSchema = expeditionReportRowSchema.extend({
@@ -212,10 +213,10 @@ export const scoutingReportRowSchema = baseReportRowSchema.extend({
   perspective: reportSideSchema,
   successful: z.int(),
   scouting_target: z.enum(['resources', 'defensiveStructures']),
-  wood: z.int().nullable(),
-  clay: z.int().nullable(),
-  iron: z.int().nullable(),
-  wheat: z.int().nullable(),
+  wood: resourcesSchema.shape.wood.nullable(),
+  clay: resourcesSchema.shape.clay.nullable(),
+  iron: resourcesSchema.shape.iron.nullable(),
+  wheat: resourcesSchema.shape.wheat.nullable(),
   item_id: z.int().nullable(),
   item_amount: z.int().nullable(),
   origin_player_name: z.string(),
