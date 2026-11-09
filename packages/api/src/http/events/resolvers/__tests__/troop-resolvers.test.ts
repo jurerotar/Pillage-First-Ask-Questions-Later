@@ -27,6 +27,7 @@ describe(troopTrainingEventResolver, () => {
         );
       `,
     });
+
     database.exec({
       sql: `
         INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id)
@@ -42,6 +43,7 @@ describe(troopTrainingEventResolver, () => {
       `,
       bind: { $tile_id: tileId },
     });
+
     database.exec({
       sql: `
         UPDATE resource_sites

@@ -44,6 +44,7 @@ describe('scheduler', () => {
   test('passes due events to the batch resolver in order', () => {
     using context = setupSchedulerTest();
     const { source, processed } = context;
+
     source.getPastEventIds.mockReturnValueOnce([2, 1]);
 
     scheduleNextEvent(source);
@@ -56,6 +57,7 @@ describe('scheduler', () => {
   test('rescans for events created during resolution', () => {
     using context = setupSchedulerTest();
     const { source, processed } = context;
+
     source.getPastEventIds.mockReturnValueOnce([1]).mockReturnValueOnce([2]);
 
     scheduleNextEvent(source);
@@ -65,6 +67,7 @@ describe('scheduler', () => {
 
   test('does not open a batch when no events are due', () => {
     using context = setupSchedulerTest();
+
     scheduleNextEvent(context.source);
 
     expect(context.source.resolveEvents).not.toHaveBeenCalled();
@@ -73,6 +76,7 @@ describe('scheduler', () => {
   test('checks cancellation between events in a batch', () => {
     using context = setupSchedulerTest();
     const { source, processed } = context;
+
     source.getPastEventIds.mockReturnValue([1, 2, 3]);
     processed.mockImplementation(() => cancelScheduling());
 
@@ -84,9 +88,11 @@ describe('scheduler', () => {
   test('a rescan interrupts the batch and uses the new event order', () => {
     using context = setupSchedulerTest();
     const { source, processed } = context;
+
     source.getPastEventIds
       .mockReturnValueOnce([1, 2])
       .mockReturnValueOnce([3, 2]);
+
     processed.mockImplementation((id) => {
       if (id === 1) {
         triggerKick();
@@ -100,6 +106,7 @@ describe('scheduler', () => {
 
   test('initScheduler connects event kicks to scheduling', () => {
     using context = setupSchedulerTest();
+
     initScheduler(context.source);
 
     triggerKick();
@@ -110,10 +117,12 @@ describe('scheduler', () => {
 
   test('does not resolve a future event before its deadline', () => {
     using context = setupSchedulerTest();
+
     context.source.getNextEvent.mockReturnValueOnce({
       id: 1,
       resolvesAt: 2000,
     });
+
     scheduleNextEvent(context.source);
 
     vi.advanceTimersByTime(999);
@@ -123,10 +132,12 @@ describe('scheduler', () => {
 
   test('resolves a future event at its deadline', () => {
     using context = setupSchedulerTest();
+
     context.source.getNextEvent.mockReturnValueOnce({
       id: 1,
       resolvesAt: 2000,
     });
+
     scheduleNextEvent(context.source);
 
     vi.advanceTimersByTime(1000);
@@ -136,10 +147,12 @@ describe('scheduler', () => {
 
   test('rescans after a timer-fired event resolves', () => {
     using context = setupSchedulerTest();
+
     context.source.getNextEvent.mockReturnValueOnce({
       id: 1,
       resolvesAt: 2000,
     });
+
     scheduleNextEvent(context.source);
     context.source.getPastEventIds.mockClear();
 
@@ -150,6 +163,7 @@ describe('scheduler', () => {
 
   test('a kick rescans asynchronously', () => {
     using context = setupSchedulerTest();
+
     kickSchedulerNow(context.source);
 
     expect(context.source.getPastEventIds).not.toHaveBeenCalled();
@@ -161,10 +175,12 @@ describe('scheduler', () => {
 
   test('a kick clears the previous event timer', () => {
     using context = setupSchedulerTest();
+
     context.source.getNextEvent.mockReturnValueOnce({
       id: 1,
       resolvesAt: 2000,
     });
+
     scheduleNextEvent(context.source);
 
     kickSchedulerNow(context.source);
@@ -175,6 +191,7 @@ describe('scheduler', () => {
 
   test('consecutive kicks consolidate into one rescan', () => {
     using context = setupSchedulerTest();
+
     kickSchedulerNow(context.source);
     kickSchedulerNow(context.source);
     kickSchedulerNow(context.source);
@@ -186,10 +203,12 @@ describe('scheduler', () => {
 
   test('cancellation clears the event timer', () => {
     using context = setupSchedulerTest();
+
     context.source.getNextEvent.mockReturnValueOnce({
       id: 1,
       resolvesAt: 2000,
     });
+
     scheduleNextEvent(context.source);
 
     cancelScheduling();
@@ -200,6 +219,7 @@ describe('scheduler', () => {
 
   test('cancellation clears a pending kick', () => {
     using context = setupSchedulerTest();
+
     kickSchedulerNow(context.source);
 
     cancelScheduling();
@@ -210,6 +230,7 @@ describe('scheduler', () => {
 
   test('does not schedule after cancellation', () => {
     using context = setupSchedulerTest();
+
     cancelScheduling();
 
     scheduleNextEvent(context.source);
@@ -219,6 +240,7 @@ describe('scheduler', () => {
 
   test('ignores kicks after cancellation', () => {
     using context = setupSchedulerTest();
+
     cancelScheduling();
 
     kickSchedulerNow(context.source);
@@ -230,13 +252,16 @@ describe('scheduler', () => {
   test('defers a reentrant schedule call until the current batch finishes', () => {
     using context = setupSchedulerTest();
     const { source, processed } = context;
+
     source.getPastEventIds
       .mockReturnValueOnce([1, 2])
       .mockReturnValueOnce([3, 2]);
+
     processed.mockImplementation((id) => {
       if (id !== 1) {
         return;
       }
+
       scheduleNextEvent(source);
 
       expect(source.getPastEventIds).toHaveBeenCalledTimes(1);
@@ -250,6 +275,7 @@ describe('scheduler', () => {
   test('propagates batch resolution errors', () => {
     using context = setupSchedulerTest();
     const error = new Error('Database error');
+
     context.source.getPastEventIds.mockReturnValueOnce([1]);
     context.source.resolveEvents.mockImplementationOnce(() => {
       throw error;
@@ -260,6 +286,7 @@ describe('scheduler', () => {
 
   test('allows another scheduling run after a batch error', () => {
     using context = setupSchedulerTest();
+
     context.source.getPastEventIds.mockReturnValueOnce([1]);
     context.source.resolveEvents.mockImplementationOnce(() => {
       throw new Error('Database error');
@@ -278,13 +305,16 @@ describe('scheduler', () => {
     using context = setupSchedulerTest();
     using log = vi.spyOn(console, 'error').mockReturnValue(undefined);
     const error = new Error('Database error');
+
     context.source.getNextEvent.mockReturnValueOnce({
       id: 1,
       resolvesAt: 2000,
     });
+
     context.source.resolveEvent.mockImplementationOnce(() => {
       throw error;
     });
+
     scheduleNextEvent(context.source);
 
     vi.advanceTimersByTime(1000);
@@ -295,12 +325,15 @@ describe('scheduler', () => {
   test('continues scheduling after a timer-fired resolution error', () => {
     using context = setupSchedulerTest();
     using _log = vi.spyOn(console, 'error').mockReturnValue(undefined);
+
     context.source.getNextEvent
       .mockReturnValueOnce({ id: 1, resolvesAt: 2000 })
       .mockReturnValueOnce({ id: 2, resolvesAt: 3000 });
+
     context.source.resolveEvent.mockImplementationOnce(() => {
       throw new Error('Database error');
     });
+
     scheduleNextEvent(context.source);
 
     vi.advanceTimersByTime(2000);

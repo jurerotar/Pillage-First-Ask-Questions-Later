@@ -108,6 +108,7 @@ describe('tilesSeeder', () => {
 
     for (const { oasis_graphics } of rows) {
       const { oasisGroup } = decodeGraphicsProperty(oasis_graphics);
+
       counts.set(oasisGroup, (counts.get(oasisGroup) ?? 0) + 1);
     }
 

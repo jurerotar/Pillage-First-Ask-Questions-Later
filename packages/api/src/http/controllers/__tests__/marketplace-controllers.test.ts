@@ -235,6 +235,7 @@ const getNextStartAtForHour = (
   startMinute = 0,
 ) => {
   const startsAt = new Date(now);
+
   startsAt.setHours(startHour, startMinute, 0, 0);
 
   if (startsAt.getTime() <= now) {
@@ -370,6 +371,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should create a resource transfer and subtract source resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -455,6 +457,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should create a repeated transfer chain starter', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -518,6 +521,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject when not enough free merchants are available', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -555,6 +559,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should use trade office merchant capacity', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -564,6 +569,7 @@ describe('marketplace-controllers', () => {
       database,
       'Trade Office Transfer Target',
     );
+
     const baseMerchantCapacity = merchantsMap.get(
       sourceVillage.tribe,
     )!.merchantCapacity;
@@ -607,6 +613,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject when the source village has no marketplace', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -647,6 +654,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should count merchants already on the way', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -696,6 +704,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should not count incoming merchants as occupied', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -763,6 +772,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject when source village does not have enough resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -801,6 +811,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject missing target villages before creating events', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -842,6 +853,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject target villages not owned by the player', async () => {
     using database = await prepareTestDatabase();
+
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
 
@@ -875,6 +887,7 @@ describe('marketplace-controllers', () => {
 
   test('createTradeRoute schedules an hourly route with omitted minutes without subtracting resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -964,6 +977,7 @@ describe('marketplace-controllers', () => {
 
   test('createTradeRoute schedules a mixed hour and minute interval later this hour without subtracting resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -1055,6 +1069,7 @@ describe('marketplace-controllers', () => {
 
   test('createTradeRoute schedules a minute-only interval tomorrow when the start time has passed without subtracting resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -1146,6 +1161,7 @@ describe('marketplace-controllers', () => {
 
   test('createTradeRoute should validate against trade office merchant capacity without storing merchant amount', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -1155,6 +1171,7 @@ describe('marketplace-controllers', () => {
       database,
       'Trade Office Route Target',
     );
+
     const startHour = (new Date(NOW).getHours() + 1) % 24;
     const baseMerchantCapacity = merchantsMap.get(
       sourceVillage.tribe,
@@ -1197,6 +1214,7 @@ describe('marketplace-controllers', () => {
 
   test('saved routes retain settings while paused and resume without duplicate or missed departures', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
 
     vi.useFakeTimers();
@@ -1242,6 +1260,7 @@ describe('marketplace-controllers', () => {
       bind: { $player_id: PLAYER_ID },
       schema: z.number(),
     })!;
+
     expect(
       listTradeRoutes(
         database,
@@ -1261,7 +1280,9 @@ describe('marketplace-controllers', () => {
         }),
       ),
     ).toThrow('Source village does not belong to player');
+
     const path = { routeId: original.id };
+
     expect(() =>
       updateTradeRoute(
         database,

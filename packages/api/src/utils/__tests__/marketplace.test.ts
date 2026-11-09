@@ -32,6 +32,7 @@ describe('marketplace utils', () => {
         mapSize: z.number(),
       }),
     })!;
+
     const originTileId = coordinatesToTileId({ x: 0, y: 0 }, village.mapSize);
     const targetTileId = coordinatesToTileId({ x: 10, y: 0 }, village.mapSize);
     const { merchantSpeed } = merchantsMap.get(village.tribe)!;

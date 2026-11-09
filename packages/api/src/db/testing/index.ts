@@ -1,1 +1,4 @@
-export { prepareTestDatabase } from './prepare-test-database';
+export {
+  prepareTestDatabase,
+  seedReportHistory,
+} from './prepare-test-database';

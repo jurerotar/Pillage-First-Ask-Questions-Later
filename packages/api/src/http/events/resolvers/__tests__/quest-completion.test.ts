@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  prepareTestDatabase,
+  seedReportHistory,
+} from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import {
@@ -15,7 +18,10 @@ import {
   assessCaptureAnimalKindCountQuestCompletion,
   assessGatheredResourceCountQuestCompletion,
 } from '../../../../utils/quests';
-import { insertGatheringExpeditionReport } from '../../../../utils/report';
+import {
+  insertGatheringExpeditionReport,
+  insertReport,
+} from '../../../../utils/report';
 import { buildingLevelChangeResolver } from '../building-resolvers';
 import { huntersLodgeHuntResolver } from '../hunters-lodge-resolvers';
 
@@ -203,15 +209,26 @@ describe('quest completion on building level up', () => {
     'should count lifetime catches after report %s',
     async (removal) => {
       using database = await prepareTestDatabase();
+
       database.exec({ sql: 'DELETE FROM reports;' });
+
       const animals = getHunterLodgeCatchableAnimals(5);
       using _random = vi
         .spyOn(Math, 'random')
         .mockReturnValue((animals.indexOf('TIGER') + 0.5) / animals.length);
 
-      for (let catchCount = 0; catchCount < 49; catchCount += 1) {
-        resolveHunt(database, 1);
-      }
+      // Seed the earlier catches, then exercise real hunts on both sides of the milestone.
+      database.exec({
+        sql: `
+          INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+          SELECT $player_id, id, 48 FROM unit_ids WHERE unit = 'TIGER'
+          ON CONFLICT (player_id, unit_id) DO UPDATE SET amount = 48;
+        `,
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      resolveHunt(database, 1);
+
       const completion = () =>
         database.selectValue({
           sql: "SELECT completed_at FROM quests WHERE village_id IS NULL AND quest_id = 'captureAnimalCountById-TIGER-50';",
@@ -223,22 +240,35 @@ describe('quest completion on building level up', () => {
       if (removal === 'deletion') {
         database.exec({ sql: 'DELETE FROM reports;' });
       } else {
-        database.exec({
-          sql: `
-            INSERT INTO reports (village_id, timestamp, type_id, report_outcome_id)
-            SELECT 1, 2, type_id, report_outcome_id FROM reports LIMIT 1;
-          `,
+        seedReportHistory(database, {
+          villageId: 1,
+          count: 999,
+          firstTimestamp: 2,
+          timestampStep: 0,
         });
-        database.exec({
-          sql: `
-            WITH RECURSIVE filler(n) AS (
-              SELECT 1 UNION ALL SELECT n + 1 FROM filler WHERE n < 999
-            )
-            INSERT INTO reports (village_id, timestamp, type_id, report_outcome_id)
-            SELECT 1, 2, r.type_id, r.report_outcome_id
-            FROM filler CROSS JOIN (SELECT type_id, report_outcome_id FROM reports LIMIT 1) r;
-          `,
+
+        expect(
+          database.selectValue({
+            sql: 'SELECT COUNT(*) FROM hunting_party_report_units;',
+            schema: z.int(),
+          }),
+        ).toBe(1);
+
+        // This real insertion crosses the unchanged 1,000-report limit and prunes the hunt.
+        insertReport(database, {
+          villageId: 1,
+          timestamp: 2,
+          type: 'adventure',
+          outcome: 'heroAdventure',
+          tags: [],
         });
+
+        expect(
+          database.selectValue({
+            sql: 'SELECT COUNT(*) FROM reports;',
+            schema: z.int(),
+          }),
+        ).toBe(1000);
       }
 
       expect(

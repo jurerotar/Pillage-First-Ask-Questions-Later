@@ -188,6 +188,7 @@ describe('marketplace resolvers', () => {
 
   test('resourceTransfer should add resources to target and create a zero-resource return transfer', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -353,6 +354,7 @@ describe('marketplace resolvers', () => {
 
   test('zero-resource resourceTransfer should resolve without changing resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
 
     const sourceVillage = getPlayerVillage(database);
@@ -397,6 +399,7 @@ describe('marketplace resolvers', () => {
 
   test('returning repeated resourceTransfer should start the next transfer', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -485,6 +488,7 @@ describe('marketplace resolvers', () => {
 
   test('returning repeated resourceTransfer should stop when resources are missing', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -537,6 +541,7 @@ describe('marketplace resolvers', () => {
 
   test('tradeRoute should create a transfer and schedule the next route trigger', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -685,6 +690,7 @@ describe('marketplace resolvers', () => {
 
   test('tradeRoute should schedule the next route when the transfer cannot start', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -694,6 +700,7 @@ describe('marketplace resolvers', () => {
       database,
       'Failed Trade Route Target',
     );
+
     const interval = 12 * 60 * 60 * 1000;
 
     setMarketplaceLevel(database, sourceVillage.id, 1);

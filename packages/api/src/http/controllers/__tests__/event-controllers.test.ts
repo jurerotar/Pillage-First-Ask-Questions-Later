@@ -79,6 +79,7 @@ describe('event-controllers', () => {
       id: 91_001,
       villageId,
     });
+
     insertEvents(database, [event]);
 
     const events = getVillageEvents(
@@ -108,6 +109,7 @@ describe('event-controllers', () => {
       id: 91_002,
       villageId,
     });
+
     insertEvents(database, [event]);
 
     const events = getVillageEventsByType(
@@ -149,6 +151,7 @@ describe('event-controllers', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const [activeField, scheduledField] = fields;
 
     insertEvents(database, [
@@ -160,6 +163,7 @@ describe('event-controllers', () => {
         level: activeField.level + 1,
       }),
     ]);
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: scheduledField.buildingId,
@@ -298,6 +302,7 @@ describe('event-controllers', () => {
       buildingFieldId: scheduledVillageField.fieldId,
       level: scheduledVillageField.level + 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: scheduledResourceField.buildingId,
@@ -361,6 +366,7 @@ describe('event-controllers', () => {
 
   test('getVillageEventsByType should return outgoing and incoming resource transfer events', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
 
     const sourceVillage = database.selectObject({
@@ -377,6 +383,7 @@ describe('event-controllers', () => {
         tileId: tileIdSchema,
       }),
     })!;
+
     const targetVillage = createPlayerVillage(database, 'Target Village');
     const unrelatedVillage = createPlayerVillage(
       database,
@@ -454,6 +461,7 @@ describe('event-controllers', () => {
     const villageId = 1;
     const tileId = getVillageTileId(database, villageId);
     const now = 1_000_000;
+
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
@@ -525,6 +533,7 @@ describe('event-controllers', () => {
 
     // 50% completion at startsAt + 50000
     const now = startsAt + 50_000;
+
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
@@ -600,6 +609,7 @@ describe('event-controllers', () => {
 
     // 99% completion at startsAt + 99000
     const now = startsAt + 99_000;
+
     vi.useFakeTimers();
     vi.setSystemTime(now);
 

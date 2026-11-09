@@ -17,11 +17,13 @@ describe(loyaltyIncreaseResolver, () => {
       bind: { $village_id: v1 },
       schema: tileIdSchema,
     })!;
+
     database.exec({
       sql: `INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
             VALUES ($village_id, 19, (SELECT id FROM building_ids WHERE building = 'RESIDENCE'), $level);`,
       bind: { $level: 3, $village_id: v1 },
     });
+
     database.exec({
       sql: 'INSERT INTO loyalties (tile_id, loyalty) VALUES ($tile_id, 50)',
       bind: { $tile_id: v1Tile },
@@ -40,11 +42,13 @@ describe(loyaltyIncreaseResolver, () => {
       `,
       schema: z.number(),
     })!;
+
     const v2Tile = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: v2 },
       schema: tileIdSchema,
     })!;
+
     database.exec({
       sql: 'INSERT INTO loyalties (tile_id, loyalty) VALUES ($tile_id, 60)',
       bind: { $tile_id: v2Tile },
@@ -55,6 +59,7 @@ describe(loyaltyIncreaseResolver, () => {
       sql: 'SELECT tile_id FROM oasis LIMIT 1',
       schema: z.number(),
     })!;
+
     database.exec({
       sql: 'INSERT INTO loyalties (tile_id, loyalty) VALUES ($tile_id, 70)',
       bind: { $tile_id: oasisTile },
@@ -77,11 +82,13 @@ describe(loyaltyIncreaseResolver, () => {
       bind: { $tile_id: v1Tile },
       schema: z.number(),
     });
+
     const v2Loyalty = database.selectValue({
       sql: selectTileLoyaltyQuery,
       bind: { $tile_id: v2Tile },
       schema: z.number(),
     });
+
     const oasisLoyalty = database.selectValue({
       sql: selectTileLoyaltyQuery,
       bind: { $tile_id: oasisTile },

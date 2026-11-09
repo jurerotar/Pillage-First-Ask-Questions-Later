@@ -402,6 +402,7 @@ describe('oasis-controllers', () => {
       owningVillage.player_id,
       'First Oasis Reinforcement Source',
     );
+
     const secondSourceVillageId = insertVillage(
       database,
       sourceTileIds[1],

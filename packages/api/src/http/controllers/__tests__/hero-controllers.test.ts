@@ -379,6 +379,7 @@ describe('hero-controllers', () => {
       sql: "SELECT id FROM events WHERE type = 'troopMovementReturn';",
       schema: z.number(),
     })!;
+
     resolveEvent(database, returnEventId);
 
     const heroTroops = database.selectObjects({
@@ -613,14 +614,18 @@ describe('hero-controllers', () => {
       ],
     ])('rejects %s without changing the hero', async (_label, body, error) => {
       using database = await prepareTestDatabase();
+
       database.exec({
         sql: 'UPDATE heroes SET experience = 0 WHERE player_id = $player_id',
         bind: { $player_id: playerId },
       });
+
       const args = createControllerArgs<'/me/hero', 'get'>({
         context: { playerId },
       });
+
       const before = getHero(database, args);
+
       expect(() =>
         changeHeroAttributes(
           database,
@@ -641,6 +646,7 @@ describe('hero-controllers', () => {
           context: { playerId },
         }),
       ).selectableAttributes;
+
       expect(() =>
         changeHeroAttributes(
           database,
@@ -1316,6 +1322,7 @@ describe('hero-controllers', () => {
           defence_bonus: z.number(),
         }),
       })!;
+
       // Gauls get 80 initial strength
       expect(updatedHeroStats.base_attack_power).toBe(80);
       expect(updatedHeroStats.attack_bonus).toBe(0);

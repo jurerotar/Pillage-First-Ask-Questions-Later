@@ -20,7 +20,14 @@ const prepareVillage = (database: DbFacade) => {
   })!;
 
   database.exec({ sql: 'DELETE FROM events;' });
-  database.exec({ sql: 'DELETE FROM effects;' });
+  database.exec({
+    sql: `
+      DELETE FROM effects
+      WHERE tile_id = $tile_id
+        OR scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'));
+    `,
+    bind: { $tile_id: village.tileId },
+  });
 
   const effects = {
     warehouseCapacity: 1000,
@@ -50,6 +57,7 @@ const prepareVillage = (database: DbFacade) => {
     sql: 'UPDATE resource_sites SET wood = 200, clay = 200, iron = 200, wheat = 200, updated_at = $updated_at WHERE tile_id = $tile_id;',
     bind: { $updated_at: now - 30_000, $tile_id: village.tileId },
   });
+
   return village;
 };
 
@@ -83,11 +91,13 @@ describe('village storage endpoint', () => {
     });
 
     clock.mockReturnValue(now + 1000);
+
     const second = readStorage(database, village.id);
 
     expect(second.resources).toStrictEqual(first.resources);
 
     clock.mockReturnValue(now + 40_000);
+
     const later = readStorage(database, village.id);
 
     expect(later.resources[0].fullAt).toBe(first.resources[0].fullAt);

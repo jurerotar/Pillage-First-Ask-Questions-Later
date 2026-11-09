@@ -82,6 +82,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId, $field_id: buildingFieldId },
     });
+
     database.exec({
       sql: `
         DELETE FROM building_fields
@@ -89,6 +90,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId, $field_id: buildingFieldId },
     });
+
     createBuildingPlaceholder(database, villageId, 36, 'MAIN_BUILDING');
     createBuildingPlaceholder(database, villageId, 37, 'GRANARY');
     database.exec({
@@ -100,6 +102,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     createBuildingPlaceholder(database, villageId, buildingFieldId, 'GRANARY');
     insertScheduledBuildingUpgrade(database, {
       villageId,
@@ -114,6 +117,7 @@ describe('scheduled building upgrades', () => {
       type: 'missing-requirements',
       unmetRequirements: [{ type: 'amount', amount: null }],
     };
+
     const persistedDetail = database.selectValue({
       sql: `
         SELECT reason_detail_json
@@ -160,6 +164,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     database.exec({
       sql: `
         INSERT INTO scheduled_building_upgrades
@@ -214,6 +219,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     promoteNextScheduledBuildingUpgrade(database, villageId);
 
     const promoted = database.selectObject({
@@ -262,6 +268,7 @@ describe('scheduled building upgrades', () => {
         buildingFieldId: 25,
       }),
     ]);
+
     database.exec({
       sql: `
         INSERT INTO scheduled_building_upgrades
@@ -326,6 +333,7 @@ describe('scheduled building upgrades', () => {
         buildingFieldId: 25,
       }),
     ]);
+
     for (const field of fields) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
@@ -369,6 +377,7 @@ describe('scheduled building upgrades', () => {
   test('promotes only the next queued upgrade for Romans', async () => {
     using database = await prepareTestDatabase();
     const villageId = 1;
+
     database.execMulti({
       sql: `
         UPDATE players
@@ -377,6 +386,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     const fields = database.selectObjects({
       sql: `
         SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
@@ -393,6 +403,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const resourceField = fields.find(({ fieldId }) => fieldId <= 18)!;
     const villageField = fields.find(({ fieldId }) => fieldId > 18)!;
 
@@ -463,6 +474,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     const villageFields = database.selectObjects({
       sql: `
         SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
@@ -481,6 +493,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const [activeVillageField, queuedVillageField] = villageFields;
 
     insertEvents(database, [
@@ -492,12 +505,14 @@ describe('scheduled building upgrades', () => {
         level: activeVillageField.level + 1,
       }),
     ]);
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: queuedVillageField.buildingId,
       buildingFieldId: queuedVillageField.fieldId,
       level: queuedVillageField.level + 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: resourceField.buildingId,
@@ -563,6 +578,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     database.exec({
       sql: `
         UPDATE resource_sites
@@ -571,6 +587,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     for (const level of [field.level + 1, field.level + 2]) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
@@ -674,6 +691,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const [invalidField, validField] = fields;
 
     const invalidLevel = invalidField.level + 5;
@@ -708,12 +726,14 @@ describe('scheduled building upgrades', () => {
       buildingFieldId: invalidField.fieldId,
       level: invalidLevel,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: invalidField.buildingId,
       buildingFieldId: invalidField.fieldId,
       level: invalidLevel + 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: validField.buildingId,
@@ -764,6 +784,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     database.exec({
       sql: `
         UPDATE resource_sites
@@ -772,6 +793,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     for (const field of fields) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
@@ -828,6 +850,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     const validLevel = validField.level + 1;
     const validCost = calculateBuildingCostForLevel(
       validField.buildingId,
@@ -847,6 +870,7 @@ describe('scheduled building upgrades', () => {
         $placeholder_field_id: placeholderFieldId,
       },
     });
+
     database.exec({
       sql: `
         UPDATE resource_sites
@@ -865,18 +889,21 @@ describe('scheduled building upgrades', () => {
         $wheat: validCost[3],
       },
     });
+
     createBuildingPlaceholder(
       database,
       villageId,
       placeholderFieldId,
       placeholderBuildingId,
     );
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: placeholderBuildingId,
       buildingFieldId: placeholderFieldId,
       level: 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: validField.buildingId,
@@ -941,6 +968,7 @@ describe('scheduled building upgrades', () => {
         $field_id: buildingFieldId,
       },
     });
+
     createBuildingPlaceholder(database, villageId, buildingFieldId, 'BARRACKS');
     insertScheduledBuildingUpgrade(database, {
       villageId,
@@ -1004,7 +1032,9 @@ describe('scheduled building upgrades', () => {
         $field_id: buildingFieldId,
       },
     });
+
     createBuildingPlaceholder(database, villageId, buildingFieldId, 'GRANARY');
+
     for (const level of [1, 2]) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
@@ -1075,6 +1105,7 @@ describe('scheduled building upgrades', () => {
           buildingId: buildingIdSchema,
         }),
       })!;
+
       database.exec({
         sql: `
           UPDATE effects
@@ -1089,6 +1120,7 @@ describe('scheduled building upgrades', () => {
           $village_id: villageId,
         },
       });
+
       insertScheduledBuildingUpgrade(database, {
         villageId,
         buildingId: field.buildingId,
@@ -1137,6 +1169,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: field.buildingId,
