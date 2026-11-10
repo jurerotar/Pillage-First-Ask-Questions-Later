@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { use, useMemo, useState } from 'react';
+import { use, useMemo, useRef, useState } from 'react';
 import {
   type DefaultValues,
   type UseFormReturn,
@@ -45,6 +45,7 @@ import { invalidateQueries } from 'app/utils/react-query';
 import { formatTime } from 'app/utils/time';
 import { ResourceSelector } from './components/resource-selector';
 import { TargetVillageSelector } from './components/target-village-selector';
+import { TradeRouteAdvancedOptions } from './components/trade-route-advanced-options';
 import { TradeRouteIntervalSelector } from './components/trade-route-interval-selector';
 import { TradeRouteStartTimeSelector } from './components/trade-route-start-time-selector';
 import { useMarketplaceMerchants } from './hooks/use-marketplace-merchants';
@@ -78,6 +79,8 @@ const getTradeRouteFormValues = (
   route: TradeRoute,
 ): MarketplaceTradeRouteFormValues => ({
   resources: route.resources,
+  minimumResources: route.minimumResources,
+  minimumMerchants: route.minimumMerchants,
   targetVillageId: route.targetVillageId,
   startHour: new Date(route.startsAt).getHours(),
   startMinute: new Date(route.startsAt).getMinutes(),
@@ -88,6 +91,8 @@ const getTradeRouteFormValues = (
 const getDefaultTradeRouteFormValues =
   (): DefaultValues<MarketplaceTradeRouteFormValues> => ({
     resources: emptyResources,
+    minimumResources: emptyResources,
+    minimumMerchants: 0,
     startHour: new Date().getHours(),
     startMinute: 0,
     intervalHours: DEFAULT_INTERVAL_HOURS,
@@ -129,6 +134,8 @@ const MarketplaceTradeRouteForm = ({
           <TradeRouteIntervalSelector />
         </div>
 
+        <TradeRouteAdvancedOptions />
+
         <div className="flex justify-end">
           {onCancel ? (
             <Button
@@ -154,11 +161,15 @@ const MarketplaceTradeRouteForm = ({
 };
 
 const SavedTradeRoutes = ({
+  isCreating,
   merchant,
+  onDuplicate,
   onEdit,
   routes,
 }: {
+  isCreating: boolean;
   merchant: ReturnType<typeof useMarketplaceMerchants>['merchant'];
+  onDuplicate: (route: TradeRoute) => void;
   onEdit: (route: TradeRoute) => void;
   routes: TradeRoute[];
 }) => {
@@ -333,6 +344,15 @@ const SavedTradeRoutes = ({
                             type="button"
                             variant="outline"
                             size="sm"
+                            disabled={isCreating || isPending || isPausePending}
+                            onClick={() => onDuplicate(route)}
+                          >
+                            {t('Duplicate')}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
                             disabled={isPending || isPausePending}
                             onClick={() => deleteTradeRoute(route.id)}
                           >
@@ -358,6 +378,7 @@ export const MarketplaceTradeRoutes = () => {
   const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
   const { merchant, marketplaceLevel } = useMarketplaceMerchants();
+  const createFormSectionRef = useRef<HTMLDivElement>(null);
   const { data: tradeRoutes } = useSuspenseQuery({
     queryKey: [tradeRoutesCacheKey, currentVillage.id],
     queryFn: async () => {
@@ -420,6 +441,8 @@ export const MarketplaceTradeRoutes = () => {
         body: {
           targetTileId: targetVillage.tileId,
           resources: values.resources,
+          minimumResources: values.minimumResources,
+          minimumMerchants: values.minimumMerchants,
           startHour: values.startHour,
           startMinute: values.startMinute,
           intervalHours: values.intervalHours,
@@ -453,6 +476,8 @@ export const MarketplaceTradeRoutes = () => {
         body: {
           targetTileId: targetVillage.tileId,
           resources: values.resources,
+          minimumResources: values.minimumResources,
+          minimumMerchants: values.minimumMerchants,
           startHour: values.startHour,
           startMinute: values.startMinute,
           intervalHours: values.intervalHours,
@@ -479,6 +504,14 @@ export const MarketplaceTradeRoutes = () => {
     editForm.reset(getTradeRouteFormValues(route));
   };
 
+  const duplicateTradeRoute = (route: TradeRoute) => {
+    createForm.reset(getTradeRouteFormValues(route));
+    createFormSectionRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
   const cancelEditingTradeRoute = () => {
     setEditingTradeRoute(null);
     editForm.reset(getDefaultTradeRouteFormValues());
@@ -491,7 +524,7 @@ export const MarketplaceTradeRoutes = () => {
         <InformationPopover ariaLabel={t('Trade routes')}>
           <Text>
             {t(
-              'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time. Pause a route to stop future departures while keeping its settings. Transfers already in progress will continue.',
+              'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer sends up to the delivery amounts while keeping the minimum resources and free merchants set under Advanced. Departures with no surplus resources or not enough free merchants are skipped. Pause a route to stop future departures while keeping its settings. Transfers already in progress will continue.',
             )}
           </Text>
         </InformationPopover>
@@ -499,25 +532,29 @@ export const MarketplaceTradeRoutes = () => {
       </SectionContent>
       <SectionContent>
         <SavedTradeRoutes
+          isCreating={isPending}
           merchant={merchant}
           routes={tradeRoutes}
+          onDuplicate={duplicateTradeRoute}
           onEdit={startEditingTradeRoute}
         />
       </SectionContent>
-      <SectionContent>
-        <Text as="h3">{t('Create new trade route')}</Text>
-        <MarketplaceTradeRouteForm
-          capacityResources={capacityResources}
-          form={createForm}
-          isSubmitting={isPending}
-          marketplaceLevel={marketplaceLevel}
-          merchant={merchant}
-          onSubmit={createTradeRoute}
-          submitLabel={t('Create trade route')}
-          targetVillages={targetVillages}
-          totalCapacity={totalCapacity}
-        />
-      </SectionContent>
+      <div ref={createFormSectionRef}>
+        <SectionContent>
+          <Text as="h3">{t('Create new trade route')}</Text>
+          <MarketplaceTradeRouteForm
+            capacityResources={capacityResources}
+            form={createForm}
+            isSubmitting={isPending}
+            marketplaceLevel={marketplaceLevel}
+            merchant={merchant}
+            onSubmit={createTradeRoute}
+            submitLabel={t('Create trade route')}
+            targetVillages={targetVillages}
+            totalCapacity={totalCapacity}
+          />
+        </SectionContent>
+      </div>
       <Dialog
         open={editingTradeRoute !== null}
         onOpenChange={(open) => {

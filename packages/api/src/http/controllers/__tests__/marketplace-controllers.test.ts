@@ -246,8 +246,111 @@ const getNextStartAtForHour = (
 };
 
 describe('marketplace-controllers', () => {
+  test('accepts explicit zero trade route reserves', () => {
+    const body = createTradeRouteBodySchema.parse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(body.minimumResources).toStrictEqual({
+      wood: 0,
+      clay: 0,
+      iron: 0,
+      wheat: 0,
+    });
+    expect(body.minimumMerchants).toBe(0);
+  });
+
+  test('requires merchant reserves in the request', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path)).toStrictEqual([
+      ['minimumMerchants'],
+    ]);
+  });
+
+  test('requires resource reserves in the request', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumMerchants: 0,
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path)).toStrictEqual([
+      ['minimumResources'],
+    ]);
+  });
+
+  test('rejects negative merchant reserves', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumMerchants: -1,
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects fractional merchant reserves', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumMerchants: 1.5,
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects negative trade route reserves', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumResources: { wood: -1, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects fractional trade route reserves', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumResources: { wood: 0, clay: 0, iron: 0.5, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   test('rejects a negative start minute', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -260,6 +363,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects a start minute of 60', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -272,6 +377,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects a fractional start minute', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -284,6 +391,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects a zero-hour interval with omitted minutes', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -295,6 +404,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects a zero-hour and zero-minute interval', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -307,6 +418,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects negative interval hours', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -319,6 +432,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects fractional interval hours', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -331,6 +446,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects negative interval minutes', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -343,6 +460,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects interval minutes of 60', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -355,6 +474,8 @@ describe('marketplace-controllers', () => {
 
   test('rejects fractional interval minutes', () => {
     const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       targetTileId: 1,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
       startHour: 12,
@@ -909,6 +1030,8 @@ describe('marketplace-controllers', () => {
       createControllerArgs<'/tiles/:tileId/trade-routes', 'post'>({
         path: { tileId: sourceVillage.tileId },
         body: createTradeRouteBodySchema.parse({
+          minimumMerchants: 0,
+          minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
           targetTileId: targetVillage.tileId,
           startHour,
           intervalHours: 6,
@@ -1004,6 +1127,8 @@ describe('marketplace-controllers', () => {
           startMinute: 30,
           intervalHours: 1,
           intervalMinutes: 30,
+          minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+          minimumMerchants: 0,
           resources: {
             wood: 100,
             clay: 50,
@@ -1096,6 +1221,8 @@ describe('marketplace-controllers', () => {
           startMinute: 5,
           intervalHours: 0,
           intervalMinutes: 15,
+          minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+          minimumMerchants: 0,
           resources: {
             wood: 100,
             clay: 50,
@@ -1190,6 +1317,8 @@ describe('marketplace-controllers', () => {
           intervalHours: 6,
           startMinute: 0,
           intervalMinutes: 0,
+          minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+          minimumMerchants: 0,
           resources: {
             wood: baseMerchantCapacity + 1,
             clay: 0,
@@ -1228,6 +1357,8 @@ describe('marketplace-controllers', () => {
     const body = {
       targetTileId: target.tileId,
       resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
+      minimumResources: { wood: 1000, clay: 2000, iron: 3000, wheat: 4000 },
+      minimumMerchants: 1,
       startHour: 3,
       startMinute: 0,
       intervalHours: 6,
@@ -1253,6 +1384,8 @@ describe('marketplace-controllers', () => {
     const [original] = list();
 
     expect(original.paused).toBe(false);
+    expect(original.minimumResources).toStrictEqual(body.minimumResources);
+    expect(original.minimumMerchants).toBe(body.minimumMerchants);
     expect(original.nextAt).toBe(original.startsAt);
 
     const otherPlayerId = database.selectValue({
@@ -1359,6 +1492,8 @@ describe('marketplace-controllers', () => {
           intervalHours: 12,
           intervalMinutes: 45,
           startMinute: 45,
+          minimumResources: { wood: 500, clay: 600, iron: 700, wheat: 800 },
+          minimumMerchants: 2,
         },
       }),
     );
@@ -1370,6 +1505,8 @@ describe('marketplace-controllers', () => {
       interval: (12 * 60 + 45) * 60 * 1000,
       startsAt: getNextStartAtForHour(Date.now(), body.startHour, 45),
       resources: body.resources,
+      minimumResources: { wood: 500, clay: 600, iron: 700, wheat: 800 },
+      minimumMerchants: 2,
     });
 
     toggle(false);

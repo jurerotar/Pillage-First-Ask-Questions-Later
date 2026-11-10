@@ -24,6 +24,10 @@ export const tradeRouteRowSchema = tradeRouteSchema.extend({
     .string()
     .transform((value): unknown => JSON.parse(value))
     .pipe(tradeRouteSchema.shape.resources),
+  minimumResources: z
+    .string()
+    .transform((value): unknown => JSON.parse(value))
+    .pipe(tradeRouteSchema.shape.minimumResources),
   paused: z.coerce.boolean(),
 });
 
@@ -128,6 +132,8 @@ export const getTradeRoute = (
   const {
     targetTileId,
     resources,
+    minimumResources,
+    minimumMerchants,
     startHour,
     startMinute,
     intervalHours,
@@ -157,6 +163,8 @@ export const getTradeRoute = (
       originTileId: village.tileId,
       targetTileId: targetVillage.tileId,
       resources,
+      minimumResources,
+      minimumMerchants,
       interval: (intervalHours * 60 + intervalMinutes) * 60 * 1000,
     } as const,
   };

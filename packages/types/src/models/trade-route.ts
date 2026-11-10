@@ -24,6 +24,8 @@ export const tradeRouteSchema = z.strictObject({
   originTileId: z.number(),
   targetTileId: z.number(),
   resources: resourcesSchema,
+  minimumResources: resourcesSchema,
+  minimumMerchants: z.number().int().min(0),
   interval: z.number(),
   startsAt: z.number(),
   paused: z.boolean(),

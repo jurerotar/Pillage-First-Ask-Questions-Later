@@ -6,6 +6,8 @@ const selectTradeRoutesQuery = `
     origin.tile_id AS originTileId,
     target.tile_id AS targetTileId,
     r.resources,
+    r.minimum_resources AS minimumResources,
+    r.minimum_merchants AS minimumMerchants,
     r.interval,
     r.starts_at AS startsAt,
     r.paused,
@@ -25,6 +27,8 @@ export const insertTradeRouteQuery = `
     village_id,
     target_village_id,
     resources,
+    minimum_resources,
+    minimum_merchants,
     interval,
     starts_at
   )
@@ -32,6 +36,8 @@ export const insertTradeRouteQuery = `
     $village_id,
     $target_village_id,
     $resources,
+    $minimum_resources,
+    $minimum_merchants,
     $interval,
     $starts_at
   )
@@ -43,6 +49,8 @@ export const updateTradeRouteQuery = `
   SET
     target_village_id = $target_village_id,
     resources = $resources,
+    minimum_resources = $minimum_resources,
+    minimum_merchants = $minimum_merchants,
     interval = $interval,
     starts_at = $starts_at
   WHERE id = $route_id

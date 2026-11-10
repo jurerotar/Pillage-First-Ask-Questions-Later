@@ -1,7 +1,10 @@
 import { z } from 'zod';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
-import { tradeRouteScheduleSchema } from '@pillage-first/types/models/trade-route';
+import {
+  tradeRouteScheduleSchema,
+  tradeRouteSchema,
+} from '@pillage-first/types/models/trade-route';
 
 const resourceTransferPayloadSchema = z.strictObject({
   targetTileId: tileIdSchema,
@@ -14,9 +17,11 @@ export const transferResourcesBodySchema = resourceTransferPayloadSchema.extend(
   },
 );
 
-export const createTradeRouteBodySchema = tradeRouteScheduleSchema.safeExtend(
-  resourceTransferPayloadSchema.shape,
-);
+export const createTradeRouteBodySchema = tradeRouteScheduleSchema.safeExtend({
+  ...resourceTransferPayloadSchema.shape,
+  minimumMerchants: tradeRouteSchema.shape.minimumMerchants,
+  minimumResources: resourcesSchema,
+});
 
 export type TradeRouteBody = z.infer<typeof createTradeRouteBodySchema>;
 

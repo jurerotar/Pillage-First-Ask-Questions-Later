@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
-import { tradeRouteScheduleSchema } from '@pillage-first/types/models/trade-route';
+import {
+  tradeRouteScheduleSchema,
+  tradeRouteSchema,
+} from '@pillage-first/types/models/trade-route';
 import { getTotalResources } from './resources';
 
 const tradeRouteFormSchema = tradeRouteScheduleSchema.safeExtend({
@@ -8,6 +11,8 @@ const tradeRouteFormSchema = tradeRouteScheduleSchema.safeExtend({
   intervalMinutes: tradeRouteScheduleSchema.shape.intervalMinutes.unwrap(),
   targetVillageId: z.number().int().positive(),
   resources: resourcesSchema,
+  minimumResources: resourcesSchema,
+  minimumMerchants: tradeRouteSchema.shape.minimumMerchants,
 });
 
 export type MarketplaceTradeRouteFormValues = z.infer<
