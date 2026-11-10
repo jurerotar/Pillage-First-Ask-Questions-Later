@@ -66,7 +66,7 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         json_extract(troop.value, '$.tileId'),
         json_extract(troop.value, '$.sourceTileId')
       FROM
-        json_each($troops) AS troop
+        jsonb_each($troops) AS troop
         CROSS JOIN unit_ids
       WHERE
         unit_ids.unit = json_extract(troop.value, '$.unitId')
@@ -131,7 +131,7 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
           json_extract(troop.value, '$.sourceTileId') AS source_tile_id,
           SUM(json_extract(troop.value, '$.amount')) AS amount
         FROM
-          json_each($troops) AS troop
+          jsonb_each($troops) AS troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(troop.value, '$.unitId')
         GROUP BY unit_ids.id, tile_id, source_tile_id
@@ -158,7 +158,7 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
           json_extract(troop.value, '$.sourceTileId') AS source_tile_id,
           SUM(json_extract(troop.value, '$.amount')) AS amount
         FROM
-          json_each($troops) AS troop
+          jsonb_each($troops) AS troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(troop.value, '$.unitId')
         GROUP BY unit_ids.id, tile_id, source_tile_id
@@ -339,7 +339,7 @@ export const removeWoundedTroops = (
           unit_ids.id AS unit_id,
           SUM(json_extract(wounded_troop.value, '$.amount')) AS amount
         FROM
-          json_each($wounded_troops) AS wounded_troop
+          jsonb_each($wounded_troops) AS wounded_troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(wounded_troop.value, '$.unitId')
         GROUP BY village_id, unit_ids.id
@@ -365,7 +365,7 @@ export const removeWoundedTroops = (
           unit_ids.id AS unit_id,
           SUM(json_extract(wounded_troop.value, '$.amount')) AS amount
         FROM
-          json_each($wounded_troops) AS wounded_troop
+          jsonb_each($wounded_troops) AS wounded_troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(wounded_troop.value, '$.unitId')
         GROUP BY village_id, unit_ids.id

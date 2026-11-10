@@ -192,27 +192,23 @@ export const selectReportListingsQuery = `
     ($scope != 'village' OR r.village_id = $village_id)
     AND (
       $scope != 'unread'
-      OR NOT EXISTS (
-        SELECT 1 FROM report_tags rt
-        WHERE rt.report_id = r.id
-          AND rt.report_tag_id = (SELECT id FROM report_tag_ids WHERE tag = 'read')
+      OR r.id NOT IN (
+        SELECT report_id FROM report_tags
+        WHERE report_tag_id = (SELECT id FROM report_tag_ids WHERE tag = 'read')
       )
     )
     AND (
       $scope != 'archived'
-      OR EXISTS (
-        SELECT 1 FROM report_tags rt
-        WHERE rt.report_id = r.id
-          AND rt.report_tag_id = (SELECT id FROM report_tag_ids WHERE tag = 'archived')
+      OR r.id IN (
+        SELECT report_id FROM report_tags
+        WHERE report_tag_id = (SELECT id FROM report_tag_ids WHERE tag = 'archived')
       )
     )
     AND (
-      EXISTS (
-        SELECT 1
-        FROM filters rf
-        WHERE rf.player_id = $player_id
-          AND rf.name = $filter_name
-          AND rf.filter = rty.report_type
+      r.type_id IN (
+        SELECT rti.id FROM filters rf
+        JOIN report_type_ids rti ON rti.report_type = rf.filter
+        WHERE rf.player_id = $player_id AND rf.name = $filter_name
       )
     )
     AND (

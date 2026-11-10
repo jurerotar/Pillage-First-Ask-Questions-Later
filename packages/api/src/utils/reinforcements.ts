@@ -76,6 +76,7 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
     return;
   }
 
+  // The UNIQUE troop key guarantees at most one match per aggregated request.
   const hasUnavailableTroops = database.selectValue({
     sql: `
       WITH requested_troops AS (
@@ -85,7 +86,7 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
           json_extract(troop.value, '$.sourceTileId') AS source_tile_id,
           SUM(json_extract(troop.value, '$.amount')) AS amount
         FROM
-          json_each($troops) AS troop
+          jsonb_each($troops) AS troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(troop.value, '$.unitId')
         GROUP BY unit_ids.id, tile_id, source_tile_id
@@ -98,12 +99,7 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
             ON troops.unit_id = requested_troops.unit_id
             AND troops.tile_id = requested_troops.tile_id
             AND troops.source_tile_id = requested_troops.source_tile_id
-        GROUP BY
-          requested_troops.unit_id,
-          requested_troops.tile_id,
-          requested_troops.source_tile_id,
-          requested_troops.amount
-        HAVING COALESCE(SUM(troops.amount), 0) < requested_troops.amount
+        WHERE COALESCE(troops.amount, 0) < requested_troops.amount
       );
     `,
     bind: { $troops: JSON.stringify(troops) },

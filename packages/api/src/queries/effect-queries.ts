@@ -226,15 +226,14 @@ export const updateHeroEffectsVillageIdQuery = `
     tile_id = (SELECT tile_id FROM villages WHERE id = $targetId)
   WHERE
     source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')
-    AND EXISTS (
+    AND tile_id IN (
       SELECT
-        1
+        villages.tile_id
       FROM
         heroes
         JOIN villages ON villages.id = heroes.village_id
       WHERE
-        villages.tile_id = effects.tile_id
-        AND heroes.player_id = $player_id
+        heroes.player_id = $player_id
       );
 `;
 

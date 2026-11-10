@@ -313,32 +313,14 @@ export const assessBuildingQuestCompletion = (
         AND quest_id = $everyQuestId
         AND village_id = $village_id
         AND (
-              SELECT COUNT(*)
+              SELECT MIN(bf.level)
               FROM
                 building_fields bf
               CROSS JOIN building_ids bi ON bi.id = bf.building_id
               WHERE
                 bf.village_id = $village_id
                 AND bi.building = $building_id
-                AND bf.level >= $level
-              ) = (
-              SELECT COUNT(*)
-              FROM
-                building_fields bf
-              CROSS JOIN building_ids bi ON bi.id = bf.building_id
-              WHERE
-                bf.village_id = $village_id
-                AND bi.building = $building_id
-              )
-        AND (
-              SELECT COUNT(*)
-              FROM
-                building_fields bf
-              CROSS JOIN building_ids bi ON bi.id = bf.building_id
-              WHERE
-                bf.village_id = $village_id
-                AND bi.building = $building_id
-              ) > 0;
+              ) >= $level;
     `,
     bind: {
       $completed_at: timestamp,

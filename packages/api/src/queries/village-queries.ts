@@ -343,7 +343,7 @@ export const insertRearrangedBuildingFieldsQuery = `
 `;
 
 export const updateRearrangedBuildingFieldEventsQuery = `
-  WITH updates_raw(field_id, building_text, source_field_id) AS (
+  WITH updates_raw(field_id, building_text, source_field_id) AS MATERIALIZED (
     SELECT
       CAST(value ->> '$.buildingFieldId' AS INTEGER),
       value ->> '$.buildingId',
@@ -370,7 +370,7 @@ export const updateRearrangedBuildingFieldEventsQuery = `
 `;
 
 export const updateRearrangedScheduledBuildingUpgradesQuery = `
-  WITH updates_raw(field_id, building_text, source_field_id) AS (
+  WITH updates_raw(field_id, building_text, source_field_id) AS MATERIALIZED (
     SELECT
       CAST(value ->> '$.buildingFieldId' AS INTEGER),
       value ->> '$.buildingId',

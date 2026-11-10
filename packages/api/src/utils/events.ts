@@ -187,7 +187,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
         value ->> '$[2]',
         value ->> '$[3]',
         value ->> '$[4]'
-      FROM json_each($events);
+      FROM jsonb_each($events);
     `,
     bind: { $events: JSON.stringify(rows) },
   });

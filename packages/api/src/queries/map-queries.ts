@@ -76,24 +76,25 @@ export const selectMapTilesQuery = `
         LEFT JOIN tribe_ids ti ON ti.id = p.tribe_id
         LEFT JOIN faction_ids fi ON fi.id = p.faction_id
     )
-  -- Transfer one JSON value instead of reading every column across the WASM boundary.
-  SELECT json_group_array(json_object(
-    'id', t.id,
-    'coordinates_x', t.x,
-    'coordinates_y', t.y,
-    'type', CASE t.type_id WHEN 1 THEN 'free' WHEN 2 THEN 'oasis' END,
-    'rfc', rfc.resource_field_composition,
-    'oasis_graphics', t.oasis_graphics,
-    'oasis_bonus_type', o.bonus_type,
-    'village_id', details.id,
-    'village_name', details.name,
-    'village_slug', details.slug,
-    'player_id', details.player_id,
-    'player_slug', details.player_slug,
-    'player_name', details.player_name,
-    'player_tribe', details.player_tribe,
-    'player_faction', details.player_faction,
-    'population', details.population
+  -- Positional rows avoid repeating field names for every tile across the WASM boundary.
+  -- Keep this order aligned with the decoder in getTilesJsonSchema.
+  SELECT json_group_array(json_array(
+    t.id,
+    t.x,
+    t.y,
+    CASE t.type_id WHEN 1 THEN 'free' WHEN 2 THEN 'oasis' END,
+    rfc.resource_field_composition,
+    t.oasis_graphics,
+    o.bonus_type,
+    details.id,
+    details.name,
+    details.slug,
+    details.player_id,
+    details.player_slug,
+    details.player_name,
+    details.player_tribe,
+    details.player_faction,
+    details.population
   )) AS tiles_json
   FROM tiles t
       LEFT JOIN (
