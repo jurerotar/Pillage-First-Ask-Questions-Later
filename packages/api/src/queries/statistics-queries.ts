@@ -23,7 +23,7 @@ export const selectPlayerRankingsQuery = `
       GROUP BY p.id
       ),
 
-    cursor_row AS (
+    cursor_row AS MATERIALIZED (
       SELECT total_population, id
       FROM
         player_pop
@@ -97,7 +97,7 @@ export const selectVillageRankingsQuery = `
       GROUP BY v.id
     ),
 
-    cursor_row AS (
+    cursor_row AS MATERIALIZED (
       SELECT population, village_id
       FROM
         village_pop

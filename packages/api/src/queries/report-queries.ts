@@ -34,7 +34,7 @@ const selectReportListingsBaseQuery = `
         'targetPlayerSlug', movement_target_p.slug,
         'targetName', CASE
           WHEN movement_target_v.id IS NOT NULL THEN movement_target_v.name
-          WHEN movement_target_o.tile_id IS NOT NULL THEN 'Oasis'
+          WHEN EXISTS (SELECT 1 FROM oasis WHERE tile_id = movement_target_t.id) THEN 'Oasis'
           ELSE NULL
         END,
         'targetCoordinates', json_object('x', movement_target_t.x, 'y', movement_target_t.y),
@@ -126,11 +126,6 @@ const selectReportListingsBaseQuery = `
   LEFT JOIN tiles movement_target_t ON movement_target_t.id = mr.target_tile_id
   LEFT JOIN villages movement_target_v ON movement_target_v.tile_id = movement_target_t.id
   LEFT JOIN players movement_target_p ON movement_target_p.id = movement_target_v.player_id
-  LEFT JOIN (
-    SELECT tile_id
-    FROM oasis
-    GROUP BY tile_id
-  ) movement_target_o ON movement_target_o.tile_id = movement_target_t.id
   LEFT JOIN trade_reports tr ON tr.report_id = r.id
   LEFT JOIN tiles trade_origin_t ON trade_origin_t.id = tr.origin_tile_id
   LEFT JOIN villages trade_origin_v ON trade_origin_v.tile_id = trade_origin_t.id

@@ -19,17 +19,15 @@ export const selectVillageQuestsQuery = `
 `;
 
 export const selectCollectableQuestCountQuery = `
-  SELECT COUNT(*) AS COUNT
-  FROM
-    quests
-  WHERE
-    player_id = $player_id
-    AND completed_at IS NOT NULL
-    AND collected_at IS NULL
-    AND (
-      village_id = $village_id
-      OR village_id IS NULL
-    );
+  -- Separate seeks use the existing (player_id, village_id, quest_id) index.
+  SELECT
+    (SELECT COUNT(*) FROM quests
+      WHERE player_id = $player_id AND village_id = $village_id
+        AND completed_at IS NOT NULL AND collected_at IS NULL)
+    +
+    (SELECT COUNT(*) FROM quests
+      WHERE player_id = $player_id AND village_id IS NULL
+        AND completed_at IS NOT NULL AND collected_at IS NULL) AS COUNT;
 `;
 
 export const collectQuestQuery = `
@@ -37,16 +35,13 @@ export const collectQuestQuery = `
   SET
     collected_at = $collected_at
   WHERE
-    id = (
-      SELECT id
-      FROM
-        quests
-      WHERE
-        player_id = $player_id
-        AND quest_id = $quest_id
-        AND (village_id = $village_id OR village_id IS NULL)
-      ORDER BY (village_id = $village_id) DESC, (village_id IS NULL) DESC
-      LIMIT 1
+    id = COALESCE(
+      (SELECT id FROM quests
+        WHERE player_id = $player_id AND village_id = $village_id
+          AND quest_id = $quest_id LIMIT 1),
+      (SELECT id FROM quests
+        WHERE player_id = $player_id AND village_id IS NULL
+          AND quest_id = $quest_id LIMIT 1)
     )
     AND completed_at IS NOT NULL
     AND collected_at IS NULL

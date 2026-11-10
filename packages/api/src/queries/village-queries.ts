@@ -181,8 +181,9 @@ export const selectOccupiableOasisInRangeQuery = `
 export const selectVillageBuildingLevelQuery = `
   SELECT MAX(bf.level) AS level
   FROM
+    -- Limit the lookup to this village's fields before resolving building names.
     building_fields bf
-      JOIN building_ids bi ON bi.id = bf.building_id
+      CROSS JOIN building_ids bi ON bi.id = bf.building_id
   WHERE
     bf.village_id = $village_id
     AND bi.building = $building_id

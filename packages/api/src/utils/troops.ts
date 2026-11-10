@@ -345,13 +345,13 @@ export const removeWoundedTroops = (
         GROUP BY village_id, unit_ids.id
       )
       DELETE FROM wounded_troops
-      WHERE EXISTS (
-        SELECT 1
-        FROM requested_wounded_troops
-        WHERE
-          requested_wounded_troops.village_id = wounded_troops.village_id
-          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
-          AND wounded_troops.amount <= requested_wounded_troops.amount
+      WHERE rowid IN (
+        SELECT wounded.rowid
+        FROM requested_wounded_troops requested
+        JOIN wounded_troops wounded
+          ON wounded.village_id = requested.village_id
+          AND wounded.unit_id = requested.unit_id
+        WHERE wounded.amount <= requested.amount
       );
     `,
     bind: { $wounded_troops: JSON.stringify(woundedTroops) },

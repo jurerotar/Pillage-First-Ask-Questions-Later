@@ -308,14 +308,14 @@ export const buildingDestructionResolver: Resolver<
         sql: `
         DELETE
         FROM effects
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
-          AND effect_id IN (
-            SELECT effect_ids.id
-            FROM
-              json_each($effect_ids) AS effect
-              JOIN effect_ids ON effect_ids.effect = effect.value
-          )
-          AND source_specifier = $source_specifier;
+        WHERE rowid IN (
+          SELECT existing.rowid
+          FROM json_each($effect_ids) AS effect
+          JOIN effect_ids ON effect_ids.effect = effect.value
+          CROSS JOIN effects existing ON existing.effect_id = effect_ids.id
+          WHERE existing.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+            AND existing.source_specifier = $source_specifier
+        );
       `,
         bind: {
           $village_id: villageId,

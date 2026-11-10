@@ -55,7 +55,7 @@ export const selectOccupiableOasesQuery = `
   FROM oasis o
   JOIN tiles ot ON ot.id = o.tile_id
   JOIN resource_ids ri ON ri.id = o.resource_id
-  GROUP BY o.tile_id, ot.x, ot.y
+  GROUP BY o.tile_id
   ORDER BY o.tile_id;
 `;
 
@@ -89,7 +89,7 @@ export const selectTilesByOasisBonusesQuery = `
       SELECT COUNT(*) AS value
       FROM slot_bonus_counts
     ),
-    candidates AS (
+    candidates AS MATERIALIZED (
       SELECT
         t.id,
         t.x,
@@ -103,7 +103,10 @@ export const selectTilesByOasisBonusesQuery = `
         ON rfc.id = t.resource_field_composition_id
       LEFT JOIN villages v ON v.tile_id = t.id
       WHERE
-        t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
+        EXISTS (
+          SELECT 1 FROM tile_type_ids tt
+          WHERE tt.id = t.type_id AND tt.type = 'free'
+        )
         AND ($show_occupied_tiles = 1 OR v.id IS NULL)
         AND t.resource_field_composition_id IN (
           SELECT id

@@ -5,7 +5,7 @@ export const selectOasesByAnimalsQuery = `
       json_extract(value, '$[1]') AS requested_amount
     FROM json_each($animal_filters)
   ),
-  matching_oases AS (
+  matching_oases AS MATERIALIZED (
     SELECT t.id AS tile_id, t.x, t.y
     FROM tiles t
     WHERE t.type_id = 2
