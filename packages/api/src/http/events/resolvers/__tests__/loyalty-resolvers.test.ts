@@ -1,12 +1,105 @@
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { selectTileLoyaltyQuery } from '../../../../queries/loyalty-queries';
+import { createLoyaltyIncreaseEvent } from '../../../../utils/loyalty';
+import {
+  initScheduler,
+  resetSchedulerForTesting,
+  scheduleNextEvent,
+} from '../../scheduler/scheduler';
+import { createSchedulerDataSource } from '../../scheduler/scheduler-data-source';
 import { loyaltyIncreaseResolver } from '../loyalty-resolvers';
 
 describe(loyaltyIncreaseResolver, () => {
+  afterEach(() => {
+    resetSchedulerForTesting();
+    vi.useRealTimers();
+  });
+
+  test('offline loyalty recovery matches live ticks aligned to server creation', async () => {
+    const createdAt = 1_000_000;
+    const hour = 3_600_000;
+    const start = createdAt + hour / 4;
+    const end = start + 8 * hour;
+
+    const run = async (offline: boolean) => {
+      using database = await prepareTestDatabase();
+
+      resetSchedulerForTesting();
+      vi.useFakeTimers();
+      vi.setSystemTime(start);
+      database.exec({ sql: 'DELETE FROM events;' });
+      database.exec({ sql: 'DELETE FROM loyalties;' });
+      database.exec({
+        sql: 'UPDATE servers SET created_at = $created_at, speed = 1;',
+        bind: { $created_at: createdAt },
+      });
+      database.exec({
+        sql: "DELETE FROM building_fields WHERE village_id = 1 AND building_id = (SELECT id FROM building_ids WHERE building = 'RESIDENCE');",
+      });
+      database.exec({
+        sql: 'INSERT INTO loyalties (tile_id, loyalty) SELECT tile_id, 50 FROM villages WHERE id = 1;',
+      });
+      createLoyaltyIncreaseEvent(database, start);
+
+      const dataSource = createSchedulerDataSource(database);
+      initScheduler(dataSource);
+
+      if (offline) {
+        vi.setSystemTime(end);
+        scheduleNextEvent(dataSource);
+      } else {
+        scheduleNextEvent(dataSource);
+        vi.advanceTimersByTime(8 * hour);
+      }
+
+      const result = {
+        loyalty: database.selectValue({
+          sql: 'SELECT loyalty FROM loyalties;',
+          schema: z.number(),
+        }),
+        nextTicks: database.selectValues({
+          sql: "SELECT resolves_at FROM events WHERE type = 'loyaltyIncrease';",
+          schema: z.number(),
+        }),
+      };
+
+      resetSchedulerForTesting();
+
+      return result;
+    };
+
+    const live = await run(false);
+
+    expect(await run(true)).toStrictEqual(live);
+    expect(live).toStrictEqual({
+      loyalty: 58,
+      nextTicks: [createdAt + 9 * hour],
+    });
+  });
+
+  test('does not duplicate a loyalty tick that is overdue in real time', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(100_000_000);
+
+    const startsAt = 1_000_000;
+    createLoyaltyIncreaseEvent(database, startsAt);
+    createLoyaltyIncreaseEvent(database, startsAt);
+
+    expect(
+      database.selectValue({
+        sql: "SELECT COUNT(*) FROM events WHERE type = 'loyaltyIncrease';",
+        schema: z.number(),
+      }),
+    ).toBe(1);
+  });
+
   test('should increase loyalty for all villages and oases', async () => {
     using database = await prepareTestDatabase();
 

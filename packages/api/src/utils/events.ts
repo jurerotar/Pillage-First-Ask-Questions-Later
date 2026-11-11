@@ -1273,6 +1273,7 @@ export const getEventCost = (
 export const getEventDuration = (
   database: DbFacade,
   event: GameEvent,
+  startsAt = Date.now(),
 ): number => {
   if (isBuildingConstructionEvent(event)) {
     return 0;
@@ -1676,7 +1677,7 @@ export const getEventDuration = (
 
     const loyaltyIncreaseDuration =
       calculateLoyaltyIncreaseEventDuration(speed);
-    const elapsedSinceServerStart = Date.now() - createdAt;
+    const elapsedSinceServerStart = startsAt - createdAt;
     const timeUntilNextIncrease =
       (loyaltyIncreaseDuration -
         (elapsedSinceServerStart % loyaltyIncreaseDuration)) %
@@ -1729,7 +1730,7 @@ export const getEventResourceSubtractionTimestamp = (
   event: GameEvent,
   startsAt: number,
 ) => {
-  if (isBuildingLevelChangeEvent(event)) {
+  if (isBuildingLevelChangeEvent(event) || isResourceTransferEvent(event)) {
     return startsAt;
   }
 

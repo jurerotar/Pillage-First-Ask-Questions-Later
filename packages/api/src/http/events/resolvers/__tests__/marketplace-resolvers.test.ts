@@ -18,7 +18,14 @@ import {
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { insertTradeRouteQuery } from '../../../../queries/trade-route-queries';
 import { scheduleTradeRoute } from '../../../../utils/trade-routes';
+import { calculateResourceSiteResourcesAt } from '../../../../utils/village';
 import { resolveEvent } from '../../resolve-event';
+import {
+  initScheduler,
+  resetSchedulerForTesting,
+  scheduleNextEvent,
+} from '../../scheduler/scheduler';
+import { createSchedulerDataSource } from '../../scheduler/scheduler-data-source';
 
 const NOW = 1_000_000;
 
@@ -218,7 +225,157 @@ const insertTradeRoute = (
 
 describe('marketplace resolvers', () => {
   afterEach(() => {
+    resetSchedulerForTesting();
     vi.useRealTimers();
+  });
+
+  const runOvernightRoute = async (shipment: number, offline: boolean) => {
+    const hour = 3_600_000;
+    const end = NOW + 16 * hour;
+
+    using database = await prepareTestDatabase();
+
+    resetSchedulerForTesting();
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    database.exec({ sql: 'DELETE FROM events;' });
+    database.exec({ sql: 'DELETE FROM effects;' });
+
+    const source = getPlayerVillage(database);
+    const target = createPlayerVillage(database, 'Overnight Target');
+    setMarketplaceLevel(database, source.id, 20);
+
+    for (const [tileId, production, capacity] of [
+      [source.tile_id, 34000, 100000],
+      [target.tileId, -shipment, 320000],
+    ]) {
+      for (const [effect, value] of [
+        ['wheatProduction', production],
+        ['granaryCapacity', capacity],
+        ['warehouseCapacity', capacity],
+        ['merchantCapacity', 100000],
+      ] as const) {
+        database.exec({
+          sql: `
+            INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
+            SELECT ei.id, $value, et.id, es.id, eso.id, $tile_id, 0
+            FROM effect_ids ei, effect_type_ids et, effect_scope_ids es, effect_source_ids eso
+            WHERE ei.effect = $effect AND et.type = 'base'
+              AND es.scope = 'local' AND eso.source = 'building';
+          `,
+          bind: { $effect: effect, $value: value, $tile_id: tileId },
+        });
+      }
+    }
+
+    setVillageResources(database, source.tile_id, {
+      wood: 0,
+      clay: 0,
+      iron: 0,
+      wheat: 0,
+    });
+    setVillageResources(database, target.tileId, {
+      wood: 0,
+      clay: 0,
+      iron: 0,
+      wheat: 320000,
+    });
+    insertTradeRoute(
+      database,
+      source.id,
+      target.id,
+      { wood: 0, clay: 0, iron: 0, wheat: shipment },
+      { wood: 0, clay: 0, iron: 0, wheat: 0 },
+    );
+
+    const dataSource = createSchedulerDataSource(database);
+    initScheduler(dataSource);
+
+    if (offline) {
+      vi.setSystemTime(end);
+      scheduleNextEvent(dataSource);
+    } else {
+      scheduleNextEvent(dataSource);
+      vi.advanceTimersByTime(16 * hour);
+    }
+
+    const result = {
+      source: calculateResourceSiteResourcesAt(database, source.tile_id, end)
+        .currentWheat,
+      target: calculateResourceSiteResourcesAt(database, target.tileId, end)
+        .currentWheat,
+      reports: database.selectValue({
+        sql: 'SELECT COUNT(*) FROM trade_reports;',
+        schema: z.number(),
+      }),
+    };
+
+    resetSchedulerForTesting();
+
+    return result;
+  };
+
+  test('offline hourly crop routes of 6000 match live processing', async () => {
+    const live = await runOvernightRoute(6000, false);
+    const offline = await runOvernightRoute(6000, true);
+
+    expect(offline).toStrictEqual(live);
+    expect(offline.source).toBe(94000);
+    expect(offline.target).toBeGreaterThan(200000);
+    expect(offline.reports).toBeGreaterThan(0);
+  });
+
+  test('offline hourly crop routes of 25000 match live processing', async () => {
+    const live = await runOvernightRoute(25000, false);
+    const offline = await runOvernightRoute(25000, true);
+
+    expect(offline).toStrictEqual(live);
+    expect(offline.source).toBe(75000);
+    expect(offline.target).toBeGreaterThan(200000);
+    expect(offline.reports).toBeGreaterThan(0);
+  });
+
+  test('overdue routes preserve the resource reserve at departure time', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const source = getPlayerVillage(database);
+    const target = createPlayerVillage(database, 'Overdue Reserve Target');
+    setMarketplaceLevel(database, source.id, 1);
+    setVillageResources(database, source.tile_id, {
+      wood: 500,
+      clay: 500,
+      iron: 500,
+      wheat: 500,
+    });
+    const eventId = insertTradeRoute(
+      database,
+      source.id,
+      target.id,
+      { wood: 200, clay: 0, iron: 0, wheat: 0 },
+      { wood: 400, clay: 0, iron: 0, wheat: 0 },
+    );
+
+    vi.setSystemTime(NOW + 16 * 3_600_000);
+    resolveEvent(database, eventId);
+
+    expect(getVillageResources(database, source.tile_id).wood).toBe(400);
+    expect(
+      database.selectValue({
+        sql: "SELECT JSON_EXTRACT(meta, '$.resources.wood') FROM events WHERE type = 'resourceTransfer';",
+        schema: z.number(),
+      }),
+    ).toBe(100);
+    expect(
+      database.selectValue({
+        sql: 'SELECT updated_at FROM resource_sites WHERE tile_id = $tile_id;',
+        bind: { $tile_id: source.tile_id },
+        schema: z.number(),
+      }),
+    ).toBe(NOW);
   });
 
   test('resourceTransfer should add resources to target and create a zero-resource return transfer', async () => {

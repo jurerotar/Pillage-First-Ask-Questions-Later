@@ -173,7 +173,7 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
 
   try {
     const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateResourceSiteResourcesAt(database, originTileId, Date.now());
+      calculateResourceSiteResourcesAt(database, originTileId, resolvesAt);
 
     const resources = {
       wood: Math.min(
