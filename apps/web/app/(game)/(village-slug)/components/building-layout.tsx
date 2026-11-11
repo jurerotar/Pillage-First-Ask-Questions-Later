@@ -96,7 +96,10 @@ export const OverflowContainer = ({ children }: PropsWithChildren) => {
         isDragging && 'select-none',
       )}
       onClickCapture={(event) => {
-        if (!shouldBlockClickRef.current) {
+        if (
+          !event.currentTarget.contains(event.target as Node) ||
+          !shouldBlockClickRef.current
+        ) {
           return;
         }
 
@@ -110,6 +113,7 @@ export const OverflowContainer = ({ children }: PropsWithChildren) => {
 
         if (
           container === null ||
+          !container.contains(event.target as Node) ||
           event.pointerType !== 'mouse' ||
           event.button !== 0 ||
           isInteractiveElement(event.target, event.currentTarget) ||

@@ -79,7 +79,7 @@ const buildReleaseMarkdown = (
   if (platform === 'Discord') {
     lines.push('Hey, all! 😄');
     lines.push('');
-    lines.push(`I've just released version ${release.version} 🥳`);
+    lines.push(`I've just released version \`${release.version}\` 🥳`);
   } else {
     lines.push(`Version ${release.version} released`);
   }
@@ -127,16 +127,18 @@ const buildReleaseMarkdown = (
     lines.push('');
   }
 
-  lines.push('');
-  lines.push('Links:');
-  lines.push('');
-  lines.push('* [Try it out at pillagefirst.com](https://pillagefirst.com)');
-  lines.push(
-    '* [Star us on GitHub](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later)',
-  );
-  lines.push(
-    '* [Join the community on Discord](https://discord.gg/Ep7NKVXUZA)',
-  );
+  if (platform === 'Reddit') {
+    lines.push('');
+    lines.push('Links:');
+    lines.push('');
+    lines.push('* [Try it out at pillagefirst.com](https://pillagefirst.com)');
+    lines.push(
+      '* [Star us on GitHub](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later)',
+    );
+    lines.push(
+      '* [Join the community on Discord](https://discord.gg/Ep7NKVXUZA)',
+    );
+  }
 
   while (lines.length && lines[lines.length - 1] === '') {
     lines.pop();
