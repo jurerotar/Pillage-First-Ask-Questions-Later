@@ -36,30 +36,31 @@ export const LevelInputPopover = ({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Input
-          aria-label={label}
-          autoComplete="off"
-          className={className}
-          hideSpinner
-          id={id}
-          max={max}
-          min={min}
-          size={inputSize}
-          type="number"
-          value={value}
-          onChange={handleInputChange}
-          onFocus={(event) => {
-            event.currentTarget.select();
-          }}
-        />
-      </PopoverTrigger>
+      <PopoverTrigger
+        id={id}
+        nativeButton={false}
+        render={
+          <Input
+            aria-label={label}
+            autoComplete="off"
+            className={className}
+            hideSpinner
+            max={max}
+            min={min}
+            size={inputSize}
+            type="number"
+            value={value}
+            onChange={handleInputChange}
+            onFocus={(event) => {
+              event.currentTarget.select();
+            }}
+          />
+        }
+      />
       <PopoverContent
         align="end"
         className="w-64 p-3"
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
-        }}
+        initialFocus={false}
       >
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">

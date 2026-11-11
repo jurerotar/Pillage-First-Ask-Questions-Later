@@ -389,32 +389,32 @@ const CombatSimulatorHeroItemSelector = ({
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={buttonLabel}
-          aria-pressed={selectedItem !== undefined}
-          className={clsx(
-            'relative',
-            selectedItem === undefined && 'text-muted-foreground',
-          )}
-          data-tooltip-content={
-            selectedItem === undefined
-              ? buttonLabel
-              : t(`ITEMS.${selectedItem.name}.NAME`)
-          }
-          data-tooltip-id="general-tooltip"
-          size="icon"
-          variant={selectedItem === undefined ? 'outline' : 'default'}
-        >
-          {icon}
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-label={buttonLabel}
+            aria-pressed={selectedItem !== undefined}
+            className={clsx(
+              'relative',
+              selectedItem === undefined && 'text-muted-foreground',
+            )}
+            data-tooltip-content={
+              selectedItem === undefined
+                ? buttonLabel
+                : t(`ITEMS.${selectedItem.name}.NAME`)
+            }
+            data-tooltip-id="general-tooltip"
+            size="icon"
+            variant={selectedItem === undefined ? 'outline' : 'default'}
+          >
+            {icon}
+          </Button>
+        }
+      />
       <PopoverContent
         align="end"
         className="w-72 p-2"
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
-        }}
+        initialFocus={false}
       >
         <div className="flex flex-col gap-2">
           <div className="px-1 text-sm font-medium">{slotLabel}</div>
