@@ -91,7 +91,7 @@ export const getHero = createController('/me/hero', {
               WHERE v.player_id = h.player_id
                 AND movement.type LIKE 'troopMovement%'
                 AND EXISTS (
-                  SELECT 1 FROM json_each(movement.meta, '$.troops') troop
+                  SELECT 1 FROM jsonb_each(movement.meta, '$.troops') troop
                   WHERE json_extract(troop.value, '$.unitId') = 'HERO'
                     AND json_extract(troop.value, '$.amount') > 0
                 )

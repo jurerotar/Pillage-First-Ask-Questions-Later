@@ -16,6 +16,7 @@ describe('hunters lodge resolvers', () => {
     using database = await prepareTestDatabase();
     const villageId = 1;
     const now = 1_000_000;
+
     vi.useFakeTimers();
     vi.setSystemTime(now);
 

@@ -85,10 +85,12 @@ describe('lookupTablesSeeder', () => {
       sql: 'SELECT type FROM effect_type_ids ORDER BY type;',
       schema: effectTypeSchema,
     });
+
     const effectScopes = database.selectValues({
       sql: 'SELECT scope FROM effect_scope_ids ORDER BY scope;',
       schema: effectScopeSchema,
     });
+
     const effectSources = database.selectValues({
       sql: 'SELECT source FROM effect_source_ids ORDER BY source;',
       schema: effectSourceSchema,
@@ -98,6 +100,7 @@ describe('lookupTablesSeeder', () => {
       sql: "SELECT id FROM effect_scope_ids WHERE scope = 'local';",
       schema: z.number(),
     });
+
     const buildingSourceId = database.selectValue({
       sql: "SELECT id FROM effect_source_ids WHERE source = 'building';",
       schema: z.number(),
@@ -126,6 +129,7 @@ describe('lookupTablesSeeder', () => {
       sql: "SELECT id FROM tile_type_ids WHERE type = 'free';",
       schema: z.number(),
     });
+
     const oasisTypeId = database.selectValue({
       sql: "SELECT id FROM tile_type_ids WHERE type = 'oasis';",
       schema: z.number(),
@@ -159,6 +163,7 @@ describe('lookupTablesSeeder', () => {
       sql: "SELECT id FROM resource_ids WHERE resource = 'wood';",
       schema: z.number(),
     });
+
     const wheatId = database.selectValue({
       sql: "SELECT id FROM resource_ids WHERE resource = 'wheat';",
       schema: z.number(),

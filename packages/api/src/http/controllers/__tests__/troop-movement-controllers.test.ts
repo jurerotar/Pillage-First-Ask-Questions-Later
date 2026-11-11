@@ -174,6 +174,7 @@ describe('troop-movement-controllers', () => {
 
   test('getVillageTroopMovements should return outgoing and incoming movements', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -237,6 +238,7 @@ describe('troop-movement-controllers', () => {
 
   test('returns use the actual departure tile and count as incoming at home', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     const home = getPlayerVillage(database);
@@ -300,6 +302,7 @@ describe('troop-movement-controllers', () => {
     'redacts enemy %s troops but preserves friendly troops',
     async (type) => {
       using database = await prepareTestDatabase();
+
       database.exec({ sql: 'DELETE FROM events' });
 
       const home = getPlayerVillage(database);
@@ -344,6 +347,7 @@ describe('troop-movement-controllers', () => {
 
   test('getVillageTroopMovements should hide incoming scouting and keep outgoing scouting', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -486,21 +490,25 @@ describe('troop-movement-controllers', () => {
       type: 'troopMovementRaid',
       villageId: enemy.id,
     });
+
     insertTroopMovementEvent(database, {
       ...base,
       type: 'troopMovementRaid',
       duration: 1000,
     });
+
     insertTroopMovementEvent(database, {
       ...base,
       type: 'troopMovementRaid',
       startsAt: 2000,
     });
+
     insertTroopMovementEvent(database, { ...base, type: 'resourceTransfer' });
     insertTroopMovementEvent(database, {
       ...base,
       type: 'troopMovementAdventure',
     });
+
     insertTroopMovementEvent(database, {
       ...base,
       type: 'troopMovementRaid',
@@ -610,6 +618,7 @@ describe('troop-movement-controllers', () => {
 
   test('getVillageTroopMovementStats should group movements by direction and purpose', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -658,6 +667,7 @@ describe('troop-movement-controllers', () => {
 
   test('cancelTroopMovement should delete the movement and create a return movement', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     vi.setSystemTime(new Date(1_000_000));
@@ -731,6 +741,7 @@ describe('troop-movement-controllers', () => {
 
   test('cancelTroopMovement should reject return movements', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -757,6 +768,7 @@ describe('troop-movement-controllers', () => {
 
   test('cancelTroopMovement should reject movements older than one minute', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     vi.setSystemTime(new Date(1_000_000));

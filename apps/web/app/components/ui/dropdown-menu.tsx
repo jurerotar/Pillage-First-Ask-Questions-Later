@@ -1,4 +1,4 @@
-import { Menu as DropdownMenuPrimitive } from '@base-ui/react';
+import { Menu as DropdownMenuPrimitive } from '@base-ui/react/menu';
 import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 import { LuCheck, LuChevronDown } from 'react-icons/lu';

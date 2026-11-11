@@ -1,4 +1,4 @@
-import { Tabs as TabsPrimitive } from '@base-ui/react';
+import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 import { clsx } from 'clsx';
 import {
   Children,

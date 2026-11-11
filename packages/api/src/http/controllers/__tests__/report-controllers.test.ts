@@ -35,6 +35,7 @@ const setActiveReportFilters = (
       `,
       bind: { $name: filterName },
     });
+
     tx.exec({
       sql: `
         INSERT INTO filters (player_id, name, filter)
@@ -55,6 +56,7 @@ const prepareReportsTestDatabase = async () => {
   database.exec({
     sql: 'DELETE FROM reports;',
   });
+
   database.execMulti({
     sql: `
       INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
@@ -67,6 +69,7 @@ const prepareReportsTestDatabase = async () => {
         (6, (SELECT id FROM villages ORDER BY id LIMIT 1), 6000, (SELECT id FROM report_type_ids WHERE report_type = 'gatheringExpedition'), (SELECT id FROM report_outcome_ids WHERE report_outcome = 'gatheringExpedition'));
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO report_tags (report_id, report_tag_id)
@@ -75,6 +78,7 @@ const prepareReportsTestDatabase = async () => {
         (2, (SELECT id FROM report_tag_ids WHERE tag = 'archived'));
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_reports (
@@ -89,18 +93,21 @@ const prepareReportsTestDatabase = async () => {
       );
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
       SELECT 1, 1, player_id, tile_id FROM villages ORDER BY id LIMIT 1;
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
       SELECT 2, 1, player_id, tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1;
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after)
@@ -109,6 +116,7 @@ const prepareReportsTestDatabase = async () => {
         (2, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5, 0);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_report_buildings (
@@ -122,6 +130,7 @@ const prepareReportsTestDatabase = async () => {
         (1, (SELECT id FROM building_ids WHERE building = 'WHEAT_FIELD'), 8, 0);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO hero_adventure_reports (
@@ -129,6 +138,7 @@ const prepareReportsTestDatabase = async () => {
       ) VALUES (2, 1, NULL, NULL, 100, 95);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO movement_reports (id, report_id, origin_tile_id, target_tile_id, movement_type)
@@ -140,12 +150,14 @@ const prepareReportsTestDatabase = async () => {
       );
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO movement_report_units (movement_report_id, unit_id, amount)
       VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 10);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO trade_reports (
@@ -158,18 +170,21 @@ const prepareReportsTestDatabase = async () => {
       );
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO hunting_party_reports (id, report_id, village_tile_id)
       VALUES (1, 5, (SELECT tile_id FROM villages ORDER BY id LIMIT 1));
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO hunting_party_report_units (hunting_party_report_id, unit_id, amount)
       VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'RAT'), 3);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO gathering_expedition_reports (
@@ -183,6 +198,7 @@ const prepareReportsTestDatabase = async () => {
       );
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO gathering_expedition_report_units (
@@ -369,6 +385,7 @@ describe('report-controllers', () => {
         query: { scope: 'global' },
       }),
     );
+
     const unreadReports = getReports(
       database,
       createControllerArgs<'/reports'>({
@@ -411,6 +428,7 @@ describe('report-controllers', () => {
         SET target_tile_id = origin_tile_id;
       `,
     });
+
     database.exec({
       sql: `
         UPDATE reports
@@ -571,6 +589,7 @@ describe('report-controllers', () => {
         SELECT id, 1021, 3 FROM battle_reports WHERE report_id = 1;
       `,
     });
+
     database.execMulti({
       sql: `
         INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
@@ -579,6 +598,7 @@ describe('report-controllers', () => {
           (SELECT id FROM report_outcome_ids WHERE report_outcome = 'scoutAttackerNoLoss'));
       `,
     });
+
     database.exec({
       sql: `
         INSERT INTO scouting_reports (
@@ -613,12 +633,14 @@ describe('report-controllers', () => {
         );
       `,
     });
+
     database.exec({
       sql: `
         INSERT INTO scouting_report_attacker_units (scouting_report_id, unit_id, amount_before, amount_after)
         VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'ROMAN_SCOUT'), 10, 10);
       `,
     });
+
     database.exec({
       sql: `
         INSERT INTO scouting_report_units (scouting_report_id, role, tile_id, unit_id, amount)
@@ -634,6 +656,7 @@ describe('report-controllers', () => {
         path: { reportId: 1 },
       }),
     );
+
     const scoutingReport = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({

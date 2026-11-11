@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
-import { resourceSchema } from '@pillage-first/types/models/resource';
+import {
+  resourceSchema,
+  resourcesSchema,
+} from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import {
   oasisBonusTypeSchema,
@@ -27,10 +30,7 @@ export const getVillageBySlugSchema = z
     slug: z.string(),
     resource_field_composition: resourceFieldCompositionSchema,
     last_updated_at: z.number(),
-    wood: z.number(),
-    clay: z.number(),
-    iron: z.number(),
-    wheat: z.number(),
+    ...resourcesSchema.shape,
     // JSON string aggregated in SQL, mapping is handled in controller mapper
     building_fields: z.string(),
   })

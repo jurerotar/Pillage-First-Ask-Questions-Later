@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { buildingFieldSchema } from '../models/building-field';
 import { coordinatesSchema } from '../models/coordinates';
-import { resourceSchema } from '../models/resource';
+import { resourceSchema, resourcesSchema } from '../models/resource';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
 
 export const villageStorageResourceDtoSchema = z.strictObject({
@@ -33,12 +33,7 @@ export const villageBySlugDtoSchema = z.strictObject({
   slug: z.string(),
   coordinates: coordinatesSchema,
   lastUpdatedAt: z.number(),
-  resources: z.strictObject({
-    wood: z.number(),
-    clay: z.number(),
-    iron: z.number(),
-    wheat: z.number(),
-  }),
+  resources: resourcesSchema,
   resourceFieldComposition: resourceFieldCompositionSchema,
   buildingFields: z.array(buildingFieldSchema),
 });

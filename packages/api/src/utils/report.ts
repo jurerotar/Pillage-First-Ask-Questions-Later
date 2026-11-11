@@ -787,7 +787,7 @@ const persistBattleReport = (
         $battle_id,
         JSON_EXTRACT(participant.value, '$.playerId'),
         JSON_EXTRACT(participant.value, '$.tileId')
-      FROM JSON_EACH($participants) AS participant;
+      FROM jsonb_each($participants) AS participant;
     `,
     bind: {
       $battle_id: battleReportId,
@@ -834,7 +834,7 @@ const persistBattleReport = (
           SUM(JSON_EXTRACT(unit.value, '$.amountBandaged')),
           SUM(JSON_EXTRACT(unit.value, '$.amountConsumed'))
         FROM
-          JSON_EACH($units) AS unit
+          jsonb_each($units) AS unit
           JOIN unit_ids
             ON unit_ids.unit = JSON_EXTRACT(unit.value, '$.unitId')
         GROUP BY
@@ -1071,7 +1071,7 @@ export const insertScoutingReport = (
           unit_ids.id,
           JSON_EXTRACT(unit.value, '$.amount')
         FROM
-          JSON_EACH($units) AS unit
+          jsonb_each($units) AS unit
             JOIN unit_ids
                  ON unit_ids.unit = JSON_EXTRACT(unit.value, '$.unitId');
       `,

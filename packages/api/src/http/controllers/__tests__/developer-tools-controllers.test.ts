@@ -51,6 +51,7 @@ describe('developer-tools-controllers', () => {
     using _clock = vi.spyOn(Date, 'now').mockReturnValue(now);
 
     let expected = 500 + calculatePlayerCulturePointsProduction(database);
+
     for (const amount of [1_000, 10_000, -1_000, -10_000]) {
       adjustCulturePoints(
         database,
@@ -58,6 +59,7 @@ describe('developer-tools-controllers', () => {
           body: { amount },
         }),
       );
+
       expected += amount;
 
       expect(
@@ -608,6 +610,7 @@ describe('developer-tools-controllers', () => {
         bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number(), experience: z.number() }),
       })!;
+
       const heroId = hero.id;
 
       levelUpHero(

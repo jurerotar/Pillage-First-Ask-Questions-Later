@@ -37,7 +37,7 @@ export const ResourceSelector = ({
   const resolvedAvailableLabel = availableLabel ?? t('Available');
 
   const setResourceAmount = (resource: Resource, value: number) => {
-    form.setValue(`resources.${resource}`, value);
+    form.setValue(`resources.${resource}`, value, { shouldValidate: true });
   };
 
   const incrementResourceAmount = (resource: Resource, maxAmount: number) => {

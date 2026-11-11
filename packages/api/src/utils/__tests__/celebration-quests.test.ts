@@ -14,6 +14,13 @@ test('celebrations complete global milestones on start and preserve completion t
     schema: z.number(),
   })!;
 
+  const questIds = database.selectValues({
+    sql: "SELECT quest_id FROM quests WHERE quest_id GLOB 'celebrationCount-*' ORDER BY quest_id;",
+    schema: z.string(),
+  });
+
+  expect(questIds.length).toBeGreaterThan(0);
+
   for (let count = 1; count <= 100; count += 1) {
     runEventCreationSideEffects(database, [
       createGameEventMock('culturePointsCelebration', {
@@ -23,18 +30,20 @@ test('celebrations complete global milestones on start and preserve completion t
       }),
     ]);
 
-    const completed = database.selectObjects({
-      sql: "SELECT quest_id, completed_at FROM quests WHERE quest_id GLOB 'celebrationCount-*'",
-      schema: z.object({
-        quest_id: z.string(),
-        completed_at: z.number().nullable(),
-      }),
+    const completed = database.selectValue({
+      sql: `
+        SELECT json_group_array(json_array(quest_id, completed_at))
+        FROM (SELECT quest_id, completed_at FROM quests WHERE quest_id GLOB 'celebrationCount-*' ORDER BY quest_id);
+      `,
+      schema: z.string(),
     });
 
-    for (const quest of completed) {
-      const milestone = Number(quest.quest_id.split('-')[1]);
+    const expected = questIds.map((questId) => {
+      const milestone = Number(questId.split('-')[1]);
 
-      expect(quest.completed_at).toBe(milestone <= count ? milestone : null);
-    }
+      return [questId, milestone <= count ? milestone : null];
+    });
+
+    expect(completed).toBe(JSON.stringify(expected));
   }
 });

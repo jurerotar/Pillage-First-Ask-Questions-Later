@@ -21,7 +21,7 @@ export const createLoyaltyIncreaseEvent = (
           ) AS event_exists;
     `,
     bind: {
-      $now: Date.now(),
+      $now: startsAt,
     },
     schema: z.coerce.boolean(),
   });

@@ -14,6 +14,7 @@ vi.mock('../resolvers/trapper-resolvers', () => ({
 
 const setup = (database: DbFacade) => {
   database.exec({ sql: 'DELETE FROM events;' });
+
   const event = createTrapperCageProductionEventMock({
     id: 0,
     startsAt: 1000,
@@ -21,11 +22,13 @@ const setup = (database: DbFacade) => {
     villageId: 1,
     cageAmount: 4,
   });
+
   insertEvents(database, [event]);
   event.id = database.selectValue({
     sql: 'SELECT id FROM events;',
     schema: z.number(),
   })!;
+
   const resolver = vi.mocked(trapperCageProductionResolver);
 
   resolver
@@ -40,6 +43,7 @@ const setup = (database: DbFacade) => {
 test('does not call a resolver for a missing event', async () => {
   using database = await prepareTestDatabase();
   const { notify, resolver } = setup(database);
+
   resolveEvent(database, -1, notify);
 
   expect(resolver).not.toHaveBeenCalled();
@@ -48,6 +52,7 @@ test('does not call a resolver for a missing event', async () => {
 test('does not notify for a missing event', async () => {
   using database = await prepareTestDatabase();
   const { notify } = setup(database);
+
   resolveEvent(database, -1, notify);
 
   expect(notify).not.toHaveBeenCalled();
@@ -56,6 +61,7 @@ test('does not notify for a missing event', async () => {
 test('passes the typed event to its resolver', async () => {
   using database = await prepareTestDatabase();
   const { event, notify, resolver } = setup(database);
+
   resolveEvent(database, event.id, notify);
 
   expect(resolver).toHaveBeenCalledExactlyOnceWith(database, event);
@@ -64,6 +70,7 @@ test('passes the typed event to its resolver', async () => {
 test('removes a resolved event from the queue', async () => {
   using database = await prepareTestDatabase();
   const { event, notify } = setup(database);
+
   resolveEvent(database, event.id, notify);
 
   expect(
@@ -77,6 +84,7 @@ test('removes a resolved event from the queue', async () => {
 test('does not resolve the same event twice', async () => {
   using database = await prepareTestDatabase();
   const { event, notify, resolver } = setup(database);
+
   resolveEvent(database, event.id, notify);
   resolveEvent(database, event.id, notify);
 
@@ -86,10 +94,12 @@ test('does not resolve the same event twice', async () => {
 test('publishes the resolver affected villages and tiles on success', async () => {
   using database = await prepareTestDatabase();
   const { resolver, event, notify } = setup(database);
+
   resolver.mockReturnValue({
     affectedVillageIds: [1, 2],
     affectedTileIds: [3],
   });
+
   resolveEvent(database, event.id, notify);
 
   expect(notify).toHaveBeenCalledExactlyOnceWith({
@@ -106,6 +116,7 @@ test('uses the worker notification port when no notifier is supplied', async () 
   using post = vi
     .spyOn(notifications, 'postWorkerMessage')
     .mockReturnValue(undefined);
+
   resolveEvent(database, event.id);
 
   expect(post).toHaveBeenCalledExactlyOnceWith({
@@ -122,6 +133,7 @@ test('uses the supplied notifier instead of the worker port', async () => {
   using post = vi
     .spyOn(notifications, 'postWorkerMessage')
     .mockReturnValue(undefined);
+
   resolveEvent(database, event.id, notify);
 
   expect(post).not.toHaveBeenCalled();
@@ -130,6 +142,7 @@ test('uses the supplied notifier instead of the worker port', async () => {
 test('publishes an error notification when the resolver fails', async () => {
   using database = await prepareTestDatabase();
   const { resolver, event, notify } = setup(database);
+
   resolver.mockImplementation(() => {
     throw new Error('Resolver failed');
   });
@@ -147,6 +160,7 @@ test('rethrows the original resolver error', async () => {
   using database = await prepareTestDatabase();
   const { resolver, event, notify } = setup(database);
   const error = new Error('Resolver failed');
+
   resolver.mockImplementation(() => {
     throw error;
   });

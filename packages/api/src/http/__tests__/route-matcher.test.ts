@@ -57,6 +57,7 @@ describe(matchRoute, () => {
       y: 0,
       animalFilters: [{ animal: 'RAT', amount: 1 }],
     };
+
     const result = matchRoute('/search/oases/by-animals', 'QUERY', body);
 
     expect(result.controller.path).toBe('/search/oases/by-animals');
@@ -134,6 +135,7 @@ describe(matchRoute, () => {
 
   test('matches /me as a real current-player endpoint', () => {
     const result = matchRoute('/me', 'GET');
+
     expect(result.controller.path).toBe('/me');
     expect(Object.keys(result.path)).toHaveLength(0);
   });

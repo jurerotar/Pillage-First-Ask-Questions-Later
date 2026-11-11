@@ -1,13 +1,16 @@
 // @vitest-environment happy-dom
 
-import { fireEvent, render, within } from '@testing-library/react';
-import { describe, expect, test, vi } from 'vitest';
+import { cleanup, fireEvent, render, within } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 
-const renderOverflowContainer = () => {
+const renderOverflowContainer = (children?: ReactNode) => {
   const result = render(
     <OverflowContainer>
       <button type="button">Child action</button>
+      {children}
     </OverflowContainer>,
   );
 
@@ -46,6 +49,93 @@ const renderOverflowContainer = () => {
 };
 
 describe(OverflowContainer, () => {
+  afterEach(cleanup);
+
+  test('does not capture pointers or drag when clicking portal content', () => {
+    const handleClick = vi.fn();
+    const { overflowContainer } = renderOverflowContainer(
+      createPortal(
+        <div data-testid="portal-content">
+          <button
+            type="button"
+            onClick={handleClick}
+          >
+            Portal action
+          </button>
+        </div>,
+        document.body,
+      ),
+    );
+    const portal = within(document.body).getByTestId('portal-content');
+    const button = within(portal).getByRole('button', {
+      name: 'Portal action',
+    });
+
+    fireEvent.pointerDown(button, {
+      button: 0,
+      clientX: 100,
+      pointerId: 1,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(button, {
+      clientX: 40,
+      pointerId: 1,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerUp(button, { pointerId: 1, pointerType: 'mouse' });
+    fireEvent.click(button);
+
+    expect(overflowContainer.setPointerCapture).not.toHaveBeenCalled();
+    expect(overflowContainer.scrollLeft).toBe(0);
+    expect(handleClick).toHaveBeenCalledTimes(1);
+
+    fireEvent.pointerDown(portal, {
+      button: 0,
+      clientX: 100,
+      pointerId: 2,
+      pointerType: 'mouse',
+    });
+
+    expect(overflowContainer.setPointerCapture).not.toHaveBeenCalled();
+  });
+
+  test('does not block portal actions after dragging the scroll area', () => {
+    const handleClick = vi.fn();
+    const { overflowContainer } = renderOverflowContainer(
+      createPortal(
+        <button
+          type="button"
+          onClick={handleClick}
+        >
+          Portal action
+        </button>,
+        document.body,
+      ),
+    );
+    const button = within(document.body).getByRole('button', {
+      name: 'Portal action',
+    });
+
+    fireEvent.pointerDown(overflowContainer, {
+      button: 0,
+      clientX: 100,
+      pointerId: 1,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(overflowContainer, {
+      clientX: 40,
+      pointerId: 1,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerUp(overflowContainer, {
+      pointerId: 1,
+      pointerType: 'mouse',
+    });
+    fireEvent.click(button);
+
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
   test('scrolls horizontally when dragged with a mouse', () => {
     const { overflowContainer } = renderOverflowContainer();
 

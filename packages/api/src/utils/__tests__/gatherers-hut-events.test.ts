@@ -101,6 +101,7 @@ describe('gatherers hut events', () => {
       14, 17, 19, 23, 27, 32, 38, 46, 55, 67, 81, 98, 120, 147, 180, 220, 271,
       334, 412, 508,
     ];
+
     const generatedPartySizes = Array.from({ length: 20 }, (_, index) =>
       calculateGatherersHutPartySize(index + 1),
     );
@@ -272,6 +273,7 @@ describe('gatherers hut events', () => {
 
       const villageId = 1;
       const tileId = getVillageTileId(database, villageId);
+
       setGatherersHutLevel(database, villageId, 20);
       setIdleTroops(
         database,
@@ -279,7 +281,9 @@ describe('gatherers hut events', () => {
         availability === 'insufficient' ? 1 : 2,
         tileId,
       );
+
       setIdleTroops(database, 'SWORDSMAN', 1, tileId);
+
       if (availability === 'missing') {
         database.exec({
           sql: `DELETE FROM troops WHERE tile_id = $tile_id AND source_tile_id = $tile_id
@@ -287,6 +291,7 @@ describe('gatherers hut events', () => {
           bind: { $tile_id: tileId },
         });
       }
+
       const validate = () =>
         validateEventCreationPrerequisites(
           database,
@@ -304,6 +309,7 @@ describe('gatherers hut events', () => {
             ],
           }),
         );
+
       if (availability === 'available') {
         expect(validate).not.toThrow();
       } else {

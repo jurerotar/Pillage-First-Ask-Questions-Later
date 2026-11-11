@@ -30,6 +30,15 @@ import {
 } from '../player-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
+const getTroopSnapshot = (database: DbFacade) =>
+  database.selectValue({
+    sql: `
+      SELECT json_group_array(json_array(tile_id, source_tile_id, unit_id, amount))
+      FROM (SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id);
+    `,
+    schema: z.string(),
+  });
+
 describe('player-controllers', () => {
   const playerId = PLAYER_ID;
 
@@ -245,15 +254,7 @@ describe('player-controllers', () => {
       sent.find((entry) => entry.village.tileId === tileId)?.canRelocate,
     ).toBe(false);
 
-    const before = database.selectObjects({
-      sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
-      schema: z.object({
-        tile_id: tileIdSchema,
-        source_tile_id: tileIdSchema,
-        unit_id: z.number(),
-        amount: z.number(),
-      }),
-    });
+    const before = getTroopSnapshot(database);
 
     expect(() => {
       relocateReinforcements(
@@ -270,17 +271,7 @@ describe('player-controllers', () => {
       'Reinforcements can only be relocated between villages of the same player',
     );
 
-    expect(
-      database.selectObjects({
-        sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
-        schema: z.object({
-          tile_id: tileIdSchema,
-          source_tile_id: tileIdSchema,
-          unit_id: z.number(),
-          amount: z.number(),
-        }),
-      }),
-    ).toEqual(before);
+    expect(getTroopSnapshot(database)).toEqual(before);
   });
 
   test('rejects outgoing relocation involving another player without changing troops', async () => {
@@ -336,15 +327,7 @@ describe('player-controllers', () => {
       sent.find((entry) => entry.village.tileId === tileId)?.canRelocate,
     ).toBe(false);
 
-    const before = database.selectObjects({
-      sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
-      schema: z.object({
-        tile_id: tileIdSchema,
-        source_tile_id: tileIdSchema,
-        unit_id: z.number(),
-        amount: z.number(),
-      }),
-    });
+    const before = getTroopSnapshot(database);
 
     expect(() => {
       relocateSentReinforcements(
@@ -364,17 +347,7 @@ describe('player-controllers', () => {
       'Reinforcements can only be relocated between villages of the same player',
     );
 
-    expect(
-      database.selectObjects({
-        sql: 'SELECT tile_id, source_tile_id, unit_id, amount FROM troops ORDER BY tile_id, source_tile_id, unit_id',
-        schema: z.object({
-          tile_id: tileIdSchema,
-          source_tile_id: tileIdSchema,
-          unit_id: z.number(),
-          amount: z.number(),
-        }),
-      }),
-    ).toEqual(before);
+    expect(getTroopSnapshot(database)).toEqual(before);
   });
 
   const getTroopWheatProductionEffectValue = (
@@ -946,12 +919,14 @@ describe('player-controllers', () => {
     expect(result[0].village.tileId).toBe(targetTileId);
     expect(result[0].canRelocate).toBe(true);
     expect(result[0].troops.every((troop) => troop.canRelocate)).toBe(true);
+
     const stationed = getStationedTroopsByTile(
       database,
       createControllerArgs<'/tiles/:tileId/stationed-troops'>({
         path: { tileId: targetTileId },
       }),
     );
+
     expect(
       stationed
         .filter((troop) => troop.sourceTileId === sourceVillage.tile_id)
@@ -1409,6 +1384,7 @@ describe('player-controllers', () => {
       database,
       targetVillage.id,
     );
+
     const sourceTroopWheatEffectBefore = getTroopWheatProductionEffectValue(
       database,
       sourceVillageId,
@@ -2003,6 +1979,7 @@ describe('player-controllers', () => {
       database,
       sourceVillage.id,
     );
+
     const stationedTroopWheatEffectBefore = getTroopWheatProductionEffectValue(
       database,
       stationedVillageId,
@@ -2372,22 +2349,26 @@ describe('player-controllers', () => {
         }),
       ),
     ).toThrow('Relocations cannot be sent to oases');
+
     const sent = getSentReinforcementsByTile(
       database,
       createControllerArgs<'/tiles/:tileId/sent-reinforcements'>({
         path: { tileId: sourceVillage.tile_id },
       }),
     );
+
     expect(
       sent.find((entry) => entry.village.tileId === stationedTileId)
         ?.canRelocate,
     ).toBe(false);
+
     const stationed = getStationedTroopsByTile(
       database,
       createControllerArgs<'/tiles/:tileId/stationed-troops'>({
         path: { tileId: stationedTileId },
       }),
     );
+
     expect(
       stationed.find((troop) => troop.sourceTileId === sourceVillage.tile_id)
         ?.canRelocate,
