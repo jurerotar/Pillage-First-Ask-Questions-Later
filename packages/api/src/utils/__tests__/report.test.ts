@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import {
-  prepareTestDatabase,
-  seedReportHistory,
-} from '@pillage-first/api/testing';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { insertReport } from '../report';
 
@@ -15,7 +12,15 @@ describe(insertReport, () => {
       sql: 'DELETE FROM reports;',
     });
 
-    seedReportHistory(database, { villageId: 1, count: 999 });
+    for (let timestamp = 1; timestamp <= 999; timestamp += 1) {
+      insertReport(database, {
+        villageId: 1,
+        timestamp,
+        type: 'adventure',
+        outcome: 'heroAdventure',
+        tags: [],
+      });
+    }
 
     const boundaryInsertedId = insertReport(database, {
       villageId: 1,

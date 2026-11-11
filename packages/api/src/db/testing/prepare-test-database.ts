@@ -1,5 +1,4 @@
 import sqlite3InitModule, { type Sqlite3Static } from '@sqlite.org/sqlite-wasm';
-import { z } from 'zod';
 import {
   createDbFacade,
   type DbFacade,
@@ -73,53 +72,4 @@ export const prepareTestDatabase = async (
   };
 
   return { ...facade, close, [Symbol.dispose]: close };
-};
-
-// Preload history without repeatedly pruning it; subsequent report insertions use the real trigger.
-export const seedReportHistory = (
-  database: DbFacade,
-  options: {
-    villageId: number;
-    count: number;
-    firstTimestamp?: number;
-    timestampStep?: number;
-  },
-) => {
-  const { villageId, count, firstTimestamp = 1, timestampStep = 1 } = options;
-
-  database.transaction((db) => {
-    const retentionTrigger = db.selectValue({
-      sql: "SELECT sql FROM sqlite_schema WHERE type = 'trigger' AND name = 'reports_prune_oldest_before_insert';",
-      schema: z.string(),
-    });
-
-    if (!retentionTrigger) {
-      throw new Error(
-        'Report retention trigger must exist before seeding history',
-      );
-    }
-
-    db.exec({ sql: 'DROP TRIGGER reports_prune_oldest_before_insert;' });
-    db.exec({
-      sql: `
-        WITH RECURSIVE sequence(n) AS (
-          SELECT 0
-          UNION ALL
-          SELECT n + 1 FROM sequence WHERE n + 1 < $count
-        )
-        INSERT INTO reports (village_id, timestamp, type_id, report_outcome_id)
-        SELECT $village_id, $first_timestamp + n * $timestamp_step,
-          (SELECT id FROM report_type_ids WHERE report_type = 'adventure'),
-          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'heroAdventure')
-        FROM sequence;
-      `,
-      bind: {
-        $village_id: villageId,
-        $count: count,
-        $first_timestamp: firstTimestamp,
-        $timestamp_step: timestampStep,
-      },
-    });
-    db.execMulti({ sql: retentionTrigger });
-  });
 };

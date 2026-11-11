@@ -1,9 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import {
-  prepareTestDatabase,
-  seedReportHistory,
-} from '@pillage-first/api/testing';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import {
@@ -240,12 +237,15 @@ describe('quest completion on building level up', () => {
       if (removal === 'deletion') {
         database.exec({ sql: 'DELETE FROM reports;' });
       } else {
-        seedReportHistory(database, {
-          villageId: 1,
-          count: 999,
-          firstTimestamp: 2,
-          timestampStep: 0,
-        });
+        for (let count = 0; count < 999; count += 1) {
+          insertReport(database, {
+            villageId: 1,
+            timestamp: 2,
+            type: 'adventure',
+            outcome: 'heroAdventure',
+            tags: [],
+          });
+        }
 
         expect(
           database.selectValue({
