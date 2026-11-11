@@ -665,6 +665,34 @@ export const upgradeDb = (
 
   migrate('0.4.82', (db) => {
     db.transaction((tx) => {
+      // Older migrations create trade_routes using the current schema.
+      const hasMinimumResources = tx.selectValue({
+        sql: "SELECT COUNT(*) FROM pragma_table_info('trade_routes') WHERE name = 'minimum_resources';",
+        schema: z.number(),
+      });
+
+      if (!hasMinimumResources) {
+        tx.exec({
+          sql: `ALTER TABLE trade_routes ADD COLUMN minimum_resources TEXT NOT NULL
+          DEFAULT '{"wood":0,"clay":0,"iron":0,"wheat":0}' CHECK (JSON_VALID(minimum_resources));`,
+        });
+      }
+
+      const hasMinimumMerchants = tx.selectValue({
+        sql: "SELECT COUNT(*) FROM pragma_table_info('trade_routes') WHERE name = 'minimum_merchants';",
+        schema: z.number(),
+      });
+
+      if (!hasMinimumMerchants) {
+        tx.exec({
+          sql: 'ALTER TABLE trade_routes ADD COLUMN minimum_merchants INTEGER NOT NULL DEFAULT 0 CHECK (minimum_merchants >= 0);',
+        });
+      }
+    });
+  });
+
+  migrate('0.4.83', (db) => {
+    db.transaction((tx) => {
       tx.exec({
         sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
       });
@@ -703,34 +731,6 @@ export const upgradeDb = (
       tx.execMulti({ sql: createReportDeleteTriggers });
 
       setupGlobalWriteTriggers(tx);
-    });
-  });
-
-  migrate('0.4.82', (db) => {
-    db.transaction((tx) => {
-      // Older migrations create trade_routes using the current schema.
-      const hasMinimumResources = tx.selectValue({
-        sql: "SELECT COUNT(*) FROM pragma_table_info('trade_routes') WHERE name = 'minimum_resources';",
-        schema: z.number(),
-      });
-
-      if (!hasMinimumResources) {
-        tx.exec({
-          sql: `ALTER TABLE trade_routes ADD COLUMN minimum_resources TEXT NOT NULL
-          DEFAULT '{"wood":0,"clay":0,"iron":0,"wheat":0}' CHECK (JSON_VALID(minimum_resources));`,
-        });
-      }
-
-      const hasMinimumMerchants = tx.selectValue({
-        sql: "SELECT COUNT(*) FROM pragma_table_info('trade_routes') WHERE name = 'minimum_merchants';",
-        schema: z.number(),
-      });
-
-      if (!hasMinimumMerchants) {
-        tx.exec({
-          sql: 'ALTER TABLE trade_routes ADD COLUMN minimum_merchants INTEGER NOT NULL DEFAULT 0 CHECK (minimum_merchants >= 0);',
-        });
-      }
     });
   });
 
