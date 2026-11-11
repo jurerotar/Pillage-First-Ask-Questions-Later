@@ -7,6 +7,7 @@ import {
   useForm,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { LuEllipsis } from 'react-icons/lu';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import type { TradeRoute } from '@pillage-first/types/models/trade-route';
@@ -18,12 +19,12 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { tradeRoutesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
+import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
@@ -33,6 +34,12 @@ import {
   DialogTitle,
 } from 'app/components/ui/dialog';
 import { Form } from 'app/components/ui/form';
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
 import {
   Table,
   TableBody,
@@ -49,7 +56,11 @@ import { TradeRouteAdvancedOptions } from './components/trade-route-advanced-opt
 import { TradeRouteIntervalSelector } from './components/trade-route-interval-selector';
 import { TradeRouteStartTimeSelector } from './components/trade-route-start-time-selector';
 import { useMarketplaceMerchants } from './hooks/use-marketplace-merchants';
-import { emptyResources, getMerchantAmount } from './utils/resources';
+import {
+  emptyResources,
+  getMerchantAmount,
+  resourceTypes,
+} from './utils/resources';
 import {
   createTradeRouteFormSchema,
   type MarketplaceTradeRouteFormValues,
@@ -69,10 +80,6 @@ type MarketplaceTradeRouteFormProps = {
   submitLabel: string;
   targetVillages: ReturnType<typeof usePlayerVillageListing>['playerVillages'];
   totalCapacity: number;
-};
-
-const getResourceList = (resources: typeof emptyResources) => {
-  return [resources.wood, resources.clay, resources.iron, resources.wheat];
 };
 
 const getTradeRouteFormValues = (
@@ -103,6 +110,7 @@ const MarketplaceTradeRouteForm = ({
   capacityResources,
   form,
   isSubmitting,
+  marketplaceLevel,
   merchant,
   onCancel,
   onSubmit,
@@ -134,7 +142,7 @@ const MarketplaceTradeRouteForm = ({
           <TradeRouteIntervalSelector />
         </div>
 
-        <TradeRouteAdvancedOptions />
+        <TradeRouteAdvancedOptions marketplaceLevel={marketplaceLevel} />
 
         <div className="flex justify-end">
           {onCancel ? (
@@ -245,8 +253,12 @@ const SavedTradeRoutes = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-              <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
+              <TableHeaderCell>
+                {t('Resources')} / {t('Minimum')}
+              </TableHeaderCell>
+              <TableHeaderCell>
+                {t('Merchants')} / {t('Minimum')}
+              </TableHeaderCell>
               <TableHeaderCell>{t('Interval')}</TableHeaderCell>
               <TableHeaderCell>{t('Next transfer')}</TableHeaderCell>
               <TableHeaderCell>{t('Actions')}</TableHeaderCell>
@@ -286,8 +298,12 @@ const SavedTradeRoutes = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-                    <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
+                    <TableHeaderCell>
+                      {t('Resources')} / {t('Minimum')}
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      {t('Merchants')} / {t('Minimum')}
+                    </TableHeaderCell>
                     <TableHeaderCell>{t('Interval')}</TableHeaderCell>
                     <TableHeaderCell>{t('Next transfer')}</TableHeaderCell>
                     <TableHeaderCell>{t('Actions')}</TableHeaderCell>
@@ -298,9 +314,22 @@ const SavedTradeRoutes = ({
                     <TableRow key={route.id}>
                       <TableCell>
                         <span className="grid grid-cols-4 lg:grid-cols-2 justify-items-center gap-2">
-                          <Resources
-                            resources={getResourceList(route.resources)}
-                          />
+                          {resourceTypes.map((resource) => (
+                            <span
+                              key={resource}
+                              className="flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Icon
+                                type={resource}
+                                className="size-5"
+                              />
+                              {formatNumber(route.resources[resource])}
+                              <span className="text-muted-foreground">
+                                /{' '}
+                                {formatNumber(route.minimumResources[resource])}
+                              </span>
+                            </span>
+                          ))}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -310,6 +339,10 @@ const SavedTradeRoutes = ({
                             merchant.merchantCapacity,
                           ),
                         )}
+                        <span className="text-muted-foreground">
+                          {' '}
+                          / {formatNumber(route.minimumMerchants)}
+                        </span>
                       </TableCell>
                       <TableCell>{formatTime(route.interval)}</TableCell>
                       <TableCell>
@@ -322,43 +355,86 @@ const SavedTradeRoutes = ({
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="flex justify-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={isPending || isPausePending}
-                            onClick={() => togglePaused(route)}
+                        <Popover>
+                          <PopoverTrigger
+                            render={
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                aria-label={t('Actions')}
+                                title={t('Actions')}
+                              >
+                                <LuEllipsis aria-hidden="true" />
+                              </Button>
+                            }
+                          />
+                          <PopoverContent
+                            align="end"
+                            aria-label={t('Actions')}
+                            className="w-40"
                           >
-                            {route.paused ? t('Resume') : t('Pause')}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onEdit(route)}
-                          >
-                            {t('Edit')}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={isCreating || isPending || isPausePending}
-                            onClick={() => onDuplicate(route)}
-                          >
-                            {t('Duplicate')}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={isPending || isPausePending}
-                            onClick={() => deleteTradeRoute(route.id)}
-                          >
-                            {t('Delete')}
-                          </Button>
-                        </div>
+                            <div className="flex flex-col gap-1">
+                              <PopoverClose
+                                render={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start"
+                                    disabled={isPending || isPausePending}
+                                    onClick={() => togglePaused(route)}
+                                  >
+                                    {route.paused ? t('Resume') : t('Pause')}
+                                  </Button>
+                                }
+                              />
+                              <PopoverClose
+                                render={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start"
+                                    onClick={() => onEdit(route)}
+                                  >
+                                    {t('Edit')}
+                                  </Button>
+                                }
+                              />
+                              <PopoverClose
+                                render={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start"
+                                    disabled={
+                                      isCreating || isPending || isPausePending
+                                    }
+                                    onClick={() => onDuplicate(route)}
+                                  >
+                                    {t('Duplicate')}
+                                  </Button>
+                                }
+                              />
+                              <PopoverClose
+                                render={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start text-destructive"
+                                    disabled={isPending || isPausePending}
+                                    onClick={() => deleteTradeRoute(route.id)}
+                                  >
+                                    {t('Delete')}
+                                  </Button>
+                                }
+                              />
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </TableCell>
                     </TableRow>
                   ))}

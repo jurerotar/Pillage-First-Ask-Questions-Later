@@ -1,8 +1,10 @@
 import { useId } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { LuChevronDown } from 'react-icons/lu';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   FormControl,
   FormField,
@@ -13,15 +15,23 @@ import { Input } from 'app/components/ui/input';
 import { resourceTypes } from '../utils/resources';
 import type { MarketplaceTradeRouteFormValues } from '../utils/trade-route-form';
 
-export const TradeRouteAdvancedOptions = () => {
+export const TradeRouteAdvancedOptions = ({
+  marketplaceLevel,
+}: {
+  marketplaceLevel: number;
+}) => {
   const { t } = useTranslation();
   const id = useId();
   const form = useFormContext<MarketplaceTradeRouteFormValues>();
 
   return (
-    <details className="group border rounded-md p-3">
-      <summary className="cursor-pointer font-medium group-open:mb-4">
+    <details className="group">
+      <summary className="flex items-center gap-2 cursor-pointer list-none font-medium group-open:mb-4 [&::-webkit-details-marker]:hidden">
         {t('Advanced')}
+        <LuChevronDown
+          aria-hidden="true"
+          className="size-4 shrink-0 transition-transform group-open:rotate-180"
+        />
       </summary>
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium">
@@ -68,6 +78,29 @@ export const TradeRouteAdvancedOptions = () => {
                       }}
                     />
                   </FormControl>
+                  <div className="flex justify-between">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="fit"
+                      className="text-xs p-1!"
+                      disabled={field.value <= 0}
+                      onClick={() =>
+                        field.onChange(Math.max(0, field.value - 500))
+                      }
+                    >
+                      - 500
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="fit"
+                      className="text-xs p-1!"
+                      onClick={() => field.onChange(field.value + 500)}
+                    >
+                      + 500
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -97,17 +130,47 @@ export const TradeRouteAdvancedOptions = () => {
                 id={`${id}-merchants`}
                 type="number"
                 min={0}
+                max={marketplaceLevel}
                 step={1}
-                className="max-w-40"
+                className="max-w-20 self-start"
                 value={field.value === 0 ? '' : field.value}
                 placeholder="0"
                 onChange={(event) => {
                   field.onChange(
-                    event.target.value === '' ? 0 : event.target.valueAsNumber,
+                    event.target.value === ''
+                      ? 0
+                      : Math.min(
+                          marketplaceLevel,
+                          Math.max(0, event.target.valueAsNumber),
+                        ),
                   );
                 }}
               />
             </FormControl>
+            <div className="flex justify-between w-20">
+              <Button
+                type="button"
+                variant="outline"
+                size="fit"
+                className="text-xs p-1!"
+                disabled={field.value <= 0}
+                onClick={() => field.onChange(Math.max(0, field.value - 1))}
+              >
+                - 1
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="fit"
+                className="text-xs p-1!"
+                disabled={field.value >= marketplaceLevel}
+                onClick={() =>
+                  field.onChange(Math.min(marketplaceLevel, field.value + 1))
+                }
+              >
+                + 1
+              </Button>
+            </div>
             <FormMessage />
           </FormItem>
         )}
