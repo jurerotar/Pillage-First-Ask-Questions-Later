@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
+import { calculateGridLayout } from '@pillage-first/utils/map';
 import {
   insertEffectQuery,
   selectWheatProductionEffectIdQuery,
@@ -33,6 +34,12 @@ describe('map-controllers', () => {
       sql: 'SELECT tile_id FROM oasis LIMIT 1;',
       schema: z.number(),
     })!;
+
+    // The three state transitions need these tiles, not a repeated full-world projection.
+    database.exec({
+      sql: 'DELETE FROM tiles WHERE id NOT IN ($village_tile_id, $oasis_tile_id);',
+      bind: { $village_tile_id: village.tile_id, $oasis_tile_id: oasisId },
+    });
 
     const name = 'Village "雪🧭"\n\\end';
 
@@ -70,6 +77,8 @@ describe('map-controllers', () => {
     });
 
     const tiles = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    expect(tiles.filter((tile) => tile !== null)).toHaveLength(2);
 
     for (const id of [village.tile_id, oasisId]) {
       expect(tiles[id - 1]?.ownerVillage).toStrictEqual({
@@ -206,6 +215,22 @@ describe('map-controllers', () => {
     }
 
     const result = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    const mapSize = database.selectValue({
+      sql: 'SELECT map_size FROM servers;',
+      schema: z.number(),
+    })!;
+
+    expect(result).toHaveLength(calculateGridLayout(mapSize).totalTiles);
+    expect(
+      result.every((tile, index) => tile === null || tile.id === index + 1),
+    ).toBe(true);
+    expect(result.filter((tile) => tile !== null)).toHaveLength(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM tiles;',
+        schema: z.int(),
+      })!,
+    );
 
     const testTile = result.find((t) => t?.ownerVillage?.id === village.id)!;
 

@@ -164,6 +164,7 @@ describe('incoming storage deliveries', () => {
       repeatRemaining: 0,
       repeatResources: { wood: 100, clay: 100, iron: 100, wheat: 100 },
     };
+
     const events = [
       transfer,
       { ...transfer, id: 2, duration: 2 * hour, resolvesAt: 2 * hour },

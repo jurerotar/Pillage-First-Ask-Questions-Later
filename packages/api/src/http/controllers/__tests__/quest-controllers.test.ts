@@ -113,6 +113,7 @@ describe('quest-controllers', () => {
     })!;
 
     const questId = 'gatheredResourceCount-1';
+
     database.exec({
       sql: `
         INSERT INTO quests (player_id, quest_id, completed_at, village_id)

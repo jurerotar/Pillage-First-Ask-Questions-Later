@@ -1,8 +1,4 @@
 export const selectTilesByResourceFieldCompositionQuery = `
-  WITH
-    src_village(x, y) AS (
-      VALUES ($tile_x, $tile_y)
-    )
   SELECT
     t.id AS tile_id,
     t.x AS coordinates_x,
@@ -13,12 +9,11 @@ export const selectTilesByResourceFieldCompositionQuery = `
     v.slug AS owner_village_slug,
     t.x AS owner_village_x,
     t.y AS owner_village_y,
-    ((t.x - sv.x) * (t.x - sv.x) + (t.y - sv.y) * (t.y - sv.y)) AS distance_squared
+    ((t.x - $tile_x) * (t.x - $tile_x) + (t.y - $tile_y) * (t.y - $tile_y)) AS distance_squared
   FROM tiles t
   LEFT JOIN resource_field_composition_ids rfc
     ON rfc.id = t.resource_field_composition_id
   LEFT JOIN villages v ON v.tile_id = t.id
-  CROSS JOIN src_village sv
   WHERE
     -- Verify each composition match's type without walking the type/coordinate index.
     EXISTS (
@@ -55,16 +50,13 @@ export const selectOccupiableOasesQuery = `
   FROM oasis o
   JOIN tiles ot ON ot.id = o.tile_id
   JOIN resource_ids ri ON ri.id = o.resource_id
-  GROUP BY o.tile_id, ot.x, ot.y
+  GROUP BY o.tile_id
   ORDER BY o.tile_id;
 `;
 
 export const selectTilesByOasisBonusesQuery = `
   WITH
-    src_village(x, y) AS (
-      VALUES ($tile_x, $tile_y)
-    ),
-    requested_slot_bonuses AS (
+    requested_slot_bonuses AS MATERIALIZED (
       SELECT
         CAST(key AS INTEGER) AS request_id,
         CAST(JSON_EXTRACT(value, '$.slot') AS INTEGER) AS slot_index,
@@ -89,7 +81,11 @@ export const selectTilesByOasisBonusesQuery = `
       SELECT COUNT(*) AS value
       FROM slot_bonus_counts
     ),
-    candidates AS (
+    -- Skip the map scan when no slot bonuses were requested.
+    active_requests AS MATERIALIZED (
+      SELECT 1 FROM requested_slot_bonuses LIMIT 1
+    ),
+    candidates AS MATERIALIZED (
       SELECT
         t.id,
         t.x,
@@ -98,12 +94,16 @@ export const selectTilesByOasisBonusesQuery = `
         v.id AS owner_village_id,
         v.name AS owner_village_name,
         v.slug AS owner_village_slug
-      FROM tiles t
+      FROM active_requests
+      CROSS JOIN tiles t
       LEFT JOIN resource_field_composition_ids rfc
         ON rfc.id = t.resource_field_composition_id
       LEFT JOIN villages v ON v.tile_id = t.id
       WHERE
-        t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
+        EXISTS (
+          SELECT 1 FROM tile_type_ids tt
+          WHERE tt.id = t.type_id AND tt.type = 'free'
+        )
         AND ($show_occupied_tiles = 1 OR v.id IS NULL)
         AND t.resource_field_composition_id IN (
           SELECT id
@@ -186,9 +186,8 @@ export const selectTilesByOasisBonusesQuery = `
     c.owner_village_slug,
     c.x AS owner_village_x,
     c.y AS owner_village_y,
-    ((c.x - sv.x) * (c.x - sv.x) + (c.y - sv.y) * (c.y - sv.y)) AS distance_squared
+    ((c.x - $tile_x) * (c.x - $tile_x) + (c.y - $tile_y) * (c.y - $tile_y)) AS distance_squared
   FROM candidates c
   JOIN valid_candidates vc ON vc.candidate_tile = c.id
-  CROSS JOIN src_village sv
   ORDER BY distance_squared ASC;
 `;

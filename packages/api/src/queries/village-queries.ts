@@ -181,8 +181,9 @@ export const selectOccupiableOasisInRangeQuery = `
 export const selectVillageBuildingLevelQuery = `
   SELECT MAX(bf.level) AS level
   FROM
+    -- Limit the lookup to this village's fields before resolving building names.
     building_fields bf
-      JOIN building_ids bi ON bi.id = bf.building_id
+      CROSS JOIN building_ids bi ON bi.id = bf.building_id
   WHERE
     bf.village_id = $village_id
     AND bi.building = $building_id
@@ -342,7 +343,7 @@ export const insertRearrangedBuildingFieldsQuery = `
 `;
 
 export const updateRearrangedBuildingFieldEventsQuery = `
-  WITH updates_raw(field_id, building_text, source_field_id) AS (
+  WITH updates_raw(field_id, building_text, source_field_id) AS MATERIALIZED (
     SELECT
       CAST(value ->> '$.buildingFieldId' AS INTEGER),
       value ->> '$.buildingId',
@@ -369,7 +370,7 @@ export const updateRearrangedBuildingFieldEventsQuery = `
 `;
 
 export const updateRearrangedScheduledBuildingUpgradesQuery = `
-  WITH updates_raw(field_id, building_text, source_field_id) AS (
+  WITH updates_raw(field_id, building_text, source_field_id) AS MATERIALIZED (
     SELECT
       CAST(value ->> '$.buildingFieldId' AS INTEGER),
       value ->> '$.buildingId',

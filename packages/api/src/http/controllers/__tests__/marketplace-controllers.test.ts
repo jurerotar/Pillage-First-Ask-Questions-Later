@@ -20,6 +20,7 @@ import {
   transferResources,
   updateTradeRoute,
 } from '../marketplace-controllers';
+import { createTradeRouteBodySchema } from '../schemas/marketplace-schemas';
 import { createControllerArgs } from './utils/controller-args';
 
 const NOW = 1_000_000;
@@ -228,10 +229,14 @@ const getResourceTransferCount = (database: DbFacade) =>
     schema: z.number(),
   })!;
 
-const getNextStartAtForHour = (now: number, startHour: number) => {
+const getNextStartAtForHour = (
+  now: number,
+  startHour: number,
+  startMinute = 0,
+) => {
   const startsAt = new Date(now);
-  startsAt.setMinutes(0, 0, 0);
-  startsAt.setHours(startHour);
+
+  startsAt.setHours(startHour, startMinute, 0, 0);
 
   if (startsAt.getTime() <= now) {
     startsAt.setDate(startsAt.getDate() + 1);
@@ -241,12 +246,253 @@ const getNextStartAtForHour = (now: number, startHour: number) => {
 };
 
 describe('marketplace-controllers', () => {
+  test('accepts explicit zero trade route reserves', () => {
+    const body = createTradeRouteBodySchema.parse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(body.minimumResources).toStrictEqual({
+      wood: 0,
+      clay: 0,
+      iron: 0,
+      wheat: 0,
+    });
+    expect(body.minimumMerchants).toBe(0);
+  });
+
+  test('requires merchant reserves in the request', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path)).toStrictEqual([
+      ['minimumMerchants'],
+    ]);
+  });
+
+  test('requires resource reserves in the request', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumMerchants: 0,
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path)).toStrictEqual([
+      ['minimumResources'],
+    ]);
+  });
+
+  test('rejects negative merchant reserves', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumMerchants: -1,
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects fractional merchant reserves', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumMerchants: 1.5,
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects negative trade route reserves', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumResources: { wood: -1, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects fractional trade route reserves', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      minimumResources: { wood: 0, clay: 0, iron: 0.5, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects a negative start minute', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      startMinute: -1,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects a start minute of 60', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      startMinute: 60,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects a fractional start minute', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      startMinute: 1.5,
+      intervalHours: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects a zero-hour interval with omitted minutes', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 0,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects a zero-hour and zero-minute interval', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 0,
+      intervalMinutes: 0,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects negative interval hours', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: -1,
+      intervalMinutes: 30,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects fractional interval hours', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1.5,
+      intervalMinutes: 0,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects negative interval minutes', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+      intervalMinutes: -1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects interval minutes of 60', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+      intervalMinutes: 60,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test('rejects fractional interval minutes', () => {
+    const result = createTradeRouteBodySchema.safeParse({
+      minimumMerchants: 0,
+      minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      targetTileId: 1,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      startHour: 12,
+      intervalHours: 1,
+      intervalMinutes: 1.5,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   afterEach(() => {
     vi.useRealTimers();
   });
 
   test('transferResources should create a resource transfer and subtract source resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -304,10 +550,7 @@ describe('marketplace-controllers', () => {
         target_village_id: z.number(),
         origin_tile_id: tileIdSchema,
         target_tile_id: tileIdSchema,
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
+        ...resourcesSchema.shape,
         merchant_amount: z.number(),
       }),
     })!;
@@ -335,6 +578,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should create a repeated transfer chain starter', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -377,9 +621,9 @@ describe('marketplace-controllers', () => {
         WHERE type = 'resourceTransfer';
       `,
       schema: z.strictObject({
-        wood: z.number(),
+        wood: resourcesSchema.shape.wood,
         repeat_remaining: z.number(),
-        repeat_wood: z.number(),
+        repeat_wood: resourcesSchema.shape.wood,
       }),
     })!;
 
@@ -398,6 +642,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject when not enough free merchants are available', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -435,6 +680,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should use trade office merchant capacity', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -444,6 +690,7 @@ describe('marketplace-controllers', () => {
       database,
       'Trade Office Transfer Target',
     );
+
     const baseMerchantCapacity = merchantsMap.get(
       sourceVillage.tribe,
     )!.merchantCapacity;
@@ -487,6 +734,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject when the source village has no marketplace', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -527,6 +775,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should count merchants already on the way', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -576,6 +825,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should not count incoming merchants as occupied', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -643,6 +893,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject when source village does not have enough resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -681,6 +932,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject missing target villages before creating events', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -722,6 +974,7 @@ describe('marketplace-controllers', () => {
 
   test('transferResources should reject target villages not owned by the player', async () => {
     using database = await prepareTestDatabase();
+
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
 
@@ -753,8 +1006,9 @@ describe('marketplace-controllers', () => {
     ).toThrow('Target village does not exist or does not belong to player');
   });
 
-  test('createTradeRoute should create a scheduled trade route without subtracting resources', async () => {
+  test('createTradeRoute schedules an hourly route with omitted minutes without subtracting resources', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -775,7 +1029,9 @@ describe('marketplace-controllers', () => {
       database,
       createControllerArgs<'/tiles/:tileId/trade-routes', 'post'>({
         path: { tileId: sourceVillage.tileId },
-        body: {
+        body: createTradeRouteBodySchema.parse({
+          minimumMerchants: 0,
+          minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
           targetTileId: targetVillage.tileId,
           startHour,
           intervalHours: 6,
@@ -785,30 +1041,30 @@ describe('marketplace-controllers', () => {
             iron: 25,
             wheat: 10,
           },
-        },
+        }),
       }),
     );
 
     const route = database.selectObject({
       sql: `
-        SELECT
-          e.starts_at,
-          e.duration,
-          e.village_id,
-          r.target_village_id AS target_village_id,
-          origin.tile_id AS origin_tile_id,
-          target.tile_id AS target_tile_id,
-          JSON_EXTRACT(r.resources, '$.wood') AS wood,
-          JSON_EXTRACT(r.resources, '$.clay') AS clay,
-          JSON_EXTRACT(r.resources, '$.iron') AS iron,
-          JSON_EXTRACT(r.resources, '$.wheat') AS wheat,
-          r.interval AS interval
-        FROM events e
-        JOIN trade_routes r ON r.id = JSON_EXTRACT(e.meta, '$.tradeRouteId')
-        JOIN villages origin ON origin.id = r.village_id
-        JOIN villages target ON target.id = r.target_village_id
-        WHERE e.type = 'tradeRoute';
-      `,
+      SELECT
+        e.starts_at,
+        e.duration,
+        e.village_id,
+        r.target_village_id AS target_village_id,
+        origin.tile_id AS origin_tile_id,
+        target.tile_id AS target_tile_id,
+        JSON_EXTRACT(r.resources, '$.wood') AS wood,
+        JSON_EXTRACT(r.resources, '$.clay') AS clay,
+        JSON_EXTRACT(r.resources, '$.iron') AS iron,
+        JSON_EXTRACT(r.resources, '$.wheat') AS wheat,
+        r.interval AS interval
+      FROM events e
+      JOIN trade_routes r ON r.id = JSON_EXTRACT(e.meta, '$.tradeRouteId')
+      JOIN villages origin ON origin.id = r.village_id
+      JOIN villages target ON target.id = r.target_village_id
+      WHERE e.type = 'tradeRoute';
+    `,
       schema: z.strictObject({
         starts_at: z.number(),
         duration: z.number(),
@@ -816,10 +1072,7 @@ describe('marketplace-controllers', () => {
         target_village_id: z.number(),
         origin_tile_id: tileIdSchema,
         target_tile_id: tileIdSchema,
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
+        ...resourcesSchema.shape,
         interval: z.number(),
       }),
     })!;
@@ -845,8 +1098,197 @@ describe('marketplace-controllers', () => {
     });
   });
 
+  test('createTradeRoute schedules a mixed hour and minute interval later this hour without subtracting resources', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(database, 'Route Target');
+    const startHour = (new Date(NOW).getHours() + 0) % 24;
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tileId, {
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
+
+    createTradeRoute(
+      database,
+      createControllerArgs<'/tiles/:tileId/trade-routes', 'post'>({
+        path: { tileId: sourceVillage.tileId },
+        body: {
+          targetTileId: targetVillage.tileId,
+          startHour,
+          startMinute: 30,
+          intervalHours: 1,
+          intervalMinutes: 30,
+          minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+          minimumMerchants: 0,
+          resources: {
+            wood: 100,
+            clay: 50,
+            iron: 25,
+            wheat: 10,
+          },
+        },
+      }),
+    );
+
+    const route = database.selectObject({
+      sql: `
+      SELECT
+        e.starts_at,
+        e.duration,
+        e.village_id,
+        r.target_village_id AS target_village_id,
+        origin.tile_id AS origin_tile_id,
+        target.tile_id AS target_tile_id,
+        JSON_EXTRACT(r.resources, '$.wood') AS wood,
+        JSON_EXTRACT(r.resources, '$.clay') AS clay,
+        JSON_EXTRACT(r.resources, '$.iron') AS iron,
+        JSON_EXTRACT(r.resources, '$.wheat') AS wheat,
+        r.interval AS interval
+      FROM events e
+      JOIN trade_routes r ON r.id = JSON_EXTRACT(e.meta, '$.tradeRouteId')
+      JOIN villages origin ON origin.id = r.village_id
+      JOIN villages target ON target.id = r.target_village_id
+      WHERE e.type = 'tradeRoute';
+    `,
+      schema: z.strictObject({
+        starts_at: z.number(),
+        duration: z.number(),
+        village_id: z.number(),
+        target_village_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
+        ...resourcesSchema.shape,
+        interval: z.number(),
+      }),
+    })!;
+
+    expect(route).toStrictEqual({
+      starts_at: getNextStartAtForHour(NOW, startHour, 30),
+      duration: 0,
+      village_id: sourceVillage.id,
+      target_village_id: targetVillage.id,
+      origin_tile_id: sourceVillage.tileId,
+      target_tile_id: targetVillage.tileId,
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+      interval: 90 * 60 * 1000,
+    });
+    expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
+  });
+
+  test('createTradeRoute schedules a minute-only interval tomorrow when the start time has passed without subtracting resources', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(database, 'Route Target');
+    const startHour = (new Date(NOW).getHours() + 0) % 24;
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tileId, {
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
+
+    createTradeRoute(
+      database,
+      createControllerArgs<'/tiles/:tileId/trade-routes', 'post'>({
+        path: { tileId: sourceVillage.tileId },
+        body: {
+          targetTileId: targetVillage.tileId,
+          startHour,
+          startMinute: 5,
+          intervalHours: 0,
+          intervalMinutes: 15,
+          minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+          minimumMerchants: 0,
+          resources: {
+            wood: 100,
+            clay: 50,
+            iron: 25,
+            wheat: 10,
+          },
+        },
+      }),
+    );
+
+    const route = database.selectObject({
+      sql: `
+      SELECT
+        e.starts_at,
+        e.duration,
+        e.village_id,
+        r.target_village_id AS target_village_id,
+        origin.tile_id AS origin_tile_id,
+        target.tile_id AS target_tile_id,
+        JSON_EXTRACT(r.resources, '$.wood') AS wood,
+        JSON_EXTRACT(r.resources, '$.clay') AS clay,
+        JSON_EXTRACT(r.resources, '$.iron') AS iron,
+        JSON_EXTRACT(r.resources, '$.wheat') AS wheat,
+        r.interval AS interval
+      FROM events e
+      JOIN trade_routes r ON r.id = JSON_EXTRACT(e.meta, '$.tradeRouteId')
+      JOIN villages origin ON origin.id = r.village_id
+      JOIN villages target ON target.id = r.target_village_id
+      WHERE e.type = 'tradeRoute';
+    `,
+      schema: z.strictObject({
+        starts_at: z.number(),
+        duration: z.number(),
+        village_id: z.number(),
+        target_village_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
+        ...resourcesSchema.shape,
+        interval: z.number(),
+      }),
+    })!;
+
+    expect(route).toStrictEqual({
+      starts_at: getNextStartAtForHour(NOW, startHour, 5),
+      duration: 0,
+      village_id: sourceVillage.id,
+      target_village_id: targetVillage.id,
+      origin_tile_id: sourceVillage.tileId,
+      target_tile_id: targetVillage.tileId,
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+      interval: 15 * 60 * 1000,
+    });
+    expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
+  });
+
   test('createTradeRoute should validate against trade office merchant capacity without storing merchant amount', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -856,6 +1298,7 @@ describe('marketplace-controllers', () => {
       database,
       'Trade Office Route Target',
     );
+
     const startHour = (new Date(NOW).getHours() + 1) % 24;
     const baseMerchantCapacity = merchantsMap.get(
       sourceVillage.tribe,
@@ -872,6 +1315,10 @@ describe('marketplace-controllers', () => {
           targetTileId: targetVillage.tileId,
           startHour,
           intervalHours: 6,
+          startMinute: 0,
+          intervalMinutes: 0,
+          minimumResources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+          minimumMerchants: 0,
           resources: {
             wood: baseMerchantCapacity + 1,
             clay: 0,
@@ -896,6 +1343,7 @@ describe('marketplace-controllers', () => {
 
   test('saved routes retain settings while paused and resume without duplicate or missed departures', async () => {
     using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
 
     vi.useFakeTimers();
@@ -909,8 +1357,12 @@ describe('marketplace-controllers', () => {
     const body = {
       targetTileId: target.tileId,
       resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
+      minimumResources: { wood: 1000, clay: 2000, iron: 3000, wheat: 4000 },
+      minimumMerchants: 1,
       startHour: 3,
+      startMinute: 0,
       intervalHours: 6,
+      intervalMinutes: 0,
     };
 
     createTradeRoute(
@@ -932,6 +1384,8 @@ describe('marketplace-controllers', () => {
     const [original] = list();
 
     expect(original.paused).toBe(false);
+    expect(original.minimumResources).toStrictEqual(body.minimumResources);
+    expect(original.minimumMerchants).toBe(body.minimumMerchants);
     expect(original.nextAt).toBe(original.startsAt);
 
     const otherPlayerId = database.selectValue({
@@ -939,6 +1393,7 @@ describe('marketplace-controllers', () => {
       bind: { $player_id: PLAYER_ID },
       schema: z.number(),
     })!;
+
     expect(
       listTradeRoutes(
         database,
@@ -958,7 +1413,9 @@ describe('marketplace-controllers', () => {
         }),
       ),
     ).toThrow('Source village does not belong to player');
+
     const path = { routeId: original.id };
+
     expect(() =>
       updateTradeRoute(
         database,
@@ -1030,7 +1487,14 @@ describe('marketplace-controllers', () => {
       database,
       createControllerArgs<'/trade-routes/:routeId', 'patch'>({
         path,
-        body: { ...body, intervalHours: 12 },
+        body: {
+          ...body,
+          intervalHours: 12,
+          intervalMinutes: 45,
+          startMinute: 45,
+          minimumResources: { wood: 500, clay: 600, iron: 700, wheat: 800 },
+          minimumMerchants: 2,
+        },
       }),
     );
 
@@ -1038,8 +1502,11 @@ describe('marketplace-controllers', () => {
     expect(list()[0]).toMatchObject({
       id: original.id,
       paused: true,
-      interval: 12 * 60 * 60 * 1000,
+      interval: (12 * 60 + 45) * 60 * 1000,
+      startsAt: getNextStartAtForHour(Date.now(), body.startHour, 45),
       resources: body.resources,
+      minimumResources: { wood: 500, clay: 600, iron: 700, wheat: 800 },
+      minimumMerchants: 2,
     });
 
     toggle(false);

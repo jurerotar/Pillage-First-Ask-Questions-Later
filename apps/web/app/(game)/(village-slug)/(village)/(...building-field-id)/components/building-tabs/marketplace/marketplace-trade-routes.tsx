@@ -1,7 +1,13 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { use, useMemo, useState } from 'react';
-import { type UseFormReturn, useForm } from 'react-hook-form';
+import { use, useMemo, useRef, useState } from 'react';
+import {
+  type DefaultValues,
+  type UseFormReturn,
+  useForm,
+} from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { LuEllipsis } from 'react-icons/lu';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import type { TradeRoute } from '@pillage-first/types/models/trade-route';
@@ -13,12 +19,12 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { tradeRoutesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
+import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
@@ -27,14 +33,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem } from 'app/components/ui/form';
+import { Form } from 'app/components/ui/form';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from 'app/components/ui/select';
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
 import {
   Table,
   TableBody,
@@ -47,27 +52,22 @@ import { invalidateQueries } from 'app/utils/react-query';
 import { formatTime } from 'app/utils/time';
 import { ResourceSelector } from './components/resource-selector';
 import { TargetVillageSelector } from './components/target-village-selector';
+import { TradeRouteAdvancedOptions } from './components/trade-route-advanced-options';
+import { TradeRouteIntervalSelector } from './components/trade-route-interval-selector';
+import { TradeRouteStartTimeSelector } from './components/trade-route-start-time-selector';
 import { useMarketplaceMerchants } from './hooks/use-marketplace-merchants';
 import {
   emptyResources,
   getMerchantAmount,
-  getTotalResources,
+  resourceTypes,
 } from './utils/resources';
+import {
+  createTradeRouteFormSchema,
+  type MarketplaceTradeRouteFormValues,
+} from './utils/trade-route-form';
 
 const DEFAULT_INTERVAL_HOURS = 24;
 const HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
-const START_HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) => hour);
-const INTERVAL_HOUR_OPTIONS = Array.from(
-  { length: 24 },
-  (_, index) => index + 1,
-);
-
-type MarketplaceTradeRouteFormValues = {
-  resources: typeof emptyResources;
-  targetVillageId?: number;
-  startHour: number;
-  intervalHours: number;
-};
 
 type MarketplaceTradeRouteFormProps = {
   capacityResources: typeof emptyResources;
@@ -82,29 +82,35 @@ type MarketplaceTradeRouteFormProps = {
   totalCapacity: number;
 };
 
-const getResourceList = (resources: typeof emptyResources) => {
-  return [resources.wood, resources.clay, resources.iron, resources.wheat];
-};
-
 const getTradeRouteFormValues = (
   route: TradeRoute,
 ): MarketplaceTradeRouteFormValues => ({
   resources: route.resources,
+  minimumResources: route.minimumResources,
+  minimumMerchants: route.minimumMerchants,
   targetVillageId: route.targetVillageId,
   startHour: new Date(route.startsAt).getHours(),
-  intervalHours: Math.round(route.interval / HOUR_IN_MILLISECONDS),
+  startMinute: new Date(route.startsAt).getMinutes(),
+  intervalHours: Math.floor(route.interval / HOUR_IN_MILLISECONDS),
+  intervalMinutes: Math.floor((route.interval % HOUR_IN_MILLISECONDS) / 60_000),
 });
 
-const getDefaultTradeRouteFormValues = (): MarketplaceTradeRouteFormValues => ({
-  resources: emptyResources,
-  startHour: new Date().getHours(),
-  intervalHours: DEFAULT_INTERVAL_HOURS,
-});
+const getDefaultTradeRouteFormValues =
+  (): DefaultValues<MarketplaceTradeRouteFormValues> => ({
+    resources: emptyResources,
+    minimumResources: emptyResources,
+    minimumMerchants: 0,
+    startHour: new Date().getHours(),
+    startMinute: 0,
+    intervalHours: DEFAULT_INTERVAL_HOURS,
+    intervalMinutes: 0,
+  });
 
 const MarketplaceTradeRouteForm = ({
   capacityResources,
   form,
   isSubmitting,
+  marketplaceLevel,
   merchant,
   onCancel,
   onSubmit,
@@ -114,37 +120,12 @@ const MarketplaceTradeRouteForm = ({
 }: MarketplaceTradeRouteFormProps) => {
   const { t } = useTranslation();
   const selectedResources = form.watch('resources');
-  const targetVillageId = form.watch('targetVillageId');
-  const startHour = form.watch('startHour');
-  const intervalHours = form.watch('intervalHours');
-
-  const totalSelectedResources = getTotalResources(selectedResources);
-  const merchantAmount = getMerchantAmount(
-    selectedResources,
-    merchant.merchantCapacity,
-  );
-  const hasTargetVillage = targetVillages.some(
-    (village) => village.id === targetVillageId,
-  );
-  const isStartHourValid = startHour >= 0 && startHour <= 23;
-  const isIntervalValid = intervalHours > 0;
-  const canSubmit =
-    hasTargetVillage &&
-    totalSelectedResources > 0 &&
-    totalSelectedResources <= totalCapacity &&
-    merchantAmount > 0 &&
-    isStartHourValid &&
-    isIntervalValid;
 
   return (
     <Form {...form}>
       <form
         className="space-y-4"
-        onSubmit={form.handleSubmit((values) => {
-          if (canSubmit) {
-            onSubmit(values);
-          }
-        })}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <ResourceSelector
           availableLabel={t('Capacity')}
@@ -157,88 +138,11 @@ const MarketplaceTradeRouteForm = ({
         <div className="flex gap-2 flex-wrap">
           <TargetVillageSelector targetVillages={targetVillages} />
 
-          <FormField
-            control={form.control}
-            name="startHour"
-            render={({ field }) => (
-              <FormItem className="flex flex-col gap-2">
-                <label
-                  htmlFor="trade-route-start-hour"
-                  className="text-sm font-medium"
-                >
-                  {t('Begin at')}
-                </label>
-                <Select
-                  value={field.value.toString()}
-                  onValueChange={(value) => {
-                    field.onChange(Number.parseInt(value, 10));
-                  }}
-                >
-                  <FormControl>
-                    <SelectTrigger
-                      id="trade-route-start-hour"
-                      className="bg-emerald-50/50 dark:bg-emerald-950/20"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {START_HOUR_OPTIONS.map((hour) => (
-                      <SelectItem
-                        key={hour}
-                        value={hour.toString()}
-                      >
-                        {hour.toString().padStart(2, '0')}:00
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="intervalHours"
-            render={({ field }) => (
-              <FormItem className="flex flex-col gap-2">
-                <label
-                  htmlFor="trade-route-interval"
-                  className="text-sm font-medium"
-                >
-                  {t('Repeat every')}
-                </label>
-                <Select
-                  value={field.value.toString()}
-                  onValueChange={(value) => {
-                    field.onChange(Number.parseInt(value, 10));
-                  }}
-                >
-                  <FormControl>
-                    <SelectTrigger
-                      id="trade-route-interval"
-                      className="bg-emerald-50/50 dark:bg-emerald-950/20"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {INTERVAL_HOUR_OPTIONS.map((hours) => (
-                      <SelectItem
-                        key={hours}
-                        value={hours.toString()}
-                      >
-                        {hours === 1
-                          ? t('1 hour')
-                          : t('{{count}} hours', { count: hours })}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+          <TradeRouteStartTimeSelector />
+          <TradeRouteIntervalSelector />
         </div>
+
+        <TradeRouteAdvancedOptions marketplaceLevel={marketplaceLevel} />
 
         <div className="flex justify-end">
           {onCancel ? (
@@ -254,7 +158,7 @@ const MarketplaceTradeRouteForm = ({
           ) : null}
           <Button
             type="submit"
-            disabled={!canSubmit || isSubmitting}
+            disabled={!form.formState.isValid || isSubmitting}
           >
             {submitLabel}
           </Button>
@@ -265,11 +169,15 @@ const MarketplaceTradeRouteForm = ({
 };
 
 const SavedTradeRoutes = ({
+  isCreating,
   merchant,
+  onDuplicate,
   onEdit,
   routes,
 }: {
+  isCreating: boolean;
   merchant: ReturnType<typeof useMarketplaceMerchants>['merchant'];
+  onDuplicate: (route: TradeRoute) => void;
   onEdit: (route: TradeRoute) => void;
   routes: TradeRoute[];
 }) => {
@@ -345,8 +253,12 @@ const SavedTradeRoutes = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-              <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
+              <TableHeaderCell>
+                {t('Resources')} / {t('Minimum')}
+              </TableHeaderCell>
+              <TableHeaderCell>
+                {t('Merchants')} / {t('Minimum')}
+              </TableHeaderCell>
               <TableHeaderCell>{t('Interval')}</TableHeaderCell>
               <TableHeaderCell>{t('Next transfer')}</TableHeaderCell>
               <TableHeaderCell>{t('Actions')}</TableHeaderCell>
@@ -386,8 +298,12 @@ const SavedTradeRoutes = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-                    <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
+                    <TableHeaderCell>
+                      {t('Resources')} / {t('Minimum')}
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      {t('Merchants')} / {t('Minimum')}
+                    </TableHeaderCell>
                     <TableHeaderCell>{t('Interval')}</TableHeaderCell>
                     <TableHeaderCell>{t('Next transfer')}</TableHeaderCell>
                     <TableHeaderCell>{t('Actions')}</TableHeaderCell>
@@ -398,9 +314,22 @@ const SavedTradeRoutes = ({
                     <TableRow key={route.id}>
                       <TableCell>
                         <span className="grid grid-cols-4 lg:grid-cols-2 justify-items-center gap-2">
-                          <Resources
-                            resources={getResourceList(route.resources)}
-                          />
+                          {resourceTypes.map((resource) => (
+                            <span
+                              key={resource}
+                              className="flex items-center gap-1 whitespace-nowrap"
+                            >
+                              <Icon
+                                type={resource}
+                                className="size-5"
+                              />
+                              {formatNumber(route.resources[resource])}
+                              <span className="text-muted-foreground">
+                                /{' '}
+                                {formatNumber(route.minimumResources[resource])}
+                              </span>
+                            </span>
+                          ))}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -410,6 +339,10 @@ const SavedTradeRoutes = ({
                             merchant.merchantCapacity,
                           ),
                         )}
+                        <span className="text-muted-foreground">
+                          {' '}
+                          / {formatNumber(route.minimumMerchants)}
+                        </span>
                       </TableCell>
                       <TableCell>{formatTime(route.interval)}</TableCell>
                       <TableCell>
@@ -422,34 +355,86 @@ const SavedTradeRoutes = ({
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="flex justify-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={isPending || isPausePending}
-                            onClick={() => togglePaused(route)}
+                        <Popover>
+                          <PopoverTrigger
+                            render={
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                aria-label={t('Actions')}
+                                title={t('Actions')}
+                              >
+                                <LuEllipsis aria-hidden="true" />
+                              </Button>
+                            }
+                          />
+                          <PopoverContent
+                            align="end"
+                            aria-label={t('Actions')}
+                            className="w-40"
                           >
-                            {route.paused ? t('Resume') : t('Pause')}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onEdit(route)}
-                          >
-                            {t('Edit')}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            disabled={isPending || isPausePending}
-                            onClick={() => deleteTradeRoute(route.id)}
-                          >
-                            {t('Delete')}
-                          </Button>
-                        </div>
+                            <div className="flex flex-col gap-1">
+                              <PopoverClose
+                                render={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start"
+                                    disabled={isPending || isPausePending}
+                                    onClick={() => togglePaused(route)}
+                                  >
+                                    {route.paused ? t('Resume') : t('Pause')}
+                                  </Button>
+                                }
+                              />
+                              <PopoverClose
+                                render={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start"
+                                    onClick={() => onEdit(route)}
+                                  >
+                                    {t('Edit')}
+                                  </Button>
+                                }
+                              />
+                              <PopoverClose
+                                render={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start"
+                                    disabled={
+                                      isCreating || isPending || isPausePending
+                                    }
+                                    onClick={() => onDuplicate(route)}
+                                  >
+                                    {t('Duplicate')}
+                                  </Button>
+                                }
+                              />
+                              <PopoverClose
+                                render={
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start text-destructive"
+                                    disabled={isPending || isPausePending}
+                                    onClick={() => deleteTradeRoute(route.id)}
+                                  >
+                                    {t('Delete')}
+                                  </Button>
+                                }
+                              />
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -469,6 +454,7 @@ export const MarketplaceTradeRoutes = () => {
   const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
   const { merchant, marketplaceLevel } = useMarketplaceMerchants();
+  const createFormSectionRef = useRef<HTMLDivElement>(null);
   const { data: tradeRoutes } = useSuspenseQuery({
     queryKey: [tradeRoutesCacheKey, currentVillage.id],
     queryFn: async () => {
@@ -483,13 +469,6 @@ export const MarketplaceTradeRoutes = () => {
   const [editingTradeRoute, setEditingTradeRoute] = useState<TradeRoute | null>(
     null,
   );
-
-  const createForm = useForm<MarketplaceTradeRouteFormValues>({
-    defaultValues: getDefaultTradeRouteFormValues(),
-  });
-  const editForm = useForm<MarketplaceTradeRouteFormValues>({
-    defaultValues: getDefaultTradeRouteFormValues(),
-  });
 
   const targetVillages = useMemo(() => {
     return playerVillages.filter((village) => village.id !== currentVillage.id);
@@ -506,6 +485,25 @@ export const MarketplaceTradeRoutes = () => {
     [totalCapacity],
   );
 
+  const formSchema = useMemo(
+    () =>
+      createTradeRouteFormSchema(
+        targetVillages.map((village) => village.id),
+        totalCapacity,
+      ),
+    [targetVillages, totalCapacity],
+  );
+  const createForm = useForm<MarketplaceTradeRouteFormValues>({
+    resolver: zodResolver(formSchema),
+    mode: 'onChange',
+    defaultValues: getDefaultTradeRouteFormValues(),
+  });
+  const editForm = useForm<MarketplaceTradeRouteFormValues>({
+    resolver: zodResolver(formSchema),
+    mode: 'onChange',
+    defaultValues: getDefaultTradeRouteFormValues(),
+  });
+
   const { mutate: createTradeRoute, isPending } = useMutation({
     mutationFn: async (values: MarketplaceTradeRouteFormValues) => {
       const targetVillage = targetVillages.find(
@@ -519,8 +517,12 @@ export const MarketplaceTradeRoutes = () => {
         body: {
           targetTileId: targetVillage.tileId,
           resources: values.resources,
+          minimumResources: values.minimumResources,
+          minimumMerchants: values.minimumMerchants,
           startHour: values.startHour,
+          startMinute: values.startMinute,
           intervalHours: values.intervalHours,
+          intervalMinutes: values.intervalMinutes,
         },
       });
     },
@@ -550,8 +552,12 @@ export const MarketplaceTradeRoutes = () => {
         body: {
           targetTileId: targetVillage.tileId,
           resources: values.resources,
+          minimumResources: values.minimumResources,
+          minimumMerchants: values.minimumMerchants,
           startHour: values.startHour,
+          startMinute: values.startMinute,
           intervalHours: values.intervalHours,
+          intervalMinutes: values.intervalMinutes,
         },
       });
     },
@@ -574,6 +580,14 @@ export const MarketplaceTradeRoutes = () => {
     editForm.reset(getTradeRouteFormValues(route));
   };
 
+  const duplicateTradeRoute = (route: TradeRoute) => {
+    createForm.reset(getTradeRouteFormValues(route));
+    createFormSectionRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
   const cancelEditingTradeRoute = () => {
     setEditingTradeRoute(null);
     editForm.reset(getDefaultTradeRouteFormValues());
@@ -586,38 +600,37 @@ export const MarketplaceTradeRoutes = () => {
         <InformationPopover ariaLabel={t('Trade routes')}>
           <Text>
             {t(
-              'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time. Pause a route to stop future departures while keeping its settings. Transfers already in progress will continue.',
+              'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer sends up to the delivery amounts while keeping the minimum resources and free merchants set under Advanced. Departures with no surplus resources or not enough free merchants are skipped. Pause a route to stop future departures while keeping its settings. Transfers already in progress will continue.',
             )}
           </Text>
         </InformationPopover>
         <Text as="h2">{t('Trade routes')}</Text>
       </SectionContent>
       <SectionContent>
-        <MarketplaceTradeRouteForm
-          capacityResources={capacityResources}
-          form={createForm}
-          isSubmitting={isPending}
-          marketplaceLevel={marketplaceLevel}
-          merchant={merchant}
-          onSubmit={createTradeRoute}
-          submitLabel={t('Create trade route')}
-          targetVillages={targetVillages}
-          totalCapacity={totalCapacity}
-        />
-      </SectionContent>
-      <SectionContent>
-        <Text
-          as="h3"
-          className="font-medium"
-        >
-          {t('Saved trade routes')}
-        </Text>
         <SavedTradeRoutes
+          isCreating={isPending}
           merchant={merchant}
           routes={tradeRoutes}
+          onDuplicate={duplicateTradeRoute}
           onEdit={startEditingTradeRoute}
         />
       </SectionContent>
+      <div ref={createFormSectionRef}>
+        <SectionContent>
+          <Text as="h3">{t('Create new trade route')}</Text>
+          <MarketplaceTradeRouteForm
+            capacityResources={capacityResources}
+            form={createForm}
+            isSubmitting={isPending}
+            marketplaceLevel={marketplaceLevel}
+            merchant={merchant}
+            onSubmit={createTradeRoute}
+            submitLabel={t('Create trade route')}
+            targetVillages={targetVillages}
+            totalCapacity={totalCapacity}
+          />
+        </SectionContent>
+      </div>
       <Dialog
         open={editingTradeRoute !== null}
         onOpenChange={(open) => {

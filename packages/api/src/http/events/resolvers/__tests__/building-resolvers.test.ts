@@ -41,6 +41,7 @@ describe('building resolvers', () => {
         bind: { $village_id: villageId },
         schema: z.number(),
       });
+
     const populationBefore = getPopulationEffect();
 
     createBuildingPlaceholder(database, villageId, buildingFieldId, buildingId);
@@ -58,6 +59,7 @@ describe('building resolvers', () => {
       },
       schema: z.number(),
     });
+
     const effectCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -160,6 +162,7 @@ describe('building resolvers', () => {
           buildingId: buildingIdSchema,
         }),
       });
+
       const [completedField, scheduledField] = fields;
 
       insertScheduledBuildingUpgrade(database, {

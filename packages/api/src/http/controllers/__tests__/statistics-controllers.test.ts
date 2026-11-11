@@ -27,6 +27,7 @@ describe('statistics-controllers', () => {
       bind: { $player_id: playerId },
       schema: z.number(),
     })!;
+
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId },
@@ -92,6 +93,7 @@ describe('statistics-controllers', () => {
     );
 
     const testPlayer = result.find((p) => p.id === playerId)!;
+
     // population = SUM(-value) for matches. Only -200 matches.
     // -(-200) = 200
     expect(testPlayer.totalPopulation).toBe(200);
@@ -104,6 +106,7 @@ describe('statistics-controllers', () => {
       sql: 'SELECT id FROM villages LIMIT 1',
       schema: z.number(),
     })!;
+
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId },

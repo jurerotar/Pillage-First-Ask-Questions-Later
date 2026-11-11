@@ -1,7 +1,7 @@
 export const selectOasesByAnimalsQuery = `
-  WITH requested_animals AS (
+  WITH requested_animals AS MATERIALIZED (
     SELECT
-      json_extract(value, '$[0]') AS animal_unit,
+      (SELECT id FROM unit_ids WHERE unit = json_extract(value, '$[0]')) AS unit_id,
       json_extract(value, '$[1]') AS requested_amount
     FROM json_each($animal_filters)
   ),
@@ -22,15 +22,15 @@ export const selectOasesByAnimalsQuery = `
           FROM troops tr
           WHERE tr.tile_id = t.id
             AND tr.source_tile_id = t.id
-            AND tr.unit_id = (
-              SELECT id FROM unit_ids WHERE unit = requested.animal_unit
-            )
+            AND tr.unit_id = requested.unit_id
         ), 0) < requested.requested_amount
       )
   ),
   bonuses_by_tile AS (
     SELECT
       o.tile_id,
+      matching.x,
+      matching.y,
       COALESCE(
         MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END),
         MAX(ri.resource)
@@ -42,7 +42,7 @@ export const selectOasesByAnimalsQuery = `
         ELSE NULL
       END AS bonus_type
     FROM matching_oases matching
-      JOIN oasis o ON o.tile_id = matching.tile_id
+      CROSS JOIN oasis o ON o.tile_id = matching.tile_id
       JOIN resource_ids ri ON ri.id = o.resource_id
     GROUP BY o.tile_id
   )
@@ -50,8 +50,8 @@ export const selectOasesByAnimalsQuery = `
     matching.tile_id,
     matching.x AS coordinates_x,
     matching.y AS coordinates_y,
-    b.resource,
-    b.bonus_type,
+    matching.resource,
+    matching.bonus_type,
     (
       SELECT json_group_array(json_object('unitId', ui.unit, 'amount', tr.amount))
       FROM troops tr
@@ -61,7 +61,6 @@ export const selectOasesByAnimalsQuery = `
     ) AS animals_json,
     ((matching.x - $tile_x) * (matching.x - $tile_x)
       + (matching.y - $tile_y) * (matching.y - $tile_y)) AS distance_squared
-  FROM matching_oases matching
-    JOIN bonuses_by_tile b ON b.tile_id = matching.tile_id
+  FROM bonuses_by_tile matching
   ORDER BY distance_squared ASC;
 `;

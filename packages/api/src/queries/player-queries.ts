@@ -167,11 +167,19 @@ export const selectVillageUnitCountQuery = `
         SELECT SUM(CAST(JSON_EXTRACT(troop.value, '$.amount') AS INTEGER))
         FROM
           events e
-            JOIN json_each(e.meta, '$.troops') AS troop
+            JOIN jsonb_each(e.meta, '$.troops') AS troop
             JOIN village v
               ON CAST(JSON_EXTRACT(troop.value, '$.sourceTileId') AS INTEGER) = v.tile_id
         WHERE
-          JSON_TYPE(e.meta, '$.troops') = 'array'
+          -- Only these event payloads carry troops; use the existing type index.
+          e.type IN (
+            'troopMovementReinforcements', 'troopMovementRelocation',
+            'troopMovementReturn', 'troopMovementFindNewVillage',
+            'troopMovementAttack', 'troopMovementRaid',
+            'troopMovementOasisOccupation', 'troopMovementAdventure',
+            'gatherersHutGatheringTrip'
+          )
+          AND JSON_TYPE(e.meta, '$.troops') = 'array'
           AND JSON_EXTRACT(troop.value, '$.unitId') = $unit_id
       ),
       0

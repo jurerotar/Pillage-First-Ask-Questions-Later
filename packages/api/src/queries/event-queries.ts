@@ -120,12 +120,9 @@ export const selectTroopMovementEventsQuery = `
     )
     OR (
       type = 'troopMovementAdventure'
-      AND EXISTS (
-        SELECT 1
-        FROM villages v1
-        JOIN villages v2 ON v1.player_id = v2.player_id
-        WHERE v1.id = $village_id
-          AND v2.id = events.village_id
+      AND village_id IN (
+        SELECT id FROM villages
+        WHERE player_id = (SELECT player_id FROM villages WHERE id = $village_id)
       )
     )
   ORDER BY
@@ -175,18 +172,15 @@ export const selectTroopMovementsByTileIdQuery = `
       )
       OR (
         e.type = 'troopMovementAdventure'
-        AND EXISTS (
-          SELECT 1
-          FROM villages v1
-          JOIN villages v2 ON v1.player_id = v2.player_id
-          WHERE v1.tile_id = $tile_id
-            AND v2.id = e.village_id
+        AND e.village_id IN (
+          SELECT id FROM villages
+          WHERE player_id = (SELECT player_id FROM villages WHERE tile_id = $tile_id)
         )
       )
     )
-    AND NOT (
-      JSON_EXTRACT(e.meta, '$.targetTileId') = $tile_id
-      AND JSON_EXTRACT(e.meta, '$.scoutingTarget') IS NOT NULL
+    AND (
+      JSON_EXTRACT(e.meta, '$.scoutingTarget') IS NULL
+      OR JSON_EXTRACT(e.meta, '$.targetTileId') <> $tile_id
     )
   ORDER BY e.resolves_at ASC;
 `;
@@ -229,45 +223,50 @@ export const selectTroopMovementStatsByTileIdQuery = `
       WHEN e.type = 'troopMovementFindNewVillage' THEN 'findNewVillage'
       WHEN e.type = 'troopMovementAdventure' THEN 'adventure'
       WHEN e.type IN ('troopMovementReinforcements', 'troopMovementRelocation', 'troopMovementReturn') THEN
-        CASE WHEN JSON_EXTRACT(e.meta, '$.originTileId') != $tile_id THEN 'deploymentIncoming' ELSE 'deploymentOutgoing' END
+        CASE WHEN e.incoming THEN 'deploymentIncoming' ELSE 'deploymentOutgoing' END
       WHEN e.type IN ('troopMovementAttack', 'troopMovementRaid', 'troopMovementOasisOccupation') THEN
-        CASE WHEN JSON_EXTRACT(e.meta, '$.originTileId') != $tile_id THEN 'offensiveMovementIncoming' ELSE 'offensiveMovementOutgoing' END
+        CASE WHEN e.incoming THEN 'offensiveMovementIncoming' ELSE 'offensiveMovementOutgoing' END
     END AS movement_type,
-    COUNT(*) AS count,
-    MIN(e.resolves_at) AS earliest_resolves_at
-  FROM events e
-  JOIN villages v_orig ON e.village_id = v_orig.id
-  WHERE
-    e.type IN (
-      'troopMovementReinforcements',
-      'troopMovementRelocation',
-      'troopMovementReturn',
-      'troopMovementFindNewVillage',
-      'troopMovementAttack',
-      'troopMovementRaid',
-      'troopMovementOasisOccupation',
-      'troopMovementAdventure'
-    )
-    AND (
-      v_orig.tile_id = $tile_id
-      OR (
-        JSON_EXTRACT(e.meta, '$.targetTileId') = $tile_id
+    SUM(e.count) AS count,
+    MIN(e.earliest_resolves_at) AS earliest_resolves_at
+  FROM (
+    -- Assign display categories to type/direction buckets, rather than every event.
+    SELECT e.type,
+      JSON_EXTRACT(e.meta, '$.originTileId') != $tile_id AS incoming,
+      COUNT(*) AS count,
+      MIN(e.resolves_at) AS earliest_resolves_at
+    FROM events e
+    JOIN villages v_orig ON e.village_id = v_orig.id
+    WHERE
+      e.type IN (
+        'troopMovementReinforcements',
+        'troopMovementRelocation',
+        'troopMovementReturn',
+        'troopMovementFindNewVillage',
+        'troopMovementAttack',
+        'troopMovementRaid',
+        'troopMovementOasisOccupation',
+        'troopMovementAdventure'
       )
-      OR (
-        e.type = 'troopMovementAdventure'
-        AND EXISTS (
-          SELECT 1
-          FROM villages v1
-          JOIN villages v2 ON v1.player_id = v2.player_id
-          WHERE v1.tile_id = $tile_id
-            AND v2.id = e.village_id
+      AND (
+        v_orig.tile_id = $tile_id
+        OR (
+          JSON_EXTRACT(e.meta, '$.targetTileId') = $tile_id
+        )
+        OR (
+          e.type = 'troopMovementAdventure'
+          AND e.village_id IN (
+            SELECT id FROM villages
+            WHERE player_id = (SELECT player_id FROM villages WHERE tile_id = $tile_id)
+          )
         )
       )
-    )
-    AND NOT (
-      JSON_EXTRACT(e.meta, '$.targetTileId') = $tile_id
-      AND JSON_EXTRACT(e.meta, '$.scoutingTarget') IS NOT NULL
-    )
+      AND (
+        JSON_EXTRACT(e.meta, '$.scoutingTarget') IS NULL
+        OR JSON_EXTRACT(e.meta, '$.targetTileId') <> $tile_id
+      )
+    GROUP BY e.type, incoming
+  ) e
   GROUP BY movement_type;
 `;
 
@@ -284,7 +283,8 @@ export const deleteUnitImprovementEventsFromLevelQuery = `
   FROM
     events
   WHERE
-    JSON_EXTRACT(events.meta, '$.unitId') = $unit_id
+    type = 'unitImprovement'
+    AND JSON_EXTRACT(events.meta, '$.unitId') = $unit_id
     AND CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) >= $level
   RETURNING
     village_id AS villageId,
@@ -303,6 +303,7 @@ export const deleteNextDemolitionEventQuery = `
         events
       WHERE
         village_id = $village_id
+        AND type IN ('buildingDestruction', 'buildingLevelChange')
         AND (
           type = 'buildingDestruction'
           OR (

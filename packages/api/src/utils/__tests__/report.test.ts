@@ -11,27 +11,38 @@ describe(insertReport, () => {
     database.exec({
       sql: 'DELETE FROM reports;',
     });
-    database.exec({
-      sql: `
-        WITH RECURSIVE sequence(timestamp) AS (
-          SELECT 1
-          UNION ALL
-          SELECT timestamp + 1 FROM sequence WHERE timestamp < 1000
-        )
-        INSERT INTO reports (
-          village_id,
-          timestamp,
-          type_id,
-          report_outcome_id
-        )
-        SELECT
-          (SELECT id FROM villages ORDER BY id LIMIT 1),
-          timestamp,
-          (SELECT id FROM report_type_ids WHERE report_type = 'adventure'),
-          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'heroAdventure')
-        FROM sequence;
-      `,
+
+    for (let timestamp = 1; timestamp <= 999; timestamp += 1) {
+      insertReport(database, {
+        villageId: 1,
+        timestamp,
+        type: 'adventure',
+        outcome: 'heroAdventure',
+        tags: [],
+      });
+    }
+
+    const boundaryInsertedId = insertReport(database, {
+      villageId: 1,
+      timestamp: 1000,
+      type: 'adventure',
+      outcome: 'heroAdventure',
+      tags: [],
     });
+
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM reports;',
+        schema: z.int(),
+      }),
+    ).toBe(1000);
+    expect(
+      database.selectValue({
+        sql: 'SELECT MIN(timestamp) FROM reports;',
+        schema: z.int(),
+      }),
+    ).toBe(1);
+
     database.exec({
       sql: `
         INSERT INTO report_tags (report_id, report_tag_id)
@@ -50,6 +61,7 @@ describe(insertReport, () => {
       outcome: 'heroAdventure',
       tags: [],
     });
+
     const secondInsertedId = insertReport(database, {
       villageId: 1,
       timestamp: 1002,
@@ -68,7 +80,7 @@ describe(insertReport, () => {
     expect(timestamps).not.toContain(2);
     expect(timestamps).toContain(1001);
     expect(timestamps).toContain(1002);
-    expect(firstInsertedId).toBeGreaterThan(0);
+    expect(firstInsertedId).toBeGreaterThan(boundaryInsertedId);
     expect(secondInsertedId).toBeGreaterThan(firstInsertedId);
   });
 

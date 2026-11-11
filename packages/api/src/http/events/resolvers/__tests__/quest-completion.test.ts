@@ -15,7 +15,10 @@ import {
   assessCaptureAnimalKindCountQuestCompletion,
   assessGatheredResourceCountQuestCompletion,
 } from '../../../../utils/quests';
-import { insertGatheringExpeditionReport } from '../../../../utils/report';
+import {
+  insertGatheringExpeditionReport,
+  insertReport,
+} from '../../../../utils/report';
 import { buildingLevelChangeResolver } from '../building-resolvers';
 import { huntersLodgeHuntResolver } from '../hunters-lodge-resolvers';
 
@@ -199,69 +202,142 @@ describe('quest completion on building level up', () => {
     expect(completedQuest).toBe(timestamp);
   });
 
-  test.each(['deletion', 'retention'] as const)(
-    'should count lifetime catches after report %s',
-    async (removal) => {
-      using database = await prepareTestDatabase();
-      database.exec({ sql: 'DELETE FROM reports;' });
-      const animals = getHunterLodgeCatchableAnimals(5);
-      using _random = vi
-        .spyOn(Math, 'random')
-        .mockReturnValue((animals.indexOf('TIGER') + 0.5) / animals.length);
+  test('should count lifetime catches after report deletion', async () => {
+    using database = await prepareTestDatabase();
 
-      for (let catchCount = 0; catchCount < 49; catchCount += 1) {
-        resolveHunt(database, 1);
-      }
-      const completion = () =>
-        database.selectValue({
-          sql: "SELECT completed_at FROM quests WHERE village_id IS NULL AND quest_id = 'captureAnimalCountById-TIGER-50';",
-          schema: z.number().nullable(),
-        });
+    database.exec({ sql: 'DELETE FROM reports;' });
 
-      expect(completion()).toBeNull();
+    const animals = getHunterLodgeCatchableAnimals(5);
+    using _random = vi
+      .spyOn(Math, 'random')
+      .mockReturnValue((animals.indexOf('TIGER') + 0.5) / animals.length);
 
-      if (removal === 'deletion') {
-        database.exec({ sql: 'DELETE FROM reports;' });
-      } else {
-        database.exec({
-          sql: `
-            INSERT INTO reports (village_id, timestamp, type_id, report_outcome_id)
-            SELECT 1, 2, type_id, report_outcome_id FROM reports LIMIT 1;
-          `,
-        });
-        database.exec({
-          sql: `
-            WITH RECURSIVE filler(n) AS (
-              SELECT 1 UNION ALL SELECT n + 1 FROM filler WHERE n < 999
-            )
-            INSERT INTO reports (village_id, timestamp, type_id, report_outcome_id)
-            SELECT 1, 2, r.type_id, r.report_outcome_id
-            FROM filler CROSS JOIN (SELECT type_id, report_outcome_id FROM reports LIMIT 1) r;
-          `,
-        });
-      }
+    // Seed the earlier catches, then exercise real hunts on both sides of the milestone.
+    database.exec({
+      sql: `
+        INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+        SELECT $player_id, id, 48 FROM unit_ids WHERE unit = 'TIGER'
+        ON CONFLICT (player_id, unit_id) DO UPDATE SET amount = 48;
+      `,
+      bind: { $player_id: PLAYER_ID },
+    });
 
-      expect(
-        database.selectValue({
-          sql: 'SELECT COUNT(*) FROM hunting_party_report_units;',
-          schema: z.number(),
-        }),
-      ).toBe(0);
+    resolveHunt(database, 1);
 
-      resolveHunt(database, 3);
+    const completion = () =>
+      database.selectValue({
+        sql: "SELECT completed_at FROM quests WHERE village_id IS NULL AND quest_id = 'captureAnimalCountById-TIGER-50';",
+        schema: z.number().nullable(),
+      });
 
-      expect(completion()).toBe(3);
+    expect(completion()).toBeNull();
 
-      assessCaptureAnimalCountByIdQuestCompletion(
-        database,
-        'TIGER',
-        4,
-        PLAYER_ID,
-      );
+    database.exec({ sql: 'DELETE FROM reports;' });
 
-      expect(completion()).toBe(3);
-    },
-  );
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM hunting_party_report_units;',
+        schema: z.number(),
+      }),
+    ).toBe(0);
+
+    resolveHunt(database, 3);
+
+    expect(completion()).toBe(3);
+
+    assessCaptureAnimalCountByIdQuestCompletion(
+      database,
+      'TIGER',
+      4,
+      PLAYER_ID,
+    );
+
+    expect(completion()).toBe(3);
+  });
+
+  test('should count lifetime catches after report retention', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({ sql: 'DELETE FROM reports;' });
+
+    const animals = getHunterLodgeCatchableAnimals(5);
+    using _random = vi
+      .spyOn(Math, 'random')
+      .mockReturnValue((animals.indexOf('TIGER') + 0.5) / animals.length);
+
+    // Seed the earlier catches, then exercise real hunts on both sides of the milestone.
+    database.exec({
+      sql: `
+        INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+        SELECT $player_id, id, 48 FROM unit_ids WHERE unit = 'TIGER'
+        ON CONFLICT (player_id, unit_id) DO UPDATE SET amount = 48;
+      `,
+      bind: { $player_id: PLAYER_ID },
+    });
+
+    resolveHunt(database, 1);
+
+    const completion = () =>
+      database.selectValue({
+        sql: "SELECT completed_at FROM quests WHERE village_id IS NULL AND quest_id = 'captureAnimalCountById-TIGER-50';",
+        schema: z.number().nullable(),
+      });
+
+    expect(completion()).toBeNull();
+
+    for (let count = 0; count < 999; count += 1) {
+      insertReport(database, {
+        villageId: 1,
+        timestamp: 2,
+        type: 'adventure',
+        outcome: 'heroAdventure',
+        tags: [],
+      });
+    }
+
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM hunting_party_report_units;',
+        schema: z.int(),
+      }),
+    ).toBe(1);
+
+    // This real insertion crosses the unchanged 1,000-report limit and prunes the hunt.
+    insertReport(database, {
+      villageId: 1,
+      timestamp: 2,
+      type: 'adventure',
+      outcome: 'heroAdventure',
+      tags: [],
+    });
+
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM reports;',
+        schema: z.int(),
+      }),
+    ).toBe(1000);
+
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM hunting_party_report_units;',
+        schema: z.number(),
+      }),
+    ).toBe(0);
+
+    resolveHunt(database, 3);
+
+    expect(completion()).toBe(3);
+
+    assessCaptureAnimalCountByIdQuestCompletion(
+      database,
+      'TIGER',
+      4,
+      PLAYER_ID,
+    );
+
+    expect(completion()).toBe(3);
+  });
 
   test('should complete gathered resource quest from total gathered loot', async () => {
     using database = await prepareTestDatabase();

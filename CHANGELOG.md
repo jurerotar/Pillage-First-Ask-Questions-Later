@@ -1,3 +1,17 @@
+## Version 0.4.82
+
+#### Nov 11, 2026
+
+- [Feature] Added minimum resource and merchant reserves to trade routes. Routes now send up to the requested amounts
+  while keeping the configured reserves. Departures are skipped when there are no surplus resources or not enough free
+  merchants.
+- [BugFix] Fixed trade route departures using the current time instead of their scheduled time during offline catch-up,
+  causing incorrect resource amounts and skipped deliveries.
+- [BugFix] Fixed loyalty recovering too quickly and duplicate loyalty events being scheduled during offline catch-up.
+- [BugFix] Fixed the construction queue losing its collapsed state when changing pages.
+- [Performance] Improved query performance for map loading, rankings, reports, quests, troop movements, oasis searches
+  and trade route listings.
+
 ## Version 0.4.81
 
 #### Nov 4, 2026
@@ -63,7 +77,8 @@
   available in the village header.
 - [Feature] Implemented Town Hall celebrations. You're now able to hold small and large celebrations to acquire
   additional culture points. Large celebrations require Town Hall level 10.
-- [UIUXImprovement] Added a Storage tab to Warehouses and Granaries. It displays stored resources, incoming deliveries and
+- [UIUXImprovement] Added a Storage tab to Warehouses and Granaries. It displays stored resources, incoming deliveries
+  and
   countdowns until storage is full or empty, taking incoming resources into account.
 - [UIUXImprovement] Added resource bar countdowns, showing how long it will take for storage to fill or run out.
 - [UIUXImprovement] Added the ability to center the map on a village through the village selector dropdown.

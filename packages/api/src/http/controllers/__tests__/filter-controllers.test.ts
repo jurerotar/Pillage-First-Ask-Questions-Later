@@ -70,6 +70,7 @@ describe('filter-controllers', () => {
         path: { name: reportFilterNameByScope.unread },
       }),
     );
+
     const globalFilters = getFilters(
       database,
       createControllerArgs<'/me/filters/:name'>({

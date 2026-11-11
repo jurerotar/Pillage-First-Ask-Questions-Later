@@ -1,8 +1,13 @@
-import type { TradeRoute } from '@pillage-first/types/models/trade-route';
+import { z } from 'zod';
+import {
+  type TradeRoute,
+  tradeRouteSchema,
+} from '@pillage-first/types/models/trade-route';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import type { TradeRouteBody } from '../http/controllers/schemas/marketplace-schemas';
 import {
   selectPlayerTradeRouteByIdQuery,
+  selectTradeRouteByIdQuery,
   selectTradeRoutesByTileIdQuery,
 } from '../queries/trade-route-queries';
 import { createEvents } from './create-event';
@@ -13,9 +18,40 @@ import {
   getTotalResourceAmount,
   getVillageMerchantStats,
 } from './marketplace';
-import { tradeRouteRowSchema } from './trade-route-state';
 
-export { getTradeRouteById } from './trade-route-state';
+export const tradeRouteRowSchema = tradeRouteSchema.extend({
+  resources: z
+    .string()
+    .transform((value): unknown => JSON.parse(value))
+    .pipe(tradeRouteSchema.shape.resources),
+  minimumResources: z
+    .string()
+    .transform((value): unknown => JSON.parse(value))
+    .pipe(tradeRouteSchema.shape.minimumResources),
+  paused: z.coerce.boolean(),
+});
+
+export const getTradeRouteById = (database: DbFacade, routeId: number) => {
+  return database.selectObject({
+    sql: selectTradeRouteByIdQuery,
+    bind: { $route_id: routeId },
+    schema: tradeRouteRowSchema,
+  });
+};
+
+export const scheduleTradeRoute = (
+  database: DbFacade,
+  routeId: number,
+  villageId: number,
+  startsAt: number,
+) => {
+  createEvents<'tradeRoute'>(database, {
+    type: 'tradeRoute',
+    tradeRouteId: routeId,
+    villageId,
+    startsAt,
+  });
+};
 
 export const getTradeRoutes = (
   database: DbFacade,
@@ -75,11 +111,10 @@ export const validateTradeRoute = (
   }
 };
 
-const getNextTradeRouteStartsAt = (startHour: number) => {
+const getNextTradeRouteStartsAt = (startHour: number, startMinute: number) => {
   const now = Date.now();
   const startsAt = new Date(now);
-  startsAt.setMinutes(0, 0, 0);
-  startsAt.setHours(startHour);
+  startsAt.setHours(startHour, startMinute, 0, 0);
 
   if (startsAt.getTime() <= now) {
     startsAt.setDate(startsAt.getDate() + 1);
@@ -91,9 +126,20 @@ const getNextTradeRouteStartsAt = (startHour: number) => {
 export const getTradeRoute = (
   database: DbFacade,
   tileId: number,
-  { targetTileId, resources, startHour, intervalHours }: TradeRouteBody,
+  body: TradeRouteBody,
   playerId: number,
 ) => {
+  const {
+    targetTileId,
+    resources,
+    minimumResources,
+    minimumMerchants,
+    startHour,
+    startMinute,
+    intervalHours,
+    intervalMinutes,
+  } = body;
+
   const { village, targetVillage } = getMarketplaceVillageWithTargetByTileId(
     database,
     tileId,
@@ -109,7 +155,7 @@ export const getTradeRoute = (
   }
 
   return {
-    startsAt: getNextTradeRouteStartsAt(startHour),
+    startsAt: getNextTradeRouteStartsAt(startHour, startMinute),
     event: {
       type: 'tradeRoute',
       villageId: village.id,
@@ -117,7 +163,9 @@ export const getTradeRoute = (
       originTileId: village.tileId,
       targetTileId: targetVillage.tileId,
       resources,
-      interval: intervalHours * 60 * 60 * 1000,
+      minimumResources,
+      minimumMerchants,
+      interval: (intervalHours * 60 + intervalMinutes) * 60 * 1000,
     } as const,
   };
 };
@@ -138,18 +186,4 @@ export const requireTradeRoute = (
   }
 
   return route;
-};
-
-export const scheduleTradeRoute = (
-  database: DbFacade,
-  routeId: number,
-  villageId: number,
-  startsAt: number,
-) => {
-  createEvents<'tradeRoute'>(database, {
-    type: 'tradeRoute',
-    tradeRouteId: routeId,
-    villageId,
-    startsAt,
-  });
 };

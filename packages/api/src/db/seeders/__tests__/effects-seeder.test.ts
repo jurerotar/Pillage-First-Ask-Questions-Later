@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import {
-  calculateTotalPopulationForLevel,
-  getBuildingDefinition,
-} from '@pillage-first/game-assets/utils/buildings';
+import { calculateTotalPopulationForLevel } from '@pillage-first/game-assets/utils/buildings';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { resourceSchema } from '@pillage-first/types/models/resource';
@@ -56,27 +53,37 @@ describe('effectsSeeder', () => {
       schema: z.number(),
     })!;
 
-    const buildingFields = database.selectObjects({
+    const buildingFields = database.selectValue({
       sql: `
-        SELECT v.tile_id, bi.building AS building_id, bf.level
+        SELECT json_group_array(json_object(
+          'tile_id', v.tile_id,
+          'building_id', bi.building,
+          'level', bf.level
+        ))
         FROM
           building_fields bf
             JOIN villages v ON v.id = bf.village_id
-            JOIN building_ids bi ON bi.id = bf.building_id
-        ORDER BY
-          v.tile_id;
+            JOIN building_ids bi ON bi.id = bf.building_id;
       `,
-      schema: z.strictObject({
-        tile_id: tileIdSchema,
-        building_id: buildingIdSchema,
-        level: z.number(),
-      }),
-    });
+      schema: z
+        .string()
+        .transform((value): unknown => JSON.parse(value))
+        .pipe(
+          z.array(
+            z.strictObject({
+              tile_id: tileIdSchema,
+              building_id: buildingIdSchema,
+              level: z.number(),
+            }),
+          ),
+        ),
+    })!;
 
     const tilePopulations = new Map<number, number>();
+
     for (const { tile_id, building_id, level } of buildingFields) {
-      const def = getBuildingDefinition(building_id);
-      const pop = calculateTotalPopulationForLevel(def.id, level);
+      const pop = calculateTotalPopulationForLevel(building_id, level);
+
       tilePopulations.set(tile_id, (tilePopulations.get(tile_id) ?? 0) + pop);
     }
 
@@ -114,24 +121,40 @@ describe('effectsSeeder', () => {
       schema: z.number(),
     })!;
 
-    const troopRows = database.selectObjects({
+    const troopRows = database.selectValue({
       sql: `
-        SELECT v.tile_id, ui.unit AS unit_id, tr.amount
-        FROM
-          troops AS tr
+        SELECT json_group_array(json_object(
+          'tile_id', tile_id,
+          'unit_id', unit_id,
+          'amount', amount
+        ))
+        FROM (
+          SELECT v.tile_id, ui.unit AS unit_id, SUM(tr.amount) AS amount
+          FROM troops AS tr
             JOIN unit_ids ui ON ui.id = tr.unit_id
-            JOIN villages AS v ON tr.tile_id = v.tile_id;
+            JOIN villages AS v ON tr.tile_id = v.tile_id
+          GROUP BY v.tile_id, tr.unit_id
+        );
       `,
-      schema: z.strictObject({
-        tile_id: tileIdSchema,
-        unit_id: unitIdSchema,
-        amount: z.number(),
-      }),
-    });
+      schema: z
+        .string()
+        .transform((value): unknown => JSON.parse(value))
+        .pipe(
+          z.array(
+            z.strictObject({
+              tile_id: tileIdSchema,
+              unit_id: unitIdSchema,
+              amount: z.number(),
+            }),
+          ),
+        ),
+    })!;
 
     const tileTroopConsumption = new Map<number, number>();
+
     for (const { tile_id, unit_id, amount } of troopRows) {
       const { unitWheatConsumption } = getUnitDefinition(unit_id);
+
       tileTroopConsumption.set(
         tile_id,
         (tileTroopConsumption.get(tile_id) ?? 0) +
@@ -234,13 +257,16 @@ describe('effectsSeeder', () => {
     });
 
     const bonusesByTile = new Map<number, Map<string, number>>();
+
     for (const { tile_id, resource, bonus } of oasisBonuses) {
       const bonuses = bonusesByTile.get(tile_id) ?? new Map<string, number>();
+
       bonuses.set(resource, bonus);
       bonusesByTile.set(tile_id, bonuses);
     }
 
     const effectsByTileAndEffect = new Map<string, number>();
+
     for (const { tile_id, effect, value } of oasisEffects) {
       effectsByTileAndEffect.set(`${tile_id}-${effect}`, value);
     }
@@ -304,6 +330,7 @@ describe('effectsSeeder', () => {
     });
 
     const effectsByTileAndEffect = new Map<string, number>();
+
     for (const { tile_id, effect, value } of oasisStorageEffects) {
       effectsByTileAndEffect.set(`${tile_id}-${effect}`, value);
     }
