@@ -49,7 +49,7 @@ export const simulateCombat = createController('/combat-simulator', 'query', {
         capturedAnimals: [],
         stolenItems: [],
       },
-      damagedBuildings: [],
+      siegeResults: [],
       statistics: {
         attacker: {
           points: 0,

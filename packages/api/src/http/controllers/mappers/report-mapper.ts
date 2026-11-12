@@ -2,10 +2,13 @@ import type { z } from 'zod';
 import { unitsMap } from '@pillage-first/game-assets/units';
 import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
 import type {
-  BattleDamagedBuilding,
+  BattleSiegeResult,
   BattleType,
 } from '@pillage-first/types/models/battle';
-import { battleConquestSchema } from '@pillage-first/types/models/battle';
+import {
+  battleConquestSchema,
+  battleUnitSchema,
+} from '@pillage-first/types/models/battle';
 import {
   type BattleReportSummary,
   type movementReportUnitSchema,
@@ -182,7 +185,7 @@ export const mapReportListingRowToDto = (
 
 export const mapBattleReportRowToDto = (
   rows: BattleReportRow[],
-  damagedBuildings: BattleDamagedBuilding[],
+  siegeResults: BattleSiegeResult[],
 ) => {
   const [row] = rows;
 
@@ -232,20 +235,16 @@ export const mapBattleReportRowToDto = (
       }
     }
 
-    if (
-      participantRow.participant_unit_id &&
-      participantRow.participant_amount_before !== null &&
-      participantRow.participant_amount_after !== null
-    ) {
-      const battleUnit = {
+    if (participantRow.participant_unit_id !== null) {
+      const battleUnit = battleUnitSchema.parse({
         unitId: participantRow.participant_unit_id,
         amountBefore: participantRow.participant_amount_before,
         amountAfter: participantRow.participant_amount_after,
-        amountHospitalized: participantRow.participant_amount_hospitalized ?? 0,
-        amountImprisoned: participantRow.participant_amount_imprisoned ?? 0,
-        amountBandaged: participantRow.participant_amount_bandaged ?? 0,
-        amountConsumed: participantRow.participant_amount_consumed ?? 0,
-      };
+        amountHospitalized: participantRow.participant_amount_hospitalized,
+        amountImprisoned: participantRow.participant_amount_imprisoned,
+        amountBandaged: participantRow.participant_amount_bandaged,
+        amountConsumed: participantRow.participant_amount_consumed,
+      });
       participant.troops.units.push(battleUnit);
 
       const unit = unitsMap.get(participantRow.participant_unit_id);
@@ -292,7 +291,7 @@ export const mapBattleReportRowToDto = (
       capturedAnimals: JSON.parse(row.captured_animals_json),
       stolenItems: JSON.parse(row.stolen_items_json),
     },
-    damagedBuildings,
+    siegeResults,
     statistics: {
       attacker: {
         ...calculateCombatStatistics(attackerUnits),

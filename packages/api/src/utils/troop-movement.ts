@@ -129,6 +129,7 @@ const getBattleReportParticipants = (
 
     if (!participant) {
       participant = {
+        hero: null,
         tileId: row.tile_id,
         playerId: row.player_id,
         units: [],
@@ -188,6 +189,15 @@ const insertNoCombatBattleReport = (
     loot,
     attackerPoints: 0,
     defenderPoints: 0,
+    loyaltyBefore: null,
+    loyaltyAfter: null,
+    conquest: null,
+    villageDestroyed: false,
+    trapsDestroyed: 0,
+    rescuedUnits: [],
+    capturedAnimals: [],
+    stolenItems: [],
+    siegeResults: [],
     attacker: {
       ...attacker,
       units: mapTroopsToBattleReportUnits(troops),

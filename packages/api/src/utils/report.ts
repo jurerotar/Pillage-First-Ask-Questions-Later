@@ -1,10 +1,9 @@
 import { z } from 'zod';
 import {
-  type BattleOutcome,
-  type BattleTroops,
   type BattleUnit,
   battleHeroOutcomeSchema,
   battleOutcomeSchema,
+  battleSiegeResultSchema,
   battleUnitSchema,
 } from '@pillage-first/types/models/battle';
 import type { Building } from '@pillage-first/types/models/building';
@@ -17,10 +16,9 @@ import type {
   ScheduledConstructionCancellationReason,
   ScheduledConstructionCancellationReasonDetail,
 } from '@pillage-first/types/models/report';
-import type {
-  ResourceBundle,
-  Resources,
-} from '@pillage-first/types/models/resource';
+import { battleResultIdSchema } from '@pillage-first/types/models/report';
+import type { Resources } from '@pillage-first/types/models/resource';
+import { resourceBundleSchema } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
@@ -137,56 +135,54 @@ type CreateNewScoutingReport = Pick<
 
 type CreateNewBattleReportUnit = BattleUnit;
 
-type CreateNewBattleReportDamagedBuilding = {
-  buildingId: Building['id'];
-  levelBefore: number;
-  levelAfter: number;
-};
+const battleReportParticipantInputSchema = z.strictObject({
+  playerId: z.int().positive().nullable(),
+  tileId: tileIdSchema,
+  units: z.array(battleUnitSchema),
+  hero: battleHeroOutcomeSchema.nullable(),
+});
 
-type CreateNewBattleReportParticipant = {
-  playerId: number | null;
-  tileId: number;
-  units: CreateNewBattleReportUnit[];
-  hero?: BattleTroops['hero'];
-};
+const createNewBattleReportSchema = z
+  .strictObject({
+    villageId: z.int().positive(),
+    timestamp: z.int().nonnegative(),
+    outcome: battleResultIdSchema,
+    originTileId: tileIdSchema,
+    targetTileId: tileIdSchema,
+    isRaid: z.boolean(),
+    loot: resourceBundleSchema,
+    attackerPoints: z.int().nonnegative(),
+    defenderPoints: z.int().nonnegative(),
+    loyaltyBefore: battleOutcomeSchema.shape.loyaltyBefore,
+    loyaltyAfter: battleOutcomeSchema.shape.loyaltyAfter,
+    conquest: battleOutcomeSchema.shape.conquest,
+    villageDestroyed: z.boolean(),
+    trapsDestroyed: z.int().nonnegative(),
+    rescuedUnits: battleOutcomeSchema.shape.rescuedUnits,
+    capturedAnimals: battleOutcomeSchema.shape.capturedAnimals,
+    stolenItems: battleOutcomeSchema.shape.stolenItems,
+    attacker: battleReportParticipantInputSchema,
+    defender: battleReportParticipantInputSchema,
+    reinforcements: z.array(battleReportParticipantInputSchema),
+    siegeResults: z.array(battleSiegeResultSchema),
+  })
+  .refine(
+    ({ originTileId, targetTileId, attacker, defender, reinforcements }) =>
+      originTileId !== targetTileId &&
+      attacker.tileId === originTileId &&
+      defender.tileId === targetTileId &&
+      reinforcements.every(
+        ({ tileId }) => tileId !== originTileId && tileId !== targetTileId,
+      ) &&
+      new Set(reinforcements.map(({ tileId }) => tileId)).size ===
+        reinforcements.length,
+    {
+      message:
+        'Battle participants must match distinct origin, target, and reinforcement villages',
+    },
+  );
 
-export type CreateNewBattleReport = Pick<
-  CreateNewReport,
-  'villageId' | 'timestamp'
-> &
-  Partial<
-    Pick<
-      BattleOutcome,
-      | 'loyaltyBefore'
-      | 'loyaltyAfter'
-      | 'conquest'
-      | 'villageDestroyed'
-      | 'trapsDestroyed'
-      | 'rescuedUnits'
-      | 'capturedAnimals'
-      | 'stolenItems'
-    >
-  > & {
-    outcome: Extract<
-      ReportOutcome,
-      | 'attackerNoLoss'
-      | 'attackerSomeLoss'
-      | 'attackerFullLoss'
-      | 'defenderNoLoss'
-      | 'defenderSomeLoss'
-      | 'defenderFullLoss'
-    >;
-    originTileId: number;
-    targetTileId: number;
-    isRaid: boolean;
-    loot: ResourceBundle;
-    attackerPoints: number;
-    defenderPoints: number;
-    attacker: CreateNewBattleReportParticipant;
-    defender: CreateNewBattleReportParticipant;
-    reinforcements?: CreateNewBattleReportParticipant[];
-    damagedBuildings?: CreateNewBattleReportDamagedBuilding[];
-  };
+export type CreateNewBattleReport = z.infer<typeof createNewBattleReportSchema>;
 
 export const insertReport = (
   database: DbFacade,
@@ -621,7 +617,10 @@ export const insertBattleReport = (
   database.exec({ sql: 'SAVEPOINT insert_battle_report;' });
 
   try {
-    const reportId = persistBattleReport(database, report);
+    const reportId = persistBattleReport(
+      database,
+      createNewBattleReportSchema.parse(report),
+    );
     database.exec({ sql: 'RELEASE insert_battle_report;' });
 
     return reportId;
@@ -640,14 +639,14 @@ const persistBattleReport = (
   const resolvedOutcome = battleOutcomeSchema.parse({
     loot: report.loot,
     totalCarryCapacity: 0,
-    loyaltyBefore: report.loyaltyBefore ?? null,
-    loyaltyAfter: report.loyaltyAfter ?? null,
-    conquest: report.conquest ?? null,
-    villageDestroyed: report.villageDestroyed ?? false,
-    trapsDestroyed: report.trapsDestroyed ?? 0,
-    rescuedUnits: report.rescuedUnits ?? [],
-    capturedAnimals: report.capturedAnimals ?? [],
-    stolenItems: report.stolenItems ?? [],
+    loyaltyBefore: report.loyaltyBefore,
+    loyaltyAfter: report.loyaltyAfter,
+    conquest: report.conquest,
+    villageDestroyed: report.villageDestroyed,
+    trapsDestroyed: report.trapsDestroyed,
+    rescuedUnits: report.rescuedUnits,
+    capturedAnimals: report.capturedAnimals,
+    stolenItems: report.stolenItems,
   });
 
   if (resolvedOutcome.conquest !== null) {
@@ -720,15 +719,16 @@ const persistBattleReport = (
   if (resolvedOutcome.conquest !== null) {
     database.exec({
       sql: `INSERT INTO battle_report_conquests (
-          battle_id, loyalty_before, loyalty_after, succeeded,
+          battle_id, target, loyalty_before, loyalty_after, succeeded,
           village_conquest_failure_reason_id, oasis_capture_failure_reason_id
         ) VALUES (
-          $battle_id, $loyalty_before, $loyalty_after, $succeeded,
+          $battle_id, $target, $loyalty_before, $loyalty_after, $succeeded,
           (SELECT id FROM village_conquest_failure_reason_ids WHERE reason = $village_failure_reason),
           (SELECT id FROM oasis_capture_failure_reason_ids WHERE reason = $oasis_failure_reason)
         );`,
       bind: {
         $battle_id: battleReportId,
+        $target: resolvedOutcome.conquest.target,
         $loyalty_before: resolvedOutcome.loyaltyBefore,
         $loyalty_after: resolvedOutcome.loyaltyAfter,
         $succeeded: Number(resolvedOutcome.conquest.succeeded),
@@ -765,7 +765,7 @@ const persistBattleReport = (
   const participants = [
     report.attacker,
     report.defender,
-    ...(report.reinforcements ?? []),
+    ...report.reinforcements,
   ];
 
   const firstBattleParticipantId = database.selectValue({
@@ -847,31 +847,47 @@ const persistBattleReport = (
     });
   }
 
-  if ((report.damagedBuildings ?? []).length > 0) {
+  const siegeResults = report.siegeResults.map((result) =>
+    battleSiegeResultSchema.parse(result),
+  );
+
+  if (siegeResults.length > 0) {
     database.exec({
       sql: `
         INSERT INTO battle_report_buildings (
           battle_id,
           building_id,
+          field_id,
+          requested_building_id,
+          targeting,
+          outcome,
+          reason,
           level_before,
           level_after
         )
         SELECT
           $battle_id,
           building_ids.id,
+          JSON_EXTRACT(building.value, '$.fieldId'),
+          requested.id,
+          JSON_EXTRACT(building.value, '$.targeting'),
+          JSON_EXTRACT(building.value, '$.outcome'),
+          JSON_EXTRACT(building.value, '$.reason'),
           JSON_EXTRACT(building.value, '$.levelBefore'),
           JSON_EXTRACT(building.value, '$.levelAfter')
         FROM
-          JSON_EACH($damaged_buildings) AS building
-          JOIN building_ids
+          JSON_EACH($siege_results) AS building
+          LEFT JOIN building_ids
             ON building_ids.building = JSON_EXTRACT(
               building.value,
               '$.buildingId'
-            );
+            )
+          LEFT JOIN building_ids requested ON requested.building = JSON_EXTRACT(building.value, '$.requestedBuildingId')
+        ORDER BY CAST(building.key AS INTEGER);
       `,
       bind: {
         $battle_id: battleReportId,
-        $damaged_buildings: JSON.stringify(report.damagedBuildings),
+        $siege_results: JSON.stringify(siegeResults),
       },
     });
   }

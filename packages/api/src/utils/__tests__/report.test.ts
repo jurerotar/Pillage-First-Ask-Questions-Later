@@ -131,6 +131,7 @@ describe(insertBattleReport, () => {
       });
 
       const participant = (village: typeof origin) => ({
+        hero: null,
         playerId: village.player_id,
         tileId: village.tile_id,
       });
@@ -145,6 +146,15 @@ describe(insertBattleReport, () => {
         loot: [0, 0, 0, 0],
         attackerPoints: 0,
         defenderPoints: 0,
+        loyaltyBefore: null,
+        loyaltyAfter: null,
+        conquest: null,
+        villageDestroyed: false,
+        trapsDestroyed: 0,
+        rescuedUnits: [],
+        capturedAnimals: [],
+        stolenItems: [],
+        siegeResults: [],
         attacker: {
           ...participant(origin),
           units: [
@@ -210,8 +220,8 @@ describe(insertBattleReport, () => {
 
       expect(() =>
         database.exec({
-          sql: `INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after, amount_hospitalized, amount_imprisoned)
-          SELECT bp.id, (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, 50, 30, 30
+          sql: `INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after, amount_hospitalized, amount_imprisoned, amount_bandaged, amount_consumed)
+          SELECT bp.id, (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, 50, 30, 30, 0, 0
           FROM battle_report_participants bp JOIN battle_reports b ON b.id = bp.battle_id WHERE b.report_id = $report_id LIMIT 1;`,
           bind: { $report_id: reportId },
         }),

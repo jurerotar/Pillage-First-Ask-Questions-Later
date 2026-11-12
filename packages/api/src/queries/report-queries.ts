@@ -289,11 +289,7 @@ export const selectBattleReportQuery = `
     b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
     b.attacker_points, b.defender_points,
     conquest.loyalty_before, conquest.loyalty_after, conquest.succeeded AS conquest_succeeded,
-    CASE
-      WHEN conquest.battle_id IS NULL THEN NULL
-      WHEN target_type.type = 'oasis' THEN 'oasis'
-      ELSE 'village'
-    END AS conquest_target,
+    conquest.target AS conquest_target,
     COALESCE(village_failure.reason, oasis_failure.reason) AS conquest_failure_reason,
     b.village_destroyed, COALESCE(rescue.traps_destroyed, 0) AS traps_destroyed,
     (SELECT json_group_array(json_object(
@@ -341,7 +337,6 @@ export const selectBattleReportQuery = `
   JOIN tiles origin_t ON origin_t.id = b.origin_tile_id
   LEFT JOIN villages origin_v ON origin_v.tile_id = origin_t.id
   JOIN tiles target_t ON target_t.id = b.target_tile_id
-  JOIN tile_type_ids target_type ON target_type.id = target_t.type_id
   LEFT JOIN villages target_v ON target_v.tile_id = target_t.id
   LEFT JOIN oasis target_o ON target_o.id = (
     SELECT MIN(id) FROM oasis WHERE tile_id = target_t.id
@@ -361,15 +356,22 @@ export const selectBattleReportQuery = `
   ;
 `;
 
-export const selectBattleReportDamagedBuildingsQuery = `
+export const selectBattleReportSiegeResultsQuery = `
   SELECT
     bi.building AS buildingId,
+    brb.field_id AS fieldId,
+    requested.building AS requestedBuildingId,
+    brb.targeting,
+    brb.outcome,
+    brb.reason,
     brb.level_before AS levelBefore,
     brb.level_after AS levelAfter
   FROM battle_report_buildings brb
   JOIN battle_reports b ON b.id = brb.battle_id
-  JOIN building_ids bi ON bi.id = brb.building_id
-  WHERE b.report_id = $report_id;
+  LEFT JOIN building_ids bi ON bi.id = brb.building_id
+  LEFT JOIN building_ids requested ON requested.id = brb.requested_building_id
+  WHERE b.report_id = $report_id
+  ORDER BY brb.id;
 `;
 
 export const selectAdventureReportQuery = `

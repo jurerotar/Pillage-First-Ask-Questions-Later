@@ -64,6 +64,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
+import { SiegeResultInformation } from './siege-result-information';
 
 const canSeeDefendingTroops = (
   report: BattleReport | CombatSimulatorReportDto,
@@ -147,12 +148,14 @@ export const ReportHeader = ({ actions }: ReportHeaderProps) => {
   );
 };
 
+type BattleTableParticipant = {
+  troops: Pick<BattleParticipant['troops'], 'tribe' | 'units' | 'hero'>;
+  player?: BattleParticipant['player'];
+  village?: BattleParticipant['village'];
+};
+
 type BattleParticipantTableProps = {
-  participant: {
-    troops: Pick<BattleParticipant['troops'], 'tribe' | 'units' | 'hero'>;
-    player?: BattleParticipant['player'];
-    village?: BattleParticipant['village'];
-  };
+  participant: BattleTableParticipant;
   // It cannot be named "role" because it overlaps with native HTML attribute
   participantRole: 'attacker' | 'defender' | 'reinforcement';
 };
@@ -394,7 +397,7 @@ export const BattleParticipantTable = ({
         <>
           <BattleInformationRow
             outcome={report.battle.outcome}
-            damagedBuildings={report.battle.damagedBuildings}
+            siegeResults={report.battle.siegeResults}
             canSeeOutcome={canSeeDefendingTroops(report)}
           />
           {!isSimulatorReport && (
@@ -409,15 +412,17 @@ export const BattleParticipantTable = ({
   );
 };
 
+type BattleInformationRowProps = {
+  outcome: BattleOutcome;
+  siegeResults: BattleReport['battle']['siegeResults'];
+  canSeeOutcome: boolean;
+};
+
 const BattleInformationRow = ({
   outcome,
-  damagedBuildings,
+  siegeResults,
   canSeeOutcome,
-}: {
-  outcome: BattleOutcome;
-  damagedBuildings: BattleReport['battle']['damagedBuildings'];
-  canSeeOutcome: boolean;
-}) => {
+}: BattleInformationRowProps) => {
   const { t } = useTranslation();
   const entries = new Map<string, ReactNode>();
 
@@ -425,18 +430,9 @@ const BattleInformationRow = ({
     return null;
   }
 
-  for (const { buildingId, levelBefore, levelAfter } of damagedBuildings) {
-    const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
-
-    entries.set(
-      `${buildingId}:${levelBefore}:${levelAfter}`,
-      levelAfter === 0
-        ? t('{{buildingName}} was destroyed', { buildingName })
-        : t(
-            '{{buildingName}} was damaged from level {{levelBefore}} to level {{levelAfter}}',
-            { buildingName, levelBefore, levelAfter },
-          ),
-    );
+  for (const [index, result] of siegeResults.entries()) {
+    // Results are an immutable ordered list; identical hits must remain separate.
+    entries.set(`siege:${index}`, <SiegeResultInformation result={result} />);
   }
 
   if (canSeeOutcome) {
@@ -460,7 +456,9 @@ const BattleInformationRow = ({
           {outcome.conquest.failureReason !== null && (
             <>
               .{' '}
-              {t(`CONQUEST_FAILURE_REASONS.${outcome.conquest.failureReason}`)}
+              {t(
+                `REPORTS.CONQUEST_FAILURE_REASONS.${outcome.conquest.failureReason}`,
+              )}
             </>
           )}
         </>,
@@ -1317,10 +1315,9 @@ export const ScheduledConstructionCancellationReportTable = () => {
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext);
   const report = _report as ScheduledConstructionCancellationReport;
-  const reason =
-    report.reason === 'missing-resources'
-      ? t('Not enough resources')
-      : t('Building requirements are not met');
+  const reason = t(
+    `REPORTS.SCHEDULED_CONSTRUCTION_CANCELLATION_REASONS.${report.reason}`,
+  );
 
   return (
     <OverflowContainer>
