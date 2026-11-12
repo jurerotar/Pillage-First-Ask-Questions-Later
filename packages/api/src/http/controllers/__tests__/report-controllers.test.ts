@@ -380,6 +380,77 @@ describe('report-controllers', () => {
     ).toBe(true);
   });
 
+  test.each([
+    'attacker',
+    'defender',
+    'scoutAttacker',
+    'scoutDefender',
+  ] as const)(
+    'applies the no-loss filter to %s reports without hiding other outcomes or report types',
+    async (perspective) => {
+      using database = await prepareReportsTestDatabase();
+      const isScouting = perspective.startsWith('scout');
+
+      if (isScouting) {
+        database.execMulti({
+          sql: `
+            UPDATE reports
+            SET type_id = (SELECT id FROM report_type_ids WHERE report_type = 'scouting')
+            WHERE id = 1;
+
+            INSERT INTO scouting_reports (
+              report_id, origin_tile_id, target_tile_id, perspective, successful, scouting_target
+            )
+            SELECT 1, origin_tile_id, target_tile_id, 'attacker', 1, 'resources'
+            FROM battle_reports WHERE report_id = 1;
+          `,
+        });
+      }
+
+      for (const losses of ['NoLoss', 'SomeLoss', 'FullLoss'] as const) {
+        database.exec({
+          sql: `
+            UPDATE reports
+            SET report_outcome_id = (
+              SELECT id FROM report_outcome_ids WHERE report_outcome = $outcome
+            )
+            WHERE id = 1;
+          `,
+          bind: { $outcome: `${perspective}${losses}` },
+        });
+
+        setActiveReportFilters(database, ['battle', 'scouting', 'adventure']);
+
+        expect(
+          getReports(database, createControllerArgs<'/reports'>({})).map(
+            ({ id }) => id,
+          ),
+        ).toStrictEqual(losses === 'NoLoss' ? [2] : [2, 1]);
+
+        setActiveReportFilters(database, [
+          'battle',
+          'scouting',
+          'adventure',
+          'noLoss',
+        ]);
+
+        expect(
+          getReports(database, createControllerArgs<'/reports'>({})).map(
+            ({ id }) => id,
+          ),
+        ).toStrictEqual([2, 1]);
+      }
+
+      setActiveReportFilters(database, ['adventure', 'noLoss']);
+
+      expect(
+        getReports(database, createControllerArgs<'/reports'>({})).map(
+          ({ id }) => id,
+        ),
+      ).toStrictEqual([2]);
+    },
+  );
+
   test('should use separate report filters for each report scope', async () => {
     using database = await prepareReportsTestDatabase();
 

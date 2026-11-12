@@ -219,8 +219,12 @@ export const selectReportListingsQuery = `
           AND rf.name = $filter_name
           AND rf.filter = 'noLoss'
       )
-      OR rty.report_type != 'battle'
-      OR roi.report_outcome != 'attackerNoLoss'
+      OR roi.report_outcome NOT IN (
+        'attackerNoLoss',
+        'defenderNoLoss',
+        'scoutAttackerNoLoss',
+        'scoutDefenderNoLoss'
+      )
     )
     AND (
       EXISTS (
