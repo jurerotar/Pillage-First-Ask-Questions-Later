@@ -1,3 +1,61 @@
+const createInsertReportQuery = (additionalFilter = '') => `
+  INSERT INTO
+    reports (village_id, timestamp, type_id, report_outcome_id)
+  SELECT
+    $village_id,
+    $timestamp,
+    (
+      SELECT
+        id
+      FROM
+        report_type_ids
+      WHERE
+        report_type = $type
+    ),
+    (
+      SELECT
+        id
+      FROM
+        report_outcome_ids
+      WHERE
+        report_outcome = $outcome
+    )
+  WHERE NOT EXISTS (
+    SELECT 1 FROM report_generation_settings s
+    JOIN villages v ON v.player_id = s.player_id
+    WHERE v.id = $village_id
+      AND (
+        s.filter = $type
+        OR (
+          s.filter = 'noLoss'
+          AND $outcome IN (
+            'attackerNoLoss',
+            'defenderNoLoss',
+            'scoutAttackerNoLoss',
+            'scoutDefenderNoLoss'
+          )
+        )
+${additionalFilter}
+      )
+  )
+  RETURNING id;
+`;
+
+export const insertReportQuery = createInsertReportQuery();
+
+export const insertTradeReportQuery = createInsertReportQuery(`
+        OR (
+          s.filter = 'ownTrades'
+          AND $type = 'trade'
+          AND EXISTS (
+            SELECT 1 FROM villages origin
+            JOIN villages target ON target.player_id = origin.player_id
+            WHERE origin.tile_id = $origin_tile_id
+              AND target.tile_id = $target_tile_id
+          )
+        )
+`);
+
 const selectReportListingsBaseQuery = `
   SELECT
     r.id,

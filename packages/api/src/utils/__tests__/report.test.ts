@@ -79,8 +79,10 @@ describe(insertReport, () => {
     expect(timestamps).not.toContain(2);
     expect(timestamps).toContain(1001);
     expect(timestamps).toContain(1002);
-    expect(firstInsertedId).toBeGreaterThan(boundaryInsertedId);
-    expect(secondInsertedId).toBeGreaterThan(firstInsertedId);
+    expect(boundaryInsertedId).toBeDefined();
+    expect(firstInsertedId).toBeDefined();
+    expect(firstInsertedId).toBeGreaterThan(boundaryInsertedId!);
+    expect(secondInsertedId).toBeGreaterThan(firstInsertedId!);
   });
 });
 

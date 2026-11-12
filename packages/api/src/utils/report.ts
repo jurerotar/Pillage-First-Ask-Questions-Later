@@ -23,6 +23,10 @@ import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import {
+  insertReportQuery,
+  insertTradeReportQuery,
+} from '../queries/report-queries';
 
 export type CreateNewReport = Pick<
   BaseReport,
@@ -187,29 +191,9 @@ export type CreateNewBattleReport = z.infer<typeof createNewBattleReportSchema>;
 export const insertReport = (
   database: DbFacade,
   report: CreateNewReport,
-): number => {
+): number | undefined => {
   const reportId = database.selectValue({
-    sql: `
-      INSERT INTO
-        reports (village_id, timestamp, type_id, report_outcome_id)
-      VALUES
-        ($village_id, $timestamp, (
-          SELECT
-            id
-          FROM
-            report_type_ids
-          WHERE
-            report_type = $type
-          ), (
-           SELECT
-             id
-           FROM
-             report_outcome_ids
-           WHERE
-             report_outcome = $outcome
-           ))
-      RETURNING id;
-    `,
+    sql: insertReportQuery,
     bind: {
       $village_id: report.villageId,
       $timestamp: report.timestamp,
@@ -217,7 +201,11 @@ export const insertReport = (
       $outcome: report.outcome,
     },
     schema: z.int(),
-  })!;
+  });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   if (report.tags.length > 0) {
     database.exec({
@@ -242,7 +230,7 @@ export const insertReport = (
 export const insertAdventureReport = (
   database: DbFacade,
   report: CreateNewAdventureReport,
-): number => {
+): number | undefined => {
   const reportId = insertReport(database, {
     villageId: report.villageId,
     timestamp: report.timestamp,
@@ -250,6 +238,10 @@ export const insertAdventureReport = (
     outcome: 'heroAdventure',
     tags: [],
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   database.exec({
     sql: `
@@ -286,7 +278,7 @@ export const insertAdventureReport = (
 export const insertGatheringExpeditionReport = (
   database: DbFacade,
   report: CreateNewGatheringExpeditionReport,
-): number => {
+): number | undefined => {
   const reportId = insertReport(database, {
     villageId: report.villageId,
     timestamp: report.timestamp,
@@ -294,6 +286,10 @@ export const insertGatheringExpeditionReport = (
     outcome: 'gatheringExpedition',
     tags: [],
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   const gatheringExpeditionReportId = database.selectValue({
     sql: `
@@ -357,7 +353,7 @@ export const insertGatheringExpeditionReport = (
 export const insertHuntingPartyReport = (
   database: DbFacade,
   report: CreateNewHuntingPartyReport,
-): number => {
+): number | undefined => {
   const reportId = insertReport(database, {
     villageId: report.villageId,
     timestamp: report.timestamp,
@@ -365,6 +361,10 @@ export const insertHuntingPartyReport = (
     outcome: 'huntingParty',
     tags: [],
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   const huntingPartyReportId = database.selectValue({
     sql: `
@@ -403,7 +403,7 @@ export const insertHuntingPartyReport = (
 export const insertUnitResearchReport = (
   database: DbFacade,
   report: CreateNewUnitResearchReport,
-): number => {
+): number | undefined => {
   const reportId = insertReport(database, {
     villageId: report.villageId,
     timestamp: report.timestamp,
@@ -411,6 +411,10 @@ export const insertUnitResearchReport = (
     outcome: 'unitResearched',
     tags: [],
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   database.exec({
     sql: `
@@ -432,7 +436,7 @@ export const insertUnitResearchReport = (
 export const insertUnitImprovementReport = (
   database: DbFacade,
   report: CreateNewUnitImprovementReport,
-): number => {
+): number | undefined => {
   const reportId = insertReport(database, {
     villageId: report.villageId,
     timestamp: report.timestamp,
@@ -440,6 +444,10 @@ export const insertUnitImprovementReport = (
     outcome: 'unitImproved',
     tags: [],
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   database.exec({
     sql: `
@@ -462,7 +470,7 @@ export const insertUnitImprovementReport = (
 export const insertVillageFoundedReport = (
   database: DbFacade,
   report: CreateNewVillageFoundedReport,
-): number => {
+): number | undefined => {
   const reportId = insertReport(database, {
     villageId: report.villageId,
     timestamp: report.timestamp,
@@ -470,6 +478,10 @@ export const insertVillageFoundedReport = (
     outcome: 'villageFounded',
     tags: [],
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   database.exec({
     sql: `
@@ -497,7 +509,7 @@ export const insertVillageFoundedReport = (
 export const insertScheduledConstructionCancellationReport = (
   database: DbFacade,
   report: CreateNewScheduledConstructionCancellationReport,
-): number => {
+): number | undefined => {
   const reportId = insertReport(database, {
     villageId: report.villageId,
     timestamp: report.timestamp,
@@ -505,6 +517,10 @@ export const insertScheduledConstructionCancellationReport = (
     outcome: 'scheduledConstructionCancelled',
     tags: [],
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   database.exec({
     sql: `
@@ -572,6 +588,10 @@ export const insertMovementReport = (
     tags: [],
   });
 
+  if (reportId === undefined) {
+    return undefined;
+  }
+
   const movementReportId = database.selectValue({
     sql: `
       INSERT INTO
@@ -612,7 +632,7 @@ export const insertMovementReport = (
 export const insertBattleReport = (
   database: DbFacade,
   report: CreateNewBattleReport,
-): number => {
+): number | undefined => {
   // Event resolution may already be in a transaction.
   database.exec({ sql: 'SAVEPOINT insert_battle_report;' });
 
@@ -635,7 +655,7 @@ export const insertBattleReport = (
 const persistBattleReport = (
   database: DbFacade,
   report: CreateNewBattleReport,
-): number => {
+): number | undefined => {
   const resolvedOutcome = battleOutcomeSchema.parse({
     loot: report.loot,
     totalCarryCapacity: 0,
@@ -669,6 +689,10 @@ const persistBattleReport = (
     outcome: report.outcome,
     tags: [],
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   const battleReportId = database.selectValue({
     sql: `
@@ -968,14 +992,23 @@ const persistBattleReport = (
 export const insertTradeReport = (
   database: DbFacade,
   report: CreateNewTradeReport,
-): number => {
-  const reportId = insertReport(database, {
-    villageId: report.villageId,
-    timestamp: report.timestamp,
-    type: 'trade',
-    outcome: report.outcome,
-    tags: [],
+): number | undefined => {
+  const reportId = database.selectValue({
+    sql: insertTradeReportQuery,
+    bind: {
+      $village_id: report.villageId,
+      $timestamp: report.timestamp,
+      $type: 'trade',
+      $outcome: report.outcome,
+      $origin_tile_id: report.originTileId,
+      $target_tile_id: report.targetTileId,
+    },
+    schema: z.int(),
   });
+
+  if (reportId === undefined) {
+    return undefined;
+  }
 
   database.exec({
     sql: `
@@ -1001,8 +1034,8 @@ export const insertTradeReport = (
 export const insertScoutingReport = (
   database: DbFacade,
   report: CreateNewScoutingReport,
-): number => {
-  let insertedReportId = 0;
+): number | undefined => {
+  let insertedReportId: number | undefined;
 
   database.transaction(() => {
     const reportId = insertReport(database, {
@@ -1012,6 +1045,10 @@ export const insertScoutingReport = (
       outcome: report.outcome,
       tags: [],
     });
+
+    if (reportId === undefined) {
+      return undefined;
+    }
 
     const scoutingReportId = database.selectValue({
       sql: `

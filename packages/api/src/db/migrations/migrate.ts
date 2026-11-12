@@ -78,6 +78,7 @@ import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
+import createReportGenerationSettingsTable from '../schemas/report-generation-settings-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
@@ -283,6 +284,7 @@ export const migrateAndSeed = (
     reportTypeIdsSeeder(db);
 
     db.execMulti({ sql: createReportsTable });
+    db.execMulti({ sql: createReportGenerationSettingsTable });
     db.execMulti({ sql: createHeroAdventureReportsTable });
     db.execMulti({ sql: createMovementReportsTable });
     db.execMulti({ sql: createMovementReportUnitsTable });

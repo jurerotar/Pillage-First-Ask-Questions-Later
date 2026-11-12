@@ -27,6 +27,7 @@ import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createVillageConquestFailureReasonIdsTable from '../schemas/lookup-tables/village-conquest-failure-reason-ids-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
+import createReportGenerationSettingsTable from '../schemas/report-generation-settings-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createTradeRoutesTable from '../schemas/trade-routes-schema.sql?raw';
@@ -729,6 +730,8 @@ export const upgradeDb = (
       tx.execMulti({ sql: createBattleReportCapturedAnimalsTable });
       tx.execMulti({ sql: createBattleReportStolenItemsTable });
       tx.execMulti({ sql: createReportDeleteTriggers });
+
+      tx.execMulti({ sql: createReportGenerationSettingsTable });
 
       setupGlobalWriteTriggers(tx);
     });
