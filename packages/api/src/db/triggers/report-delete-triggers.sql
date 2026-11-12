@@ -7,6 +7,22 @@ BEGIN
   DELETE FROM scouting_report_attacker_units WHERE scouting_report_id IN (SELECT id FROM scouting_reports WHERE report_id = OLD.id);
   DELETE FROM scouting_report_structures WHERE scouting_report_id IN (SELECT id FROM scouting_reports WHERE report_id = OLD.id);
 
+  DELETE FROM battle_report_consumables
+  WHERE battle_participant_id IN (
+    SELECT bp.id FROM battle_report_participants bp
+    JOIN battle_reports b ON b.id = bp.battle_id WHERE b.report_id = OLD.id
+  );
+  DELETE FROM battle_report_heroes
+  WHERE battle_participant_id IN (
+    SELECT bp.id FROM battle_report_participants bp
+    JOIN battle_reports b ON b.id = bp.battle_id WHERE b.report_id = OLD.id
+  );
+  DELETE FROM battle_report_rescued_units WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
+  DELETE FROM battle_report_rescues WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
+  DELETE FROM battle_report_conquests WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
+  DELETE FROM battle_report_captured_animals WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
+  DELETE FROM battle_report_stolen_items WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
+
   DELETE FROM battle_report_units
   WHERE battle_participant_id IN (
     SELECT bp.id
@@ -20,7 +36,7 @@ BEGIN
     SELECT id FROM battle_reports WHERE report_id = OLD.id
   );
 
-  DELETE FROM battle_report_buildings WHERE report_id = OLD.id;
+  DELETE FROM battle_report_buildings WHERE battle_id IN (SELECT id FROM battle_reports WHERE report_id = OLD.id);
 
   DELETE FROM movement_report_units
   WHERE movement_report_id IN (

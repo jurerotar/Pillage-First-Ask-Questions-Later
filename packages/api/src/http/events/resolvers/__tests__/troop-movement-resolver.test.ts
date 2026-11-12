@@ -125,6 +125,7 @@ describe(oasisOccupationMovementResolver, () => {
       sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1;',
       schema: z.number(),
     })!;
+
     const resolvesAt = Date.now();
 
     oasisOccupationMovementResolver(
@@ -302,6 +303,7 @@ describe(adventureMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
@@ -430,6 +432,7 @@ describe(adventureMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
       schema: baseEventRowSchema,
     });
+
     const returnEvent = returnEventRow
       ? (mapEventRowToTypedEvent(
           returnEventRow,
@@ -589,6 +592,7 @@ describe(relocationMovementResolver, () => {
       database,
       sourceVillageId,
     );
+
     const targetEffectBefore = getTroopWheatProductionEffectValue(
       database,
       targetVillageId,
@@ -836,6 +840,7 @@ describe(reinforcementMovementResolver, () => {
       database,
       sourceVillageId,
     );
+
     const targetEffectBefore = getTroopWheatProductionEffectValue(
       database,
       targetVillageId,
@@ -901,6 +906,7 @@ describe(reinforcementMovementResolver, () => {
       database,
       sourceVillageId,
     );
+
     const owningVillageEffectBefore = getTroopWheatProductionEffectValue(
       database,
       owningVillageId,
@@ -964,6 +970,7 @@ describe(findNewVillageMovementResolver, () => {
       `,
       schema: z.number(),
     })!;
+
     const startsAt = 1_000_000;
     const hour = 3_600_000;
     const resolvesAt = startsAt + hour;
@@ -980,6 +987,7 @@ describe(findNewVillageMovementResolver, () => {
         );
       `,
     });
+
     for (const [source, value] of [
       ['building', 100],
       ['troops', 10],
@@ -997,6 +1005,7 @@ describe(findNewVillageMovementResolver, () => {
         },
       });
     }
+
     database.exec({
       sql: `
         UPDATE resource_sites
@@ -1146,6 +1155,7 @@ describe(findNewVillageMovementResolver, () => {
         level: z.number(),
       }),
     });
+
     // buildingFieldsFactory 'player' size creates 18 resource fields + Rally Point (39) + Main Building (38) + Wall (40) = 21 fields
     expect(buildingFields).toHaveLength(21);
 
@@ -1159,10 +1169,7 @@ describe(findNewVillageMovementResolver, () => {
       sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
       bind: { $tile_id: targetTile.id },
       schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
+        ...resourcesSchema.shape,
         updated_at: z.number(),
       }),
     })!;
@@ -1217,8 +1224,10 @@ describe(findNewVillageMovementResolver, () => {
       bind: { $villageId: newVillage.id },
       schema: effectSchema,
     });
+
     // Main Building level 1 (2) + Rally Point level 1 (1) = 3
     expect(buildingWheatEffects.length).toBeGreaterThan(0);
+
     // Find the one with source_specifier 0 (base effect)
     const baseBuildingEffect = buildingWheatEffects.find(
       (e) => e.sourceSpecifier === 0,
@@ -1261,6 +1270,7 @@ describe(findNewVillageMovementResolver, () => {
       sql: "SELECT e.value FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.tile_id = (SELECT tile_id FROM villages WHERE id = 1) AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops') AND ei.effect = 'wheatProduction';",
       schema: z.number(),
     });
+
     // Assuming initial value was 3 (for 3 settlers)
     expect(sourceTroopWheatEffects[0]).toBe(0);
   });
@@ -1289,6 +1299,7 @@ describe(attackMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
@@ -1380,7 +1391,6 @@ describe(attackMovementResolver, () => {
           br.loot_clay,
           br.loot_iron,
           br.loot_wheat,
-          br.can_attacker_see_full_report,
           ui.unit AS attacker_unit_id,
           bru.amount_before,
           bru.amount_after
@@ -1406,11 +1416,10 @@ describe(attackMovementResolver, () => {
         origin_tile_id: tileIdSchema,
         target_tile_id: tileIdSchema,
         is_raid: z.number(),
-        loot_wood: z.number(),
-        loot_clay: z.number(),
-        loot_iron: z.number(),
-        loot_wheat: z.number(),
-        can_attacker_see_full_report: z.number(),
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
         attacker_unit_id: unitIdSchema,
         amount_before: z.number(),
         amount_after: z.number(),
@@ -1430,7 +1439,6 @@ describe(attackMovementResolver, () => {
       loot_clay: 100,
       loot_iron: 100,
       loot_wheat: 100,
-      can_attacker_see_full_report: 1,
       attacker_unit_id: 'LEGIONNAIRE',
       amount_before: 10,
       amount_after: 10,
@@ -1454,6 +1462,8 @@ describe(attackMovementResolver, () => {
       amountAfter: 10,
       amountHospitalized: 0,
       amountImprisoned: 0,
+      amountBandaged: 0,
+      amountConsumed: 0,
     });
     expect(fullReport.battle.defender.village.tileId).toBe(target.tile_id);
 
@@ -1461,6 +1471,7 @@ describe(attackMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
@@ -1588,10 +1599,10 @@ describe(attackMovementResolver, () => {
         LIMIT 1;
       `,
       schema: z.strictObject({
-        loot_wood: z.number(),
-        loot_clay: z.number(),
-        loot_iron: z.number(),
-        loot_wheat: z.number(),
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
       }),
     })!;
 
@@ -1606,6 +1617,7 @@ describe(attackMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
@@ -1637,6 +1649,7 @@ describe(raidMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
@@ -1738,10 +1751,10 @@ describe(raidMovementResolver, () => {
       schema: z.strictObject({
         target_tile_id: tileIdSchema,
         is_raid: z.number(),
-        loot_wood: z.number(),
-        loot_clay: z.number(),
-        loot_iron: z.number(),
-        loot_wheat: z.number(),
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
       }),
     })!;
 
@@ -1758,6 +1771,7 @@ describe(raidMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
@@ -1951,6 +1965,7 @@ describe(raidMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
@@ -2074,6 +2089,7 @@ describe(raidMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;

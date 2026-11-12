@@ -11,6 +11,7 @@ export const preferencesCacheKey = 'preferences';
 export const questsCacheKey = 'quests';
 export const collectableQuestCountCacheKey = 'collectable-quests';
 export const reportListingsCacheKey = 'report-listings';
+export const reportGenerationSettingsCacheKey = 'report-generation-settings';
 export const filtersCacheKey = 'filters';
 export const reportsCacheKey = 'reports';
 export const reputationsCacheKey = 'reputations';

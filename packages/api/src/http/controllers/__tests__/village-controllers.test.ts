@@ -126,6 +126,7 @@ describe('village-controllers', () => {
         sql: 'SELECT id FROM villages LIMIT 1',
         schema: z.number(),
       })!;
+
       const fieldId1 = 19;
       const fieldId2 = 20;
 
@@ -134,6 +135,7 @@ describe('village-controllers', () => {
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 1)",
         bind: { $v: villageId, $f: fieldId1 },
       });
+
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 2)",
         bind: { $v: villageId, $f: fieldId2 },
@@ -293,6 +295,7 @@ describe('village-controllers', () => {
         sql: 'SELECT id FROM villages LIMIT 1',
         schema: z.number(),
       })!;
+
       const eventStartsAt = 123_456_789;
       const buildingEventTypes = [
         'buildingConstruction',
@@ -321,6 +324,7 @@ describe('village-controllers', () => {
           },
         });
       }
+
       database.exec({
         sql: `
           INSERT INTO scheduled_building_upgrades
@@ -392,6 +396,7 @@ describe('village-controllers', () => {
         sql: 'SELECT id FROM villages ORDER BY id LIMIT 2',
         schema: z.number(),
       });
+
       const [villageId, otherVillageId] = villageIds;
       const eventStartsAt = 223_456_789;
 
@@ -399,6 +404,7 @@ describe('village-controllers', () => {
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 19, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 7)",
         bind: { $v: villageId },
       });
+
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 20, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 3)",
         bind: { $v: villageId },
@@ -503,6 +509,7 @@ describe('village-controllers', () => {
         sql: 'SELECT id FROM villages LIMIT 1',
         schema: z.number(),
       })!;
+
       const fieldId1 = 19;
       const fieldId2 = 21;
 
@@ -603,6 +610,7 @@ describe('village-controllers', () => {
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 19, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 10)",
         bind: { $v: villageId },
       });
+
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 20, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 7)",
         bind: { $v: villageId },
@@ -670,6 +678,7 @@ describe('village-controllers', () => {
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 18, (SELECT id FROM building_ids WHERE building = 'WOODCUTTER'), 9)",
         bind: { $v: villageId },
       });
+
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 39, (SELECT id FROM building_ids WHERE building = 'RALLY_POINT'), 3)",
         bind: { $v: villageId },
@@ -802,6 +811,7 @@ describe('village-controllers', () => {
         sql: 'SELECT id FROM villages LIMIT 1',
         schema: z.number(),
       })!;
+
       const eventStartsAt = 345_678_901;
 
       database.exec({

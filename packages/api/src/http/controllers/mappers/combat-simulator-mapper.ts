@@ -7,4 +7,6 @@ export const mapUnits = (troops: CombatSimulatorTroop[]) =>
     amountAfter: amount,
     amountHospitalized: 0,
     amountImprisoned: 0,
+    amountBandaged: 0,
+    amountConsumed: 0,
   }));

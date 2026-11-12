@@ -10,7 +10,10 @@ import {
 } from '../../../utils/marketplace';
 import { insertTradeReport } from '../../../utils/report';
 import { getTradeRouteById } from '../../../utils/trade-routes';
-import { addResourceSiteResourcesAt } from '../../../utils/village';
+import {
+  addResourceSiteResourcesAt,
+  calculateResourceSiteResourcesAt,
+} from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const resourceTransferResolver: Resolver<
@@ -160,31 +163,63 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
     targetVillageId,
     originTileId,
     targetTileId,
-    resources,
+    resources: requestedResources,
+    minimumResources,
+    minimumMerchants,
     interval,
   } = route;
 
   const { resolvesAt } = event;
 
   try {
-    const { merchant } = getVillageMerchantStats(database, villageId);
-    const merchantAmount = getMerchantAmount(
-      resources,
-      merchant.merchantCapacity,
-    );
+    const { currentWood, currentClay, currentIron, currentWheat } =
+      calculateResourceSiteResourcesAt(database, originTileId, resolvesAt);
 
-    createEvents<'resourceTransfer'>(database, {
-      type: 'resourceTransfer',
-      villageId,
-      targetVillageId,
-      originTileId,
-      targetTileId,
-      resources,
-      merchantAmount,
-      repeatRemaining: 0,
-      repeatResources: resources,
-      startsAt: resolvesAt,
-    });
+    const resources = {
+      wood: Math.min(
+        requestedResources.wood,
+        Math.max(0, currentWood - minimumResources.wood),
+      ),
+      clay: Math.min(
+        requestedResources.clay,
+        Math.max(0, currentClay - minimumResources.clay),
+      ),
+      iron: Math.min(
+        requestedResources.iron,
+        Math.max(0, currentIron - minimumResources.iron),
+      ),
+      wheat: Math.min(
+        requestedResources.wheat,
+        Math.max(0, currentWheat - minimumResources.wheat),
+      ),
+    };
+
+    if (getTotalResourceAmount(resources) > 0) {
+      const { merchant, marketplaceLevel, usedMerchantAmount } =
+        getVillageMerchantStats(database, villageId);
+      const merchantAmount = getMerchantAmount(
+        resources,
+        merchant.merchantCapacity,
+      );
+
+      if (
+        marketplaceLevel - usedMerchantAmount - merchantAmount >=
+        minimumMerchants
+      ) {
+        createEvents<'resourceTransfer'>(database, {
+          type: 'resourceTransfer',
+          villageId,
+          targetVillageId,
+          originTileId,
+          targetTileId,
+          resources,
+          merchantAmount,
+          repeatRemaining: 0,
+          repeatResources: resources,
+          startsAt: resolvesAt,
+        });
+      }
+    }
   } catch {
     // A route miss is expected when resources or free merchants are unavailable.
   }

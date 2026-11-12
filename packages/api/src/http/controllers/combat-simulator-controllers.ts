@@ -19,14 +19,20 @@ export const simulateCombat = createController('/combat-simulator', 'query', {
     combatMode,
     playerRole,
     battle: {
-      attacker: { tribe: attacker.tribe, units: mapUnits(attacker.troops) },
+      attacker: {
+        tribe: attacker.tribe,
+        units: mapUnits(attacker.troops),
+        hero: null,
+      },
       defender: {
         tribe: defender.tribe,
+        hero: null,
         units: mapUnits(defender.troops),
         reinforcements: defender.reinforcements.map(
           ({ id, tribe, troops }) => ({
             id,
             tribe,
+            hero: null,
             units: mapUnits(troops),
           }),
         ),
@@ -34,11 +40,16 @@ export const simulateCombat = createController('/combat-simulator', 'query', {
       outcome: {
         loot: [0, 0, 0, 0],
         totalCarryCapacity: 0,
-        canAttackerSeeFullReport: true,
-        itemId: null,
-        itemAmount: null,
+        loyaltyBefore: null,
+        loyaltyAfter: null,
+        conquest: null,
+        villageDestroyed: false,
+        trapsDestroyed: 0,
+        rescuedUnits: [],
+        capturedAnimals: [],
+        stolenItems: [],
       },
-      damagedBuildings: [],
+      siegeResults: [],
       statistics: {
         attacker: {
           points: 0,

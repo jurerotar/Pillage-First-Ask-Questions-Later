@@ -7,7 +7,6 @@ import {
   type ReactNode,
   Suspense,
   use,
-  useMemo,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -599,33 +598,9 @@ const VillageSelect = () => {
   const { t } = useTranslation();
   const { navigateToVillage } = useVillageSwitchNavigation();
   const { playerVillages } = usePlayerVillageListing();
-  const { preferences } = usePreferences();
   const { currentVillage } = useCurrentVillage();
   const { x: currentVillageX, y: currentVillageY } = currentVillage.coordinates;
   const currentVillageLabel = `${currentVillage.name} (${currentVillageX}|${currentVillageY})`;
-
-  const sortedPlayerVillages = useMemo(() => {
-    const byName = (
-      a: (typeof playerVillages)[number],
-      b: (typeof playerVillages)[number],
-    ) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }) ||
-      a.id - b.id;
-    const byPopulation =
-      (direction: 1 | -1) =>
-      (
-        a: (typeof playerVillages)[number],
-        b: (typeof playerVillages)[number],
-      ) =>
-        direction * (a.population - b.population) || byName(a, b);
-    const comparator = {
-      alphabetic: byName,
-      populationAsc: byPopulation(1),
-      populationDesc: byPopulation(-1),
-    }[preferences.villageSort];
-
-    return playerVillages.toSorted(comparator);
-  }, [playerVillages, preferences.villageSort]);
 
   return (
     <DropdownMenu>
@@ -638,7 +613,7 @@ const VillageSelect = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuRadioGroup value={currentVillage.slug}>
-          {sortedPlayerVillages.map(
+          {playerVillages.map(
             ({ slug, name, id, coordinates, resourceFieldComposition }) => {
               const { x, y } = coordinates;
               const formattedId = `${x}|${y}`;

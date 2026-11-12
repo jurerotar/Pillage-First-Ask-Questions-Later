@@ -1,14 +1,14 @@
 import { z } from 'zod';
-import {
-  calculateLootableCarryCapacity,
-  calculateTotalCarryCapacity,
-  distributeLoot,
-} from '@pillage-first/game-assets/utils/troops';
+import { calculateTotalCarryCapacity } from '@pillage-first/game-assets/utils/troops';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import {
+  calculateLootableCarryCapacity,
+  distributeLoot,
+} from '@pillage-first/utils/game/combat';
 import { selectBattleReportParticipantsByTargetTileIdQuery } from '../queries/troop-movement-queries';
 import { type CreateNewBattleReport, insertBattleReport } from './report';
 import { getVillageTileId, subtractResourceSiteResourcesAt } from './village';
@@ -40,6 +40,10 @@ const mapTroopsToBattleReportUnits = (
     unitId,
     amountBefore: amount,
     amountAfter: amount,
+    amountHospitalized: 0,
+    amountImprisoned: 0,
+    amountBandaged: 0,
+    amountConsumed: 0,
   }));
 };
 
@@ -125,6 +129,7 @@ const getBattleReportParticipants = (
 
     if (!participant) {
       participant = {
+        hero: null,
         tileId: row.tile_id,
         playerId: row.player_id,
         units: [],
@@ -138,6 +143,10 @@ const getBattleReportParticipants = (
         unitId: row.unit_id,
         amountBefore: row.amount,
         amountAfter: row.amount,
+        amountHospitalized: 0,
+        amountImprisoned: 0,
+        amountBandaged: 0,
+        amountConsumed: 0,
       });
     }
   }
@@ -178,9 +187,17 @@ const insertNoCombatBattleReport = (
     targetTileId,
     isRaid: args.type === 'troopMovementRaid',
     loot,
-    canAttackerSeeFullReport: true,
     attackerPoints: 0,
     defenderPoints: 0,
+    loyaltyBefore: null,
+    loyaltyAfter: null,
+    conquest: null,
+    villageDestroyed: false,
+    trapsDestroyed: 0,
+    rescuedUnits: [],
+    capturedAnimals: [],
+    stolenItems: [],
+    siegeResults: [],
     attacker: {
       ...attacker,
       units: mapTroopsToBattleReportUnits(troops),

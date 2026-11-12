@@ -1,4 +1,4 @@
-import { Separator as SeparatorPrimitive } from '@base-ui/react';
+import { Separator as SeparatorPrimitive } from '@base-ui/react/separator';
 import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 

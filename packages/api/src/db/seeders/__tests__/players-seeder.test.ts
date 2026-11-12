@@ -45,6 +45,7 @@ describe('playersSeeder', () => {
     const { totalTiles } = calculateGridLayout(
       serverMock.configuration.mapSize,
     );
+
     const playerDensity = 0.046;
     const expectedTotalPlayers =
       Math.round((playerDensity * totalTiles) / 100) * 100;

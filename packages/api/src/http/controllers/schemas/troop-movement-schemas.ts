@@ -4,7 +4,7 @@ import { jsonCoordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { troopMovementTypeSchema } from '@pillage-first/types/models/game-event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
+import { troopSchema } from '@pillage-first/types/models/troop';
 
 export const getTileTroopMovementsRowSchema = tileTroopMovementDtoSchema.extend(
   {
@@ -17,12 +17,7 @@ export const troopMovementValidationBodySchema = z.strictObject({
   type: troopMovementTypeSchema,
   originTileId: tileIdSchema,
   targetTileId: tileIdSchema,
-  troops: z.array(
-    z.strictObject({
-      unitId: unitIdSchema,
-      amount: z.int().positive(),
-    }),
-  ),
+  troops: z.array(troopSchema.pick({ unitId: true, amount: true })),
 });
 
 export const getVillageTroopMovementsRowSchema = z

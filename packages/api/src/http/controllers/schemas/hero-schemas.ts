@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { baseHeroAuctionListingDtoSchema } from '@pillage-first/types/dtos/hero';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
@@ -42,33 +43,25 @@ export const getHeroInventorySchema = z
   })
   .meta({ id: 'GetHeroInventoryRow' });
 
-export const getHeroAuctionBuyListingSchema = z
-  .strictObject({
-    id: z.number(),
-    item_id: z.number(),
-    amount: z.number().int().positive(),
-    price: z.number().int().positive(),
+const baseHeroAuctionListingRowSchema = baseHeroAuctionListingDtoSchema
+  .omit({ itemId: true })
+  .extend({ item_id: baseHeroAuctionListingDtoSchema.shape.itemId });
+
+export const getHeroAuctionBuyListingSchema = baseHeroAuctionListingRowSchema
+  .extend({
     expires_at: z.number(),
   })
   .meta({ id: 'GetHeroAuctionBuyListingRow' });
 
-export const getHeroAuctionSellListingSchema = z
-  .strictObject({
-    id: z.number(),
-    item_id: z.number(),
-    amount: z.number().int().positive(),
-    price: z.number().int().positive(),
+export const getHeroAuctionSellListingSchema = baseHeroAuctionListingRowSchema
+  .extend({
     sells_at: z.number(),
   })
   .meta({ id: 'GetHeroAuctionSellListingRow' });
 
-export const getHeroAuctionHistoryEntrySchema = z
-  .strictObject({
-    id: z.number(),
+export const getHeroAuctionHistoryEntrySchema = baseHeroAuctionListingRowSchema
+  .extend({
     type: z.enum(['buy', 'sell']),
-    item_id: z.number(),
-    amount: z.number().int().positive(),
-    price: z.number().int().positive(),
     completed_at: z.number(),
   })
   .meta({ id: 'GetHeroAuctionHistoryEntryRow' });

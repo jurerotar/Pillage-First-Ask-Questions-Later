@@ -2,14 +2,23 @@ import type { z } from 'zod';
 import { unitsMap } from '@pillage-first/game-assets/units';
 import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
 import type {
-  BattleDamagedBuilding,
+  BattleSiegeResult,
   BattleType,
+} from '@pillage-first/types/models/battle';
+import {
+  battleConquestSchema,
+  battleUnitSchema,
 } from '@pillage-first/types/models/battle';
 import {
   type BattleReportSummary,
   type movementReportUnitSchema,
   reportSchema,
 } from '@pillage-first/types/models/report';
+import {
+  type CombatUnit,
+  calculateCombatStatistics,
+  calculateSurvivingCarryCapacity,
+} from '@pillage-first/utils/game/combat';
 import type {
   getReportListingsRowSchema,
   getReportsRowSchema,
@@ -176,27 +185,16 @@ export const mapReportListingRowToDto = (
 
 export const mapBattleReportRowToDto = (
   rows: BattleReportRow[],
-  damagedBuildings: BattleDamagedBuilding[],
+  siegeResults: BattleSiegeResult[],
 ) => {
   const [row] = rows;
 
   const participants = new Map<number, BattleType['attacker']>();
   const reinforcements: BattleType['defender']['reinforcements'] = [];
-  const attackerStatistics = {
-    points: row.attacker_points,
-    supplyBefore: 0,
-    supplyLost: 0,
-    resourcesLost: 0,
-  };
-  const defenderStatistics = {
-    points: row.defender_points,
-    supplyBefore: 0,
-    supplyLost: 0,
-    resourcesLost: 0,
-  };
+  const attackerUnits: CombatUnit[] = [];
+  const defenderUnits: CombatUnit[] = [];
   let attacker: BattleType['attacker'] | undefined;
   let defender: BattleType['attacker'] | undefined;
-  let totalCarryCapacity = 0;
 
   for (const participantRow of rows) {
     let participant = participants.get(participantRow.participant_id);
@@ -220,6 +218,10 @@ export const mapBattleReportRowToDto = (
           id: participantRow.participant_id,
           tribe: participantRow.participant_tribe,
           units: [],
+          hero:
+            participantRow.hero_json === null
+              ? null
+              : JSON.parse(participantRow.hero_json),
         },
       };
       participants.set(participantRow.participant_id, participant);
@@ -233,42 +235,31 @@ export const mapBattleReportRowToDto = (
       }
     }
 
-    if (
-      participantRow.participant_unit_id &&
-      participantRow.participant_amount_before !== null &&
-      participantRow.participant_amount_after !== null
-    ) {
-      participant.troops.units.push({
+    if (participantRow.participant_unit_id !== null) {
+      const battleUnit = battleUnitSchema.parse({
         unitId: participantRow.participant_unit_id,
         amountBefore: participantRow.participant_amount_before,
         amountAfter: participantRow.participant_amount_after,
-        amountHospitalized: participantRow.participant_amount_hospitalized ?? 0,
-        amountImprisoned: participantRow.participant_amount_imprisoned ?? 0,
+        amountHospitalized: participantRow.participant_amount_hospitalized,
+        amountImprisoned: participantRow.participant_amount_imprisoned,
+        amountBandaged: participantRow.participant_amount_bandaged,
+        amountConsumed: participantRow.participant_amount_consumed,
       });
+      participant.troops.units.push(battleUnit);
 
       const unit = unitsMap.get(participantRow.participant_unit_id);
       if (unit) {
-        const amountLost =
-          participantRow.participant_amount_before -
-          participantRow.participant_amount_after;
-        const statistics =
+        const combatUnits =
           participantRow.participant_role === 'attacker'
-            ? attackerStatistics
-            : defenderStatistics;
+            ? attackerUnits
+            : defenderUnits;
 
-        let resourceCost = 0;
-        for (const cost of unit.baseRecruitmentCost) {
-          resourceCost += cost;
-        }
-
-        statistics.supplyBefore += participantRow.participant_amount_before;
-        statistics.supplyLost += amountLost;
-        statistics.resourcesLost += resourceCost * amountLost;
-
-        if (participantRow.participant_role === 'attacker') {
-          totalCarryCapacity +=
-            unit.unitCarryCapacity * participantRow.participant_amount_after;
-        }
+        combatUnits.push({
+          ...battleUnit,
+          unitWheatConsumption: unit.unitWheatConsumption,
+          baseRecruitmentCost: unit.baseRecruitmentCost,
+          unitCarryCapacity: unit.unitCarryCapacity,
+        });
       }
     }
   }
@@ -283,13 +274,34 @@ export const mapBattleReportRowToDto = (
     defender: { ...defender, reinforcements },
     outcome: {
       loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
-      totalCarryCapacity,
-      canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
-      itemId: row.item_id,
-      itemAmount: row.item_amount,
+      totalCarryCapacity: calculateSurvivingCarryCapacity(attackerUnits),
+      loyaltyBefore: row.loyalty_before,
+      loyaltyAfter: row.loyalty_after,
+      conquest:
+        row.conquest_target === null
+          ? null
+          : battleConquestSchema.parse({
+              target: row.conquest_target,
+              succeeded: Boolean(row.conquest_succeeded),
+              failureReason: row.conquest_failure_reason,
+            }),
+      villageDestroyed: Boolean(row.village_destroyed),
+      trapsDestroyed: row.traps_destroyed,
+      rescuedUnits: JSON.parse(row.rescued_units_json),
+      capturedAnimals: JSON.parse(row.captured_animals_json),
+      stolenItems: JSON.parse(row.stolen_items_json),
     },
-    damagedBuildings,
-    statistics: { attacker: attackerStatistics, defender: defenderStatistics },
+    siegeResults,
+    statistics: {
+      attacker: {
+        ...calculateCombatStatistics(attackerUnits),
+        points: row.attacker_points,
+      },
+      defender: {
+        ...calculateCombatStatistics(defenderUnits),
+        points: row.defender_points,
+      },
+    },
   };
 
   return reportSchema.parse({

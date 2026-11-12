@@ -7,6 +7,15 @@ import {
   reportFilterNameByScope,
 } from '@pillage-first/types/dtos/report';
 import {
+  type BattleSiegeResult,
+  battleSiegeResultSchema,
+} from '@pillage-first/types/models/battle';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
+import {
+  type CreateNewBattleReport,
+  insertBattleReport,
+} from '../../../utils/report';
+import {
   deleteReports,
   getReport,
   getReports,
@@ -30,6 +39,7 @@ const setActiveReportFilters = (
       `,
       bind: { $name: filterName },
     });
+
     tx.exec({
       sql: `
         INSERT INTO filters (player_id, name, filter)
@@ -50,6 +60,7 @@ const prepareReportsTestDatabase = async () => {
   database.exec({
     sql: 'DELETE FROM reports;',
   });
+
   database.execMulti({
     sql: `
       INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
@@ -62,6 +73,7 @@ const prepareReportsTestDatabase = async () => {
         (6, (SELECT id FROM villages ORDER BY id LIMIT 1), 6000, (SELECT id FROM report_type_ids WHERE report_type = 'gatheringExpedition'), (SELECT id FROM report_outcome_ids WHERE report_outcome = 'gatheringExpedition'));
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO report_tags (report_id, report_tag_id)
@@ -70,53 +82,62 @@ const prepareReportsTestDatabase = async () => {
         (2, (SELECT id FROM report_tag_ids WHERE tag = 'archived'));
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_reports (
         id, report_id, origin_tile_id, target_tile_id, is_raid,
         loot_wood, loot_clay, loot_iron, loot_wheat,
-        can_attacker_see_full_report, attacker_points, defender_points
+        attacker_points, defender_points, village_destroyed
       ) VALUES (
         1, 1,
         (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
         (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
-        0, 10, 20, 30, 40, 1, 100, 50
+        0, 10, 20, 30, 40, 100, 50, 0
       );
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
       SELECT 1, 1, player_id, tile_id FROM villages ORDER BY id LIMIT 1;
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
       SELECT 2, 1, player_id, tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1;
     `,
   });
+
   database.exec({
     sql: `
-      INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after)
+      INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after, amount_hospitalized, amount_imprisoned, amount_bandaged, amount_consumed)
       VALUES
-        (1, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 10, 8),
-        (2, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5, 0);
+        (1, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 10, 8, 0, 0, 0, 0),
+        (2, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5, 0, 0, 0, 0, 0);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO battle_report_buildings (
-        report_id,
+        battle_id,
         building_id,
+        field_id,
+        targeting,
+        outcome,
         level_before,
         level_after
       )
       VALUES
-        (1, (SELECT id FROM building_ids WHERE building = 'RALLY_POINT'), 10, 4),
-        (1, (SELECT id FROM building_ids WHERE building = 'WHEAT_FIELD'), 8, 0);
+        (1, (SELECT id FROM building_ids WHERE building = 'RALLY_POINT'), 39, 'random', 'damaged', 10, 4),
+        (1, (SELECT id FROM building_ids WHERE building = 'WHEAT_FIELD'), 1, 'random', 'destroyed', 8, 0);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO hero_adventure_reports (
@@ -124,6 +145,7 @@ const prepareReportsTestDatabase = async () => {
       ) VALUES (2, 1, NULL, NULL, 100, 95);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO movement_reports (id, report_id, origin_tile_id, target_tile_id, movement_type)
@@ -135,12 +157,14 @@ const prepareReportsTestDatabase = async () => {
       );
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO movement_report_units (movement_report_id, unit_id, amount)
       VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 10);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO trade_reports (
@@ -153,18 +177,21 @@ const prepareReportsTestDatabase = async () => {
       );
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO hunting_party_reports (id, report_id, village_tile_id)
       VALUES (1, 5, (SELECT tile_id FROM villages ORDER BY id LIMIT 1));
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO hunting_party_report_units (hunting_party_report_id, unit_id, amount)
       VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'RAT'), 3);
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO gathering_expedition_reports (
@@ -178,6 +205,7 @@ const prepareReportsTestDatabase = async () => {
       );
     `,
   });
+
   database.exec({
     sql: `
       INSERT INTO gathering_expedition_report_units (
@@ -222,12 +250,12 @@ describe('report-controllers', () => {
         INSERT INTO battle_reports (
           report_id, origin_tile_id, target_tile_id, is_raid,
           loot_wood, loot_clay, loot_iron, loot_wheat,
-          can_attacker_see_full_report, attacker_points, defender_points
+          attacker_points, defender_points, village_destroyed
         )
-        SELECT r.id, b.origin_tile_id,
+        SELECT r.id, CASE WHEN r.id = 9 THEN b.target_tile_id ELSE b.origin_tile_id END,
           CASE WHEN r.id = 9 THEN b.origin_tile_id ELSE b.target_tile_id END,
           b.is_raid, b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
-          b.can_attacker_see_full_report, b.attacker_points, b.defender_points
+          b.attacker_points, b.defender_points, b.village_destroyed
         FROM reports r CROSS JOIN battle_reports b
         WHERE r.id IN (8, 9) AND b.report_id = 1;
       `,
@@ -270,11 +298,11 @@ describe('report-controllers', () => {
         INSERT INTO battle_reports (
           report_id, origin_tile_id, target_tile_id, is_raid,
           loot_wood, loot_clay, loot_iron, loot_wheat,
-          can_attacker_see_full_report, attacker_points, defender_points
+          attacker_points, defender_points, village_destroyed
         )
         SELECT r.id, b.origin_tile_id, b.target_tile_id,
           b.is_raid, b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
-          b.can_attacker_see_full_report, b.attacker_points, b.defender_points
+          b.attacker_points, b.defender_points, b.village_destroyed
         FROM reports r CROSS JOIN battle_reports b
         WHERE r.id >= 10 AND b.report_id = 1;
       `,
@@ -352,6 +380,77 @@ describe('report-controllers', () => {
     ).toBe(true);
   });
 
+  test.each([
+    'attacker',
+    'defender',
+    'scoutAttacker',
+    'scoutDefender',
+  ] as const)(
+    'applies the no-loss filter to %s reports without hiding other outcomes or report types',
+    async (perspective) => {
+      using database = await prepareReportsTestDatabase();
+      const isScouting = perspective.startsWith('scout');
+
+      if (isScouting) {
+        database.execMulti({
+          sql: `
+            UPDATE reports
+            SET type_id = (SELECT id FROM report_type_ids WHERE report_type = 'scouting')
+            WHERE id = 1;
+
+            INSERT INTO scouting_reports (
+              report_id, origin_tile_id, target_tile_id, perspective, successful, scouting_target
+            )
+            SELECT 1, origin_tile_id, target_tile_id, 'attacker', 1, 'resources'
+            FROM battle_reports WHERE report_id = 1;
+          `,
+        });
+      }
+
+      for (const losses of ['NoLoss', 'SomeLoss', 'FullLoss'] as const) {
+        database.exec({
+          sql: `
+            UPDATE reports
+            SET report_outcome_id = (
+              SELECT id FROM report_outcome_ids WHERE report_outcome = $outcome
+            )
+            WHERE id = 1;
+          `,
+          bind: { $outcome: `${perspective}${losses}` },
+        });
+
+        setActiveReportFilters(database, ['battle', 'scouting', 'adventure']);
+
+        expect(
+          getReports(database, createControllerArgs<'/reports'>({})).map(
+            ({ id }) => id,
+          ),
+        ).toStrictEqual(losses === 'NoLoss' ? [2] : [2, 1]);
+
+        setActiveReportFilters(database, [
+          'battle',
+          'scouting',
+          'adventure',
+          'noLoss',
+        ]);
+
+        expect(
+          getReports(database, createControllerArgs<'/reports'>({})).map(
+            ({ id }) => id,
+          ),
+        ).toStrictEqual([2, 1]);
+      }
+
+      setActiveReportFilters(database, ['adventure', 'noLoss']);
+
+      expect(
+        getReports(database, createControllerArgs<'/reports'>({})).map(
+          ({ id }) => id,
+        ),
+      ).toStrictEqual([2]);
+    },
+  );
+
   test('should use separate report filters for each report scope', async () => {
     using database = await prepareReportsTestDatabase();
 
@@ -364,6 +463,7 @@ describe('report-controllers', () => {
         query: { scope: 'global' },
       }),
     );
+
     const unreadReports = getReports(
       database,
       createControllerArgs<'/reports'>({
@@ -406,6 +506,7 @@ describe('report-controllers', () => {
         SET target_tile_id = origin_tile_id;
       `,
     });
+
     database.exec({
       sql: `
         UPDATE reports
@@ -535,9 +636,27 @@ describe('report-controllers', () => {
     ).toHaveProperty('battle.attacker.troops.units');
     expect(
       existingReports.find(({ type }) => type === 'battle'),
-    ).toHaveProperty('battle.damagedBuildings', [
-      { buildingId: 'RALLY_POINT', levelBefore: 10, levelAfter: 4 },
-      { buildingId: 'WHEAT_FIELD', levelBefore: 8, levelAfter: 0 },
+    ).toHaveProperty('battle.siegeResults', [
+      {
+        fieldId: 39,
+        requestedBuildingId: null,
+        buildingId: 'RALLY_POINT',
+        targeting: 'random',
+        outcome: 'damaged',
+        reason: null,
+        levelBefore: 10,
+        levelAfter: 4,
+      },
+      {
+        fieldId: 1,
+        requestedBuildingId: null,
+        buildingId: 'WHEAT_FIELD',
+        targeting: 'random',
+        outcome: 'destroyed',
+        reason: null,
+        levelBefore: 8,
+        levelAfter: 0,
+      },
     ]);
     expect(
       existingReports.find(({ type }) => type === 'adventure'),
@@ -562,11 +681,11 @@ describe('report-controllers', () => {
 
     database.exec({
       sql: `
-        UPDATE battle_reports
-        SET item_id = 1021, item_amount = 3
-        WHERE report_id = 1;
+        INSERT INTO battle_report_stolen_items (battle_id, item_id, amount)
+        SELECT id, 1021, 3 FROM battle_reports WHERE report_id = 1;
       `,
     });
+
     database.execMulti({
       sql: `
         INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
@@ -575,6 +694,7 @@ describe('report-controllers', () => {
           (SELECT id FROM report_outcome_ids WHERE report_outcome = 'scoutAttackerNoLoss'));
       `,
     });
+
     database.exec({
       sql: `
         INSERT INTO scouting_reports (
@@ -609,12 +729,14 @@ describe('report-controllers', () => {
         );
       `,
     });
+
     database.exec({
       sql: `
         INSERT INTO scouting_report_attacker_units (scouting_report_id, unit_id, amount_before, amount_after)
         VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'ROMAN_SCOUT'), 10, 10);
       `,
     });
+
     database.exec({
       sql: `
         INSERT INTO scouting_report_units (scouting_report_id, role, tile_id, unit_id, amount)
@@ -630,6 +752,7 @@ describe('report-controllers', () => {
         path: { reportId: 1 },
       }),
     );
+
     const scoutingReport = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({
@@ -637,10 +760,54 @@ describe('report-controllers', () => {
       }),
     );
 
-    expect(battleReport).toHaveProperty('battle.outcome.itemId', 1021);
-    expect(battleReport).toHaveProperty('battle.outcome.itemAmount', 3);
+    expect(battleReport).toHaveProperty('battle.outcome.stolenItems', [
+      { itemId: 1021, amount: 3 },
+    ]);
     expect(scoutingReport).toHaveProperty('scouting.itemId', 1022);
     expect(scoutingReport).toHaveProperty('scouting.itemAmount', 1);
+  });
+
+  test('weights supply by crop consumption and excludes prisoners from losses', async () => {
+    using database = await prepareReportsTestDatabase();
+
+    database.execMulti({
+      sql: `INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
+        SELECT 3, 1, player_id, tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 2;
+        INSERT INTO battle_report_units (
+          battle_participant_id, unit_id, amount_before, amount_after, amount_hospitalized, amount_imprisoned, amount_bandaged, amount_consumed
+        ) VALUES
+          (1, (SELECT id FROM unit_ids WHERE unit = 'EQUITES_IMPERATORIS'), 10, 6, 1, 2, 0, 0),
+          (3, (SELECT id FROM unit_ids WHERE unit = 'EQUITES_IMPERATORIS'), 4, 1, 0, 1, 0, 0);
+        UPDATE battle_report_units SET amount_imprisoned = 5 WHERE battle_participant_id = 2;`,
+    });
+
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({
+        path: { reportId: 1 },
+      }),
+    );
+
+    expect(report?.type).toBe('battle');
+
+    if (report?.type !== 'battle') {
+      throw new Error('Expected a battle report');
+    }
+
+    expect(report.battle.statistics).toStrictEqual({
+      attacker: {
+        points: 100,
+        supplyBefore: 40,
+        supplyLost: 8,
+        resourcesLost: 3620,
+      },
+      defender: {
+        points: 50,
+        supplyBefore: 17,
+        supplyLost: 6,
+        resourcesLost: 2820,
+      },
+    });
   });
 
   test('should return null for missing reports', async () => {
@@ -810,7 +977,7 @@ describe('report-controllers', () => {
           (SELECT COUNT(*) FROM movement_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS movements,
           (SELECT COUNT(*) FROM trade_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS trades,
           (SELECT COUNT(*) FROM battle_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS battles,
-          (SELECT COUNT(*) FROM battle_report_buildings WHERE report_id IN (SELECT value FROM json_each($ids))) AS battle_buildings,
+          (SELECT COUNT(*) FROM battle_report_buildings) AS battle_buildings,
           (SELECT COUNT(*) FROM hunting_party_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS hunting_parties,
           (SELECT COUNT(*) FROM gathering_expedition_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS gathering_expeditions,
           (SELECT COUNT(*) FROM report_tags WHERE report_id IN (SELECT value FROM json_each($ids))) AS tags;
@@ -896,5 +1063,769 @@ describe('report-controllers', () => {
       scouted_units: 0,
       structures: 0,
     });
+  });
+});
+
+const createCombatOutcomeReport = (database: DbFacade) => {
+  const [origin, target, reinforcement] = database.selectObjects({
+    sql: 'SELECT id, tile_id, player_id FROM villages ORDER BY id LIMIT 3;',
+    schema: z.strictObject({
+      id: z.int(),
+      tile_id: z.int(),
+      player_id: z.int(),
+    }),
+  });
+  const input: CreateNewBattleReport = {
+    villageId: origin.id,
+    timestamp: 5000,
+    outcome: 'attackerSomeLoss',
+    originTileId: origin.tile_id,
+    targetTileId: target.tile_id,
+    isRaid: false,
+    loot: [10, 20, 30, 40],
+    attackerPoints: 50,
+    defenderPoints: 20,
+    loyaltyBefore: 20.5,
+    loyaltyAfter: 0,
+    conquest: { target: 'village', succeeded: true, failureReason: null },
+    villageDestroyed: false,
+    trapsDestroyed: 12,
+    siegeResults: [
+      {
+        fieldId: 20,
+        requestedBuildingId: 'WAREHOUSE',
+        buildingId: 'WAREHOUSE',
+        targeting: 'selected',
+        outcome: 'damaged',
+        reason: null,
+        levelBefore: 20,
+        levelAfter: 12,
+      },
+    ],
+    rescuedUnits: [
+      {
+        playerId: reinforcement.player_id,
+        homeTileId: reinforcement.tile_id,
+        unitId: 'LEGIONNAIRE',
+        amountFreed: 20,
+        amountDied: 5,
+      },
+    ],
+    capturedAnimals: [{ unitId: 'RAT', amount: 3 }],
+    stolenItems: [
+      { itemId: 10001, amount: 1 },
+      { itemId: 1021, amount: 3 },
+    ],
+    attacker: {
+      playerId: origin.player_id,
+      tileId: origin.tile_id,
+      units: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amountBefore: 100,
+          amountAfter: 50,
+          amountHospitalized: 10,
+          amountImprisoned: 5,
+          amountBandaged: 8,
+          amountConsumed: 0,
+        },
+        {
+          unitId: 'ROMAN_CHIEF',
+          amountBefore: 1,
+          amountAfter: 0,
+          amountHospitalized: 0,
+          amountImprisoned: 0,
+          amountBandaged: 0,
+          amountConsumed: 1,
+        },
+      ],
+      hero: {
+        heroId: 7001,
+        healthBefore: 100,
+        healthAfter: 50,
+        experienceGained: 123,
+        consumables: [{ itemId: 1023, amount: 3 }],
+      },
+    },
+    defender: {
+      playerId: target.player_id,
+      tileId: target.tile_id,
+      units: [],
+      hero: {
+        heroId: 7002,
+        healthBefore: 50,
+        healthAfter: 0,
+        experienceGained: 24,
+        consumables: [],
+      },
+    },
+    reinforcements: [
+      {
+        playerId: reinforcement.player_id,
+        tileId: reinforcement.tile_id,
+        units: [],
+        hero: {
+          heroId: 7003,
+          healthBefore: 100,
+          healthAfter: 0,
+          experienceGained: 45,
+          consumables: [{ itemId: 1021, amount: 2 }],
+        },
+      },
+    ],
+  };
+
+  return { input, reportId: insertBattleReport(database, input) };
+};
+
+describe('battle combat outcome reports', () => {
+  test.each([
+    [
+      'missing outcome field',
+      (input: CreateNewBattleReport) => {
+        Reflect.deleteProperty(input, 'trapsDestroyed');
+      },
+    ],
+    [
+      'missing participant hero field',
+      (input: CreateNewBattleReport) => {
+        Reflect.deleteProperty(input.attacker, 'hero');
+      },
+    ],
+    [
+      'unknown input field',
+      (input: CreateNewBattleReport) => {
+        Object.assign(input, { legacy: true });
+      },
+    ],
+    [
+      'unit totals exceed initial troops',
+      (input: CreateNewBattleReport) => {
+        input.attacker.units[0].amountHospitalized = 101;
+      },
+    ],
+    [
+      'rescue deaths exceed freed troops',
+      (input: CreateNewBattleReport) => {
+        input.rescuedUnits[0].amountDied = 21;
+      },
+    ],
+    [
+      'negative item identifier',
+      (input: CreateNewBattleReport) => {
+        input.stolenItems[0].itemId = -1;
+      },
+    ],
+    [
+      'dead hero before battle',
+      (input: CreateNewBattleReport) => {
+        input.attacker.hero!.healthBefore = 0;
+      },
+    ],
+    [
+      'success with failure reason',
+      (input: CreateNewBattleReport) => {
+        input.conquest = {
+          target: 'village',
+          succeeded: true,
+          failureReason: 'loyalty-not-zero',
+        };
+      },
+    ],
+    [
+      'failure without reason',
+      (input: CreateNewBattleReport) => {
+        input.conquest = {
+          target: 'village',
+          succeeded: false,
+          failureReason: null,
+        };
+      },
+    ],
+    [
+      'successful conquest with loyalty remaining',
+      (input: CreateNewBattleReport) => {
+        input.loyaltyAfter = 10;
+      },
+    ],
+    [
+      'incomplete loyalty pair',
+      (input: CreateNewBattleReport) => {
+        input.loyaltyBefore = null;
+      },
+    ],
+    [
+      'increasing loyalty',
+      (input: CreateNewBattleReport) => {
+        input.loyaltyAfter = 50;
+      },
+    ],
+    [
+      'incorrect selected siege target',
+      (input: CreateNewBattleReport) => {
+        input.siegeResults[0].buildingId = 'GRANARY';
+      },
+    ],
+    [
+      'missing siege field identifier',
+      (input: CreateNewBattleReport) => {
+        input.siegeResults[0].fieldId = null;
+      },
+    ],
+    [
+      'non-animal capture',
+      (input: CreateNewBattleReport) => {
+        Object.assign(input.capturedAnimals[0], { unitId: 'LEGIONNAIRE' });
+      },
+    ],
+    [
+      'incorrect attacker tile',
+      (input: CreateNewBattleReport) => {
+        input.attacker.tileId = input.targetTileId;
+      },
+    ],
+    [
+      'duplicate reinforcement village',
+      (input: CreateNewBattleReport) => {
+        input.reinforcements.push(input.reinforcements[0]);
+      },
+    ],
+  ] as const)('rejects invalid battle input: %s', async (_name, mutate) => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    const before = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM reports;',
+      schema: z.int(),
+    });
+    mutate(input);
+    expect(() => insertBattleReport(database, input)).toThrow();
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM reports;',
+        schema: z.int(),
+      }),
+    ).toBe(before);
+  });
+
+  test.each([
+    'UPDATE battle_report_units SET amount_after = amount_before + 1;',
+    'UPDATE battle_report_units SET amount_consumed = NULL;',
+    'UPDATE battle_report_heroes SET health_before = 0;',
+    'UPDATE battle_report_consumables SET item_id = 0;',
+    'UPDATE battle_report_stolen_items SET item_id = -1;',
+    'UPDATE battle_report_rescued_units SET amount_died = amount_freed + 1;',
+    'UPDATE battle_report_rescues SET traps_destroyed = NULL;',
+    'UPDATE battle_reports SET village_destroyed = NULL;',
+    'UPDATE battle_report_conquests SET succeeded = 0;',
+    'UPDATE battle_report_conquests SET loyalty_after = 10;',
+    'UPDATE battle_report_conquests SET loyalty_before = NULL;',
+    "UPDATE battle_report_conquests SET target = 'invalid';",
+    'UPDATE battle_report_buildings SET field_id = NULL;',
+    'UPDATE battle_report_buildings SET outcome = NULL;',
+    "UPDATE battle_report_buildings SET targeting = 'random';",
+    "UPDATE battle_report_buildings SET requested_building_id = (SELECT id FROM building_ids WHERE building = 'GRANARY');",
+    "UPDATE battle_report_captured_animals SET unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');",
+    "INSERT INTO battle_report_captured_animals (battle_id, unit_id, amount) SELECT (SELECT id FROM battle_reports LIMIT 1), id, 1 FROM unit_ids WHERE unit = 'LEGIONNAIRE';",
+    'INSERT INTO battle_report_participants (battle_id, player_id, tile_id) SELECT battle_id, player_id, tile_id FROM battle_report_participants LIMIT 1;',
+  ])('rejects invalid battle data in SQL: %s', async (sql) => {
+    using database = await prepareReportsTestDatabase();
+    createCombatOutcomeReport(database);
+    expect(() => database.exec({ sql })).toThrow();
+  });
+
+  test('round-trips distinct fields, randomized targets, and unsuccessful siege shots in order', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    const hit: BattleSiegeResult = {
+      fieldId: 20,
+      requestedBuildingId: 'WAREHOUSE',
+      buildingId: 'WAREHOUSE',
+      targeting: 'selected',
+      outcome: 'damaged',
+      reason: null,
+      levelBefore: 20,
+      levelAfter: 12,
+    };
+    input.siegeResults = [
+      hit,
+      { ...hit, fieldId: 21 },
+      {
+        ...hit,
+        fieldId: 22,
+        targeting: 'brewery',
+        buildingId: 'GRANARY',
+        outcome: 'destroyed',
+        levelAfter: 0,
+      },
+      {
+        ...hit,
+        outcome: 'undamaged',
+        reason: 'insufficient-power',
+        levelAfter: 20,
+      },
+      {
+        ...hit,
+        outcome: 'not-fired',
+        reason: 'no-surviving-siege',
+        levelAfter: 20,
+      },
+      {
+        ...hit,
+        fieldId: null,
+        buildingId: null,
+        levelBefore: null,
+        levelAfter: null,
+        targeting: 'fallback',
+        outcome: 'no-target',
+        reason: 'target-missing',
+      },
+      {
+        ...hit,
+        fieldId: null,
+        buildingId: null,
+        levelBefore: null,
+        levelAfter: null,
+        outcome: 'not-fired',
+        reason: 'raid',
+      },
+    ];
+    const reportId = insertBattleReport(database, input);
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
+    );
+    expect(report).toHaveProperty('battle.siegeResults', input.siegeResults);
+    deleteReports(
+      database,
+      createControllerArgs<'/reports', 'delete'>({ body: [reportId] }),
+    );
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM battle_report_buildings WHERE battle_id NOT IN (SELECT id FROM battle_reports);',
+        schema: z.int(),
+      }),
+    ).toBe(0);
+  });
+
+  test('rejects inconsistent siege outcomes atomically and at the database boundary', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    const invalid: BattleSiegeResult = {
+      fieldId: 20,
+      requestedBuildingId: 'WAREHOUSE',
+      buildingId: 'WAREHOUSE',
+      targeting: 'selected',
+      outcome: 'undamaged',
+      reason: 'insufficient-power',
+      levelBefore: 20,
+      levelAfter: 12,
+    };
+    expect(battleSiegeResultSchema.safeParse(invalid).success).toBe(false);
+    const count = () =>
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM reports;',
+        schema: z.int(),
+      });
+    const before = count();
+    input.siegeResults = [invalid];
+    expect(() => insertBattleReport(database, input)).toThrow();
+    expect(count()).toBe(before);
+    expect(() =>
+      database.exec({
+        sql: `INSERT INTO battle_report_buildings
+      (battle_id, building_id, field_id, targeting, level_before, level_after, outcome, reason)
+      SELECT (SELECT id FROM battle_reports LIMIT 1), id, 20, 'random', 20, 12, 'undamaged', 'insufficient-power'
+      FROM building_ids WHERE building = 'WAREHOUSE';`,
+      }),
+    ).toThrow();
+    expect(() =>
+      database.exec({
+        sql: `INSERT INTO battle_report_buildings
+      (battle_id, targeting, outcome) VALUES ((SELECT id FROM battle_reports LIMIT 1), 'random', 'damaged');`,
+      }),
+    ).toThrow();
+  });
+
+  test('requires an explicit siege outcome in both input and storage', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    expect(
+      battleSiegeResultSchema.safeParse({
+        ...input.siegeResults![0],
+        outcome: undefined,
+      }).success,
+    ).toBe(false);
+    expect(() =>
+      database.exec({
+        sql: `INSERT INTO battle_report_buildings
+      (battle_id, building_id, field_id, targeting, level_before, level_after)
+      SELECT (SELECT id FROM battle_reports LIMIT 1), id, 20, 'random', 20, 12
+      FROM building_ids WHERE building = 'WAREHOUSE';`,
+      }),
+    ).toThrow();
+  });
+
+  test('writes outcomes inside an existing event transaction', async () => {
+    using database = await prepareReportsTestDatabase();
+
+    expect(() =>
+      database.transaction((tx) => {
+        createCombatOutcomeReport(tx);
+      }),
+    ).not.toThrow();
+  });
+
+  test('round trips special outcomes and each participant hero without changing live game state', async () => {
+    using database = await prepareReportsTestDatabase();
+    const tables = [
+      'troops',
+      'heroes',
+      'hero_inventory',
+      'hero_equipped_items',
+      'wounded_troops',
+      'world_items',
+      'villages',
+      'oasis',
+      'trapper_cages',
+    ];
+    const snapshot = () =>
+      tables.map((table) =>
+        database.selectObjects({
+          sql: `SELECT * FROM ${table};`,
+          schema: z.record(z.string(), z.unknown()),
+        }),
+      );
+    const before = snapshot();
+
+    const { input, reportId } = createCombatOutcomeReport(database);
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
+    );
+
+    expect(report?.type).toBe('battle');
+
+    if (report?.type !== 'battle') {
+      throw new Error('Expected a battle report');
+    }
+
+    expect(report.battle.outcome).toMatchObject({
+      loyaltyBefore: 20.5,
+      loyaltyAfter: 0,
+      conquest: input.conquest,
+      villageDestroyed: false,
+      trapsDestroyed: 12,
+      rescuedUnits: input.rescuedUnits,
+      capturedAnimals: input.capturedAnimals,
+      stolenItems: expect.arrayContaining(input.stolenItems!),
+    });
+    expect(report.battle.outcome.stolenItems).toHaveLength(
+      input.stolenItems!.length,
+    );
+    expect(report.battle.siegeResults).toStrictEqual(input.siegeResults);
+    expect(report.battle.attacker.troops.units).toEqual(
+      expect.arrayContaining(input.attacker.units),
+    );
+    expect(report.battle.attacker.troops.hero).toStrictEqual(
+      input.attacker.hero,
+    );
+    expect(report.battle.defender.troops.hero).toStrictEqual(
+      input.defender.hero,
+    );
+    expect(report.battle.defender.reinforcements[0].troops.hero).toStrictEqual(
+      input.reinforcements?.[0].hero,
+    );
+    expect(report.battle.statistics.attacker.resourcesLost).toBe(14800);
+    expect(snapshot()).toStrictEqual(before);
+  });
+
+  test('returns empty special outcomes for an ordinary battle', async () => {
+    using database = await prepareReportsTestDatabase();
+
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({ path: { reportId: 1 } }),
+    );
+
+    expect(report).toHaveProperty('battle.attacker.troops.hero', null);
+    expect(report).toHaveProperty('battle.outcome.loyaltyBefore', null);
+    expect(report).toHaveProperty('battle.outcome.loyaltyAfter', null);
+    expect(report).toHaveProperty('battle.outcome.conquest', null);
+    expect(report).toHaveProperty('battle.outcome.villageDestroyed', false);
+    expect(report).toHaveProperty('battle.outcome.trapsDestroyed', 0);
+    expect(report).toHaveProperty('battle.outcome.rescuedUnits', []);
+    expect(report).toHaveProperty('battle.outcome.capturedAnimals', []);
+    expect(report).toHaveProperty('battle.outcome.stolenItems', []);
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM battle_report_conquests;',
+        schema: z.int(),
+      }),
+    ).toBe(0);
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM battle_report_rescues;',
+        schema: z.int(),
+      }),
+    ).toBe(0);
+  });
+
+  test('deletes all combat outcome details with their report', async () => {
+    using database = await prepareReportsTestDatabase();
+    const buildingsBefore = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM battle_report_buildings;',
+      schema: z.int(),
+    });
+    const { reportId } = createCombatOutcomeReport(database);
+
+    deleteReports(
+      database,
+      createControllerArgs<'/reports', 'delete'>({
+        body: [reportId],
+      }),
+    );
+
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM battle_report_buildings;',
+        schema: z.int(),
+      }),
+    ).toBe(buildingsBefore);
+
+    for (const table of [
+      'battle_report_conquests',
+      'battle_report_rescues',
+      'battle_report_heroes',
+      'battle_report_consumables',
+      'battle_report_rescued_units',
+      'battle_report_captured_animals',
+      'battle_report_stolen_items',
+    ]) {
+      expect(
+        database.selectValue({
+          sql: `SELECT COUNT(*) FROM ${table};`,
+          schema: z.int(),
+        }),
+      ).toBe(0);
+    }
+  });
+
+  test('rolls back report writes when troop disposition counts overlap', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    const reportsBefore = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM reports;',
+      schema: z.int(),
+    });
+    input.attacker.units[0].amountBandaged = 100;
+
+    expect(() => insertBattleReport(database, input)).toThrow();
+
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM reports;',
+        schema: z.int(),
+      }),
+    ).toBe(reportsBefore);
+  });
+
+  test('stores unsuccessful oasis conquest outcomes', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    input.conquest = {
+      target: 'oasis',
+      succeeded: false,
+      failureReason: 'no-free-oasis-slot',
+    };
+    input.loyaltyAfter = 10;
+    input.targetTileId = database.selectValue({
+      sql: `SELECT t.id FROM tiles t JOIN tile_type_ids tt ON tt.id = t.type_id WHERE tt.type = 'oasis' LIMIT 1;`,
+      schema: z.int(),
+    })!;
+    input.defender = {
+      playerId: null,
+      tileId: input.targetTileId,
+      units: [],
+      hero: null,
+    };
+    const reportId = insertBattleReport(database, input);
+
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
+    );
+
+    expect(
+      database.selectObject({
+        sql: `SELECT o.reason AS oasis_reason, c.village_conquest_failure_reason_id AS village_reason_id
+        FROM battle_reports b
+        JOIN battle_report_conquests c ON c.battle_id = b.id
+        JOIN oasis_capture_failure_reason_ids o ON o.id = c.oasis_capture_failure_reason_id
+        WHERE b.report_id = $report_id;`,
+        bind: { $report_id: reportId },
+        schema: z.strictObject({
+          oasis_reason: z.string(),
+          village_reason_id: z.int().nullable(),
+        }),
+      }),
+    ).toStrictEqual({
+      oasis_reason: 'no-free-oasis-slot',
+      village_reason_id: null,
+    });
+    expect(report).toHaveProperty('battle.outcome.conquest', input.conquest);
+    expect(report).toHaveProperty('battle.outcome.loyaltyAfter', 10);
+    expect(report).toHaveProperty('battle.outcome.villageDestroyed', false);
+  });
+
+  test('stores village failure reasons through the village lookup table', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    input.conquest = {
+      target: 'village',
+      succeeded: false,
+      failureReason: 'administration-building-present',
+    };
+    input.loyaltyAfter = input.loyaltyBefore;
+
+    const reportId = insertBattleReport(database, input);
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
+    );
+
+    expect(report).toHaveProperty('battle.outcome.conquest', input.conquest);
+    expect(
+      database.selectObject({
+        sql: `SELECT v.reason AS village_reason, c.oasis_capture_failure_reason_id AS oasis_reason_id
+        FROM battle_reports b
+        JOIN battle_report_conquests c ON c.battle_id = b.id
+        JOIN village_conquest_failure_reason_ids v ON v.id = c.village_conquest_failure_reason_id
+        WHERE b.report_id = $report_id;`,
+        bind: { $report_id: reportId },
+        schema: z.strictObject({
+          village_reason: z.string(),
+          oasis_reason_id: z.int().nullable(),
+        }),
+      }),
+    ).toStrictEqual({
+      village_reason: 'administration-building-present',
+      oasis_reason_id: null,
+    });
+  });
+
+  test('rejects failure reasons from the wrong target lookup', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input, reportId } = createCombatOutcomeReport(database);
+    const invalidInput = JSON.parse(
+      JSON.stringify({
+        ...input,
+        conquest: {
+          target: 'village',
+          succeeded: false,
+          failureReason: 'no-free-oasis-slot',
+        },
+      }),
+    );
+
+    expect(() => insertBattleReport(database, invalidInput)).toThrow();
+    expect(() =>
+      database.exec({
+        sql: `UPDATE battle_report_conquests SET succeeded = 0,
+        village_conquest_failure_reason_id = (SELECT id FROM village_conquest_failure_reason_ids WHERE reason = 'administration-building-present'),
+        oasis_capture_failure_reason_id = (SELECT id FROM oasis_capture_failure_reason_ids WHERE reason = 'no-free-oasis-slot')
+        WHERE battle_id = (SELECT id FROM battle_reports WHERE report_id = $report_id);`,
+        bind: { $report_id: reportId },
+      }),
+    ).toThrow();
+  });
+
+  test('stores village destruction independently of a conquest attempt', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    input.conquest = null;
+    input.loyaltyBefore = null;
+    input.loyaltyAfter = null;
+    input.villageDestroyed = true;
+
+    const reportId = insertBattleReport(database, input);
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
+    );
+
+    expect(report).toHaveProperty('battle.outcome.conquest', null);
+    expect(report).toHaveProperty('battle.outcome.villageDestroyed', true);
+  });
+
+  test('rejects a conquest target that disagrees with the tile type', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    input.conquest = { target: 'oasis', succeeded: true, failureReason: null };
+
+    expect(() => insertBattleReport(database, input)).toThrow(
+      'Conquest target must match the target tile type',
+    );
+  });
+
+  test('stores destroyed traps without requiring rescued-unit rows', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    input.conquest = null;
+    input.loyaltyBefore = null;
+    input.loyaltyAfter = null;
+    input.trapsDestroyed = 15;
+    input.rescuedUnits = [];
+
+    const reportId = insertBattleReport(database, input);
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
+    );
+
+    expect(report).toHaveProperty('battle.outcome.trapsDestroyed', 15);
+    expect(report).toHaveProperty('battle.outcome.rescuedUnits', []);
+    expect(
+      database.selectObject({
+        sql: `SELECT r.traps_destroyed,
+        (SELECT COUNT(*) FROM battle_report_rescued_units u WHERE u.battle_id = b.id) AS rescued_unit_rows,
+        (SELECT COUNT(*) FROM battle_report_conquests c WHERE c.battle_id = b.id) AS conquest_rows
+        FROM battle_reports b JOIN battle_report_rescues r ON r.battle_id = b.id WHERE b.report_id = $report_id;`,
+        bind: { $report_id: reportId },
+        schema: z.strictObject({
+          traps_destroyed: z.int(),
+          rescued_unit_rows: z.int(),
+          conquest_rows: z.int(),
+        }),
+      }),
+    ).toStrictEqual({
+      traps_destroyed: 15,
+      rescued_unit_rows: 0,
+      conquest_rows: 0,
+    });
+  });
+
+  test('stores a rescue summary when units are rescued without destroyed traps', async () => {
+    using database = await prepareReportsTestDatabase();
+    const { input } = createCombatOutcomeReport(database);
+    input.trapsDestroyed = 0;
+
+    const reportId = insertBattleReport(database, input);
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
+    );
+
+    expect(report).toHaveProperty('battle.outcome.trapsDestroyed', 0);
+    expect(report).toHaveProperty(
+      'battle.outcome.rescuedUnits',
+      input.rescuedUnits,
+    );
+    expect(
+      database.selectValue({
+        sql: 'SELECT r.traps_destroyed FROM battle_report_rescues r JOIN battle_reports b ON b.id = r.battle_id WHERE b.report_id = $report_id;',
+        bind: { $report_id: reportId },
+        schema: z.int(),
+      }),
+    ).toBe(0);
   });
 });

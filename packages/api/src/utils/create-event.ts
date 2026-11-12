@@ -77,7 +77,7 @@ export const createEvents = <T extends GameEventType>(
 
   startsAt ??= getEventStartTime(database, sampleEvent);
 
-  duration ??= Math.ceil(getEventDuration(database, sampleEvent));
+  duration ??= Math.ceil(getEventDuration(database, sampleEvent, startsAt));
 
   const events: GameEvent<T>[] = Array.from({ length: amount });
 

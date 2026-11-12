@@ -12,7 +12,14 @@ import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw'
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createVillagesIndexes from '../indexes/villages-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
+import createBattleReportCapturedAnimalsTable from '../schemas/battle-report-captured-animals-schema.sql?raw';
+import createBattleReportConquestsTable from '../schemas/battle-report-conquests-schema.sql?raw';
+import createBattleReportConsumablesTable from '../schemas/battle-report-consumables-schema.sql?raw';
+import createBattleReportHeroesTable from '../schemas/battle-report-heroes-schema.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
+import createBattleReportRescuedUnitsTable from '../schemas/battle-report-rescued-units-schema.sql?raw';
+import createBattleReportRescuesTable from '../schemas/battle-report-rescues-schema.sql?raw';
+import createBattleReportStolenItemsTable from '../schemas/battle-report-stolen-items-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
@@ -50,6 +57,7 @@ import createEffectScopeIdsTable from '../schemas/lookup-tables/effect-scope-ids
 import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-ids-schema.sql?raw';
 import createEffectTypeIdsTable from '../schemas/lookup-tables/effect-type-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
+import createOasisCaptureFailureReasonIdsTable from '../schemas/lookup-tables/oasis-capture-failure-reason-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTagIdsTable from '../schemas/lookup-tables/report-tag-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
@@ -59,6 +67,7 @@ import createTileTypeIdsTable from '../schemas/lookup-tables/tile-type-ids-schem
 import createTribeIdsTable from '../schemas/lookup-tables/tribe-ids-schema.sql?raw';
 import createUnitDataTable from '../schemas/lookup-tables/unit-data-schema.sql?raw';
 import createUnitIdsTable from '../schemas/lookup-tables/unit-ids-schema.sql?raw';
+import createVillageConquestFailureReasonIdsTable from '../schemas/lookup-tables/village-conquest-failure-reason-ids-schema.sql?raw';
 import createLoyaltiesTable from '../schemas/loyalties-schema.sql?raw';
 import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
@@ -69,6 +78,7 @@ import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
+import createReportGenerationSettingsTable from '../schemas/report-generation-settings-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
@@ -110,6 +120,7 @@ import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
 import { mapFiltersSeeder } from '../seeders/map-filters-seeder';
 import { metaSeeder } from '../seeders/meta-seeder';
+import { oasisCaptureFailureReasonIdsSeeder } from '../seeders/oasis-capture-failure-reason-ids-seeder';
 import { oasisSeeder } from '../seeders/oasis-seeder';
 import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
@@ -122,6 +133,7 @@ import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-com
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
 import { serverSeeder } from '../seeders/server-seeder';
+import { seedTemporaryBattleReports } from '../seeders/temporary-battle-reports-seeder';
 import { tileTypeIdsSeeder } from '../seeders/tile-type-ids-seeder';
 import { tilesSeeder } from '../seeders/tiles-seeder';
 import { tribeIdsSeeder } from '../seeders/tribe-ids-seeder';
@@ -129,9 +141,9 @@ import { troopSeeder } from '../seeders/troop-seeder';
 import { unitDataSeeder } from '../seeders/unit-data-seeder';
 import { unitIdsSeeder } from '../seeders/unit-ids-seeder';
 import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
+import { villageConquestFailureReasonIdsSeeder } from '../seeders/village-conquest-failure-reason-ids-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
-import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
@@ -145,6 +157,12 @@ export const migrateAndSeed = (
 ): void => {
   database.transaction((db) => {
     // Lookup tables
+    db.execMulti({ sql: createVillageConquestFailureReasonIdsTable });
+    villageConquestFailureReasonIdsSeeder(db);
+
+    db.execMulti({ sql: createOasisCaptureFailureReasonIdsTable });
+    oasisCaptureFailureReasonIdsSeeder(db);
+
     db.execMulti({ sql: createBuildingIdsTable });
     buildingIdsSeeder(db);
 
@@ -266,6 +284,7 @@ export const migrateAndSeed = (
     reportTypeIdsSeeder(db);
 
     db.execMulti({ sql: createReportsTable });
+    db.execMulti({ sql: createReportGenerationSettingsTable });
     db.execMulti({ sql: createHeroAdventureReportsTable });
     db.execMulti({ sql: createMovementReportsTable });
     db.execMulti({ sql: createMovementReportUnitsTable });
@@ -279,6 +298,13 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createBattleReportBuildingsTable });
     db.execMulti({ sql: createBattleReportParticipantsTable });
     db.execMulti({ sql: createBattleReportUnitsTable });
+    db.execMulti({ sql: createBattleReportHeroesTable });
+    db.execMulti({ sql: createBattleReportConsumablesTable });
+    db.execMulti({ sql: createBattleReportConquestsTable });
+    db.execMulti({ sql: createBattleReportRescuesTable });
+    db.execMulti({ sql: createBattleReportRescuedUnitsTable });
+    db.execMulti({ sql: createBattleReportCapturedAnimalsTable });
+    db.execMulti({ sql: createBattleReportStolenItemsTable });
     db.execMulti({ sql: createScoutingReportsTable });
     db.execMulti({ sql: createScoutingReportAttackerUnitsTable });
     db.execMulti({ sql: createScoutingReportUnitsTable });
@@ -338,7 +364,6 @@ export const migrateAndSeed = (
 
     // Wounded troops
     db.execMulti({ sql: createWoundedTroopsTable });
-    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
 
     // Effects
     db.execMulti({ sql: createEffectsTable });
@@ -379,4 +404,7 @@ export const migrateAndSeed = (
     setupHistoryTriggers(db);
     setupLoyaltyTriggers(db);
   });
+
+  // Temporary battle report fixtures for visual inspection of newly created worlds.
+  seedTemporaryBattleReports(database, PLAYER_ID);
 };

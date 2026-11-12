@@ -1,29 +1,33 @@
 export const selectPlayerRankingsQuery = `
   WITH
-    player_pop AS (
+    -- Reuse each population calculation for cursor lookup and the returned rows.
+    player_pop AS MATERIALIZED (
       SELECT
         p.id,
         p.name,
         p.slug,
         ti.tribe,
         fi.faction AS faction,
-        COALESCE(SUM(-e.value), 0) AS total_population,
-        COUNT(DISTINCT v.id) AS village_count
+        COALESCE((
+          SELECT SUM(-e.value)
+          FROM villages v
+          -- Seek effects on this player's villages, rather than scanning world effects.
+          CROSS JOIN effects e ON e.tile_id = v.tile_id
+          WHERE v.player_id = p.id
+            AND e.effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
+            AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
+            AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+            AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
+            AND e.source_specifier = 0
+        ), 0) AS total_population,
+        (SELECT COUNT(*) FROM villages v WHERE v.player_id = p.id) AS village_count
       FROM
         players p
           JOIN tribe_ids ti ON p.tribe_id = ti.id
           JOIN faction_ids fi ON fi.id = p.faction_id
-          LEFT JOIN villages v ON v.player_id = p.id
-          LEFT JOIN effects e ON e.tile_id = v.tile_id
-          AND e.effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
-          AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
-          AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
-          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
-          AND e.source_specifier = 0
-      GROUP BY p.id
       ),
 
-    cursor_row AS (
+    cursor_row AS MATERIALIZED (
       SELECT total_population, id
       FROM
         player_pop
@@ -74,7 +78,8 @@ export const selectPlayerRankingsQuery = `
 
 export const selectVillageRankingsQuery = `
   WITH
-    village_pop AS (
+    -- Keep the correlated sum from being repeated by the cursor predicates.
+    village_pop AS MATERIALIZED (
       SELECT
         v.id AS village_id,
         v.name AS village_name,
@@ -83,21 +88,23 @@ export const selectVillageRankingsQuery = `
         v.player_id,
         p.name AS player_name,
         p.slug AS player_slug,
-        COALESCE(SUM(-e.value), 0) AS population
-      FROM
-        villages v
-          LEFT JOIN tiles t ON t.id = v.tile_id
-          LEFT JOIN players p ON p.id = v.player_id
-          LEFT JOIN effects e ON e.tile_id = v.tile_id
+        COALESCE((
+          SELECT SUM(-e.value)
+          FROM effects e
+          WHERE e.tile_id = v.tile_id
             AND e.effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
             AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
             AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
             AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND e.source_specifier = 0
-      GROUP BY v.id
+        ), 0) AS population
+      FROM
+        villages v
+          LEFT JOIN tiles t ON t.id = v.tile_id
+          LEFT JOIN players p ON p.id = v.player_id
     ),
 
-    cursor_row AS (
+    cursor_row AS MATERIALIZED (
       SELECT population, village_id
       FROM
         village_pop
@@ -151,13 +158,14 @@ export const selectPlayerStatsByTribeAndFactionQuery = `
   SELECT
     ti.tribe AS tribe,
     fi.faction AS faction,
-    COUNT(p.id) AS player_count
-  FROM
-    players p
-      JOIN tribe_ids ti ON p.tribe_id = ti.id
-      JOIN faction_ids fi ON fi.id = p.faction_id
-  GROUP BY
-    ti.tribe, fi.faction;
+    counts.player_count
+  FROM (
+    SELECT tribe_id, faction_id, COUNT(*) AS player_count
+    FROM players
+    GROUP BY tribe_id, faction_id
+  ) counts
+    JOIN tribe_ids ti ON ti.id = counts.tribe_id
+    JOIN faction_ids fi ON fi.id = counts.faction_id;
 `;
 
 export const selectVillageStatsByTribeAndFactionQuery = `

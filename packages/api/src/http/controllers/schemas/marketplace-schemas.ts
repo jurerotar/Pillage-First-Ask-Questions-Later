@@ -1,14 +1,14 @@
 import { z } from 'zod';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
+import {
+  tradeRouteScheduleSchema,
+  tradeRouteSchema,
+} from '@pillage-first/types/models/trade-route';
 
 const resourceTransferPayloadSchema = z.strictObject({
   targetTileId: tileIdSchema,
-  resources: z.strictObject({
-    wood: z.number().int().min(0),
-    clay: z.number().int().min(0),
-    iron: z.number().int().min(0),
-    wheat: z.number().int().min(0),
-  }),
+  resources: resourcesSchema,
 });
 
 export const transferResourcesBodySchema = resourceTransferPayloadSchema.extend(
@@ -17,9 +17,10 @@ export const transferResourcesBodySchema = resourceTransferPayloadSchema.extend(
   },
 );
 
-export const createTradeRouteBodySchema = resourceTransferPayloadSchema.extend({
-  startHour: z.number().int().min(0).max(23),
-  intervalHours: z.number().int().positive(),
+export const createTradeRouteBodySchema = tradeRouteScheduleSchema.safeExtend({
+  ...resourceTransferPayloadSchema.shape,
+  minimumMerchants: tradeRouteSchema.shape.minimumMerchants,
+  minimumResources: resourcesSchema,
 });
 
 export type TradeRouteBody = z.infer<typeof createTradeRouteBodySchema>;

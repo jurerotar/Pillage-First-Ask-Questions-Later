@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import {
+  battleSiegeResultSchema,
+  oasisCaptureFailureReasonSchema,
+  villageConquestFailureReasonSchema,
+} from '@pillage-first/types/models/battle';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportOutcomeSchema,
@@ -6,6 +11,7 @@ import {
   reportTypeSchema,
   scheduledConstructionCancellationReasonSchema,
 } from '@pillage-first/types/models/report';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -72,10 +78,10 @@ const nullableReportDetailColumns = z
     trade_target_name: z.string().nullable(),
     trade_target_x: z.int().nullable(),
     trade_target_y: z.int().nullable(),
-    trade_wood: z.int().nullable(),
-    trade_clay: z.int().nullable(),
-    trade_iron: z.int().nullable(),
-    trade_wheat: z.int().nullable(),
+    trade_wood: resourcesSchema.shape.wood.nullable(),
+    trade_clay: resourcesSchema.shape.clay.nullable(),
+    trade_iron: resourcesSchema.shape.iron.nullable(),
+    trade_wheat: resourcesSchema.shape.wheat.nullable(),
   })
   .partial().shape;
 
@@ -90,7 +96,7 @@ const baseReportRowSchema = z.strictObject({
 
 export const battleReportRowSchema = baseReportRowSchema.extend({
   type: z.literal('battle'),
-  battle_is_raid: z.int(),
+  battle_is_raid: z.union([z.literal(0), z.literal(1)]),
   battle_origin_name: z.string(),
   battle_origin_x: z.int(),
   battle_origin_y: z.int(),
@@ -100,21 +106,34 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   battle_id: z.int(),
   origin_tile_id: tileIdSchema,
   target_tile_id: tileIdSchema,
-  loot_wood: z.int(),
-  loot_clay: z.int(),
-  loot_iron: z.int(),
-  loot_wheat: z.int(),
-  can_attacker_see_full_report: z.int(),
-  attacker_points: z.int(),
-  defender_points: z.int(),
-  item_id: z.int().nullable(),
-  item_amount: z.int().nullable(),
+  loot_wood: resourcesSchema.shape.wood,
+  loot_clay: resourcesSchema.shape.clay,
+  loot_iron: resourcesSchema.shape.iron,
+  loot_wheat: resourcesSchema.shape.wheat,
+  attacker_points: z.int().nonnegative(),
+  defender_points: z.int().nonnegative(),
+  loyalty_before: z.number().min(0).max(125).nullable(),
+  loyalty_after: z.number().min(0).max(125).nullable(),
+  conquest_target: z.enum(['village', 'oasis']).nullable(),
+  conquest_succeeded: z.union([z.literal(0), z.literal(1)]).nullable(),
+  conquest_failure_reason: z
+    .union([
+      villageConquestFailureReasonSchema,
+      oasisCaptureFailureReasonSchema,
+    ])
+    .nullable(),
+  village_destroyed: z.union([z.literal(0), z.literal(1)]),
+  traps_destroyed: z.int().nonnegative(),
+  rescued_units_json: z.string(),
+  captured_animals_json: z.string(),
+  stolen_items_json: z.string(),
+  hero_json: z.string().nullable(),
   participant_id: z.int(),
   participant_player_id: z.int().nullable(),
   participant_tile_id: tileIdSchema,
   participant_role: reportSideSchema,
   participant_tribe: tribeSchema,
-  participant_is_reinforcement: z.int(),
+  participant_is_reinforcement: z.union([z.literal(0), z.literal(1)]),
   participant_player_name: z.string(),
   participant_player_slug: z.string().nullable(),
   participant_village_id: z.int().nullable(),
@@ -122,17 +141,15 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   participant_x: z.int(),
   participant_y: z.int(),
   participant_unit_id: unitIdSchema.nullable(),
-  participant_amount_before: z.int().nullable(),
-  participant_amount_after: z.int().nullable(),
-  participant_amount_hospitalized: z.int().nullable(),
-  participant_amount_imprisoned: z.int().nullable(),
+  participant_amount_before: z.int().nonnegative().nullable(),
+  participant_amount_after: z.int().nonnegative().nullable(),
+  participant_amount_hospitalized: z.int().nonnegative().nullable(),
+  participant_amount_imprisoned: z.int().nonnegative().nullable(),
+  participant_amount_bandaged: z.int().nonnegative().nullable(),
+  participant_amount_consumed: z.int().nonnegative().nullable(),
 });
 
-export const battleReportDamagedBuildingRowSchema = z.strictObject({
-  buildingId: buildingIdSchema,
-  levelBefore: z.int(),
-  levelAfter: z.int(),
-});
+export const battleReportSiegeResultRowSchema = battleSiegeResultSchema;
 
 export const adventureReportRowSchema = baseReportRowSchema.extend({
   type: z.literal('adventure'),
@@ -179,10 +196,10 @@ export const tradeReportRowSchema = baseReportRowSchema.extend({
   trade_target_name: z.string(),
   trade_target_x: z.int(),
   trade_target_y: z.int(),
-  trade_wood: z.int(),
-  trade_clay: z.int(),
-  trade_iron: z.int(),
-  trade_wheat: z.int(),
+  trade_wood: resourcesSchema.shape.wood,
+  trade_clay: resourcesSchema.shape.clay,
+  trade_iron: resourcesSchema.shape.iron,
+  trade_wheat: resourcesSchema.shape.wheat,
 });
 
 const expeditionReportRowSchema = baseReportRowSchema.extend({
@@ -191,10 +208,10 @@ const expeditionReportRowSchema = baseReportRowSchema.extend({
   expedition_village_name: z.string(),
   expedition_village_x: z.int(),
   expedition_village_y: z.int(),
-  loot_wood: z.int().nullable(),
-  loot_clay: z.int().nullable(),
-  loot_iron: z.int().nullable(),
-  loot_wheat: z.int().nullable(),
+  loot_wood: resourcesSchema.shape.wood.nullable(),
+  loot_clay: resourcesSchema.shape.clay.nullable(),
+  loot_iron: resourcesSchema.shape.iron.nullable(),
+  loot_wheat: resourcesSchema.shape.wheat.nullable(),
 });
 
 export const huntingPartyReportRowSchema = expeditionReportRowSchema.extend({
@@ -212,10 +229,10 @@ export const scoutingReportRowSchema = baseReportRowSchema.extend({
   perspective: reportSideSchema,
   successful: z.int(),
   scouting_target: z.enum(['resources', 'defensiveStructures']),
-  wood: z.int().nullable(),
-  clay: z.int().nullable(),
-  iron: z.int().nullable(),
-  wheat: z.int().nullable(),
+  wood: resourcesSchema.shape.wood.nullable(),
+  clay: resourcesSchema.shape.clay.nullable(),
+  iron: resourcesSchema.shape.iron.nullable(),
+  wheat: resourcesSchema.shape.wheat.nullable(),
   item_id: z.int().nullable(),
   item_amount: z.int().nullable(),
   origin_player_name: z.string(),

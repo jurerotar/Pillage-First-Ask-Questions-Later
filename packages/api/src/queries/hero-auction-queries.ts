@@ -20,7 +20,7 @@ export const insertHeroAuctionBuyListingsQuery = `
     json_extract(listing.value, '$.price'),
     json_extract(listing.value, '$.expiresAt')
   FROM
-    json_each($listings) AS listing;
+    jsonb_each($listings) AS listing;
 `;
 
 export const insertCompletedHeroAuctionSellListingsSilverQuery = `

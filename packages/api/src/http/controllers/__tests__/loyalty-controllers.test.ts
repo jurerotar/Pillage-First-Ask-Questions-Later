@@ -56,6 +56,7 @@ describe('loyalty-controllers', () => {
       bind: { $village_id: villageId1 },
       schema: tileIdSchema,
     })!;
+
     const tileId2 = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: villageId2 },
@@ -71,6 +72,7 @@ describe('loyalty-controllers', () => {
       `,
       bind: { $level: 1, $village_id: villageId1 },
     });
+
     database.exec({
       sql: `
         INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
@@ -101,6 +103,7 @@ describe('loyalty-controllers', () => {
       bind: { $tile_id: tileId1 },
       schema: z.number(),
     });
+
     const loyalty2 = database.selectValues({
       sql: selectTileLoyaltyQuery,
       bind: { $tile_id: tileId2 },

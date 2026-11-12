@@ -38,6 +38,38 @@ export const getTilesSchema = z
 export const getTilesJsonSchema = z
   .string()
   .transform((value): unknown => JSON.parse(value))
+  .pipe(z.array(z.unknown()))
+  .transform((rows, context) =>
+    rows.map((row, index): unknown => {
+      if (!Array.isArray(row) || row.length !== 16) {
+        context.addIssue({
+          code: 'custom',
+          path: [index],
+          message: 'Expected 16 map tile columns',
+        });
+        return z.NEVER;
+      }
+      // Column order is defined by selectMapTilesQuery; validate the decoded object below.
+      return {
+        id: row[0],
+        coordinates_x: row[1],
+        coordinates_y: row[2],
+        type: row[3],
+        rfc: row[4],
+        oasis_graphics: row[5],
+        oasis_bonus_type: row[6],
+        village_id: row[7],
+        village_name: row[8],
+        village_slug: row[9],
+        player_id: row[10],
+        player_slug: row[11],
+        player_name: row[12],
+        player_tribe: row[13],
+        player_faction: row[14],
+        population: row[15],
+      };
+    }),
+  )
   .pipe(z.array(getTilesSchema));
 
 export const getTileTroopsSchema = z

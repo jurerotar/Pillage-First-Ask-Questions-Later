@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { tileIdSchema, tileTypeSchema } from '@pillage-first/types/models/tile';
+import { troopSchema } from '@pillage-first/types/models/troop';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getVillagesByPlayerSchema = z
@@ -98,12 +99,7 @@ export const troopAmountSchema = z.number().nullable();
 const reinforcementTileIdSchema = z.coerce.number().pipe(tileIdSchema);
 
 const reinforcementTroopsSchema = z
-  .array(
-    z.strictObject({
-      unitId: unitIdSchema,
-      amount: z.number().int().min(1),
-    }),
-  )
+  .array(troopSchema.pick({ unitId: true, amount: true }))
   .min(1);
 
 export const returnSentReinforcementsSchema = z

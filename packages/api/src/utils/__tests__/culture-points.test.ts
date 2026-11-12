@@ -47,6 +47,7 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
   expect(updatePlayerCulturePointsAt(database, timestamp)).toBe(
     production + 500,
   );
+
   addPlayerCulturePoints(database, 500, timestamp);
 
   expect(selectPoints()).toStrictEqual([
@@ -60,7 +61,9 @@ test('new worlds seed and accrue culture points only for PLAYER_ID', async () =>
   expect(
     updatePlayerCulturePointsAt(database, timestamp + 1000, 2),
   ).toBeUndefined();
+
   addPlayerCulturePoints(database, 500, timestamp + 1000, 2);
+
   expect(updatePlayerCulturePointsAt(database, timestamp - 1000)).toBe(
     production + 1000,
   );
