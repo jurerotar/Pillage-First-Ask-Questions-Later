@@ -393,6 +393,10 @@ export const validateTroopMovement = (
     return [];
   }
 
+  if (!troopMovementEvent.troops?.some(({ amount }) => amount > 0)) {
+    errors.push('At least 1 troop must be selected');
+  }
+
   if (isAdventureTroopMovementEvent(troopMovementEvent)) {
     const hasAvailableAdventure = database.selectValue({
       sql: `
