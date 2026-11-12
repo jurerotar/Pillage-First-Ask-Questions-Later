@@ -133,7 +133,6 @@ import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-com
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
 import { serverSeeder } from '../seeders/server-seeder';
-import { seedTemporaryBattleReports } from '../seeders/temporary-battle-reports-seeder';
 import { tileTypeIdsSeeder } from '../seeders/tile-type-ids-seeder';
 import { tilesSeeder } from '../seeders/tiles-seeder';
 import { tribeIdsSeeder } from '../seeders/tribe-ids-seeder';
@@ -400,11 +399,9 @@ export const migrateAndSeed = (
     // Meta table and write triggers
     db.execMulti({ sql: createMetaTable });
     metaSeeder(db);
+
     setupGlobalWriteTriggers(db);
     setupHistoryTriggers(db);
     setupLoyaltyTriggers(db);
   });
-
-  // Temporary battle report fixtures for visual inspection of newly created worlds.
-  seedTemporaryBattleReports(database, PLAYER_ID);
 };
