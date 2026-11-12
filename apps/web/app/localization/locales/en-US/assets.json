@@ -1435,8 +1435,8 @@
         "target-missing": "No eligible building remained"
       },
       "OUTCOMES": {
-        "damaged": "Damaged from level {{before}} to {{after}}",
-        "destroyed": "Destroyed from level {{before}}",
+        "damaged": "{{buildingName}} was damaged from level {{before}} to {{after}}",
+        "destroyed": "{{buildingName}} was destroyed",
         "undamaged": "Undamaged at level {{level}}",
         "not-fired": "Siege engines did not fire",
         "no-target": "No target available"
