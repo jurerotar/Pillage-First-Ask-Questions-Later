@@ -1557,6 +1557,14 @@ describe('events utils', () => {
           database,
           createTroopMovementFindNewVillageEventMock({
             targetTileId,
+            troops: [
+              {
+                unitId: 'ROMAN_SETTLER',
+                amount: 3,
+                tileId: 1,
+                sourceTileId: 1,
+              },
+            ],
           }),
         ),
       ).toThrow('Target tile must be unoccupied');
@@ -1627,6 +1635,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId,
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('Oasis is already occupied by you');

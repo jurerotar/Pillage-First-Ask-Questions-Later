@@ -18,6 +18,33 @@ import {
 import { createControllerArgs } from './utils/controller-args';
 
 describe('troop-movement-controllers', () => {
+  test.each([
+    'troopMovementReinforcements',
+    'troopMovementRelocation',
+    'troopMovementAttack',
+    'troopMovementRaid',
+  ] as const)('rejects empty %s movements', async (type) => {
+    using database = await prepareTestDatabase();
+    const home = getPlayerVillage(database);
+    const away = createVillage(database, 'Empty movement destination');
+
+    for (const troops of [[], [{ unitId: 'HERO' as const, amount: 0 }]]) {
+      const result = validateTroopMovement(
+        database,
+        createControllerArgs<'/troop-movements/validate', 'post'>({
+          body: {
+            type,
+            originTileId: home.tile_id,
+            targetTileId: away.tile_id,
+            troops,
+          },
+        }),
+      );
+
+      expect(result.errors).toContain('At least 1 troop must be selected');
+    }
+  });
+
   test('includes loot on returning player troops', async () => {
     using database = await prepareTestDatabase();
 

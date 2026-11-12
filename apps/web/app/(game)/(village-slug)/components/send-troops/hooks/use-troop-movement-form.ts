@@ -58,12 +58,10 @@ export const useTroopMovementForm = <
     }
   };
 
-  const onConfirm = () => {
+  const onConfirm = form.handleSubmit((latestFormData) => {
     if (!formData) {
       return;
     }
-
-    const latestFormData = form.getValues();
 
     if (canConfirm && !canConfirm(latestFormData)) {
       return;
@@ -82,7 +80,7 @@ export const useTroopMovementForm = <
         },
       },
     );
-  };
+  }, closeConfirmationStep);
 
   return {
     form,
