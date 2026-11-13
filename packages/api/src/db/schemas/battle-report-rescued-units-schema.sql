@@ -13,4 +13,4 @@ CREATE TABLE battle_report_rescued_units
   FOREIGN KEY (battle_id) REFERENCES battle_report_rescues (battle_id) ON DELETE CASCADE,
   FOREIGN KEY (home_tile_id) REFERENCES tiles (id),
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id)
-) STRICT;
+) STRICT, WITHOUT ROWID;

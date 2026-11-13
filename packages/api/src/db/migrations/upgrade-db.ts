@@ -26,9 +26,14 @@ import createOasisCaptureFailureReasonIdsTable from '../schemas/lookup-tables/oa
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createVillageConquestFailureReasonIdsTable from '../schemas/lookup-tables/village-conquest-failure-reason-ids-schema.sql?raw';
+import createMovementReportUnitsTable from '../schemas/movement-report-units-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createReportGenerationSettingsTable from '../schemas/report-generation-settings-schema.sql?raw';
+import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
+import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
+import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
+import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createTradeRoutesTable from '../schemas/trade-routes-schema.sql?raw';
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
@@ -728,6 +733,29 @@ export const upgradeDb = (
       tx.execMulti({ sql: createBattleReportStolenItemsTable });
 
       tx.execMulti({ sql: createReportGenerationSettingsTable });
+
+      for (const [table, schema] of [
+        ['filters', createFiltersTable],
+        ['hunting_capture_history', createHuntingCaptureHistoryTable],
+        ['movement_report_units', createMovementReportUnitsTable],
+        ['report_tags', createReportTagsTable],
+        ['scouting_report_units', createScoutingReportUnitsTable],
+        [
+          'scouting_report_attacker_units',
+          createScoutingReportAttackerUnitsTable,
+        ],
+        ['scouting_report_structures', createScoutingReportStructuresTable],
+      ]) {
+        tx.execMulti({
+          sql: `CREATE TEMP TABLE rowid_table_backup AS SELECT * FROM ${table};
+          DROP TABLE ${table};`,
+        });
+        tx.execMulti({ sql: schema });
+        tx.execMulti({
+          sql: `INSERT INTO ${table} SELECT * FROM rowid_table_backup;
+          DROP TABLE rowid_table_backup;`,
+        });
+      }
 
       setupGlobalWriteTriggers(tx);
     });

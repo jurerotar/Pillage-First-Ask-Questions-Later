@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS wounded_troops
+CREATE TABLE wounded_troops
 (
   village_id INTEGER NOT NULL,
   unit_id INTEGER NOT NULL,

@@ -8,4 +8,4 @@ CREATE TABLE battle_report_captured_animals
 
   FOREIGN KEY (battle_id) REFERENCES battle_reports (id) ON DELETE CASCADE,
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id)
-) STRICT;
+) STRICT, WITHOUT ROWID;

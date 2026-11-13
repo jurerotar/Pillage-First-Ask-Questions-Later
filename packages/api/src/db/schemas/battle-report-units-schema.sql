@@ -17,4 +17,4 @@ CREATE TABLE battle_report_units
 
   FOREIGN KEY (battle_participant_id) REFERENCES battle_report_participants (id) ON DELETE CASCADE,
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id) ON DELETE CASCADE
-) STRICT;
+) STRICT, WITHOUT ROWID;

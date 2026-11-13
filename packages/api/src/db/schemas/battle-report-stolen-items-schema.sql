@@ -7,4 +7,4 @@ CREATE TABLE battle_report_stolen_items
   PRIMARY KEY (battle_id, item_id),
 
   FOREIGN KEY (battle_id) REFERENCES battle_reports (id) ON DELETE CASCADE
-) STRICT;
+) STRICT, WITHOUT ROWID;
