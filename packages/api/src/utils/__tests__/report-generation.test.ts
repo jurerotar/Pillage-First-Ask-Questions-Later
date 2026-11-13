@@ -1,7 +1,11 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
-import { reportTypeSchema } from '@pillage-first/types/models/report';
+import {
+  type ReportOutcome,
+  type ReportType,
+  reportTypeSchema,
+} from '@pillage-first/types/models/report';
 import { createControllerArgs } from '../../http/controllers/__tests__/utils/controller-args';
 import {
   getReportGenerationSettings,
@@ -135,7 +139,12 @@ describe('report generation settings', () => {
       selectValue.mockRestore();
 
       expect(
-        insertReport(database, { ...input, outcome: 'attackerSomeLoss' }),
+        insertReport(database, {
+          ...input,
+          outcome: outcome.startsWith('scout')
+            ? 'scoutAttackerSomeLoss'
+            : 'attackerSomeLoss',
+        }),
       ).toBeDefined();
     },
   );
@@ -196,6 +205,20 @@ describe('report generation settings', () => {
     expect(insertTradeReport(database, trade)).toBeDefined();
   });
 
+  const outcomeByType = {
+    battle: 'attackerNoLoss',
+    adventure: 'heroAdventure',
+    trade: 'outgoingMerchantsArrived',
+    movement: 'troopMovement',
+    huntingParty: 'huntingParty',
+    gatheringExpedition: 'gatheringExpedition',
+    scouting: 'scoutAttackerNoLoss',
+    unitResearch: 'unitResearched',
+    unitImprovement: 'unitImproved',
+    villageFounded: 'villageFounded',
+    scheduledConstructionCancellation: 'scheduledConstructionCancelled',
+  } as const satisfies Record<ReportType, ReportOutcome>;
+
   test.each(reportTypeSchema.options)(
     'suppresses %s in the insert without a separate settings query',
     async (type) => {
@@ -205,7 +228,7 @@ describe('report generation settings', () => {
         villageId: 1,
         timestamp: 100,
         type,
-        outcome: 'heroAdventure' as const,
+        outcome: outcomeByType[type],
         tags: ['read' as const],
       };
 
@@ -270,6 +293,21 @@ describe('report generation settings', () => {
   test('skips detail and unit rows and leaves other types enabled', async () => {
     using database = await prepareTestDatabase();
 
+    const village = database.selectObject({
+      sql: 'SELECT id, tile_id, player_id FROM villages WHERE player_id = 1 ORDER BY id LIMIT 1;',
+      schema: z.strictObject({
+        id: z.int(),
+        tile_id: z.int(),
+        player_id: z.int(),
+      }),
+    })!;
+
+    const tribeId = database.selectValue({
+      sql: 'SELECT tribe_id FROM players WHERE id = $player_id;',
+      bind: { $player_id: village.player_id },
+      schema: z.int(),
+    })!;
+
     updateReportGenerationSettings(
       database,
       createControllerArgs<'/me/report-generation', 'patch'>({
@@ -281,17 +319,17 @@ describe('report generation settings', () => {
 
     expect(
       insertUnitResearchReport(database, {
-        villageId: 1,
+        villageId: village.id,
         timestamp: 100,
         unitId: 'LEGIONNAIRE',
       }),
     ).toBeUndefined();
     expect(
       insertGatheringExpeditionReport(database, {
-        villageId: 1,
+        villageId: village.id,
         timestamp: 100,
-        villageTileId: 1,
-        tribeId: 1,
+        villageTileId: village.tile_id,
+        tribeId,
         loot: [1, 2, 3, 4],
         units: [{ unitId: 'LEGIONNAIRE', amount: 10 }],
       }),
