@@ -40,6 +40,18 @@ export const canAttackerSeeDefendingTroops = (
   return defendingCount > 0 && defendingDeaths * 4 >= defendingCount;
 };
 
+export const calculateBattleUnitCasualties = ({
+  amountBefore,
+  amountAfter,
+  amountImprisoned,
+  amountConsumed,
+}: Pick<
+  BattleUnit,
+  'amountBefore' | 'amountAfter' | 'amountImprisoned' | 'amountConsumed'
+>): number => {
+  return amountBefore - amountAfter - amountImprisoned - amountConsumed;
+};
+
 export const calculateBattleUnitLosses = ({
   amountBefore,
   amountAfter,
@@ -56,8 +68,12 @@ export const calculateBattleUnitLosses = ({
   | 'amountBandaged'
   | 'amountConsumed'
 >) => {
-  const casualties =
-    amountBefore - amountAfter - amountImprisoned - amountConsumed;
+  const casualties = calculateBattleUnitCasualties({
+    amountBefore,
+    amountAfter,
+    amountImprisoned,
+    amountConsumed,
+  });
 
   return {
     casualties,

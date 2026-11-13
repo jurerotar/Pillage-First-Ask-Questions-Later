@@ -7,6 +7,7 @@ import type {
 } from '@pillage-first/types/models/battle';
 import {
   battleConquestSchema,
+  battleSchema,
   battleUnitSchema,
 } from '@pillage-first/types/models/battle';
 import {
@@ -18,6 +19,7 @@ import {
   type CombatUnit,
   calculateCombatStatistics,
   calculateSurvivingCarryCapacity,
+  canAttackerSeeDefendingTroops,
 } from '@pillage-first/utils/game/combat';
 import type {
   getReportListingsRowSchema,
@@ -268,7 +270,7 @@ export const mapBattleReportRowToDto = (
     throw new Error(`Battle participants missing for report ${row.id}`);
   }
 
-  const battle: BattleType = {
+  const battle = battleSchema.parse({
     id: row.battle_id,
     attacker,
     defender: { ...defender, reinforcements },
@@ -302,13 +304,78 @@ export const mapBattleReportRowToDto = (
         points: row.defender_points,
       },
     },
+  });
+
+  const ownsParticipant = (participant: BattleType['attacker']) =>
+    participant.village.id === row.village_id;
+
+  const canSeeDefenders =
+    ownsParticipant(battle.defender) ||
+    (ownsParticipant(battle.attacker) &&
+      canAttackerSeeDefendingTroops(
+        battle.attacker.troops.units,
+        [battle.defender, ...battle.defender.reinforcements].flatMap(
+          ({ troops }) => troops.units,
+        ),
+      ));
+
+  const redactParticipant = (
+    participant: BattleType['attacker'],
+    isAttacker = false,
+  ) => {
+    const isOwn = ownsParticipant(participant);
+
+    return {
+      ...participant,
+      troops: {
+        ...participant.troops,
+        units:
+          isOwn || isAttacker || canSeeDefenders
+            ? participant.troops.units.map((unit) => ({
+                ...unit,
+                amountHospitalized: isOwn ? unit.amountHospitalized : null,
+                amountBandaged: isOwn ? unit.amountBandaged : null,
+              }))
+            : null,
+        hero: isOwn ? participant.troops.hero : null,
+      },
+    };
   };
 
   return reportSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'battle',
     summary: mapBattleReportRowToSummaryDto(row),
-    battle,
+    battle: {
+      ...battle,
+      attacker: redactParticipant(battle.attacker, true),
+      defender: {
+        ...redactParticipant(battle.defender),
+        reinforcements: battle.defender.reinforcements
+          .filter(
+            (participant) => canSeeDefenders || ownsParticipant(participant),
+          )
+          .map((participant) => redactParticipant(participant)),
+      },
+      outcome: canSeeDefenders
+        ? battle.outcome
+        : {
+            ...battle.outcome,
+            loyaltyBefore: null,
+            loyaltyAfter: null,
+            conquest: null,
+            villageDestroyed: null,
+            trapsDestroyed: null,
+            rescuedUnits: null,
+            capturedAnimals: null,
+            stolenItems: null,
+          },
+      siegeResults: canSeeDefenders ? battle.siegeResults : null,
+      statistics: {
+        attacker: battle.statistics.attacker,
+        defender: canSeeDefenders ? battle.statistics.defender : null,
+      },
+    },
   });
 };
 
