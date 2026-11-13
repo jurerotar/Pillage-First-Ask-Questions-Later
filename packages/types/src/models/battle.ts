@@ -156,21 +156,14 @@ export const battleOutcomeSchema = z
   })
   .refine(
     ({ loyaltyBefore, loyaltyAfter, conquest }) => {
-      if ((loyaltyBefore === null) !== (loyaltyAfter === null)) {
-        return false;
+      if (loyaltyBefore === null || loyaltyAfter === null) {
+        return loyaltyBefore === loyaltyAfter && !conquest?.succeeded;
       }
-      if (conquest === null) {
-        return loyaltyBefore === null;
-      }
-      if (
-        loyaltyBefore !== null &&
-        loyaltyAfter !== null &&
-        loyaltyAfter > loyaltyBefore
-      ) {
-        return false;
-      }
+
       return (
-        !conquest.succeeded || (loyaltyBefore !== null && loyaltyAfter === 0)
+        conquest !== null &&
+        loyaltyAfter <= loyaltyBefore &&
+        (!conquest.succeeded || loyaltyAfter === 0)
       );
     },
     {
@@ -211,9 +204,25 @@ export const battleSiegeResultSchema = z
     levelAfter: z.int().nonnegative().nullable(),
   })
   .refine(
-    (result) => {
-      const { buildingId, fieldId, levelBefore, levelAfter, outcome, reason } =
-        result;
+    ({ targeting, requestedBuildingId, buildingId }) => {
+      switch (targeting) {
+        case 'selected':
+          return (
+            requestedBuildingId !== null &&
+            (buildingId === null || buildingId === requestedBuildingId)
+          );
+        case 'random':
+          return requestedBuildingId === null;
+        case 'fallback':
+          return requestedBuildingId !== null;
+        default:
+          return true;
+      }
+    },
+    { message: 'Siege targeting must match the requested building' },
+  )
+  .refine(
+    ({ buildingId, fieldId, levelBefore, levelAfter, outcome, reason }) => {
       const hasTarget =
         buildingId !== null &&
         fieldId !== null &&
@@ -224,25 +233,7 @@ export const battleSiegeResultSchema = z
         fieldId === null &&
         levelBefore === null &&
         levelAfter === null;
-      if (
-        result.targeting === 'selected' &&
-        (result.requestedBuildingId === null ||
-          (buildingId !== null && buildingId !== result.requestedBuildingId))
-      ) {
-        return false;
-      }
-      if (
-        result.targeting === 'random' &&
-        result.requestedBuildingId !== null
-      ) {
-        return false;
-      }
-      if (
-        result.targeting === 'fallback' &&
-        result.requestedBuildingId === null
-      ) {
-        return false;
-      }
+
       switch (outcome) {
         case 'damaged':
           return (
