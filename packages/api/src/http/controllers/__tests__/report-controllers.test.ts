@@ -1562,6 +1562,7 @@ describe('battle combat outcome reports', () => {
     'redacts battle information according to reporting village %s, independently of player ownership',
     async (ownerIndex) => {
       using database = await prepareReportsTestDatabase();
+
       const villages = database.selectObjects({
         sql: 'SELECT id, tile_id, player_id FROM villages ORDER BY id LIMIT 4;',
         schema: z.strictObject({
@@ -1570,6 +1571,7 @@ describe('battle combat outcome reports', () => {
           player_id: z.int(),
         }),
       });
+
       database.exec({
         sql: 'UPDATE villages SET player_id = $player_id WHERE id IN (SELECT value FROM json_each($ids));',
         bind: {
@@ -1577,7 +1579,9 @@ describe('battle combat outcome reports', () => {
           $ids: JSON.stringify(villages.map(({ id }) => id)),
         },
       });
+
       const { input } = createCombatOutcomeReport(database);
+
       input.villageId = villages[ownerIndex].id;
       input.outcome =
         ownerIndex === 0 ? 'attackerFullLoss' : 'defenderSomeLoss';
@@ -1611,14 +1615,17 @@ describe('battle combat outcome reports', () => {
         units: [{ ...input.defender.units[0] }],
         hero: { ...input.reinforcements[0].hero!, heroId: 7004 },
       });
+
       const reportId = insertBattleReport(database, input);
       const result = getReport(
         database,
         createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
       );
+
       if (result?.type !== 'battle') {
         throw new Error('Expected a battle report');
       }
+
       // Check the serializable response, not just presentation flags.
       const report: typeof result = JSON.parse(JSON.stringify(result));
       const canSeeDefenders = ownerIndex === 1;
@@ -1653,8 +1660,10 @@ describe('battle combat outcome reports', () => {
         expect(participant.troops.hero).toStrictEqual(
           isOwn ? original.hero : null,
         );
+
         if (participant.troops.units !== null) {
           expect(participant.troops.units).toHaveLength(original.units.length);
+
           for (const [index, unit] of participant.troops.units.entries()) {
             expect(unit).toStrictEqual({
               ...original.units[index],
@@ -1668,6 +1677,7 @@ describe('battle combat outcome reports', () => {
           }
         }
       }
+
       if (canSeeDefenders) {
         expect(report.battle.statistics.defender).not.toBeNull();
         expect(report.battle.siegeResults).toStrictEqual(input.siegeResults);
@@ -1688,6 +1698,7 @@ describe('battle combat outcome reports', () => {
           stolenItems: null,
         });
       }
+
       expect(
         database.selectValue({
           sql: `SELECT COUNT(*) FROM battle_report_heroes h
@@ -1702,8 +1713,11 @@ describe('battle combat outcome reports', () => {
 
   test('reveals defending troop counts to a surviving attacker while withholding defender recovery and heroes', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createCombatOutcomeReport(database);
+
     input.defender.units = [{ ...input.attacker.units[0] }];
+
     const id = insertBattleReport(database, input);
     const report = getReport(
       database,
@@ -1713,6 +1727,7 @@ describe('battle combat outcome reports', () => {
     if (report?.type !== 'battle') {
       throw new Error('Expected a battle report');
     }
+
     expect(report.battle.defender.troops.units).toStrictEqual([
       {
         ...input.defender.units[0],
@@ -1734,7 +1749,9 @@ describe('battle combat outcome reports', () => {
     'applies the defending-troop visibility threshold at $defendingDeaths percent killed',
     async ({ defendingDeaths, visible }) => {
       using database = await prepareReportsTestDatabase();
+
       const { input } = createCombatOutcomeReport(database);
+
       input.outcome = 'attackerFullLoss';
       input.conquest = null;
       input.loyaltyBefore = null;
@@ -1752,6 +1769,7 @@ describe('battle combat outcome reports', () => {
       input.defender.units = [
         { ...input.attacker.units[0], amountAfter: 100 - defendingDeaths },
       ];
+
       const reportId = insertBattleReport(database, input);
       const report = getReport(
         database,
@@ -1975,6 +1993,7 @@ describe('battle combat outcome reports', () => {
       { itemId: 1021, amount: 1 },
       { itemId: 1023, amount: 5 },
     ]);
+
     const readOwnerCopy = (tileId: number) => {
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages WHERE tile_id = $tile_id;',
@@ -1991,11 +2010,14 @@ describe('battle combat outcome reports', () => {
           path: { reportId: ownerReportId },
         }),
       );
+
       if (ownerReport?.type !== 'battle') {
         throw new Error('Expected a battle report');
       }
+
       return ownerReport;
     };
+
     const defenderReport = readOwnerCopy(input.targetTileId);
     const reinforcementReport = readOwnerCopy(input.reinforcements[0].tileId);
 
