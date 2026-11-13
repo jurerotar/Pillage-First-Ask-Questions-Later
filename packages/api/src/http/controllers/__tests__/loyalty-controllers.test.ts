@@ -29,7 +29,12 @@ describe('loyalty-controllers', () => {
 
   test('should return current loyalty if tile is in loyalties table', async () => {
     using database = await prepareTestDatabase();
-    const tileId = 2;
+
+    const tileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = 2;',
+      schema: tileIdSchema,
+    })!;
+
     const loyaltyValue = 75;
 
     database.exec({

@@ -1841,6 +1841,7 @@ describe('battle combat outcome reports', () => {
 
   test('deletes all combat outcome details with their report', async () => {
     using database = await prepareReportsTestDatabase();
+
     const buildingsBefore = database.selectValue({
       sql: 'SELECT COUNT(*) FROM battle_report_buildings;',
       schema: z.int(),

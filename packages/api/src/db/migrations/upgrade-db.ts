@@ -39,7 +39,6 @@ import { oasisCaptureFailureReasonIdsSeeder } from '../seeders/oasis-capture-fai
 import { villageConquestFailureReasonIdsSeeder } from '../seeders/village-conquest-failure-reason-ids-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
-import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
 const indexesMissedBySingleStatementExec = [
@@ -369,8 +368,6 @@ export const upgradeDb = (
     db.exec({
       sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
     });
-
-    db.execMulti({ sql: createReportDeleteTriggers });
 
     setupGlobalWriteTriggers(db);
   });
@@ -729,7 +726,6 @@ export const upgradeDb = (
       tx.execMulti({ sql: createBattleReportRescuedUnitsTable });
       tx.execMulti({ sql: createBattleReportCapturedAnimalsTable });
       tx.execMulti({ sql: createBattleReportStolenItemsTable });
-      tx.execMulti({ sql: createReportDeleteTriggers });
 
       tx.execMulti({ sql: createReportGenerationSettingsTable });
 

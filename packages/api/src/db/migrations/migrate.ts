@@ -146,7 +146,6 @@ import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
-import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 
 export const migrateAndSeed = (
@@ -315,7 +314,6 @@ export const migrateAndSeed = (
 
     db.execMulti({ sql: createReportsIndexes });
 
-    db.execMulti({ sql: createReportDeleteTriggers });
     db.execMulti({ sql: createReportRetentionTriggers });
 
     // Heroes
