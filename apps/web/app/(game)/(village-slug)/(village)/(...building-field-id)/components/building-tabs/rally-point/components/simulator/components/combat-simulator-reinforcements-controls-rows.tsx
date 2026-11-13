@@ -13,7 +13,7 @@ import {
 } from 'app/components/ui/select';
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
 import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
-import { CombatSimulatorReinforcementTroopControlsRows } from './combat-simulator-troop-controls-rows';
+import { CombatSimulatorTroopControlsRows } from './combat-simulator-troop-controls-rows';
 
 export const CombatSimulatorReinforcementsControlsRows = () => {
   const { t } = useTranslation();
@@ -22,6 +22,8 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
     clearDefenderReinforcementData,
     removeDefenderReinforcement,
     setDefenderReinforcementTribe,
+    setDefenderReinforcementTroops,
+    setDefenderReinforcementSmithyImprovementLevel,
   } = use(CombatSimulatorContext)!;
 
   return (
@@ -111,8 +113,20 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
             includeHero={false}
             tribe={reinforcement.tribe}
           >
-            <CombatSimulatorReinforcementTroopControlsRows
-              reinforcementId={reinforcement.id}
+            <CombatSimulatorTroopControlsRows
+              id={reinforcement.id}
+              tribe={reinforcement.tribe}
+              troops={reinforcement.troops}
+              onTroopsChange={(troops) =>
+                setDefenderReinforcementTroops(reinforcement.id, troops)
+              }
+              onSmithyImprovementLevelChange={(unitId, level) =>
+                setDefenderReinforcementSmithyImprovementLevel(
+                  reinforcement.id,
+                  unitId,
+                  level,
+                )
+              }
             />
           </UnitTable>
         </div>

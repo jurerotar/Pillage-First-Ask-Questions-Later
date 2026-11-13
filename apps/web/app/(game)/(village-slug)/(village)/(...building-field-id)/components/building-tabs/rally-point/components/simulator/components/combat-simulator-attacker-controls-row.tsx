@@ -17,12 +17,10 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
+import { CombatSimulatorHeroStatsControlsRow } from './combat-simulator-hero-controls';
 import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
-import {
-  CombatSimulatorAttackerHeroStatsControlsRow,
-  CombatSimulatorAttackerTroopControlsRows,
-} from './combat-simulator-troop-controls-rows';
-import { LevelInputPopover } from './level-input-popover';
+import { CombatSimulatorTroopControlsRows } from './combat-simulator-troop-controls-rows';
+import { SimulatorLevelInput } from './simulator-level-input';
 
 type CombatSimulatorAttackerControlsRowProps = {
   title: string;
@@ -37,6 +35,9 @@ export const CombatSimulatorAttackerControlsRow = ({
     clearAttackerData,
     setAttackerBreweryLevel,
     setAttackerTribe,
+    setAttackerTroops,
+    setAttackerHeroStats,
+    setAttackerSmithyImprovementLevel,
     setCombatMode,
     swapPlayerRole,
   } = use(CombatSimulatorContext)!;
@@ -149,22 +150,13 @@ export const CombatSimulatorAttackerControlsRow = ({
                   </SelectContent>
                 </Select>
                 {state.attacker.tribe === 'teutons' && (
-                  <span
-                    className="flex cursor-pointer items-center gap-1"
-                    data-tooltip-content={breweryLevelLabel}
-                    data-tooltip-id="general-tooltip"
-                  >
-                    <span className="inline-flex items-center justify-center">
-                      <span className="sr-only">{breweryLevelLabel}</span>
-                      <LuBeer className="size-4 md:size-5" />
-                    </span>
-                    <LevelInputPopover
-                      id="combat-simulator-attacker-brewery-level"
-                      label={breweryLevelLabel}
-                      value={state.attacker.village.breweryLevel}
-                      onValueChange={setAttackerBreweryLevel}
-                    />
-                  </span>
+                  <SimulatorLevelInput
+                    icon={<LuBeer className="size-4 md:size-5" />}
+                    id="combat-simulator-attacker-brewery-level"
+                    label={breweryLevelLabel}
+                    value={state.attacker.village.breweryLevel}
+                    onValueChange={setAttackerBreweryLevel}
+                  />
                 )}
               </div>
             </th>
@@ -175,9 +167,23 @@ export const CombatSimulatorAttackerControlsRow = ({
         includeHero={canSetHero}
         tribe={state.attacker.tribe}
       >
-        <CombatSimulatorAttackerTroopControlsRows />
+        <CombatSimulatorTroopControlsRows
+          id="attacker"
+          tribe={state.attacker.tribe}
+          includeHero={canSetHero}
+          troops={state.attacker.troops}
+          onTroopsChange={setAttackerTroops}
+          onSmithyImprovementLevelChange={setAttackerSmithyImprovementLevel}
+        />
       </UnitTable>
-      {canSetHero && <CombatSimulatorAttackerHeroStatsControlsRow />}
+      {canSetHero && (
+        <CombatSimulatorHeroStatsControlsRow
+          participantRole="attacker"
+          troops={state.attacker.troops}
+          heroStats={state.attacker.heroStats}
+          onHeroStatsChange={setAttackerHeroStats}
+        />
+      )}
     </div>
   );
 };

@@ -19,12 +19,10 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
+import { CombatSimulatorHeroStatsControlsRow } from './combat-simulator-hero-controls';
 import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
-import {
-  CombatSimulatorDefenderHeroStatsControlsRow,
-  CombatSimulatorDefenderTroopControlsRows,
-} from './combat-simulator-troop-controls-rows';
-import { LevelInputPopover } from './level-input-popover';
+import { CombatSimulatorTroopControlsRows } from './combat-simulator-troop-controls-rows';
+import { SimulatorLevelInput } from './simulator-level-input';
 
 type CombatSimulatorDefenderControlsRowProps = {
   title: string;
@@ -41,6 +39,9 @@ export const CombatSimulatorDefenderControlsRow = ({
     setDefenderResidenceLevel,
     setDefenderTrapCount,
     setDefenderTribe,
+    setDefenderTroops,
+    setDefenderHeroStats,
+    setDefenderSmithyImprovementLevel,
     setDefenderWallLevel,
     swapPlayerRole,
   } = use(CombatSimulatorContext)!;
@@ -139,61 +140,36 @@ export const CombatSimulatorDefenderControlsRow = ({
                 <div className="flex items-center gap-2">
                   {!isOasis && (
                     <>
-                      <span
-                        className="flex cursor-pointer items-center gap-1"
-                        data-tooltip-content={wallLevelLabel}
-                        data-tooltip-id="general-tooltip"
-                      >
-                        <span className="inline-flex items-center justify-center">
-                          <span className="sr-only">{wallLevelLabel}</span>
-                          <LuCastle className="size-4 md:size-5" />
-                        </span>
-                        <LevelInputPopover
-                          id="combat-simulator-defender-wall-level"
-                          label={wallLevelLabel}
-                          value={state.defender.village.wallLevel}
-                          onValueChange={setDefenderWallLevel}
-                        />
-                      </span>
-                      <span
-                        className="flex cursor-pointer items-center gap-1"
-                        data-tooltip-content={residenceLevelLabel}
-                        data-tooltip-id="general-tooltip"
-                      >
-                        <span className="inline-flex items-center justify-center">
-                          <span className="sr-only">{residenceLevelLabel}</span>
-                          <LuHouse className="size-4 md:size-5" />
-                        </span>
-                        <LevelInputPopover
-                          id="combat-simulator-defender-residence-level"
-                          label={residenceLevelLabel}
-                          value={state.defender.village.residenceLevel}
-                          onValueChange={setDefenderResidenceLevel}
-                        />
-                      </span>
+                      <SimulatorLevelInput
+                        icon={<LuCastle className="size-4 md:size-5" />}
+                        id="combat-simulator-defender-wall-level"
+                        label={wallLevelLabel}
+                        value={state.defender.village.wallLevel}
+                        onValueChange={setDefenderWallLevel}
+                      />
+                      <SimulatorLevelInput
+                        icon={<LuHouse className="size-4 md:size-5" />}
+                        id="combat-simulator-defender-residence-level"
+                        label={residenceLevelLabel}
+                        value={state.defender.village.residenceLevel}
+                        onValueChange={setDefenderResidenceLevel}
+                      />
                     </>
                   )}
                   {state.defender.tribe === 'gauls' && (
-                    <span
-                      className="flex cursor-pointer items-center gap-1"
-                      data-tooltip-content={trapCountLabel}
-                      data-tooltip-id="general-tooltip"
-                    >
-                      <span className="inline-flex items-center justify-center">
-                        <span className="sr-only">{trapCountLabel}</span>
+                    <SimulatorLevelInput
+                      icon={
                         <Icon
                           className="size-4 md:size-5"
                           type="trapperCapacity"
                         />
-                      </span>
-                      <LevelInputPopover
-                        id="combat-simulator-defender-trap-count"
-                        label={trapCountLabel}
-                        max={10_000}
-                        value={state.defender.village.trapCount}
-                        onValueChange={setDefenderTrapCount}
-                      />
-                    </span>
+                      }
+                      id="combat-simulator-defender-trap-count"
+                      label={trapCountLabel}
+                      max={10_000}
+                      value={state.defender.village.trapCount}
+                      onValueChange={setDefenderTrapCount}
+                    />
                   )}
                 </div>
               </div>
@@ -205,9 +181,23 @@ export const CombatSimulatorDefenderControlsRow = ({
         includeHero={canSetHero}
         tribe={state.defender.tribe}
       >
-        <CombatSimulatorDefenderTroopControlsRows />
+        <CombatSimulatorTroopControlsRows
+          id="defender"
+          tribe={state.defender.tribe}
+          includeHero={canSetHero}
+          troops={state.defender.troops}
+          onTroopsChange={setDefenderTroops}
+          onSmithyImprovementLevelChange={setDefenderSmithyImprovementLevel}
+        />
       </UnitTable>
-      {canSetHero && <CombatSimulatorDefenderHeroStatsControlsRow />}
+      {canSetHero && (
+        <CombatSimulatorHeroStatsControlsRow
+          participantRole="defender"
+          troops={state.defender.troops}
+          heroStats={state.defender.heroStats}
+          onHeroStatsChange={setDefenderHeroStats}
+        />
+      )}
     </div>
   );
 };
