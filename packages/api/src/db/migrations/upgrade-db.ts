@@ -39,6 +39,7 @@ import createTradeRoutesTable from '../schemas/trade-routes-schema.sql?raw';
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
 import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
 import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
+import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { filtersSeeder } from '../seeders/filters-seeder';
 import { oasisCaptureFailureReasonIdsSeeder } from '../seeders/oasis-capture-failure-reason-ids-seeder';
 import { villageConquestFailureReasonIdsSeeder } from '../seeders/village-conquest-failure-reason-ids-seeder';
@@ -745,6 +746,7 @@ export const upgradeDb = (
           createScoutingReportAttackerUnitsTable,
         ],
         ['scouting_report_structures', createScoutingReportStructuresTable],
+        ['wounded_troops', createWoundedTroopsTable],
       ]) {
         tx.execMulti({
           sql: `CREATE TEMP TABLE rowid_table_backup AS SELECT * FROM ${table};

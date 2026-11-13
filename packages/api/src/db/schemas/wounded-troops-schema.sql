@@ -9,4 +9,4 @@ CREATE TABLE wounded_troops
 
   FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE,
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id)
-) STRICT;
+) STRICT, WITHOUT ROWID;

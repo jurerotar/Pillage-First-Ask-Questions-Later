@@ -345,8 +345,8 @@ export const removeWoundedTroops = (
         GROUP BY village_id, unit_ids.id
       )
       DELETE FROM wounded_troops
-      WHERE rowid IN (
-        SELECT wounded.rowid
+      WHERE (village_id, unit_id) IN (
+        SELECT wounded.village_id, wounded.unit_id
         FROM requested_wounded_troops requested
         JOIN wounded_troops wounded
           ON wounded.village_id = requested.village_id
