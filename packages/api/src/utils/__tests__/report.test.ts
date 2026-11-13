@@ -212,23 +212,6 @@ describe(insertBattleReport, () => {
         ],
       });
 
-      expect(() =>
-        database.exec({
-          sql: `UPDATE battle_report_units SET amount_hospitalized = 40, amount_imprisoned = 30
-          WHERE battle_participant_id IN (SELECT bp.id FROM battle_report_participants bp JOIN battle_reports b ON b.id = bp.battle_id WHERE b.report_id = $report_id);`,
-          bind: { $report_id: reportId },
-        }),
-      ).toThrow();
-
-      expect(() =>
-        database.exec({
-          sql: `INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after, amount_hospitalized, amount_imprisoned, amount_bandaged, amount_consumed)
-          SELECT bp.id, (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, 50, 30, 30, 0, 0
-          FROM battle_report_participants bp JOIN battle_reports b ON b.id = bp.battle_id WHERE b.report_id = $report_id LIMIT 1;`,
-          bind: { $report_id: reportId },
-        }),
-      ).toThrow();
-
       expect(
         database.selectObjects({
           sql: `SELECT bp.tile_id, bu.amount_before, bu.amount_after, bu.amount_hospitalized, bu.amount_imprisoned

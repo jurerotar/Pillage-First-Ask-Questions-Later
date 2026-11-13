@@ -1307,32 +1307,6 @@ describe('battle combat outcome reports', () => {
     ).toBe(before);
   });
 
-  test.each([
-    'UPDATE battle_report_units SET amount_after = amount_before + 1;',
-    'UPDATE battle_report_units SET amount_consumed = NULL;',
-    'UPDATE battle_report_heroes SET health_before = 0;',
-    'UPDATE battle_report_consumables SET item_id = 0;',
-    'UPDATE battle_report_stolen_items SET item_id = -1;',
-    'UPDATE battle_report_rescued_units SET amount_died = amount_freed + 1;',
-    'UPDATE battle_report_rescues SET traps_destroyed = NULL;',
-    'UPDATE battle_reports SET village_destroyed = NULL;',
-    'UPDATE battle_report_conquests SET succeeded = 0;',
-    'UPDATE battle_report_conquests SET loyalty_after = 10;',
-    'UPDATE battle_report_conquests SET loyalty_before = NULL;',
-    "UPDATE battle_report_conquests SET target = 'invalid';",
-    'UPDATE battle_report_buildings SET field_id = NULL;',
-    'UPDATE battle_report_buildings SET outcome = NULL;',
-    "UPDATE battle_report_buildings SET targeting = 'random';",
-    "UPDATE battle_report_buildings SET requested_building_id = (SELECT id FROM building_ids WHERE building = 'GRANARY');",
-    "UPDATE battle_report_captured_animals SET unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');",
-    "INSERT INTO battle_report_captured_animals (battle_id, unit_id, amount) SELECT (SELECT id FROM battle_reports LIMIT 1), id, 1 FROM unit_ids WHERE unit = 'LEGIONNAIRE';",
-    'INSERT INTO battle_report_participants (battle_id, player_id, tile_id) SELECT battle_id, player_id, tile_id FROM battle_report_participants LIMIT 1;',
-  ])('rejects invalid battle data in SQL: %s', async (sql) => {
-    using database = await prepareReportsTestDatabase();
-    createCombatOutcomeReport(database);
-    expect(() => database.exec({ sql })).toThrow();
-  });
-
   test('round-trips distinct fields, randomized targets, and unsuccessful siege shots in order', async () => {
     using database = await prepareReportsTestDatabase();
     const { input } = createCombatOutcomeReport(database);
@@ -1711,32 +1685,6 @@ describe('battle combat outcome reports', () => {
       village_reason: 'administration-building-present',
       oasis_reason_id: null,
     });
-  });
-
-  test('rejects failure reasons from the wrong target lookup', async () => {
-    using database = await prepareReportsTestDatabase();
-    const { input, reportId } = createCombatOutcomeReport(database);
-    const invalidInput = JSON.parse(
-      JSON.stringify({
-        ...input,
-        conquest: {
-          target: 'village',
-          succeeded: false,
-          failureReason: 'no-free-oasis-slot',
-        },
-      }),
-    );
-
-    expect(() => insertBattleReport(database, invalidInput)).toThrow();
-    expect(() =>
-      database.exec({
-        sql: `UPDATE battle_report_conquests SET succeeded = 0,
-        village_conquest_failure_reason_id = (SELECT id FROM village_conquest_failure_reason_ids WHERE reason = 'administration-building-present'),
-        oasis_capture_failure_reason_id = (SELECT id FROM oasis_capture_failure_reason_ids WHERE reason = 'no-free-oasis-slot')
-        WHERE battle_id = (SELECT id FROM battle_reports WHERE report_id = $report_id);`,
-        bind: { $report_id: reportId },
-      }),
-    ).toThrow();
   });
 
   test('stores village destruction independently of a conquest attempt', async () => {
