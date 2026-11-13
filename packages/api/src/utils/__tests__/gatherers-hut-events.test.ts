@@ -1,6 +1,11 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  prepareTestDatabase,
+  setTestBuildingLevel,
+  setTestDeveloperSetting,
+  setTestIdleTroops,
+} from '@pillage-first/api/testing';
 import {
   calculateGatherersHutPartySize,
   GATHERERS_HUT_RESOURCES_PER_UNIT,
@@ -15,39 +20,6 @@ import {
   validateEventCreationPrerequisites,
 } from '../events';
 
-const setDevFlag = (database: DbFacade, column: string, value: number) => {
-  database.exec({
-    sql: `UPDATE developer_settings SET ${column} = $value`,
-    bind: { $value: value },
-  });
-};
-
-const setGatherersHutLevel = (
-  database: DbFacade,
-  villageId: number,
-  level: number,
-) => {
-  database.exec({
-    sql: `
-      INSERT INTO
-        building_fields (village_id, field_id, building_id, level)
-      SELECT
-        $village_id, 20, id, $level
-      FROM
-        building_ids
-      WHERE
-        building = 'GATHERERS_HUT'
-      ON CONFLICT(village_id, field_id) DO UPDATE SET
-        building_id = EXCLUDED.building_id,
-        level = EXCLUDED.level;
-    `,
-    bind: {
-      $village_id: villageId,
-      $level: level,
-    },
-  });
-};
-
 const getVillageTileId = (database: DbFacade, villageId: number): number => {
   return database.selectValue({
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
@@ -56,41 +28,6 @@ const getVillageTileId = (database: DbFacade, villageId: number): number => {
     },
     schema: tileIdSchema,
   })!;
-};
-
-const setIdleTroops = (
-  database: DbFacade,
-  unitId: string,
-  amount: number,
-  tileId: number,
-) => {
-  database.exec({
-    sql: `
-      DELETE FROM troops
-      WHERE
-        unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
-        AND tile_id = $tile_id
-        AND source_tile_id = $tile_id;
-    `,
-    bind: {
-      $unit_id: unitId,
-      $tile_id: tileId,
-    },
-  });
-
-  database.exec({
-    sql: `
-      INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-      SELECT id, $amount, $tile_id, $tile_id
-      FROM unit_ids
-      WHERE unit = $unit_id;
-    `,
-    bind: {
-      $unit_id: unitId,
-      $amount: amount,
-      $tile_id: tileId,
-    },
-  });
 };
 
 describe('gatherers hut events', () => {
@@ -143,8 +80,8 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    setGatherersHutLevel(database, villageId, 1);
-    setIdleTroops(database, 'PHALANX', 15, villageTileId);
+    setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
+    setTestIdleTroops(database, 'PHALANX', 15, villageTileId);
 
     expect(() =>
       validateEventCreationPrerequisites(
@@ -169,7 +106,7 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    setGatherersHutLevel(database, villageId, 1);
+    setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
 
     expect(() =>
       validateEventCreationPrerequisites(
@@ -194,8 +131,8 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    setGatherersHutLevel(database, villageId, 1);
-    setIdleTroops(database, 'LEGIONNAIRE', 1, villageTileId);
+    setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
+    setTestIdleTroops(database, 'LEGIONNAIRE', 1, villageTileId);
 
     expect(() =>
       validateEventCreationPrerequisites(
@@ -220,7 +157,7 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    setGatherersHutLevel(database, villageId, 1);
+    setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
 
     expect(() =>
       validateEventCreationPrerequisites(
@@ -245,8 +182,8 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    setGatherersHutLevel(database, villageId, 1);
-    setIdleTroops(database, 'PHALANX', 1, villageTileId);
+    setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
+    setTestIdleTroops(database, 'PHALANX', 1, villageTileId);
 
     expect(() =>
       validateEventCreationPrerequisites(
@@ -274,15 +211,15 @@ describe('gatherers hut events', () => {
       const villageId = 1;
       const tileId = getVillageTileId(database, villageId);
 
-      setGatherersHutLevel(database, villageId, 20);
-      setIdleTroops(
+      setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 20);
+      setTestIdleTroops(
         database,
         'PHALANX',
         availability === 'insufficient' ? 1 : 2,
         tileId,
       );
 
-      setIdleTroops(database, 'SWORDSMAN', 1, tileId);
+      setTestIdleTroops(database, 'SWORDSMAN', 1, tileId);
 
       if (availability === 'missing') {
         database.exec({
@@ -323,8 +260,8 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    setGatherersHutLevel(database, villageId, 1);
-    setIdleTroops(database, 'PHALANX', 10, villageTileId);
+    setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
+    setTestIdleTroops(database, 'PHALANX', 10, villageTileId);
 
     createEvents<'gatherersHutGatheringTrip'>(database, {
       type: 'gatherersHutGatheringTrip',
@@ -362,7 +299,7 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    setIdleTroops(database, 'PHALANX', 10, villageTileId);
+    setTestIdleTroops(database, 'PHALANX', 10, villageTileId);
 
     runEventCreationSideEffects(database, [
       createGatherersHutGatheringTripEventMock({
@@ -461,7 +398,7 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    setDevFlag(database, 'is_instant_unit_travel_enabled', 1);
+    setTestDeveloperSetting(database, 'is_instant_unit_travel_enabled', 1);
 
     expect(
       getEventDuration(

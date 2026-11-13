@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  createTestVillage,
+  prepareTestDatabase,
+  setTestBuildingLevel,
+  setTestVillageResources,
+} from '@pillage-first/api/testing';
 import { merchantsMap } from '@pillage-first/game-assets/merchants';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
@@ -49,79 +54,6 @@ const getPlayerVillage = (database: DbFacade) =>
     }),
   })!;
 
-const createPlayerVillage = (database: DbFacade, name: string) => {
-  const tileId = database.selectValue({
-    sql: `
-      SELECT id
-      FROM tiles
-      WHERE type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
-        AND id NOT IN (SELECT tile_id FROM villages)
-      ORDER BY id
-      LIMIT 1;
-    `,
-    schema: tileIdSchema,
-  })!;
-
-  const villageId = database.selectValue({
-    sql: `
-      INSERT INTO villages (name, slug, tile_id, player_id)
-      VALUES ($name, $slug, $tile_id, $player_id)
-      RETURNING id;
-    `,
-    bind: {
-      $name: name,
-      $slug: `${name.toLowerCase().replaceAll(' ', '-')}-${tileId}`,
-      $tile_id: tileId,
-      $player_id: PLAYER_ID,
-    },
-    schema: z.number(),
-  })!;
-
-  database.exec({
-    sql: `
-      INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
-      VALUES ($tile_id, 100, 100, 100, 100, $now)
-      ON CONFLICT(tile_id) DO UPDATE SET
-        wood = EXCLUDED.wood,
-        clay = EXCLUDED.clay,
-        iron = EXCLUDED.iron,
-        wheat = EXCLUDED.wheat,
-        updated_at = EXCLUDED.updated_at;
-    `,
-    bind: {
-      $tile_id: tileId,
-      $now: NOW,
-    },
-  });
-
-  return {
-    id: villageId,
-    tileId,
-  };
-};
-
-const setMarketplaceLevel = (
-  database: DbFacade,
-  villageId: number,
-  level: number,
-) => {
-  database.exec({
-    sql: `
-      INSERT INTO building_fields (village_id, field_id, building_id, level)
-      SELECT $village_id, 32, id, $level
-      FROM building_ids
-      WHERE building = 'MARKETPLACE'
-      ON CONFLICT(village_id, field_id) DO UPDATE SET
-        building_id = EXCLUDED.building_id,
-        level = EXCLUDED.level;
-    `,
-    bind: {
-      $village_id: villageId,
-      $level: level,
-    },
-  });
-};
-
 const setTradeOfficeLevel = (
   database: DbFacade,
   villageId: number,
@@ -133,21 +65,7 @@ const setTradeOfficeLevel = (
     schema: tribeSchema,
   })!;
 
-  database.exec({
-    sql: `
-      INSERT INTO building_fields (village_id, field_id, building_id, level)
-      SELECT $village_id, 37, id, $level
-      FROM building_ids
-      WHERE building = 'TRADE_OFFICE'
-      ON CONFLICT(village_id, field_id) DO UPDATE SET
-        building_id = EXCLUDED.building_id,
-        level = EXCLUDED.level;
-    `,
-    bind: {
-      $village_id: villageId,
-      $level: level,
-    },
-  });
+  setTestBuildingLevel(database, villageId, 'TRADE_OFFICE', level, 37);
 
   database.exec({
     sql: `
@@ -183,33 +101,6 @@ const setTradeOfficeLevel = (
         tribe,
       ).find(({ effectId }) => effectId === 'merchantCapacity')!
         .currentLevelValue,
-    },
-  });
-};
-
-const setVillageResources = (
-  database: DbFacade,
-  tileId: number,
-  resources: { wood: number; clay: number; iron: number; wheat: number },
-) => {
-  database.exec({
-    sql: `
-      INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
-      VALUES ($tile_id, $wood, $clay, $iron, $wheat, $now)
-      ON CONFLICT(tile_id) DO UPDATE SET
-        wood = EXCLUDED.wood,
-        clay = EXCLUDED.clay,
-        iron = EXCLUDED.iron,
-        wheat = EXCLUDED.wheat,
-        updated_at = EXCLUDED.updated_at;
-    `,
-    bind: {
-      $tile_id: tileId,
-      $wood: resources.wood,
-      $clay: resources.clay,
-      $iron: resources.iron,
-      $wheat: resources.wheat,
-      $now: NOW,
     },
   });
 };
@@ -498,15 +389,22 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(database, 'Transfer Target');
-
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 1000,
-      clay: 1000,
-      iron: 1000,
-      wheat: 1000,
+    const targetVillage = createTestVillage(database, 'Transfer Target', {
+      resourceSite: { updatedAt: NOW },
     });
+
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 1000,
+        clay: 1000,
+        iron: 1000,
+        wheat: 1000,
+      },
+      NOW,
+    );
 
     transferResources(
       database,
@@ -584,15 +482,22 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(database, 'Repeated Transfer');
-
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 1000,
-      clay: 1000,
-      iron: 1000,
-      wheat: 1000,
+    const targetVillage = createTestVillage(database, 'Repeated Transfer', {
+      resourceSite: { updatedAt: NOW },
     });
+
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 1000,
+        clay: 1000,
+        iron: 1000,
+        wheat: 1000,
+      },
+      NOW,
+    );
 
     transferResources(
       database,
@@ -648,16 +553,23 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(database, 'Merchant Target');
+    const targetVillage = createTestVillage(database, 'Merchant Target', {
+      resourceSite: { updatedAt: NOW },
+    });
     const { merchantCapacity } = merchantsMap.get(sourceVillage.tribe)!;
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: merchantCapacity + 1,
-      clay: 0,
-      iron: 0,
-      wheat: 0,
-    });
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: merchantCapacity + 1,
+        clay: 0,
+        iron: 0,
+        wheat: 0,
+      },
+      NOW,
+    );
 
     expect(() =>
       transferResources(
@@ -686,23 +598,31 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(
+    const targetVillage = createTestVillage(
       database,
       'Trade Office Transfer Target',
+      {
+        resourceSite: { updatedAt: NOW },
+      },
     );
 
     const baseMerchantCapacity = merchantsMap.get(
       sourceVillage.tribe,
     )!.merchantCapacity;
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
     setTradeOfficeLevel(database, sourceVillage.id, 2);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: baseMerchantCapacity + 1,
-      clay: 0,
-      iron: 0,
-      wheat: 0,
-    });
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: baseMerchantCapacity + 1,
+        clay: 0,
+        iron: 0,
+        wheat: 0,
+      },
+      NOW,
+    );
 
     transferResources(
       database,
@@ -740,17 +660,21 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(
-      database,
-      'No Marketplace Target',
-    );
-
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 100,
-      clay: 100,
-      iron: 100,
-      wheat: 100,
+    const targetVillage = createTestVillage(database, 'No Marketplace Target', {
+      resourceSite: { updatedAt: NOW },
     });
+
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
+      },
+      NOW,
+    );
 
     expect(() =>
       transferResources(
@@ -781,15 +705,22 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(database, 'Busy Merchant Target');
-
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 100,
-      clay: 100,
-      iron: 100,
-      wheat: 100,
+    const targetVillage = createTestVillage(database, 'Busy Merchant Target', {
+      resourceSite: { updatedAt: NOW },
     });
+
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
+      },
+      NOW,
+    );
 
     database.exec({
       sql: `
@@ -831,18 +762,26 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(
+    const targetVillage = createTestVillage(
       database,
       'Incoming Merchant Target',
+      {
+        resourceSite: { updatedAt: NOW },
+      },
     );
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 100,
-      clay: 100,
-      iron: 100,
-      wheat: 100,
-    });
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
+      },
+      NOW,
+    );
 
     database.exec({
       sql: `
@@ -899,15 +838,22 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(database, 'Resource Target');
-
-    setMarketplaceLevel(database, sourceVillage.id, 10);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 10,
-      clay: 10,
-      iron: 10,
-      wheat: 10,
+    const targetVillage = createTestVillage(database, 'Resource Target', {
+      resourceSite: { updatedAt: NOW },
     });
+
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 10, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 10,
+        clay: 10,
+        iron: 10,
+        wheat: 10,
+      },
+      NOW,
+    );
 
     expect(() =>
       transferResources(
@@ -943,13 +889,18 @@ describe('marketplace-controllers', () => {
       schema: z.number(),
     })!;
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 100,
-      clay: 100,
-      iron: 100,
-      wheat: 100,
-    });
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
+      },
+      NOW,
+    );
 
     expect(() =>
       transferResources(
@@ -990,7 +941,7 @@ describe('marketplace-controllers', () => {
       schema: tileIdSchema,
     })!;
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
 
     expect(() =>
       transferResources(
@@ -1014,16 +965,23 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(database, 'Route Target');
+    const targetVillage = createTestVillage(database, 'Route Target', {
+      resourceSite: { updatedAt: NOW },
+    });
     const startHour = (new Date(NOW).getHours() + 1) % 24;
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 100,
-      clay: 100,
-      iron: 100,
-      wheat: 100,
-    });
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
+      },
+      NOW,
+    );
 
     createTradeRoute(
       database,
@@ -1106,16 +1064,23 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(database, 'Route Target');
+    const targetVillage = createTestVillage(database, 'Route Target', {
+      resourceSite: { updatedAt: NOW },
+    });
     const startHour = (new Date(NOW).getHours() + 0) % 24;
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 100,
-      clay: 100,
-      iron: 100,
-      wheat: 100,
-    });
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
+      },
+      NOW,
+    );
 
     createTradeRoute(
       database,
@@ -1200,16 +1165,23 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(database, 'Route Target');
+    const targetVillage = createTestVillage(database, 'Route Target', {
+      resourceSite: { updatedAt: NOW },
+    });
     const startHour = (new Date(NOW).getHours() + 0) % 24;
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
-    setVillageResources(database, sourceVillage.tileId, {
-      wood: 100,
-      clay: 100,
-      iron: 100,
-      wheat: 100,
-    });
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
+    setTestVillageResources(
+      database,
+      sourceVillage.tileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
+      },
+      NOW,
+    );
 
     createTradeRoute(
       database,
@@ -1294,9 +1266,12 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const targetVillage = createPlayerVillage(
+    const targetVillage = createTestVillage(
       database,
       'Trade Office Route Target',
+      {
+        resourceSite: { updatedAt: NOW },
+      },
     );
 
     const startHour = (new Date(NOW).getHours() + 1) % 24;
@@ -1304,7 +1279,7 @@ describe('marketplace-controllers', () => {
       sourceVillage.tribe,
     )!.merchantCapacity;
 
-    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setTestBuildingLevel(database, sourceVillage.id, 'MARKETPLACE', 1, 32);
     setTradeOfficeLevel(database, sourceVillage.id, 2);
 
     createTradeRoute(
@@ -1350,9 +1325,11 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const source = getPlayerVillage(database);
-    const target = createPlayerVillage(database, 'Saved route target');
+    const target = createTestVillage(database, 'Saved route target', {
+      resourceSite: { updatedAt: NOW },
+    });
 
-    setMarketplaceLevel(database, source.id, 2);
+    setTestBuildingLevel(database, source.id, 'MARKETPLACE', 2, 32);
 
     const body = {
       targetTileId: target.tileId,

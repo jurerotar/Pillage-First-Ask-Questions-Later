@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  prepareTestDatabase,
+  seedTestAdventureReports,
+  setTestBuildingLevel,
+  setTestWoundedTroopAmount,
+} from '@pillage-first/api/testing';
 import { insertBattleReport, insertReport } from '../report';
 
 describe(insertReport, () => {
@@ -11,15 +16,7 @@ describe(insertReport, () => {
       sql: 'DELETE FROM reports;',
     });
 
-    for (let timestamp = 1; timestamp <= 999; timestamp += 1) {
-      insertReport(database, {
-        villageId: 1,
-        timestamp,
-        type: 'adventure',
-        outcome: 'heroAdventure',
-        tags: [],
-      });
-    }
+    seedTestAdventureReports(database, 1, 999, 1);
 
     const boundaryInsertedId = insertReport(database, {
       villageId: 1,
@@ -108,19 +105,11 @@ describe(insertBattleReport, () => {
       });
 
       if (hasHospital) {
-        database.exec({
-          sql: `INSERT INTO building_fields (village_id, field_id, building_id, level)
-          VALUES ($village_id, 20, (SELECT id FROM building_ids WHERE building = 'HOSPITAL'), 1)
-          ON CONFLICT(village_id, field_id) DO UPDATE SET building_id = excluded.building_id, level = excluded.level;`,
-          bind: { $village_id: origin.id },
-        });
+        setTestBuildingLevel(database, origin.id, 'HOSPITAL', 1, 20);
       }
 
       database.exec({ sql: 'DELETE FROM wounded_troops;' });
-      database.exec({
-        sql: "INSERT INTO wounded_troops (village_id, unit_id, amount, updated_at) SELECT $village_id, id, 7, 100 FROM unit_ids WHERE unit = 'LEGIONNAIRE';",
-        bind: { $village_id: origin.id },
-      });
+      setTestWoundedTroopAmount(database, origin.id, 'LEGIONNAIRE', 7, 100);
 
       const woundedBefore = database.selectObjects({
         sql: 'SELECT * FROM wounded_troops;',
