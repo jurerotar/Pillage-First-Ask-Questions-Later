@@ -6,7 +6,76 @@ import {
   setTestBuildingLevel,
   setTestWoundedTroopAmount,
 } from '@pillage-first/api/testing';
-import { insertBattleReport, insertReport } from '../report';
+import {
+  createScoutingIntelligenceFixture,
+  prepareReportsTestDatabase,
+} from '../../db/testing/seed-test-reports';
+import {
+  insertBattleReport,
+  insertMovementReport,
+  insertReport,
+  insertScoutingReport,
+} from '../report';
+
+test('scouting reports participate in the caller transaction', async () => {
+  using database = await prepareReportsTestDatabase();
+
+  const { input } = createScoutingIntelligenceFixture(database);
+
+  const reportCount = () =>
+    database.selectValue({
+      sql: 'SELECT COUNT(*) FROM reports;',
+      schema: z.int(),
+    })!;
+
+  const before = reportCount();
+
+  const failure = new Error('Caller rolls back');
+
+  expect(() =>
+    database.transaction((tx) => {
+      expect(insertScoutingReport(tx, input)).toBeDefined();
+      expect(reportCount()).toBe(before + 1);
+
+      throw failure;
+    }),
+  ).toThrow(failure);
+
+  expect(reportCount()).toBe(before);
+  expect(
+    database.selectValue({
+      sql: 'SELECT COUNT(*) FROM scouting_reports;',
+      schema: z.int(),
+    }),
+  ).toBe(0);
+});
+
+test('movement reports return the parent report ID', async () => {
+  using database = await prepareReportsTestDatabase();
+
+  const [origin, target] = database.selectObjects({
+    sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 2;',
+    schema: z.strictObject({ id: z.int(), tile_id: z.int() }),
+  });
+
+  const reportId = insertMovementReport(database, {
+    villageId: origin.id,
+    resolvesAt: 1000,
+    originTileId: origin.tile_id,
+    targetTileId: target.tile_id,
+    movementType: 'reinforcement',
+    troops: [],
+  });
+
+  expect(reportId).toBeDefined();
+  expect(
+    database.selectValue({
+      sql: 'SELECT report_id FROM movement_reports WHERE report_id = $report_id;',
+      bind: { $report_id: reportId! },
+      schema: z.int(),
+    }),
+  ).toBe(reportId);
+});
 
 describe(insertReport, () => {
   test('keeps the newest 1,000 non-archived reports', async () => {

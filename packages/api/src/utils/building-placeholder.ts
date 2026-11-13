@@ -20,10 +20,21 @@ export const createBuildingPlaceholder = (
 ): void => {
   database.exec({
     sql: `
-      INSERT INTO building_fields (village_id, field_id, building_id, level)
-      SELECT $village_id, $field_id, bi.id, 0
-      FROM building_ids bi
-      WHERE bi.building = $building_id;
+      INSERT INTO building_fields (
+        village_id,
+        field_id,
+        building_id,
+        level
+      )
+      SELECT
+        $village_id,
+        $field_id,
+        bi.id,
+        0
+      FROM
+        building_ids bi
+      WHERE
+        bi.building = $building_id;
     `,
     bind: {
       $village_id: villageId,
@@ -108,9 +119,11 @@ export const removeBuildingPlaceholder = (
     sql: `
       SELECT EXISTS (
         SELECT 1
-        FROM building_fields bf
-        JOIN building_ids bi ON bi.id = bf.building_id
-        WHERE bf.village_id = $village_id
+        FROM
+          building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE
+          bf.village_id = $village_id
           AND bf.field_id = $building_field_id
           AND bf.level = 0
           AND bi.building = $building_id
@@ -131,7 +144,8 @@ export const removeBuildingPlaceholder = (
   database.exec({
     sql: `
       DELETE FROM effects
-      WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+      WHERE
+        tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
         AND source_specifier = $building_field_id
         AND source_id = (
           SELECT id FROM effect_source_ids WHERE source = 'building'

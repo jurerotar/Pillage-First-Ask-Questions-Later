@@ -164,7 +164,9 @@ export const updateHeroEquipmentBonuses = (
 ): void => {
   const hero = database.selectObject({
     sql: `
-      SELECT hsa.attack_power, ti.tribe
+      SELECT
+        hsa.attack_power,
+        ti.tribe
       FROM
         heroes h
         JOIN hero_selectable_attributes hsa ON h.id = hsa.hero_id
@@ -187,7 +189,9 @@ export const updateHeroEquipmentBonuses = (
     sql: `
       UPDATE heroes
       SET
-        base_attack_power = $initial_strength + ($strength_per_point * $attack_power) + $power_bonus,
+        base_attack_power = $initial_strength
+          + ($strength_per_point * $attack_power)
+          + $power_bonus,
         health_regeneration = $base_health_regeneration + $health_regeneration_bonus,
         damage_reduction = $damage_reduction_bonus,
         experience_modifier = $experience_modifier_bonus,
@@ -220,7 +224,9 @@ export const addHeroExperience = (
     sql: `
       UPDATE heroes
       SET
-        experience = experience + CAST(ROUND($experience * (1 + experience_modifier / 100.0)) AS INTEGER)
+        experience = experience + CAST(
+          ROUND($experience * (1 + experience_modifier / 100.0)) AS INTEGER
+        )
       WHERE
         player_id = $player_id;
     `,
@@ -285,7 +291,8 @@ export const updateHeroResourceProductionEffects = ({
   database.exec({
     sql: `
       UPDATE effects
-      SET value = json_extract(effect.value, '$.value')
+      SET
+        value = json_extract(effect.value, '$.value')
       FROM
         json_each($effects) AS effect
         JOIN effect_ids
@@ -317,13 +324,17 @@ export const createHeroHealthRegenerationEventByVillageId = (
       SELECT
         heroes.health_regeneration AS healthRegeneration,
         servers.speed AS speed
-      FROM heroes
-      CROSS JOIN servers
-      WHERE heroes.player_id = (
+      FROM
+        heroes
+        CROSS JOIN servers
+      WHERE
+        heroes.player_id = (
         SELECT player_id
-        FROM villages
-        WHERE id = $village_id
-      );
+        FROM
+          villages
+        WHERE
+          id = $village_id
+        );
     `,
     bind: {
       $village_id: villageId,

@@ -19,18 +19,13 @@ export const assessAdventureCountQuestCompletion = (
         AND quest_id GLOB 'adventureCount-*'
         AND substr(quest_id, length('adventureCount-') + 1) GLOB '[0-9]*'
         AND (
-          SELECT COALESCE (
-          MAX (
-          ha.completed)
-          , 0)
-          FROM hero_adventures ha
-          JOIN heroes h ON ha.hero_id = h.id
-          WHERE h.player_id = $player_id
-        ) >= CAST (
-        substr(
-        quest_id
-        , LENGTH (
-        'adventureCount-') + 1) AS INTEGER);
+          SELECT COALESCE(MAX(ha.completed), 0)
+          FROM
+            hero_adventures ha
+            JOIN heroes h ON ha.hero_id = h.id
+          WHERE
+            h.player_id = $player_id
+        ) >= CAST(substr(quest_id, LENGTH('adventureCount-') + 1) AS INTEGER);
     `,
     bind: {
       $completed_at: timestamp,
@@ -58,24 +53,23 @@ export const assessQueuedTroopCountQuestCompletion = (
         AND (
           (
             SELECT COALESCE(SUM(uth.amount), 0)
-            FROM unit_training_history uth
-            JOIN villages v ON uth.village_id = v.id
-            WHERE v.player_id = $player_id
+            FROM
+              unit_training_history uth
+              JOIN villages v ON uth.village_id = v.id
+            WHERE
+              v.player_id = $player_id
           )
           +
           (
             SELECT COUNT(*)
-            FROM events e
-            JOIN villages v ON e.village_id = v.id
+            FROM
+              events e
+              JOIN villages v ON e.village_id = v.id
             WHERE
               e.type = 'troopTraining'
               AND v.player_id = $player_id
           )
-        ) >= CAST (
-        substr(
-        quest_id
-        , LENGTH (
-        'queuedTroopCount-') + 1) AS INTEGER);
+        ) >= CAST(substr(quest_id, LENGTH('queuedTroopCount-') + 1) AS INTEGER);
     `,
     bind: {
       $completed_at: timestamp,
@@ -104,9 +98,10 @@ export const assessQueuedTroopCountByIdQuestCompletion = (
         AND (
           (
             SELECT COALESCE(SUM(uth.amount), 0)
-            FROM unit_training_history uth
-            JOIN unit_ids ui ON uth.unit_id = ui.id
-            JOIN villages v ON uth.village_id = v.id
+            FROM
+              unit_training_history uth
+              JOIN unit_ids ui ON uth.unit_id = ui.id
+              JOIN villages v ON uth.village_id = v.id
             WHERE
               v.player_id = $player_id
               AND ui.unit = $unit_id
@@ -114,17 +109,18 @@ export const assessQueuedTroopCountByIdQuestCompletion = (
           +
           (
             SELECT COUNT(*)
-            FROM events e
-            JOIN villages v ON e.village_id = v.id
+            FROM
+              events e
+              JOIN villages v ON e.village_id = v.id
             WHERE
               e.type = 'troopTraining'
               AND v.player_id = $player_id
               AND JSON_EXTRACT(e.meta, '$.unitId') = $unit_id
           )
-        ) >= CAST (
-        substr(
-        quest_id
-        , length('queuedTroopCountById-' || $unit_id || '-') + 1) AS INTEGER);
+        ) >= CAST(
+          substr(quest_id, length('queuedTroopCountById-' || $unit_id || '-') + 1)
+          AS INTEGER
+        );
     `,
     bind: {
       $completed_at: timestamp,
@@ -153,15 +149,16 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
         AND substr(quest_id, length('captureAnimalCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
         AND (
           SELECT COALESCE(SUM(hch.amount), 0)
-          FROM hunting_capture_history hch
-          JOIN unit_ids ui ON ui.id = hch.unit_id
+          FROM
+            hunting_capture_history hch
+            JOIN unit_ids ui ON ui.id = hch.unit_id
           WHERE
             hch.player_id = $player_id
             AND ui.unit = $unit_id
-        ) >= CAST (
-        substr(
-        quest_id
-        , length('captureAnimalCountById-' || $unit_id || '-') + 1) AS INTEGER);
+        ) >= CAST(
+          substr(quest_id, length('captureAnimalCountById-' || $unit_id || '-') + 1)
+          AS INTEGER
+        );
     `,
     bind: {
       $completed_at: timestamp,
@@ -192,22 +189,20 @@ export const assessCaptureAnimalKindCountQuestCompletion = (
           SELECT COUNT(*)
           FROM (
             SELECT ui.unit
-            FROM hunting_capture_history hch
-            JOIN unit_ids ui ON ui.id = hch.unit_id
+            FROM
+              hunting_capture_history hch
+              JOIN unit_ids ui ON ui.id = hch.unit_id
             WHERE
               hch.player_id = $player_id
               AND ui.unit IN (
                 SELECT value
-                FROM json_each($unit_ids)
+                FROM
+                  json_each($unit_ids)
               )
             GROUP BY ui.unit
             HAVING SUM(hch.amount) > 0
           )
-        ) >= CAST (
-        substr(
-        quest_id
-        , LENGTH (
-        'captureAnimalKindCount-') + 1) AS INTEGER);
+        ) >= CAST(substr(quest_id, LENGTH('captureAnimalKindCount-') + 1) AS INTEGER);
     `,
     bind: {
       $completed_at: timestamp,
@@ -243,15 +238,13 @@ export const assessGatheredResourceCountQuestCompletion = (
             ),
             0
           )
-          FROM gathering_expedition_reports ger
-          JOIN reports r ON r.id = ger.report_id
-          JOIN villages v ON v.id = r.village_id
-          WHERE v.player_id = $player_id
-        ) >= CAST (
-        substr(
-        quest_id
-        , LENGTH (
-        'gatheredResourceCount-') + 1) AS INTEGER);
+          FROM
+            gathering_expedition_reports ger
+            JOIN reports r ON r.id = ger.report_id
+            JOIN villages v ON v.id = r.village_id
+          WHERE
+            v.player_id = $player_id
+        ) >= CAST(substr(quest_id, LENGTH('gatheredResourceCount-') + 1) AS INTEGER);
     `,
     bind: {
       $completed_at: timestamp,
@@ -280,17 +273,16 @@ export const assessBuildingQuestCompletion = (
         completed_at IS NULL
         AND quest_id = $quest_id
         AND village_id = $village_id
-        AND EXISTS
-        (
+        AND EXISTS (
           SELECT 1
           FROM
             building_fields bf
-          CROSS JOIN building_ids bi ON bi.id = bf.building_id
+            CROSS JOIN building_ids bi ON bi.id = bf.building_id
           WHERE
             bf.village_id = $village_id
             AND bi.building = $building_id
             AND bf.level >= $level
-          );
+        );
     `,
     bind: {
       $completed_at: timestamp,
@@ -313,14 +305,14 @@ export const assessBuildingQuestCompletion = (
         AND quest_id = $everyQuestId
         AND village_id = $village_id
         AND (
-              SELECT MIN(bf.level)
-              FROM
-                building_fields bf
-              CROSS JOIN building_ids bi ON bi.id = bf.building_id
-              WHERE
-                bf.village_id = $village_id
-                AND bi.building = $building_id
-              ) >= $level;
+          SELECT MIN(bf.level)
+          FROM
+            building_fields bf
+            CROSS JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE
+            bf.village_id = $village_id
+            AND bi.building = $building_id
+        ) >= $level;
     `,
     bind: {
       $completed_at: timestamp,

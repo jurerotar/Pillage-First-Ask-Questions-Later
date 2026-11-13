@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import {
-  type BattleUnit,
   battleHeroOutcomeSchema,
   battleOutcomeSchema,
   battleSiegeResultSchema,
@@ -137,8 +136,6 @@ type CreateNewScoutingReport = Pick<
   defensiveStructures?: { buildingId: Building['id']; level: number }[];
 };
 
-type CreateNewBattleReportUnit = BattleUnit;
-
 const battleReportParticipantInputSchema = z.strictObject({
   playerId: z.int().positive().nullable(),
   tileId: tileIdSchema,
@@ -210,12 +207,13 @@ export const insertReport = (
   if (report.tags.length > 0) {
     database.exec({
       sql: `
-        INSERT INTO
-          report_tags (report_id, report_tag_id)
-        SELECT $report_id, report_tag_ids.id
+        INSERT INTO report_tags (report_id, report_tag_id)
+        SELECT
+          $report_id,
+          report_tag_ids.id
         FROM
           JSON_EACH($tags)
-            JOIN report_tag_ids ON report_tag_ids.tag = json_each.value;
+          JOIN report_tag_ids ON report_tag_ids.tag = json_each.value;
       `,
       bind: {
         $report_id: reportId,
@@ -381,11 +379,7 @@ export const insertHuntingPartyReport = (
 
   database.exec({
     sql: `
-      INSERT INTO hunting_party_report_units (
-        hunting_party_report_id,
-        unit_id,
-        amount
-      )
+      INSERT INTO hunting_party_report_units (hunting_party_report_id, unit_id, amount)
       SELECT $hunting_party_report_id, id, $amount
       FROM unit_ids
       WHERE unit = $unit_id;
@@ -451,7 +445,12 @@ export const insertUnitImprovementReport = (
 
   database.exec({
     sql: `
-      INSERT INTO unit_improvement_reports (report_id, village_id, unit_id, level)
+      INSERT INTO unit_improvement_reports (
+        report_id,
+        village_id,
+        unit_id,
+        level
+      )
       SELECT $report_id, $village_id, id, $level
       FROM unit_ids
       WHERE unit = $unit_id;
@@ -485,16 +484,8 @@ export const insertVillageFoundedReport = (
 
   database.exec({
     sql: `
-      INSERT INTO village_founding_reports (
-        report_id,
-        origin_tile_id,
-        target_tile_id
-      )
-      VALUES (
-        $report_id,
-        $origin_tile_id,
-        $target_tile_id
-      );
+      INSERT INTO village_founding_reports (report_id, origin_tile_id, target_tile_id)
+      VALUES ($report_id, $origin_tile_id, $target_tile_id);
     `,
     bind: {
       $report_id: reportId,
@@ -594,10 +585,18 @@ export const insertMovementReport = (
 
   const movementReportId = database.selectValue({
     sql: `
-      INSERT INTO
-        movement_reports (report_id, origin_tile_id, target_tile_id, movement_type)
-      VALUES
-        ($report_id, $origin_tile_id, $target_tile_id, $movement_type)
+      INSERT INTO movement_reports (
+        report_id,
+        origin_tile_id,
+        target_tile_id,
+        movement_type
+      )
+      VALUES (
+        $report_id,
+        $origin_tile_id,
+        $target_tile_id,
+        $movement_type
+      )
       RETURNING id;
     `,
     bind: {
@@ -611,51 +610,31 @@ export const insertMovementReport = (
 
   database.exec({
     sql: `
-      INSERT INTO
-        movement_report_units (movement_report_id, unit_id, amount)
+      INSERT INTO movement_report_units (movement_report_id, unit_id, amount)
       SELECT
         $movement_report_id,
         unit_ids.id,
         JSON_EXTRACT(troop.value, '$.amount')
       FROM
         JSON_EACH($troops) AS troop
-          JOIN unit_ids
-               ON unit_ids.unit = JSON_EXTRACT(troop.value, '$.unitId');
+        JOIN unit_ids
+          ON unit_ids.unit = JSON_EXTRACT(troop.value, '$.unitId');
     `,
     bind: {
       $movement_report_id: movementReportId,
       $troops: JSON.stringify(troops),
     },
   });
+
+  return reportId;
 };
 
 export const insertBattleReport = (
   database: DbFacade,
-  report: CreateNewBattleReport,
+  input: CreateNewBattleReport,
 ): number | undefined => {
-  // Event resolution may already be in a transaction.
-  database.exec({ sql: 'SAVEPOINT insert_battle_report;' });
+  const report = createNewBattleReportSchema.parse(input);
 
-  try {
-    const reportId = persistBattleReport(
-      database,
-      createNewBattleReportSchema.parse(report),
-    );
-    database.exec({ sql: 'RELEASE insert_battle_report;' });
-
-    return reportId;
-  } catch (error) {
-    database.exec({ sql: 'ROLLBACK TO insert_battle_report;' });
-    database.exec({ sql: 'RELEASE insert_battle_report;' });
-
-    throw error;
-  }
-};
-
-const persistBattleReport = (
-  database: DbFacade,
-  report: CreateNewBattleReport,
-): number | undefined => {
   const resolvedOutcome = battleOutcomeSchema.parse({
     loot: report.loot,
     totalCarryCapacity: 0,
@@ -671,8 +650,15 @@ const persistBattleReport = (
 
   if (resolvedOutcome.conquest !== null) {
     const target = database.selectValue({
-      sql: `SELECT CASE WHEN tt.type = 'oasis' THEN 'oasis' ELSE 'village' END
-        FROM tiles t JOIN tile_type_ids tt ON tt.id = t.type_id WHERE t.id = $tile_id;`,
+      sql: `
+        SELECT
+          CASE WHEN tt.type = 'oasis' THEN 'oasis' ELSE 'village' END
+        FROM
+          tiles t
+          JOIN tile_type_ids tt ON tt.id = t.type_id
+        WHERE
+          t.id = $tile_id;
+      `,
       bind: { $tile_id: report.targetTileId },
       schema: z.enum(['village', 'oasis']),
     });
@@ -742,14 +728,34 @@ const persistBattleReport = (
 
   if (resolvedOutcome.conquest !== null) {
     database.exec({
-      sql: `INSERT INTO battle_report_conquests (
-          battle_id, target, loyalty_before, loyalty_after, succeeded,
-          village_conquest_failure_reason_id, oasis_capture_failure_reason_id
-        ) VALUES (
-          $battle_id, $target, $loyalty_before, $loyalty_after, $succeeded,
-          (SELECT id FROM village_conquest_failure_reason_ids WHERE reason = $village_failure_reason),
-          (SELECT id FROM oasis_capture_failure_reason_ids WHERE reason = $oasis_failure_reason)
-        );`,
+      sql: `
+        INSERT INTO battle_report_conquests (
+          battle_id,
+          target,
+          loyalty_before,
+          loyalty_after,
+          succeeded,
+          village_conquest_failure_reason_id,
+          oasis_capture_failure_reason_id
+        )
+        VALUES (
+          $battle_id,
+          $target,
+          $loyalty_before,
+          $loyalty_after,
+          $succeeded,
+          (
+            SELECT id
+            FROM village_conquest_failure_reason_ids
+            WHERE reason = $village_failure_reason
+          ),
+          (
+            SELECT id
+            FROM oasis_capture_failure_reason_ids
+            WHERE reason = $oasis_failure_reason
+          )
+        );
+      `,
       bind: {
         $battle_id: battleReportId,
         $target: resolvedOutcome.conquest.target,
@@ -766,11 +772,6 @@ const persistBattleReport = (
             : null,
       },
     });
-  } else if (
-    resolvedOutcome.loyaltyBefore !== null ||
-    resolvedOutcome.loyaltyAfter !== null
-  ) {
-    throw new Error('Loyalty changes require a conquest attempt');
   }
 
   if (
@@ -778,7 +779,10 @@ const persistBattleReport = (
     resolvedOutcome.rescuedUnits.length > 0
   ) {
     database.exec({
-      sql: 'INSERT INTO battle_report_rescues (battle_id, traps_destroyed) VALUES ($battle_id, $traps_destroyed);',
+      sql: `
+        INSERT INTO battle_report_rescues (battle_id, traps_destroyed)
+        VALUES ($battle_id, $traps_destroyed);
+      `,
       bind: {
         $battle_id: battleReportId,
         $traps_destroyed: resolvedOutcome.trapsDestroyed,
@@ -805,7 +809,12 @@ const persistBattleReport = (
 
   database.exec({
     sql: `
-      INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
+      INSERT INTO battle_report_participants (
+        id,
+        battle_id,
+        player_id,
+        tile_id
+      )
       SELECT
         JSON_EXTRACT(participant.value, '$.id'),
         $battle_id,
@@ -819,21 +828,12 @@ const persistBattleReport = (
     },
   });
 
-  const unitRows: (CreateNewBattleReportUnit & {
-    battleParticipantId: number;
-  })[] = [];
-
-  for (let index = 0; index < participants.length; index += 1) {
-    const participant = participants[index];
-    const battleParticipantId = firstBattleParticipantId + index;
-
-    for (const unit of participant.units) {
-      unitRows.push({
-        ...battleUnitSchema.parse(unit),
-        battleParticipantId,
-      });
-    }
-  }
+  const unitRows = participants.flatMap((participant, index) =>
+    participant.units.map((unit) => ({
+      ...unit,
+      battleParticipantId: firstBattleParticipantId + index,
+    })),
+  );
 
   if (unitRows.length > 0) {
     database.exec({
@@ -871,11 +871,7 @@ const persistBattleReport = (
     });
   }
 
-  const siegeResults = report.siegeResults.map((result) =>
-    battleSiegeResultSchema.parse(result),
-  );
-
-  if (siegeResults.length > 0) {
+  if (report.siegeResults.length > 0) {
     database.exec({
       sql: `
         INSERT INTO battle_report_buildings (
@@ -906,12 +902,16 @@ const persistBattleReport = (
               building.value,
               '$.buildingId'
             )
-          LEFT JOIN building_ids requested ON requested.building = JSON_EXTRACT(building.value, '$.requestedBuildingId')
+          LEFT JOIN building_ids requested
+            ON requested.building = JSON_EXTRACT(
+              building.value,
+              '$.requestedBuildingId'
+            )
         ORDER BY CAST(building.key AS INTEGER);
       `,
       bind: {
         $battle_id: battleReportId,
-        $siege_results: JSON.stringify(siegeResults),
+        $siege_results: JSON.stringify(report.siegeResults),
       },
     });
   }
@@ -921,38 +921,80 @@ const persistBattleReport = (
       ? [
           {
             battleParticipantId: firstBattleParticipantId + index,
-            ...battleHeroOutcomeSchema.parse(participant.hero),
+            ...participant.hero,
           },
         ]
       : [],
   );
 
   if (heroes.length > 0) {
+    const heroesJson = JSON.stringify(heroes);
+
     database.exec({
-      sql: `INSERT INTO battle_report_heroes (battle_participant_id, hero_id, health_before, health_after, experience_gained)
-        SELECT json_extract(hero.value, '$.battleParticipantId'), json_extract(hero.value, '$.heroId'),
-          json_extract(hero.value, '$.healthBefore'), json_extract(hero.value, '$.healthAfter'),
+      sql: `
+        INSERT INTO battle_report_heroes (
+          battle_participant_id,
+          hero_id,
+          health_before,
+          health_after,
+          experience_gained
+        )
+        SELECT
+          json_extract(hero.value, '$.battleParticipantId'),
+          json_extract(hero.value, '$.heroId'),
+          json_extract(hero.value, '$.healthBefore'),
+          json_extract(hero.value, '$.healthAfter'),
           json_extract(hero.value, '$.experienceGained')
-        FROM json_each($heroes) AS hero;`,
-      bind: { $heroes: JSON.stringify(heroes) },
+        FROM
+          json_each($heroes) AS hero;
+      `,
+      bind: { $heroes: heroesJson },
     });
+
     database.exec({
-      sql: `INSERT INTO battle_report_consumables (battle_participant_id, item_id, amount)
-        SELECT json_extract(hero.value, '$.battleParticipantId'), json_extract(item.value, '$.itemId'),
+      sql: `
+        INSERT INTO battle_report_consumables (battle_participant_id, item_id, amount)
+        SELECT
+          json_extract(hero.value, '$.battleParticipantId'),
+          json_extract(item.value, '$.itemId'),
           SUM(json_extract(item.value, '$.amount'))
-        FROM json_each($heroes) AS hero, json_each(hero.value, '$.consumables') AS item
-        GROUP BY json_extract(hero.value, '$.battleParticipantId'), json_extract(item.value, '$.itemId');`,
-      bind: { $heroes: JSON.stringify(heroes) },
+        FROM
+          json_each($heroes) AS hero,
+          json_each(hero.value, '$.consumables') AS item
+        GROUP BY
+          json_extract(hero.value, '$.battleParticipantId'),
+          json_extract(item.value, '$.itemId');
+      `,
+      bind: { $heroes: heroesJson },
     });
   }
 
   if (resolvedOutcome.rescuedUnits.length > 0) {
     database.exec({
-      sql: `INSERT INTO battle_report_rescued_units (battle_id, player_id, home_tile_id, unit_id, amount_freed, amount_died)
-        SELECT $battle_id, json_extract(unit.value, '$.playerId'), json_extract(unit.value, '$.homeTileId'), ui.id,
-          SUM(json_extract(unit.value, '$.amountFreed')), SUM(json_extract(unit.value, '$.amountDied'))
-        FROM json_each($units) AS unit JOIN unit_ids ui ON ui.unit = json_extract(unit.value, '$.unitId')
-        GROUP BY json_extract(unit.value, '$.playerId'), json_extract(unit.value, '$.homeTileId'), ui.id;`,
+      sql: `
+        INSERT INTO battle_report_rescued_units (
+          battle_id,
+          player_id,
+          home_tile_id,
+          unit_id,
+          amount_freed,
+          amount_died
+        )
+        SELECT
+          $battle_id,
+          json_extract(unit.value, '$.playerId'),
+          json_extract(unit.value, '$.homeTileId'),
+          ui.id,
+          SUM(json_extract(unit.value, '$.amountFreed')),
+          SUM(json_extract(unit.value, '$.amountDied'))
+        FROM
+          json_each($units) AS unit
+          JOIN unit_ids ui ON ui.unit = json_extract(unit.value, '$.unitId')
+        GROUP BY
+          json_extract(unit.value, '$.playerId'),
+          json_extract(unit.value, '$.homeTileId'),
+          ui.id;
+      `,
       bind: {
         $battle_id: battleReportId,
         $units: JSON.stringify(resolvedOutcome.rescuedUnits),
@@ -962,10 +1004,18 @@ const persistBattleReport = (
 
   if (resolvedOutcome.capturedAnimals.length > 0) {
     database.exec({
-      sql: `INSERT INTO battle_report_captured_animals (battle_id, unit_id, amount)
-        SELECT $battle_id, ui.id, SUM(json_extract(unit.value, '$.amount'))
-        FROM json_each($units) AS unit JOIN unit_ids ui ON ui.unit = json_extract(unit.value, '$.unitId')
-        GROUP BY ui.id;`,
+      sql: `
+        INSERT INTO battle_report_captured_animals (battle_id, unit_id, amount)
+        SELECT
+          $battle_id,
+          ui.id,
+          SUM(json_extract(unit.value, '$.amount'))
+        FROM
+          json_each($units) AS unit
+          JOIN unit_ids ui ON ui.unit = json_extract(unit.value, '$.unitId')
+        GROUP BY
+          ui.id;
+      `,
       bind: {
         $battle_id: battleReportId,
         $units: JSON.stringify(resolvedOutcome.capturedAnimals),
@@ -975,10 +1025,17 @@ const persistBattleReport = (
 
   if (resolvedOutcome.stolenItems.length > 0) {
     database.exec({
-      sql: `INSERT INTO battle_report_stolen_items (battle_id, item_id, amount)
-        SELECT $battle_id, json_extract(item.value, '$.itemId'), SUM(json_extract(item.value, '$.amount'))
-        FROM json_each($items) AS item
-        GROUP BY json_extract(item.value, '$.itemId');`,
+      sql: `
+        INSERT INTO battle_report_stolen_items (battle_id, item_id, amount)
+        SELECT
+          $battle_id,
+          json_extract(item.value, '$.itemId'),
+          SUM(json_extract(item.value, '$.amount'))
+        FROM
+          json_each($items) AS item
+        GROUP BY
+          json_extract(item.value, '$.itemId');
+      `,
       bind: {
         $battle_id: battleReportId,
         $items: JSON.stringify(resolvedOutcome.stolenItems),
@@ -1012,10 +1069,24 @@ export const insertTradeReport = (
 
   database.exec({
     sql: `
-      INSERT INTO
-        trade_reports (report_id, origin_tile_id, target_tile_id, wood, clay, iron, wheat)
-      VALUES
-        ($report_id, $origin_tile_id, $target_tile_id, $wood, $clay, $iron, $wheat);
+      INSERT INTO trade_reports (
+        report_id,
+        origin_tile_id,
+        target_tile_id,
+        wood,
+        clay,
+        iron,
+        wheat
+      )
+      VALUES (
+        $report_id,
+        $origin_tile_id,
+        $target_tile_id,
+        $wood,
+        $clay,
+        $iron,
+        $wheat
+      );
     `,
     bind: {
       $report_id: reportId,
@@ -1035,129 +1106,149 @@ export const insertScoutingReport = (
   database: DbFacade,
   report: CreateNewScoutingReport,
 ): number | undefined => {
-  let insertedReportId: number | undefined;
-
-  database.transaction(() => {
-    const reportId = insertReport(database, {
-      villageId: report.villageId,
-      timestamp: report.timestamp,
-      type: 'scouting',
-      outcome: report.outcome,
-      tags: [],
-    });
-
-    if (reportId === undefined) {
-      return undefined;
-    }
-
-    const scoutingReportId = database.selectValue({
-      sql: `
-        INSERT INTO
-          scouting_reports (report_id, origin_tile_id, target_tile_id, perspective, successful, scouting_target, wood,
-                            clay, iron, wheat, item_id, item_amount)
-        VALUES
-          ($report_id, $origin_tile_id, $target_tile_id, $perspective, $successful, $target, $wood, $clay, $iron,
-           $wheat, $item_id, $item_amount)
-        RETURNING id;
-      `,
-      bind: {
-        $report_id: reportId,
-        $origin_tile_id: report.originTileId,
-        $target_tile_id: report.targetTileId,
-        $perspective: report.perspective,
-        $successful: report.successful ? 1 : 0,
-        $target: report.target,
-        $wood: report.resources?.wood ?? null,
-        $clay: report.resources?.clay ?? null,
-        $iron: report.resources?.iron ?? null,
-        $wheat: report.resources?.wheat ?? null,
-        $item_id: report.itemId ?? null,
-        $item_amount: report.itemAmount ?? null,
-      },
-      schema: z.int(),
-    })!;
-
-    database.exec({
-      sql: `
-        INSERT INTO
-          scouting_report_attacker_units (scouting_report_id, unit_id, amount_before, amount_after)
-        SELECT
-          $scouting_report_id,
-          unit_ids.id,
-          JSON_EXTRACT(unit.value, '$.amountBefore'),
-          JSON_EXTRACT(unit.value, '$.amountAfter')
-        FROM
-          JSON_EACH($units) AS unit
-            JOIN unit_ids
-                 ON unit_ids.unit = JSON_EXTRACT(unit.value, '$.unitId');
-      `,
-      bind: {
-        $scouting_report_id: scoutingReportId,
-        $units: JSON.stringify(report.attacker.units),
-      },
-    });
-
-    const defenderUnits = report.defender.units.map((unit) => ({
-      ...unit,
-      role: 'defender',
-      tileId: report.targetTileId,
-    }));
-
-    const reinforcementUnits = (report.defender.reinforcements ?? []).flatMap(
-      (reinforcement) => {
-        return reinforcement.units.map((unit) => ({
-          ...unit,
-          role: 'reinforcement',
-          tileId: reinforcement.tileId,
-        }));
-      },
-    );
-
-    database.exec({
-      sql: `
-        INSERT INTO
-          scouting_report_units (scouting_report_id, role, tile_id, unit_id, amount)
-        SELECT
-          $scouting_report_id,
-          JSON_EXTRACT(unit.value, '$.role'),
-          JSON_EXTRACT(unit.value, '$.tileId'),
-          unit_ids.id,
-          JSON_EXTRACT(unit.value, '$.amount')
-        FROM
-          jsonb_each($units) AS unit
-            JOIN unit_ids
-                 ON unit_ids.unit = JSON_EXTRACT(unit.value, '$.unitId');
-      `,
-      bind: {
-        $scouting_report_id: scoutingReportId,
-        $units: JSON.stringify([...defenderUnits, ...reinforcementUnits]),
-      },
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO
-          scouting_report_structures (scouting_report_id, building_id, level)
-        SELECT
-          $scouting_report_id,
-          building_ids.id,
-          JSON_EXTRACT(structure.value, '$.level')
-        FROM
-          JSON_EACH($structures) AS structure
-            JOIN building_ids
-                 ON building_ids.building = JSON_EXTRACT(
-                   structure.value,
-                   '$.buildingId'
-                                            );
-      `,
-      bind: {
-        $scouting_report_id: scoutingReportId,
-        $structures: JSON.stringify(report.defensiveStructures ?? []),
-      },
-    });
-
-    insertedReportId = reportId;
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'scouting',
+    outcome: report.outcome,
+    tags: [],
   });
 
-  return insertedReportId;
+  if (reportId === undefined) {
+    return undefined;
+  }
+
+  const scoutingReportId = database.selectValue({
+    sql: `
+      INSERT INTO scouting_reports (
+        report_id,
+        origin_tile_id,
+        target_tile_id,
+        perspective,
+        successful,
+        scouting_target,
+        wood,
+        clay,
+        iron,
+        wheat,
+        item_id,
+        item_amount
+      )
+      VALUES (
+        $report_id,
+        $origin_tile_id,
+        $target_tile_id,
+        $perspective,
+        $successful,
+        $target,
+        $wood,
+        $clay,
+        $iron,
+        $wheat,
+        $item_id,
+        $item_amount
+      )
+      RETURNING id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $origin_tile_id: report.originTileId,
+      $target_tile_id: report.targetTileId,
+      $perspective: report.perspective,
+      $successful: report.successful ? 1 : 0,
+      $target: report.target,
+      $wood: report.resources?.wood ?? null,
+      $clay: report.resources?.clay ?? null,
+      $iron: report.resources?.iron ?? null,
+      $wheat: report.resources?.wheat ?? null,
+      $item_id: report.itemId ?? null,
+      $item_amount: report.itemAmount ?? null,
+    },
+    schema: z.int(),
+  })!;
+
+  database.exec({
+    sql: `
+      INSERT INTO scouting_report_attacker_units (
+        scouting_report_id,
+        unit_id,
+        amount_before,
+        amount_after
+      )
+      SELECT
+        $scouting_report_id,
+        unit_ids.id,
+        JSON_EXTRACT(unit.value, '$.amountBefore'),
+        JSON_EXTRACT(unit.value, '$.amountAfter')
+      FROM
+        JSON_EACH($units) AS unit
+        JOIN unit_ids
+          ON unit_ids.unit = JSON_EXTRACT(unit.value, '$.unitId');
+    `,
+    bind: {
+      $scouting_report_id: scoutingReportId,
+      $units: JSON.stringify(report.attacker.units),
+    },
+  });
+
+  const defenderUnits = report.defender.units.map((unit) => ({
+    ...unit,
+    role: 'defender',
+    tileId: report.targetTileId,
+  }));
+
+  const reinforcementUnits = (report.defender.reinforcements ?? []).flatMap(
+    (reinforcement) =>
+      reinforcement.units.map((unit) => ({
+        ...unit,
+        role: 'reinforcement',
+        tileId: reinforcement.tileId,
+      })),
+  );
+
+  database.exec({
+    sql: `
+      INSERT INTO scouting_report_units (
+        scouting_report_id,
+        role,
+        tile_id,
+        unit_id,
+        amount
+      )
+      SELECT
+        $scouting_report_id,
+        JSON_EXTRACT(unit.value, '$.role'),
+        JSON_EXTRACT(unit.value, '$.tileId'),
+        unit_ids.id,
+        JSON_EXTRACT(unit.value, '$.amount')
+      FROM
+        jsonb_each($units) AS unit
+        JOIN unit_ids
+          ON unit_ids.unit = JSON_EXTRACT(unit.value, '$.unitId');
+    `,
+    bind: {
+      $scouting_report_id: scoutingReportId,
+      $units: JSON.stringify([...defenderUnits, ...reinforcementUnits]),
+    },
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO scouting_report_structures (scouting_report_id, building_id, level)
+      SELECT
+        $scouting_report_id,
+        building_ids.id,
+        JSON_EXTRACT(structure.value, '$.level')
+      FROM
+        JSON_EACH($structures) AS structure
+        JOIN building_ids
+          ON building_ids.building = JSON_EXTRACT(structure.value, '$.buildingId');
+    `,
+    bind: {
+      $scouting_report_id: scoutingReportId,
+      $structures: JSON.stringify(report.defensiveStructures ?? []),
+    },
+  });
+
+  return reportId;
 };
