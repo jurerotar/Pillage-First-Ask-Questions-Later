@@ -30,6 +30,7 @@ import { createControllerArgs } from './utils/controller-args';
 describe('report-controllers', () => {
   test('lists only player battle and scouting reports targeting the tile, independent of report filters', async () => {
     using database = await prepareReportsTestDatabase();
+
     const tileId = database.selectValue({
       sql: 'SELECT target_tile_id FROM battle_reports WHERE report_id = 1;',
       schema: z.number(),
@@ -92,6 +93,7 @@ describe('report-controllers', () => {
 
   test('limits tile reports to ten, ordered by timestamp then id descending', async () => {
     using database = await prepareReportsTestDatabase();
+
     const tileId = database.selectValue({
       sql: 'SELECT target_tile_id FROM battle_reports WHERE report_id = 1;',
       schema: z.number(),
@@ -130,6 +132,7 @@ describe('report-controllers', () => {
 
   test('returns an empty list for tiles without matching reports', async () => {
     using database = await prepareReportsTestDatabase();
+
     const tileId = database.selectValue({
       sql: 'SELECT origin_tile_id FROM battle_reports WHERE report_id = 1;',
       schema: z.number(),
@@ -199,6 +202,7 @@ describe('report-controllers', () => {
     'applies the no-loss filter to %s reports without hiding other outcomes or report types',
     async (perspective) => {
       using database = await prepareReportsTestDatabase();
+
       const isScouting = perspective.startsWith('scout');
 
       if (isScouting) {
@@ -368,6 +372,7 @@ describe('report-controllers', () => {
 
   test('should apply unread, archived, and village scopes', async () => {
     using database = await prepareReportsTestDatabase();
+
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages ORDER BY id LIMIT 1;',
       schema: z.int(),
@@ -631,6 +636,7 @@ describe('report-controllers', () => {
     'updating $updatedTag preserves $preservedTag and unselected reports',
     async ({ reportId, preservedTag, updatedTag }) => {
       using database = await prepareReportsTestDatabase();
+
       const unselectedTags = () =>
         database.selectObjects({
           sql: `SELECT rt.report_id, ti.tag FROM report_tags rt
@@ -639,7 +645,9 @@ describe('report-controllers', () => {
           bind: { $report_id: reportId },
           schema: z.strictObject({ report_id: z.int(), tag: z.string() }),
         });
+
       const before = unselectedTags();
+
       const selectedTags = () =>
         database.selectValues({
           sql: `SELECT ti.tag FROM report_tags rt
@@ -656,6 +664,7 @@ describe('report-controllers', () => {
             body: { reportIds: [reportId], tags: { [updatedTag]: enabled } },
           }),
         );
+
         expect(selectedTags()).toStrictEqual(
           enabled ? ['archived', 'read'] : [preservedTag],
         );
@@ -666,6 +675,7 @@ describe('report-controllers', () => {
 
   test('should delete the seeded report types and all dependent rows', async () => {
     using database = await prepareReportsTestDatabase();
+
     const reportIds = database.selectValues({
       sql: `
         SELECT MIN(r.id) FROM reports r
@@ -730,6 +740,7 @@ describe('report-controllers', () => {
 
   test('should delete all scouting report data', async () => {
     using database = await prepareReportsTestDatabase();
+
     const reportId = 7;
 
     database.execMulti({
@@ -794,10 +805,12 @@ describe('research, improvement, founding, and construction cancellation reports
     'missing-requirements',
   ] as const)('lists, reads, and deletes a %s report', async (kind) => {
     using database = await prepareReportsTestDatabase();
+
     const existingIds = database.selectValues({
       sql: 'SELECT id FROM reports ORDER BY id;',
       schema: z.int(),
     });
+
     const [origin, target] = database.selectObjects({
       sql: `SELECT v.id, v.tile_id, v.name, t.x, t.y FROM villages v
         JOIN tiles t ON t.id = v.tile_id JOIN players p ON p.id = v.player_id
@@ -811,12 +824,15 @@ describe('research, improvement, founding, and construction cancellation reports
         y: z.int(),
       }),
     });
+
     const commonInput = { villageId: origin.id, timestamp: 7000 };
+
     const villageSummary = {
       villageId: origin.id,
       villageName: origin.name,
       villageCoordinates: { x: origin.x, y: origin.y },
     };
+
     const reportCase = (() => {
       switch (kind) {
         case 'unitResearch': {
@@ -916,6 +932,7 @@ describe('research, improvement, founding, and construction cancellation reports
     })();
 
     expect(reportCase.id).toBeDefined();
+
     const expected = {
       id: reportCase.id,
       ...commonInput,
@@ -924,6 +941,7 @@ describe('research, improvement, founding, and construction cancellation reports
       tags: [],
       ...reportCase.details,
     };
+
     const expectedListing =
       kind === 'villageFounded'
         ? {
@@ -1010,6 +1028,7 @@ describe('scouting intelligence reports', () => {
     'round-trips successful resource intelligence and groups reinforcements for the %s',
     async (perspective) => {
       using database = await prepareReportsTestDatabase();
+
       const { input, origin, target, firstReinforcement, secondReinforcement } =
         createScoutingIntelligenceFixture(database);
 
@@ -1071,7 +1090,9 @@ describe('scouting intelligence reports', () => {
 
   test('round-trips defensive structures without inventing resources or items', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createScoutingIntelligenceFixture(database);
+
     input.target = 'defensiveStructures';
     input.resources = undefined;
     input.itemId = null;
@@ -1095,7 +1116,9 @@ describe('scouting intelligence reports', () => {
 
   test('preserves known zero resources and empty reinforcement lists', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createScoutingIntelligenceFixture(database);
+
     input.resources = { wood: 0, clay: 0, iron: 0, wheat: 0 };
     input.itemId = null;
     input.itemAmount = null;
@@ -1113,7 +1136,9 @@ describe('scouting intelligence reports', () => {
     'hides stored %s intelligence and reinforcements when scouting was unsuccessful',
     async (target) => {
       using database = await prepareReportsTestDatabase();
+
       const { input } = createScoutingIntelligenceFixture(database);
+
       input.target = target;
       input.successful = false;
       input.outcome = 'scoutAttackerFullLoss';
@@ -1236,6 +1261,7 @@ describe('battle combat outcome reports', () => {
         },
       ];
       input.reinforcements[0].units = [{ ...input.defender.units[0] }];
+
       input.reinforcements.push({
         playerId: villages[0].player_id,
         tileId: villages[3].tile_id,
@@ -1244,6 +1270,7 @@ describe('battle combat outcome reports', () => {
       });
 
       const reportId = insertBattleReport(database, input);
+
       const result = getReport(
         database,
         createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
@@ -1255,6 +1282,7 @@ describe('battle combat outcome reports', () => {
 
       // Check the serializable response, not just presentation flags.
       const report: typeof result = JSON.parse(JSON.stringify(result));
+
       const canSeeDefenders = ownerIndex === 1;
 
       expect(report.villageId).toBe(villages[ownerIndex].id);
@@ -1278,6 +1306,7 @@ describe('battle combat outcome reports', () => {
         ...report.battle.defender.reinforcements,
       ]) {
         const isOwn = participant.village.id === report.villageId;
+
         const original = [
           input.attacker,
           input.defender,
@@ -1346,6 +1375,7 @@ describe('battle combat outcome reports', () => {
     input.defender.units = [{ ...input.attacker.units[0] }];
 
     const id = insertBattleReport(database, input);
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({ path: { reportId: id } }),
@@ -1398,6 +1428,7 @@ describe('battle combat outcome reports', () => {
       ];
 
       const reportId = insertBattleReport(database, input);
+
       const report = getReport(
         database,
         createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
@@ -1434,7 +1465,9 @@ describe('battle combat outcome reports', () => {
     database.exec({ sql: 'DELETE FROM reports;' });
 
     const archived = createCombatOutcomeReport(database);
+
     const oldest = createCombatOutcomeReport(database);
+
     const newer = createCombatOutcomeReport(database);
 
     updateReports(
@@ -1449,8 +1482,11 @@ describe('battle combat outcome reports', () => {
         database,
         createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
       );
+
     const archivedBefore = readReport(archived.reportId);
+
     const newerBefore = readReport(newer.reportId);
+
     const tables = [
       'battle_reports',
       'battle_report_participants',
@@ -1464,6 +1500,7 @@ describe('battle combat outcome reports', () => {
       'battle_report_captured_animals',
       'battle_report_stolen_items',
     ];
+
     const detailCounts = () =>
       tables.map(
         (table) =>
@@ -1472,6 +1509,7 @@ describe('battle combat outcome reports', () => {
             schema: z.int(),
           })!,
       );
+
     const before = detailCounts();
 
     for (const count of before) {
@@ -1519,21 +1557,29 @@ describe('battle combat outcome reports', () => {
 
   test('deleting a selected battle leaves unselected reports and their details unchanged', async () => {
     using database = await prepareReportsTestDatabase();
+
     const first = createCombatOutcomeReport(database);
+
     const selected = createCombatOutcomeReport(database);
+
     const last = createCombatOutcomeReport(database);
+
     const readReport = (reportId: number) =>
       getReport(
         database,
         createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
       );
+
     const firstBefore = readReport(first.reportId);
+
     const lastBefore = readReport(last.reportId);
+
     const reportIds = () =>
       database.selectValues({
         sql: 'SELECT id FROM reports ORDER BY id;',
         schema: z.int(),
       });
+
     const before = reportIds();
 
     deleteReports(
@@ -1551,8 +1597,11 @@ describe('battle combat outcome reports', () => {
 
   test('aggregates repeated special outcomes without combining different items, villages, or heroes', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createCombatOutcomeReport(database);
+
     const rescue = input.rescuedUnits[0];
+
     const otherRescue = {
       ...rescue,
       playerId: input.attacker.playerId!,
@@ -1574,17 +1623,21 @@ describe('battle combat outcome reports', () => {
       { itemId: 1023, amount: 2 },
       { itemId: 1021, amount: 1 },
     );
+
     input.defender.hero!.consumables = [{ itemId: 1023, amount: 1 }];
+
     input.reinforcements[0].hero!.consumables.push(
       { itemId: 1023, amount: 4 },
       { itemId: 1023, amount: 2 },
     );
 
     const reportId = insertBattleReport(database, input);
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
     );
+
     if (report?.type !== 'battle') {
       throw new Error('Expected a battle report');
     }
@@ -1625,10 +1678,12 @@ describe('battle combat outcome reports', () => {
         bind: { $tile_id: tileId },
         schema: z.int(),
       })!;
+
       const ownerReportId = insertBattleReport(database, {
         ...input,
         villageId,
       });
+
       const ownerReport = getReport(
         database,
         createControllerArgs<'/reports/:reportId'>({
@@ -1644,6 +1699,7 @@ describe('battle combat outcome reports', () => {
     };
 
     const defenderReport = readOwnerCopy(input.targetTileId);
+
     const reinforcementReport = readOwnerCopy(input.reinforcements[0].tileId);
 
     expect(defenderReport.battle.defender.troops.hero?.consumables).toEqual([
@@ -1661,7 +1717,9 @@ describe('battle combat outcome reports', () => {
 
   test('round-trips distinct fields, randomized targets, and unsuccessful siege shots in order', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createCombatOutcomeReport(database);
+
     const hit: BattleSiegeResult = {
       fieldId: 20,
       requestedBuildingId: 'WAREHOUSE',
@@ -1672,6 +1730,7 @@ describe('battle combat outcome reports', () => {
       levelBefore: 20,
       levelAfter: 12,
     };
+
     input.siegeResults = [
       hit,
       { ...hit, fieldId: 21 },
@@ -1717,10 +1776,12 @@ describe('battle combat outcome reports', () => {
     ];
 
     const reportId = insertBattleReport(database, input);
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
     );
+
     expect(report).toHaveProperty('battle.siegeResults', input.siegeResults);
   });
 
@@ -1736,6 +1797,7 @@ describe('battle combat outcome reports', () => {
 
   test('round trips special outcomes and the owner hero without changing live game state', async () => {
     using database = await prepareReportsTestDatabase();
+
     const tables = [
       'troops',
       'heroes',
@@ -1747,12 +1809,14 @@ describe('battle combat outcome reports', () => {
       'oasis',
       'trapper_cages',
     ];
+
     const snapshotQueries = tables.map((table) => {
       const columns = database.selectValues({
         sql: 'SELECT name FROM pragma_table_info($table) ORDER BY cid;',
         bind: { $table: table },
         schema: z.string(),
       });
+
       const quotedColumns = columns
         .map((column) => `"${column.replaceAll('"', '""')}"`)
         .join(', ');
@@ -1768,9 +1832,11 @@ describe('battle combat outcome reports', () => {
         table,
         rows: database.selectValue({ sql, schema: z.string() }),
       }));
+
     const before = snapshot();
 
     const { input, reportId } = createCombatOutcomeReport(database);
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
@@ -1846,6 +1912,7 @@ describe('battle combat outcome reports', () => {
       sql: 'SELECT COUNT(*) FROM battle_report_buildings;',
       schema: z.int(),
     });
+
     const { reportId } = createCombatOutcomeReport(database);
 
     deleteReports(
@@ -1882,7 +1949,9 @@ describe('battle combat outcome reports', () => {
 
   test('stores unsuccessful oasis conquest outcomes', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createCombatOutcomeReport(database);
+
     input.conquest = {
       target: 'oasis',
       succeeded: false,
@@ -1899,6 +1968,7 @@ describe('battle combat outcome reports', () => {
       units: [],
       hero: null,
     };
+
     const reportId = insertBattleReport(database, input);
 
     const report = getReport(
@@ -1930,7 +2000,9 @@ describe('battle combat outcome reports', () => {
 
   test('stores village failure reasons through the village lookup table', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createCombatOutcomeReport(database);
+
     input.conquest = {
       target: 'village',
       succeeded: false,
@@ -1939,6 +2011,7 @@ describe('battle combat outcome reports', () => {
     input.loyaltyAfter = input.loyaltyBefore;
 
     const reportId = insertBattleReport(database, input);
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
@@ -1966,13 +2039,16 @@ describe('battle combat outcome reports', () => {
 
   test('stores village destruction independently of a conquest attempt', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createCombatOutcomeReport(database);
+
     input.conquest = null;
     input.loyaltyBefore = null;
     input.loyaltyAfter = null;
     input.villageDestroyed = true;
 
     const reportId = insertBattleReport(database, input);
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
@@ -1984,7 +2060,9 @@ describe('battle combat outcome reports', () => {
 
   test('stores destroyed traps without requiring rescued-unit rows', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createCombatOutcomeReport(database);
+
     input.conquest = null;
     input.loyaltyBefore = null;
     input.loyaltyAfter = null;
@@ -1992,6 +2070,7 @@ describe('battle combat outcome reports', () => {
     input.rescuedUnits = [];
 
     const reportId = insertBattleReport(database, input);
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
@@ -2021,10 +2100,13 @@ describe('battle combat outcome reports', () => {
 
   test('stores a rescue summary when units are rescued without destroyed traps', async () => {
     using database = await prepareReportsTestDatabase();
+
     const { input } = createCombatOutcomeReport(database);
+
     input.trapsDestroyed = 0;
 
     const reportId = insertBattleReport(database, input);
+
     const report = getReport(
       database,
       createControllerArgs<'/reports/:reportId'>({ path: { reportId } }),
