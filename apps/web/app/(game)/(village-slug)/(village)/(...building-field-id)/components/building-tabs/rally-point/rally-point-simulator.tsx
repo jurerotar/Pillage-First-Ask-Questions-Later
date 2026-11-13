@@ -13,6 +13,9 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
+
+const IS_SIMULATOR_DISABLED = true;
 
 const RallyPointSimulatorContent = () => {
   const { t } = useTranslation();
@@ -39,14 +42,21 @@ const RallyPointSimulatorContent = () => {
         <Text as="h2">{t('Simulator')}</Text>
       </SectionContent>
       <SectionContent>
-        <div className="flex flex-col gap-4">
-          <CombatSimulatorAttackerControlsRow
-            title={playerIsAttacker ? t('You (Attacker)') : t('Attacker')}
-          />
-          <CombatSimulatorDefenderControlsRow title={defenderTitle} />
-          <CombatSimulatorReinforcementsControlsRows />
-          <CombatSimulatorReport />
-        </div>
+        {IS_SIMULATOR_DISABLED && (
+          <Alert variant="warning">
+            {t('This page is still under development')}
+          </Alert>
+        )}
+        {!IS_SIMULATOR_DISABLED && (
+          <div className="flex flex-col gap-4">
+            <CombatSimulatorAttackerControlsRow
+              title={playerIsAttacker ? t('You (Attacker)') : t('Attacker')}
+            />
+            <CombatSimulatorDefenderControlsRow title={defenderTitle} />
+            <CombatSimulatorReinforcementsControlsRows />
+            <CombatSimulatorReport />
+          </div>
+        )}
       </SectionContent>
     </Section>
   );
