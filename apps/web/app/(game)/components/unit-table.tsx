@@ -141,13 +141,10 @@ export const UnitTableUnitIcons = () => {
     <thead className="border-b dark:border-border">
       <tr>
         <th className="border-r dark:border-border w-16" />
-        {tribeUnits.map((unitDef, index) => (
+        {tribeUnits.map((unitDef) => (
           <th
             key={unitDef.id}
-            className={clsx(
-              'p-2 text-center',
-              index !== tribeUnits.length - 1 && 'border-r dark:border-border',
-            )}
+            className="p-2 text-center border-r last:border-r-0 dark:border-border"
           >
             <div className="flex justify-center">
               <Icon
@@ -179,13 +176,10 @@ export const UnitTableRow = ({
         <td className="px-2 py-1 border-r dark:border-border">
           <Text className="text-sm font-medium">{label}</Text>
         </td>
-        {troops.map(({ unitId, amount }, index) => (
+        {troops.map(({ unitId, amount }) => (
           <td
             key={unitId}
-            className={clsx(
-              'h-7 text-center',
-              index !== troops.length - 1 && 'border-r dark:border-border',
-            )}
+            className="h-7 text-center border-r last:border-r-0 dark:border-border"
           >
             <Text className={clsx('text-sm', textColor)}>
               {formatNumber(amount)}
@@ -289,13 +283,10 @@ export const UnitTableHiddenRow = ({
         <td className="px-2 py-1 border-r dark:border-border">
           <Text className="text-sm font-medium">{label}</Text>
         </td>
-        {troops.map(({ unitId }, index) => (
+        {troops.map(({ unitId }) => (
           <td
             key={unitId}
-            className={clsx(
-              'h-7 text-center',
-              index !== troops.length - 1 && 'border-r dark:border-border',
-            )}
+            className="h-7 text-center border-r last:border-r-0 dark:border-border"
           >
             <Text className="text-sm text-gray-700">?</Text>
           </td>

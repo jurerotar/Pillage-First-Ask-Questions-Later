@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { GiAnvil } from 'react-icons/gi';
 import { LuHash } from 'react-icons/lu';
 import {
-  getSmithyUpgradeableUnitsByTribe,
   getUnitsByTribe,
   getUnitsByTribeWithHero,
+  isSmithyUpgradeableUnit,
 } from '@pillage-first/game-assets/utils/units';
 import type { CombatSimulatorTroop } from '@pillage-first/types/models/combat-simulator';
 import type { Tribe } from '@pillage-first/types/models/tribe';
@@ -48,9 +48,6 @@ export const CombatSimulatorTroopControlsRows = ({
   const tribeUnits = includeHero
     ? getUnitsByTribeWithHero(tribe)
     : getUnitsByTribe(tribe);
-  const upgradableUnitIds = new Set(
-    getSmithyUpgradeableUnitsByTribe(tribe).map(({ id }) => id),
-  );
   const troopByUnitId = new Map(troops.map((troop) => [troop.unitId, troop]));
   const amountLabel = t('Amount');
   const smithyImprovementLevelLabel = t('Smithy improvement level');
@@ -71,14 +68,13 @@ export const CombatSimulatorTroopControlsRows = ({
               <LuHash className="size-4 md:size-5" />
             </div>
           </td>
-          {tribeUnits.map((unit, index) => {
+          {tribeUnits.map((unit) => {
             const troop = troopByUnitId.get(unit.id);
-            const isLastUnit = index === tribeUnits.length - 1;
 
             return (
               <td
                 key={unit.id}
-                className={`h-8 p-1 text-center ${isLastUnit ? '' : 'border-r dark:border-border'}`}
+                className="h-8 p-1 text-center border-r last:border-r-0 dark:border-border"
               >
                 {unit.id === 'HERO' ? (
                   <div className="flex justify-center">
@@ -135,16 +131,15 @@ export const CombatSimulatorTroopControlsRows = ({
                 <GiAnvil className="size-4 md:size-5" />
               </div>
             </td>
-            {tribeUnits.map((unit, index) => {
+            {tribeUnits.map((unit) => {
               const troop = troopByUnitId.get(unit.id);
-              const isLastUnit = index === tribeUnits.length - 1;
 
               return (
                 <td
                   key={unit.id}
-                  className={`h-8 p-1 text-center ${isLastUnit ? '' : 'border-r dark:border-border'}`}
+                  className="h-8 p-1 text-center border-r last:border-r-0 dark:border-border"
                 >
-                  {upgradableUnitIds.has(unit.id) && (
+                  {unit.id !== 'HERO' && isSmithyUpgradeableUnit(unit) && (
                     <LevelInputPopover
                       className="mx-auto px-1 max-w-12 text-center"
                       id={`combat-simulator-${id}-${unit.id}-smithy-improvement-level`}

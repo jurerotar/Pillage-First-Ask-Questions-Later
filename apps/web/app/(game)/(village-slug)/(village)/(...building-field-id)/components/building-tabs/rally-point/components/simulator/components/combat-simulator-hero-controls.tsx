@@ -29,34 +29,10 @@ import {
 } from 'app/components/ui/popover';
 import { LevelInputPopover } from './level-input-popover';
 
-const heroItemSlots = [
-  {
-    slot: 'right-hand',
-    icon: <GiBroadsword className="size-4 md:size-5" />,
-  },
-  {
-    slot: 'left-hand',
-    icon: <GiShield className="size-4 md:size-5" />,
-  },
-  {
-    slot: 'torso',
-    icon: <GiBreastplate className="size-4 md:size-5" />,
-  },
-] satisfies {
-  slot: CombatSimulatorHeroItemSlot;
-  icon: ReactNode;
-}[];
-
-const heroItemSlotLabels = {
-  'right-hand': 'Right hand',
-  'left-hand': 'Left hand',
-  torso: 'Body armor',
-} satisfies Record<CombatSimulatorHeroItemSlot, string>;
-
 const heroEquipmentItems = items.filter((item): item is HeroEquipmentItem => {
   return (
     item.category === 'wearable' &&
-    heroItemSlots.some(({ slot }) => slot === item.slot) &&
+    ['right-hand', 'left-hand', 'torso'].includes(item.slot) &&
     (item.heroBonus ?? []).some(({ attribute }) =>
       ['power', 'damageReduction'].includes(attribute),
     )
@@ -84,11 +60,13 @@ const getHeroItemBonus = (
 
 const CombatSimulatorHeroItemSelector = ({
   slot,
+  label,
   icon,
   selectedItemId,
   onItemChange,
 }: {
   slot: CombatSimulatorHeroItemSlot;
+  label: string;
   icon: ReactNode;
   selectedItemId: HeroItem['id'] | undefined;
   onItemChange: (
@@ -98,13 +76,12 @@ const CombatSimulatorHeroItemSelector = ({
 }) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const slotLabel = t(heroItemSlotLabels[slot]);
   const selectedItem =
     selectedItemId === undefined
       ? undefined
       : heroEquipmentItemById.get(selectedItemId);
   const slotItems = heroEquipmentItems.filter((item) => item.slot === slot);
-  const buttonLabel = t('Select {{slot}} item', { slot: slotLabel });
+  const buttonLabel = t('Select {{slot}} item', { slot: label });
 
   return (
     <Popover
@@ -139,7 +116,7 @@ const CombatSimulatorHeroItemSelector = ({
         initialFocus={false}
       >
         <div className="flex flex-col gap-2">
-          <div className="px-1 text-sm font-medium">{slotLabel}</div>
+          <div className="px-1 text-sm font-medium">{label}</div>
           <div className="max-h-72 overflow-y-auto">
             <Button
               className={clsx(
@@ -205,6 +182,28 @@ const CombatSimulatorHeroItemControls = ({
 }) => {
   const { t } = useTranslation();
 
+  const heroItemSlots = [
+    {
+      slot: 'right-hand',
+      label: t('Right hand'),
+      icon: <GiBroadsword className="size-4 md:size-5" />,
+    },
+    {
+      slot: 'left-hand',
+      label: t('Left hand'),
+      icon: <GiShield className="size-4 md:size-5" />,
+    },
+    {
+      slot: 'torso',
+      label: t('Body armor'),
+      icon: <GiBreastplate className="size-4 md:size-5" />,
+    },
+  ] satisfies {
+    slot: CombatSimulatorHeroItemSlot;
+    label: string;
+    icon: ReactNode;
+  }[];
+
   const handleItemChange = (
     slot: CombatSimulatorHeroItemSlot,
     itemId?: HeroItem['id'],
@@ -230,10 +229,11 @@ const CombatSimulatorHeroItemControls = ({
         data-tooltip-content={t('Hero items')}
         data-tooltip-id="general-tooltip"
       >
-        {heroItemSlots.map(({ slot, icon }) => (
+        {heroItemSlots.map(({ slot, label, icon }) => (
           <CombatSimulatorHeroItemSelector
             key={slot}
             icon={icon}
+            label={label}
             selectedItemId={heroStats.itemIdsBySlot[slot]}
             slot={slot}
             onItemChange={handleItemChange}
@@ -264,7 +264,6 @@ export const CombatSimulatorHeroStatsControlsRow = ({
   }
 
   const heroStatsLabel = t('Hero stats');
-  const participantInputId = participantRole;
 
   const heroStatFields = [
     {
@@ -345,7 +344,7 @@ export const CombatSimulatorHeroStatsControlsRow = ({
                     className="flex items-center gap-1 text-muted-foreground"
                     data-tooltip-content={label}
                     data-tooltip-id="general-tooltip"
-                    htmlFor={`combat-simulator-${participantInputId}-hero-${key}`}
+                    htmlFor={`combat-simulator-${participantRole}-hero-${key}`}
                   >
                     <span className="inline-flex items-center justify-center">
                       <span className="sr-only">{label}</span>
@@ -353,7 +352,7 @@ export const CombatSimulatorHeroStatsControlsRow = ({
                     </span>
                     <LevelInputPopover
                       className="px-1 w-8 text-center"
-                      id={`combat-simulator-${participantInputId}-hero-${key}`}
+                      id={`combat-simulator-${participantRole}-hero-${key}`}
                       inputSize="numericDoubleDigit"
                       label={label}
                       max={max}
@@ -372,7 +371,7 @@ export const CombatSimulatorHeroStatsControlsRow = ({
                   className="flex items-center gap-2 text-muted-foreground"
                   data-tooltip-content={t('Mounted')}
                   data-tooltip-id="general-tooltip"
-                  htmlFor={`combat-simulator-${participantInputId}-hero-mounted`}
+                  htmlFor={`combat-simulator-${participantRole}-hero-mounted`}
                 >
                   <span className="sr-only">{t('Mounted')}</span>
                   <GiHorseHead
@@ -381,7 +380,7 @@ export const CombatSimulatorHeroStatsControlsRow = ({
                   />
                   <Checkbox
                     checked={heroStats.mounted}
-                    id={`combat-simulator-${participantInputId}-hero-mounted`}
+                    id={`combat-simulator-${participantRole}-hero-mounted`}
                     onCheckedChange={(checked) => {
                       onHeroStatsChange({
                         ...heroStats,
