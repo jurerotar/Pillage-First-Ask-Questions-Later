@@ -17,14 +17,19 @@ describe(calculateTravelDuration, () => {
     mapSize,
   );
 
+  const baseTroop = {
+    unitId: 'LEGIONNAIRE',
+    amount: 10,
+    sourceTileId: 1,
+    tileId: 1,
+  } satisfies Troop;
+
   const defaultArgs = {
     originTileId,
     targetTileId: targetTileId10FieldsAway,
     mapSize,
     // LEGIONNAIRE speed is 6
-    troops: [
-      { unitId: 'LEGIONNAIRE', amount: 10, sourceTileId: 1, tileId: 1 },
-    ] satisfies Troop[],
+    troops: [baseTroop],
     effects: [] satisfies Effect[],
     heroSpeed: 7,
   };
@@ -50,10 +55,7 @@ describe(calculateTravelDuration, () => {
     // slowest = 5
     const duration = calculateTravelDuration({
       ...defaultArgs,
-      troops: [
-        { unitId: 'LEGIONNAIRE', amount: 10, sourceTileId: 1, tileId: 1 },
-        { unitId: 'PRAETORIAN', amount: 10, sourceTileId: 1, tileId: 1 },
-      ],
+      troops: [baseTroop, { ...baseTroop, unitId: 'PRAETORIAN' }],
     });
 
     expect(duration).toBe(7_200_000);
@@ -119,7 +121,7 @@ describe(calculateTravelDuration, () => {
   test('should use hero speed for hero movements', () => {
     const duration = calculateTravelDuration({
       ...defaultArgs,
-      troops: [{ unitId: 'HERO', amount: 1, sourceTileId: 1, tileId: 1 }],
+      troops: [{ ...baseTroop, unitId: 'HERO', amount: 1 }],
       heroSpeed: 10,
     });
 

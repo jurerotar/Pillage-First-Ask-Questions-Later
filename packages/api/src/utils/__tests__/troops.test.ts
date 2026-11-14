@@ -28,7 +28,16 @@ describe('troop-queries', () => {
       addTroops(database, troops);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -58,7 +67,16 @@ describe('troop-queries', () => {
       addTroops(database, [{ unitId, amount: 5, tileId, sourceTileId }]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -105,7 +123,16 @@ describe('troop-queries', () => {
 
       const checkTroops = (unitId: Unit['id'], expectedAmount: number) => {
         const result = database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+          sql: `
+            SELECT
+              amount
+            FROM
+              troops
+            WHERE
+              tile_id = $tile_id
+              AND source_tile_id = $source_tile_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          `,
           bind: {
             $tile_id: tileId,
             $source_tile_id: sourceTileId,
@@ -155,7 +182,16 @@ describe('troop-queries', () => {
         expectedAmount: number,
       ) => {
         const result = database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+          sql: `
+            SELECT
+              amount
+            FROM
+              troops
+            WHERE
+              tile_id = $tile_id
+              AND source_tile_id = $source_tile_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          `,
           bind: {
             $tile_id: tileId,
             $source_tile_id: sourceTileId,
@@ -192,7 +228,16 @@ describe('troop-queries', () => {
       removeTroops(database, [{ unitId, amount: 4, tileId, sourceTileId }]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -222,7 +267,16 @@ describe('troop-queries', () => {
       removeTroops(database, [{ unitId, amount: 10, tileId, sourceTileId }]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -252,7 +306,16 @@ describe('troop-queries', () => {
       removeTroops(database, [{ unitId, amount: 15, tileId, sourceTileId }]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -292,7 +355,16 @@ describe('troop-queries', () => {
 
       const check = (unitId: Unit['id']) => {
         return database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+          sql: `
+            SELECT
+              amount
+            FROM
+              troops
+            WHERE
+              tile_id = $tile_id
+              AND source_tile_id = $source_tile_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          `,
           bind: {
             $tile_id: tileId,
             $source_tile_id: sourceTileId,
@@ -346,7 +418,16 @@ describe('troop-queries', () => {
       ]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,

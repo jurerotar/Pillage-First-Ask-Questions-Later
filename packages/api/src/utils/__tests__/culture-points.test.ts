@@ -81,7 +81,16 @@ test('pending founding missions reserve culture-point capacity until removed', a
   using database = await prepareTestDatabase();
 
   const { villageId, originTileId } = database.selectObject({
-    sql: 'SELECT id AS villageId, tile_id AS originTileId FROM villages WHERE player_id = $player_id LIMIT 1;',
+    sql: `
+      SELECT
+        id AS villageId,
+        tile_id AS originTileId
+      FROM
+        villages
+      WHERE
+        player_id = $player_id
+      LIMIT 1;
+    `,
     bind: { $player_id: PLAYER_ID },
     schema: z.strictObject({
       villageId: z.number(),
@@ -156,7 +165,12 @@ test('pending founding missions reserve culture-point capacity until removed', a
   expect(validateTroopMovement(database, secondMission)).toStrictEqual([]);
 
   database.exec({
-    sql: "DELETE FROM events WHERE type = 'troopMovementFindNewVillage' AND village_id = $village_id;",
+    sql: `
+      DELETE FROM events
+      WHERE
+        type = 'troopMovementFindNewVillage'
+        AND village_id = $village_id;
+    `,
     bind: { $village_id: villageId },
   });
 

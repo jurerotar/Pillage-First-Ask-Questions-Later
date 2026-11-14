@@ -18,9 +18,9 @@ describe('marketplace utils', () => {
           s.map_size AS mapSize
         FROM
           villages v
-            JOIN players p ON p.id = v.player_id
-            JOIN tribe_ids ti ON ti.id = p.tribe_id
-            CROSS JOIN servers s
+          JOIN players p ON p.id = v.player_id
+          JOIN tribe_ids ti ON ti.id = p.tribe_id
+          CROSS JOIN servers s
         WHERE
           v.player_id = $player_id
         LIMIT 1;

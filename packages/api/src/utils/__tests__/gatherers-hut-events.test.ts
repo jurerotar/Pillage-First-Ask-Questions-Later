@@ -12,6 +12,7 @@ import {
 } from '@pillage-first/game-assets/utils/gatherers-hut';
 import { createGatherersHutGatheringTripEventMock } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
+import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createEvents } from '../create-event';
 import {
@@ -223,8 +224,13 @@ describe('gatherers hut events', () => {
 
       if (availability === 'missing') {
         database.exec({
-          sql: `DELETE FROM troops WHERE tile_id = $tile_id AND source_tile_id = $tile_id
-              AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'SWORDSMAN')`,
+          sql: `
+            DELETE FROM troops
+            WHERE
+              tile_id = $tile_id
+              AND source_tile_id = $tile_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'SWORDSMAN')
+          `,
           bind: { $tile_id: tileId },
         });
       }
@@ -263,17 +269,19 @@ describe('gatherers hut events', () => {
     setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
     setTestIdleTroops(database, 'PHALANX', 10, villageTileId);
 
+    const troops = [
+      {
+        unitId: 'PHALANX',
+        amount: 1,
+        tileId: villageTileId,
+        sourceTileId: villageTileId,
+      },
+    ] satisfies Troop[];
+
     createEvents<'gatherersHutGatheringTrip'>(database, {
       type: 'gatherersHutGatheringTrip',
       villageId,
-      troops: [
-        {
-          unitId: 'PHALANX',
-          amount: 1,
-          tileId: villageTileId,
-          sourceTileId: villageTileId,
-        },
-      ],
+      troops,
     });
 
     expect(() =>
@@ -281,14 +289,7 @@ describe('gatherers hut events', () => {
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
-          troops: [
-            {
-              unitId: 'PHALANX',
-              amount: 1,
-              tileId: villageTileId,
-              sourceTileId: villageTileId,
-            },
-          ],
+          troops,
         }),
       ),
     ).toThrow("Gatherer's Hut is busy");

@@ -158,9 +158,12 @@ describe('scheduled building upgrades', () => {
     });
 
     database.execMulti({
-      sql: `UPDATE players
-        SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
-        WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
+      sql: `
+        UPDATE players
+        SET
+          tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
+        WHERE
+          id = (SELECT player_id FROM villages WHERE id = $village_id);
       `,
       bind: { $village_id: villageId },
     });
@@ -858,11 +861,14 @@ describe('scheduled building upgrades', () => {
     );
 
     database.execMulti({
-      sql: `DELETE FROM effects
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $placeholder_field_id;
         DELETE FROM building_fields
-        WHERE village_id = $village_id
+        WHERE
+          village_id = $village_id
           AND field_id = $placeholder_field_id;
       `,
       bind: {
@@ -956,11 +962,14 @@ describe('scheduled building upgrades', () => {
     const buildingFieldId = 25;
 
     database.execMulti({
-      sql: `DELETE FROM effects
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
-        WHERE village_id = $village_id
+        WHERE
+          village_id = $village_id
           AND field_id = $field_id;
       `,
       bind: {
@@ -1018,14 +1027,18 @@ describe('scheduled building upgrades', () => {
     const buildingFieldId = 25;
 
     database.execMulti({
-      sql: `DELETE FROM effects
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
-        WHERE village_id = $village_id
+        WHERE
+          village_id = $village_id
           AND field_id = $field_id;
         UPDATE developer_settings
-        SET is_free_building_construction_enabled = 1;
+        SET
+          is_free_building_construction_enabled = 1;
       `,
       bind: {
         $village_id: villageId,

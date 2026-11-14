@@ -259,8 +259,11 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       database.exec({
-        sql: `INSERT INTO unit_research (village_id, unit_id)
-              VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))`,
+        sql: `
+          INSERT INTO unit_research (village_id, unit_id)
+          VALUES
+            ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))
+        `,
         bind: { $village_id: villageId, $unit: 'PHALANX' },
       });
 
@@ -280,8 +283,12 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       database.exec({
-        sql: `DELETE FROM unit_research
-              WHERE village_id = $village_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
+        sql: `
+          DELETE FROM unit_research
+          WHERE
+            village_id = $village_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)
+        `,
         bind: { $village_id: villageId, $unit: 'PHALANX' },
       });
 
@@ -588,11 +595,15 @@ describe('events utils', () => {
       const buildingFieldId = 25;
 
       database.execMulti({
-        sql: `DELETE FROM effects
-          WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+        sql: `
+          DELETE FROM effects
+          WHERE
+            tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
             AND source_specifier = $field_id;
           DELETE FROM building_fields
-          WHERE village_id = $village_id AND field_id = $field_id;
+          WHERE
+            village_id = $village_id
+            AND field_id = $field_id;
         `,
         bind: {
           $village_id: villageId,
@@ -1541,7 +1552,13 @@ describe('events utils', () => {
       })!;
 
       database.exec({
-        sql: 'UPDATE oasis SET village_id = $villageId WHERE tile_id = (SELECT id FROM tiles WHERE x = $x AND y = $y)',
+        sql: `
+          UPDATE oasis
+          SET
+            village_id = $villageId
+          WHERE
+            tile_id = (SELECT id FROM tiles WHERE x = $x AND y = $y)
+        `,
         bind: { $villageId: villageId, $x: x, $y: y },
       });
 
@@ -1722,13 +1739,21 @@ describe('events utils', () => {
 
       // Seed some troops
       database.exec({
-        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        sql: `
+          DELETE FROM troops
+          WHERE
+            unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')
+            AND tile_id = $tile_id
+        `,
         bind: { $tile_id: villageTileId },
       });
 
       database.exec({
-        sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
+        sql: `
+          INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+          VALUES
+            ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)
+        `,
         bind: { $tile_id: villageTileId },
       });
 
@@ -1747,7 +1772,15 @@ describe('events utils', () => {
       runEventCreationSideEffects(database, [event]);
 
       const amount = database.selectValue({
-        sql: "SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')
+            AND tile_id = $tile_id
+        `,
         bind: { $tile_id: villageTileId },
         schema: z.number(),
       });
@@ -1766,24 +1799,40 @@ describe('events utils', () => {
 
       // Seed some troops
       database.exec({
-        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        sql: `
+          DELETE FROM troops
+          WHERE
+            unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')
+            AND tile_id = $tile_id
+        `,
         bind: { $tile_id: villageTileId },
       });
 
       database.exec({
-        sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
+        sql: `
+          INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+          VALUES
+            ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)
+        `,
         bind: { $tile_id: villageTileId },
       });
 
       database.exec({
-        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN') AND tile_id = $tile_id",
+        sql: `
+          DELETE FROM troops
+          WHERE
+            unit_id = (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN')
+            AND tile_id = $tile_id
+        `,
         bind: { $tile_id: villageTileId },
       });
 
       database.exec({
-        sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, $tile_id, $tile_id)`,
+        sql: `
+          INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+          VALUES
+            ((SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, $tile_id, $tile_id)
+        `,
         bind: { $tile_id: villageTileId },
       });
 
@@ -1816,7 +1865,15 @@ describe('events utils', () => {
 
       const getAmount = (unit: Unit['id']) =>
         database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit) AND tile_id = $tile_id',
+          sql: `
+            SELECT
+              amount
+            FROM
+              troops
+            WHERE
+              unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)
+              AND tile_id = $tile_id
+          `,
           bind: { $unit: unit, $tile_id: villageTileId },
           schema: z.number(),
         });
@@ -2652,9 +2709,17 @@ describe('events utils', () => {
 
         resources[resource] -= 1;
         database.exec({
-          sql: `UPDATE resource_sites SET wood = $wood, clay = $clay,
-            iron = $iron, wheat = $wheat, updated_at = $now
-            WHERE tile_id = $tile_id;`,
+          sql: `
+            UPDATE resource_sites
+            SET
+              wood = $wood,
+              clay = $clay,
+              iron = $iron,
+              wheat = $wheat,
+              updated_at = $now
+            WHERE
+              tile_id = $tile_id;
+          `,
           bind: {
             $wood: resources.wood,
             $clay: resources.clay,
@@ -2723,17 +2788,31 @@ describe('events utils', () => {
         const updatedAt = Math.min(now, now + offset);
 
         database.exec({
-          sql: `UPDATE resource_sites SET wood = 700, clay = 700,
-            iron = 700, wheat = 0, updated_at = $updated_at
-            WHERE tile_id = $tile_id;`,
+          sql: `
+            UPDATE resource_sites
+            SET
+              wood = 700,
+              clay = 700,
+              iron = 700,
+              wheat = 0,
+              updated_at = $updated_at
+            WHERE
+              tile_id = $tile_id;
+          `,
           bind: { $tile_id: tileId, $updated_at: updatedAt },
         });
 
         database.exec({
-          sql: `UPDATE effects SET value = 3600
-            WHERE tile_id = $tile_id AND source_specifier = 0
+          sql: `
+            UPDATE effects
+            SET
+              value = 3600
+            WHERE
+              tile_id = $tile_id
+              AND source_specifier = 0
               AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
-              AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building');`,
+              AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building');
+          `,
           bind: { $tile_id: tileId },
         });
 
@@ -3134,8 +3213,11 @@ describe('events utils', () => {
       });
 
       database.exec({
-        sql: `INSERT OR IGNORE INTO unit_research (village_id, unit_id)
-              VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))`,
+        sql: `
+          INSERT OR IGNORE INTO unit_research (village_id, unit_id)
+          VALUES
+            ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))
+        `,
         bind: { $village_id: villageId, $unit: unitId },
       });
 

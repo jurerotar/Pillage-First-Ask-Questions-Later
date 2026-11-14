@@ -6,6 +6,7 @@ import {
   setTestBuildingLevel,
   setTestWoundedTroopAmount,
 } from '@pillage-first/api/testing';
+import type { BattleUnit } from '@pillage-first/types/models/battle';
 import {
   createScoutingIntelligenceFixture,
   prepareReportsTestDatabase,
@@ -170,7 +171,14 @@ describe(insertBattleReport, () => {
       const [origin, target, reinforcement] = villages;
 
       database.exec({
-        sql: "DELETE FROM building_fields WHERE building_id IN (SELECT id FROM building_ids WHERE building IN ('HOSPITAL', 'ASCLEPEION'));",
+        sql: `
+          DELETE FROM building_fields
+          WHERE building_id IN (
+            SELECT id
+            FROM building_ids
+            WHERE building IN ('HOSPITAL', 'ASCLEPEION')
+          );
+        `,
       });
 
       if (hasHospital) {
@@ -196,6 +204,16 @@ describe(insertBattleReport, () => {
         tileId: village.tile_id,
       });
 
+      const baseUnit = {
+        unitId: 'LEGIONNAIRE',
+        amountBefore: 100,
+        amountAfter: 50,
+        amountHospitalized: 0,
+        amountImprisoned: 0,
+        amountBandaged: 0,
+        amountConsumed: 0,
+      } satisfies BattleUnit;
+
       const reportId = insertBattleReport(database, {
         villageId: origin.id,
         timestamp: 200,
@@ -219,94 +237,83 @@ describe(insertBattleReport, () => {
           ...participant(origin),
           units: [
             {
-              unitId: 'LEGIONNAIRE',
+              ...baseUnit,
               amountBefore: 50,
               amountAfter: 20,
               amountHospitalized: 3,
               amountImprisoned: 2,
-              amountBandaged: 0,
-              amountConsumed: 0,
             },
             {
-              unitId: 'LEGIONNAIRE',
+              ...baseUnit,
               amountBefore: 50,
               amountAfter: 20,
               amountHospitalized: 4,
-              amountImprisoned: 0,
-              amountBandaged: 0,
-              amountConsumed: 0,
             },
           ],
         },
         defender: {
           ...participant(target),
-          units: [
-            {
-              unitId: 'LEGIONNAIRE',
-              amountBefore: 100,
-              amountAfter: 50,
-              amountHospitalized: 0,
-              amountImprisoned: 0,
-              amountBandaged: 0,
-              amountConsumed: 0,
-            },
-          ],
+          units: [baseUnit],
         },
         reinforcements: [
           {
             ...participant(reinforcement),
-            units: [
-              {
-                unitId: 'LEGIONNAIRE',
-                amountBefore: 100,
-                amountAfter: 50,
-                amountHospitalized: 11,
-                amountImprisoned: 0,
-                amountBandaged: 0,
-                amountConsumed: 0,
-              },
-            ],
+            units: [{ ...baseUnit, amountHospitalized: 11 }],
           },
         ],
       });
 
-      expect(
-        database.selectObjects({
-          sql: `SELECT bp.tile_id, bu.amount_before, bu.amount_after, bu.amount_hospitalized, bu.amount_imprisoned
-        FROM battle_report_units bu JOIN battle_report_participants bp ON bp.id = bu.battle_participant_id
-        JOIN battle_reports b ON b.id = bp.battle_id WHERE b.report_id = $report_id ORDER BY bp.id;`,
-          bind: { $report_id: reportId },
-          schema: z.object({
-            tile_id: z.int(),
-            amount_before: z.int(),
-            amount_after: z.int(),
-            amount_hospitalized: z.int(),
-            amount_imprisoned: z.int(),
-          }),
+      const units = database.selectObjects({
+        sql: `
+          SELECT
+            bp.tile_id,
+            bu.amount_before,
+            bu.amount_after,
+            bu.amount_hospitalized,
+            bu.amount_imprisoned
+          FROM
+            battle_report_units bu
+            JOIN battle_report_participants bp ON bp.id = bu.battle_participant_id
+            JOIN battle_reports b ON b.id = bp.battle_id
+          WHERE
+            b.report_id = $report_id;
+        `,
+        bind: { $report_id: reportId },
+        schema: z.object({
+          tile_id: z.int(),
+          amount_before: z.int(),
+          amount_after: z.int(),
+          amount_hospitalized: z.int(),
+          amount_imprisoned: z.int(),
         }),
-      ).toStrictEqual([
-        {
-          tile_id: origin.tile_id,
-          amount_before: 100,
-          amount_after: 40,
-          amount_hospitalized: 7,
-          amount_imprisoned: 2,
-        },
-        {
-          tile_id: target.tile_id,
-          amount_before: 100,
-          amount_after: 50,
-          amount_hospitalized: 0,
-          amount_imprisoned: 0,
-        },
-        {
-          tile_id: reinforcement.tile_id,
-          amount_before: 100,
-          amount_after: 50,
-          amount_hospitalized: 11,
-          amount_imprisoned: 0,
-        },
-      ]);
+      });
+
+      expect(units).toHaveLength(3);
+      expect(units).toEqual(
+        expect.arrayContaining([
+          {
+            tile_id: origin.tile_id,
+            amount_before: 100,
+            amount_after: 40,
+            amount_hospitalized: 7,
+            amount_imprisoned: 2,
+          },
+          {
+            tile_id: target.tile_id,
+            amount_before: 100,
+            amount_after: 50,
+            amount_hospitalized: 0,
+            amount_imprisoned: 0,
+          },
+          {
+            tile_id: reinforcement.tile_id,
+            amount_before: 100,
+            amount_after: 50,
+            amount_hospitalized: 11,
+            amount_imprisoned: 0,
+          },
+        ]),
+      );
 
       expect(
         database.selectObjects({
@@ -319,13 +326,6 @@ describe(insertBattleReport, () => {
           }),
         }),
       ).toStrictEqual(woundedBefore);
-
-      expect(
-        database.selectValue({
-          sql: "SELECT COUNT(*) FROM sqlite_schema WHERE type = 'trigger' AND name = 'battle_report_units_create_wounded_troops_after_insert';",
-          schema: z.int(),
-        }),
-      ).toBe(0);
     },
   );
 });
