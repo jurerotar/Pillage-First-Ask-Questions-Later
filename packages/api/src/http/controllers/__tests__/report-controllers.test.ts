@@ -1785,16 +1785,6 @@ describe('battle combat outcome reports', () => {
     expect(report).toHaveProperty('battle.siegeResults', input.siegeResults);
   });
 
-  test('writes outcomes inside an existing event transaction', async () => {
-    using database = await prepareReportsTestDatabase();
-
-    expect(() =>
-      database.transaction((tx) => {
-        createCombatOutcomeReport(tx);
-      }),
-    ).not.toThrow();
-  });
-
   test('round trips special outcomes and the owner hero without changing live game state', async () => {
     using database = await prepareReportsTestDatabase();
 

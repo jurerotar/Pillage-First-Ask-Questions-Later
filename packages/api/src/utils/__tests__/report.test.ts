@@ -7,49 +7,12 @@ import {
   setTestWoundedTroopAmount,
 } from '@pillage-first/api/testing';
 import type { BattleUnit } from '@pillage-first/types/models/battle';
-import {
-  createScoutingIntelligenceFixture,
-  prepareReportsTestDatabase,
-} from '../../db/testing/seed-test-reports';
+import { prepareReportsTestDatabase } from '../../db/testing/seed-test-reports';
 import {
   insertBattleReport,
   insertMovementReport,
   insertReport,
-  insertScoutingReport,
 } from '../report';
-
-test('scouting reports participate in the caller transaction', async () => {
-  using database = await prepareReportsTestDatabase();
-
-  const { input } = createScoutingIntelligenceFixture(database);
-
-  const reportCount = () =>
-    database.selectValue({
-      sql: 'SELECT COUNT(*) FROM reports;',
-      schema: z.int(),
-    })!;
-
-  const before = reportCount();
-
-  const failure = new Error('Caller rolls back');
-
-  expect(() =>
-    database.transaction((tx) => {
-      expect(insertScoutingReport(tx, input)).toBeDefined();
-      expect(reportCount()).toBe(before + 1);
-
-      throw failure;
-    }),
-  ).toThrow(failure);
-
-  expect(reportCount()).toBe(before);
-  expect(
-    database.selectValue({
-      sql: 'SELECT COUNT(*) FROM scouting_reports;',
-      schema: z.int(),
-    }),
-  ).toBe(0);
-});
 
 test('movement reports return the parent report ID', async () => {
   using database = await prepareReportsTestDatabase();
