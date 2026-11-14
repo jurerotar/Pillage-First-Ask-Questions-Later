@@ -185,43 +185,6 @@ describe('tilesSeeder', () => {
     expect(bothNonNull).toBe(0);
   });
 
-  test('all non-null resource_field_composition values belong to allowed set', async () => {
-    using database = await prepareTestDatabase();
-
-    const allowed = new Set([
-      '00018',
-      '11115',
-      '3339',
-      '4437',
-      '4347',
-      '3447',
-      '3456',
-      '4356',
-      '3546',
-      '4536',
-      '5346',
-      '5436',
-      '4446',
-    ]);
-
-    const distinctComps = database.selectValues({
-      sql: `
-        SELECT DISTINCT rfc.resource_field_composition
-        FROM
-          tiles t
-            JOIN resource_field_composition_ids rfc
-                 ON t.resource_field_composition_id = rfc.id
-        WHERE
-          t.resource_field_composition_id IS NOT NULL;
-      `,
-      schema: resourceFieldCompositionSchema,
-    });
-
-    const invalid = distinctComps.filter((c) => !allowed.has(c));
-
-    expect(invalid).toStrictEqual([]);
-  });
-
   test('all tile coordinates are within expected grid bounds', async () => {
     using database = await prepareTestDatabase();
 

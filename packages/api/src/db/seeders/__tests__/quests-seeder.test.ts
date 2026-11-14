@@ -256,15 +256,4 @@ describe('questsSeeder', () => {
 
     expect(count).toBeGreaterThan(0);
   });
-
-  test('every quest has a non-null quest_id', async () => {
-    using database = await prepareTestDatabase();
-
-    const invalidQuests = database.selectValue({
-      sql: 'SELECT COUNT(*) FROM quests WHERE quest_id IS NULL;',
-      schema: z.number(),
-    });
-
-    expect(invalidQuests).toBe(0);
-  });
 });

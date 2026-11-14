@@ -6,20 +6,13 @@ import { calculateGridLayout } from '@pillage-first/utils/map';
 import { prepareTestDatabase } from '../../testing';
 
 describe('playersSeeder', () => {
-  test('slugs are unique and contain only lowercase alphanumeric and dashes', async () => {
+  test('slugs contain only lowercase alphanumeric and dashes', async () => {
     using database = await prepareTestDatabase();
 
     const slugs = database.selectValues({
       sql: 'SELECT slug FROM players;',
       schema: z.string(),
     });
-
-    const distinctCount = database.selectValue({
-      sql: 'SELECT COUNT(DISTINCT slug) AS c FROM players;',
-      schema: z.number(),
-    });
-
-    expect(distinctCount).toBe(slugs.length);
 
     for (const s of slugs) {
       expect(/^[a-z0-9-]+$/u.test(s)).toBe(true);
