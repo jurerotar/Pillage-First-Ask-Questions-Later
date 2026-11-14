@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS wounded_troops
+CREATE TABLE wounded_troops
 (
   village_id INTEGER NOT NULL,
   unit_id INTEGER NOT NULL,
@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS wounded_troops
 
   FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE,
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id)
-) STRICT;
+) STRICT, WITHOUT ROWID;

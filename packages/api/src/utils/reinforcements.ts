@@ -89,7 +89,10 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
           jsonb_each($troops) AS troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(troop.value, '$.unitId')
-        GROUP BY unit_ids.id, tile_id, source_tile_id
+        GROUP BY
+          unit_ids.id,
+          tile_id,
+          source_tile_id
       )
       SELECT EXISTS (
         SELECT 1
@@ -99,7 +102,8 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
             ON troops.unit_id = requested_troops.unit_id
             AND troops.tile_id = requested_troops.tile_id
             AND troops.source_tile_id = requested_troops.source_tile_id
-        WHERE COALESCE(troops.amount, 0) < requested_troops.amount
+        WHERE
+          COALESCE(troops.amount, 0) < requested_troops.amount
       );
     `,
     bind: { $troops: JSON.stringify(troops) },

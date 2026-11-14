@@ -9,16 +9,14 @@ export const createLoyaltyIncreaseEvent = (
 ) => {
   const hasPendingLoyaltyIncreaseEvent = database.selectValue({
     sql: `
-      SELECT
-        EXISTS
-        (
-          SELECT 1
-          FROM
-            events
-          WHERE
-            type = 'loyaltyIncrease'
-            AND resolves_at > $now
-          ) AS event_exists;
+      SELECT EXISTS (
+        SELECT 1
+        FROM
+          events
+        WHERE
+          type = 'loyaltyIncrease'
+          AND resolves_at > $now
+      ) AS event_exists;
     `,
     bind: {
       $now: startsAt,
@@ -45,9 +43,9 @@ export const adjustLoyalty = (
   database.exec({
     sql: `
       INSERT INTO loyalties
-      VALUES
-        ($tile_id, MAX(0, MIN(100, 100 + $amount))) ON CONFLICT DO
-      UPDATE SET loyalty = MAX(0, MIN(100, loyalty + $amount))
+      VALUES ($tile_id, MAX(0, MIN(100, 100 + $amount)))
+      ON CONFLICT DO UPDATE SET
+        loyalty = MAX(0, MIN(100, loyalty + $amount))
     `,
     bind: { $tile_id: tileId, $amount: amount },
   });

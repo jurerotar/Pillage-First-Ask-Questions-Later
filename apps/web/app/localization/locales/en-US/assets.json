@@ -1418,5 +1418,46 @@
     "horseSlot": "Horse",
     "consumableSlot": "Consumable",
     "heroRevivalDuration": "Hero revival duration"
+  },
+  "REPORTS": {
+    "SIEGE": {
+      "TARGETING": {
+        "selected": "Selected target",
+        "random": "Random target",
+        "brewery": "Target randomized by Brewery",
+        "confusion": "Target randomized by confusion artefact",
+        "fallback": "Selected target unavailable"
+      },
+      "FAILURE_REASONS": {
+        "insufficient-power": "Insufficient siege power",
+        "no-surviving-siege": "No surviving siege engines",
+        "raid": "Siege engines do not fire during raids",
+        "target-missing": "No eligible building remained"
+      },
+      "OUTCOMES": {
+        "damaged": "{{buildingName}} was damaged from level {{before}} to {{after}}",
+        "destroyed": "{{buildingName}} was destroyed",
+        "undamaged": "Undamaged at level {{level}}",
+        "not-fired": "Siege engines did not fire",
+        "no-target": "No target available"
+      }
+    },
+    "SCHEDULED_CONSTRUCTION_CANCELLATION_REASONS": {
+      "missing-resources": "Not enough resources",
+      "missing-requirements": "Building requirements are not met"
+    },
+    "CONQUEST_FAILURE_REASONS": {
+      "no-surviving-administrator": "No administrator survived.",
+      "defenders-survived": "Defending troops survived.",
+      "administration-building-present": "The administration building is still standing.",
+      "target-is-capital": "The target is a capital.",
+      "target-is-last-village": "The target is the player’s last village.",
+      "insufficient-culture-points": "Not enough culture points.",
+      "no-free-expansion-slot": "No expansion slot is available.",
+      "loyalty-not-zero": "Loyalty has not reached zero.",
+      "no-surviving-hero": "The hero did not survive.",
+      "out-of-range": "The oasis is outside capture range.",
+      "no-free-oasis-slot": "No oasis slot is available."
+    }
   }
 }

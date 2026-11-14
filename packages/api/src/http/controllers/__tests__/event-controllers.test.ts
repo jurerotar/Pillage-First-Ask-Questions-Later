@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  createTestVillage,
+  prepareTestDatabase,
+} from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import {
@@ -24,40 +27,6 @@ import {
   getVillageEventsByType,
 } from '../event-controllers';
 import { createControllerArgs } from './utils/controller-args';
-
-const createPlayerVillage = (database: DbFacade, name: string) => {
-  const tileId = database.selectValue({
-    sql: `
-      SELECT id
-      FROM tiles
-      WHERE type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
-        AND id NOT IN (SELECT tile_id FROM villages)
-      ORDER BY id
-      LIMIT 1;
-    `,
-    schema: tileIdSchema,
-  })!;
-
-  const villageId = database.selectValue({
-    sql: `
-      INSERT INTO villages (name, slug, tile_id, player_id)
-      VALUES ($name, $slug, $tile_id, $player_id)
-      RETURNING id;
-    `,
-    bind: {
-      $name: name,
-      $slug: `${name.toLowerCase().replaceAll(' ', '-')}-${tileId}`,
-      $tile_id: tileId,
-      $player_id: PLAYER_ID,
-    },
-    schema: z.number(),
-  })!;
-
-  return {
-    id: villageId,
-    tileId,
-  };
-};
 
 const getVillageTileId = (database: DbFacade, villageId: number) =>
   database.selectValue({
@@ -384,8 +353,8 @@ describe('event-controllers', () => {
       }),
     })!;
 
-    const targetVillage = createPlayerVillage(database, 'Target Village');
-    const unrelatedVillage = createPlayerVillage(
+    const targetVillage = createTestVillage(database, 'Target Village');
+    const unrelatedVillage = createTestVillage(
       database,
       'Unrelated Target Village',
     );

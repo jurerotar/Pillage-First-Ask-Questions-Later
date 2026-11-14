@@ -12,6 +12,9 @@
     "directory": "packages/types"
   },
   "exports": {
+    "./dtos/combat-simulator": {
+      "default": "./src/dtos/combat-simulator.ts"
+    },
     "./models/trade-route": {
       "default": "./src/models/trade-route.ts"
     },
@@ -74,6 +77,9 @@
     },
     "./models/building": {
       "default": "./src/models/building.ts"
+    },
+    "./models/combat-simulator": {
+      "default": "./src/models/combat-simulator.ts"
     },
     "./models/developer-settings": {
       "default": "./src/models/developer-settings.ts"

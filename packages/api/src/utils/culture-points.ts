@@ -28,7 +28,7 @@ export const calculateVillageCulturePointsProduction = (
         bf.level
       FROM
         building_fields bf
-          JOIN building_ids bi ON bi.id = bf.building_id
+        JOIN building_ids bi ON bi.id = bf.building_id
       WHERE
         bf.village_id = $village_id
         AND bf.level > 0;
@@ -57,8 +57,8 @@ export const calculatePlayerCulturePointsProduction = (
         bf.level
       FROM
         building_fields bf
-          JOIN building_ids bi ON bi.id = bf.building_id
-          JOIN villages v ON v.id = bf.village_id
+        JOIN building_ids bi ON bi.id = bf.building_id
+        JOIN villages v ON v.id = bf.village_id
       WHERE
         v.player_id = $player_id
         AND bf.level > 0;
@@ -116,8 +116,10 @@ export const addPlayerCulturePoints = (
   database.exec({
     sql: `
       UPDATE culture_points
-      SET culture_points = culture_points + $culture_points
-      WHERE player_id = $player_id;
+      SET
+        culture_points = culture_points + $culture_points
+      WHERE
+        player_id = $player_id;
     `,
     bind: {
       $culture_points: culturePoints,
@@ -156,18 +158,23 @@ export const getPlayerCulturePointsRequirementContext = (
       SELECT
         (
           SELECT COUNT(*)
-          FROM villages
-          WHERE player_id = $player_id
+          FROM
+            villages
+          WHERE
+            player_id = $player_id
         ) AS villageCount,
         (
           SELECT COUNT(*)
-          FROM events e
+          FROM
+            events e
             JOIN villages v ON v.id = e.village_id
-          WHERE v.player_id = $player_id
+          WHERE
+            v.player_id = $player_id
             AND e.type = 'troopMovementFindNewVillage'
         ) AS pendingVillageCount,
         culture_points_requirement_speed AS culturePointsRequirementSpeed
-      FROM servers
+      FROM
+        servers
       LIMIT 1;
     `,
       bind: { $player_id: playerId },

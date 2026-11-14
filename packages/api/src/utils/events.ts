@@ -180,14 +180,21 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
   // batch size reuse the same cached statement. The insert remains atomic.
   database.exec({
     sql: `
-      INSERT INTO events (type, starts_at, duration, village_id, meta)
+      INSERT INTO events (
+        type,
+        starts_at,
+        duration,
+        village_id,
+        meta
+      )
       SELECT
         value ->> '$[0]',
         value ->> '$[1]',
         value ->> '$[2]',
         value ->> '$[3]',
         value ->> '$[4]'
-      FROM jsonb_each($events);
+      FROM
+        jsonb_each($events);
     `,
     bind: { $events: JSON.stringify(rows) },
   });
@@ -249,7 +256,7 @@ export const validateEventCreationPrerequisites = (
                     villages
                   WHERE
                     id = $village_id
-                  )
+                )
                 AND unit_id = (
                   SELECT
                     id
@@ -257,8 +264,8 @@ export const validateEventCreationPrerequisites = (
                     unit_ids
                   WHERE
                     unit = $unit_id
-                  )
-              ),
+                )
+            ),
             0
           ) AS current_level;
       `,
@@ -484,8 +491,10 @@ export const validateEventCreationPrerequisites = (
     const currentCageAmount = database.selectValue({
       sql: `
         SELECT COUNT(*)
-        FROM trapper_cages
-        WHERE village_id = $village_id;
+        FROM
+          trapper_cages
+        WHERE
+          village_id = $village_id;
       `,
       bind: {
         $village_id: villageId,
@@ -553,11 +562,15 @@ export const validateEventCreationPrerequisites = (
 
     const { villageTileId, playerTribe } = database.selectObject({
       sql: `
-        SELECT v.tile_id AS villageTileId, ti.tribe AS playerTribe
-        FROM villages v
-        JOIN players p ON p.id = v.player_id
-        JOIN tribe_ids ti ON ti.id = p.tribe_id
-        WHERE v.id = $village_id;
+        SELECT
+          v.tile_id AS villageTileId,
+          ti.tribe AS playerTribe
+        FROM
+          villages v
+          JOIN players p ON p.id = v.player_id
+          JOIN tribe_ids ti ON ti.id = p.tribe_id
+        WHERE
+          v.id = $village_id;
       `,
       bind: { $village_id: villageId },
       schema: z.strictObject({
@@ -652,7 +665,8 @@ export const validateEventCreationPrerequisites = (
               ON troops.unit_id = requested_troops.unit_id
               AND troops.tile_id = $tile_id
               AND troops.source_tile_id = $tile_id
-          WHERE COALESCE(troops.amount, 0) < requested_troops.amount
+          WHERE
+            COALESCE(troops.amount, 0) < requested_troops.amount
         );
       `,
       bind: {
@@ -695,18 +709,16 @@ export const validateEventCreationPrerequisites = (
 
       const hasOngoingDowngradeEvent = database.selectValue({
         sql: `
-          SELECT
-            EXISTS
-            (
-              SELECT 1
-              FROM
-                events e
-              WHERE
-                e.village_id = $village_id
-                AND e.type IN ('buildingLevelChange', 'buildingDestruction')
-                AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
-                    CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
-              ) AS event_exists;
+          SELECT EXISTS (
+            SELECT 1
+            FROM
+              events e
+            WHERE
+              e.village_id = $village_id
+              AND e.type IN ('buildingLevelChange', 'buildingDestruction')
+              AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
+                  CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
+          ) AS event_exists;
         `,
         bind: {
           $village_id: villageId,
@@ -725,11 +737,13 @@ export const validateEventCreationPrerequisites = (
       sql: `
         SELECT EXISTS (
           SELECT 1
-          FROM events e
-          JOIN villages v ON v.id = e.village_id
-          JOIN players p ON p.id = v.player_id
-          JOIN tribe_ids ti ON ti.id = p.tribe_id
-          WHERE e.village_id = $village_id
+          FROM
+            events e
+            JOIN villages v ON v.id = e.village_id
+            JOIN players p ON p.id = v.player_id
+            JOIN tribe_ids ti ON ti.id = p.tribe_id
+          WHERE
+            e.village_id = $village_id
             AND e.type IN ('buildingConstruction', 'buildingLevelChange')
             AND NOT (
               e.type = 'buildingLevelChange'
@@ -765,17 +779,15 @@ export const validateEventCreationPrerequisites = (
 
       const isBuildingFieldOccupied = database.selectValue({
         sql: `
-          SELECT
-            EXISTS
-            (
-              SELECT 1
-              FROM
-                building_fields
-              WHERE
-                village_id = $village_id
-                AND field_id = $building_field_id
-                AND level > 0
-              ) AS is_occupied;
+          SELECT EXISTS (
+            SELECT 1
+            FROM
+              building_fields
+            WHERE
+              village_id = $village_id
+              AND field_id = $building_field_id
+              AND level > 0
+          ) AS is_occupied;
         `,
         bind: {
           $village_id: villageId,
@@ -834,22 +846,20 @@ export const validateEventCreationPrerequisites = (
 
     const isHeroHome = database.selectValue({
       sql: `
-        SELECT
-          EXISTS
-          (
-            SELECT 1
-            FROM
-              heroes h
-                JOIN villages v ON v.id = h.village_id
-                JOIN troops t
-                     ON t.tile_id = v.tile_id
-                       AND t.source_tile_id = v.tile_id
-                JOIN unit_ids ui ON ui.id = t.unit_id
-            WHERE
-              h.player_id = $player_id
-              AND ui.unit = 'HERO'
-              AND t.amount > 0
-          ) AS is_hero_home;
+        SELECT EXISTS (
+          SELECT 1
+          FROM
+            heroes h
+            JOIN villages v ON v.id = h.village_id
+            JOIN troops t
+              ON t.tile_id = v.tile_id
+              AND t.source_tile_id = v.tile_id
+            JOIN unit_ids ui ON ui.id = t.unit_id
+          WHERE
+            h.player_id = $player_id
+            AND ui.unit = 'HERO'
+            AND t.amount > 0
+        ) AS is_hero_home;
       `,
       bind: { $player_id: PLAYER_ID },
       schema: z.coerce.boolean(),
@@ -1084,15 +1094,23 @@ export const runEventCreationSideEffects = (
     );
 
     database.exec({
-      sql: 'UPDATE culture_points SET celebrations_held = celebrations_held + 1 WHERE player_id = $player_id;',
+      sql: `
+        UPDATE culture_points
+        SET
+          celebrations_held = celebrations_held + 1
+        WHERE
+          player_id = $player_id;
+      `,
       bind: { $player_id: playerId },
     });
 
     database.exec({
       sql: `
         UPDATE quests
-        SET completed_at = $timestamp
-        WHERE completed_at IS NULL
+        SET
+          completed_at = $timestamp
+        WHERE
+          completed_at IS NULL
           AND village_id IS NULL
           AND quest_id GLOB 'celebrationCount-*'
           AND CAST(substr(quest_id, length('celebrationCount-') + 1) AS INTEGER)
@@ -1225,11 +1243,13 @@ export const getEventCost = (
 
     const { experience, tribe } = database.selectObject({
       sql: `
-        SELECT h.experience, ti.tribe
+        SELECT
+          h.experience,
+          ti.tribe
         FROM
           heroes h
-            JOIN players p ON h.player_id = p.id
-            JOIN tribe_ids ti ON p.tribe_id = ti.id
+          JOIN players p ON h.player_id = p.id
+          JOIN tribe_ids ti ON p.tribe_id = ti.id
         WHERE
           h.player_id = $player_id;
       `,
@@ -1635,10 +1655,12 @@ export const getEventDuration = (
 
     const { experience, speed } = database.selectObject({
       sql: `
-        SELECT h.experience, s.speed
+        SELECT
+          h.experience,
+          s.speed
         FROM
           heroes h
-            CROSS JOIN servers s
+          CROSS JOIN servers s
         WHERE
           h.player_id = $player_id;
       `,
@@ -1655,7 +1677,16 @@ export const getEventDuration = (
 
   if (isHeroHealthRegenerationEvent(event)) {
     const { healthRegeneration, speed } = database.selectObject({
-      sql: 'SELECT health_regeneration AS healthRegeneration, servers.speed FROM heroes CROSS JOIN servers WHERE player_id = $player_id;',
+      sql: `
+        SELECT
+          health_regeneration AS healthRegeneration,
+          servers.speed
+        FROM
+          heroes
+          CROSS JOIN servers
+        WHERE
+          player_id = $player_id;
+      `,
       bind: { $player_id: PLAYER_ID },
       schema: z.strictObject({
         healthRegeneration: z.number(),
@@ -1748,8 +1779,10 @@ export const getEventStartTime = (
     return database.selectValue({
       sql: `
         SELECT COALESCE(MAX(resolves_at), $now)
-        FROM events
-        WHERE type = 'troopTraining'
+        FROM
+          events
+        WHERE
+          type = 'troopTraining'
           AND (village_id = $village_id OR village_id IS NULL)
           AND json_extract(meta, '$.buildingId') = $building_id;
       `,

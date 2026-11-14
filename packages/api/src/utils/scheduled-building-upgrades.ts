@@ -209,10 +209,14 @@ const getMissingRequirementsCancellationDetail = (
 > => {
   const currentLevels = database.selectObjects({
     sql: `
-      SELECT bi.building AS buildingId, MAX(bf.level) AS level
-      FROM building_fields bf
-      JOIN building_ids bi ON bi.id = bf.building_id
-      WHERE bf.village_id = $village_id
+      SELECT
+        bi.building AS buildingId,
+        MAX(bf.level) AS level
+      FROM
+        building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+      WHERE
+        bf.village_id = $village_id
       GROUP BY bi.building;
     `,
     bind: { $village_id: scheduledUpgrade.villageId },

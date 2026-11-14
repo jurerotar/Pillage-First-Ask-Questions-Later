@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import {
   addTileToFarmList,
@@ -17,6 +18,12 @@ describe('farm-list-controllers', () => {
 
   test('should manage farm lists', async () => {
     using database = await prepareTestDatabase();
+
+    const [firstTileId, secondTileId, ...additionalTileIds] =
+      database.selectValues({
+        sql: 'SELECT id FROM tiles ORDER BY id LIMIT 101;',
+        schema: z.number(),
+      });
 
     // 1. Create a farm list
     createFarmList(
@@ -45,7 +52,7 @@ describe('farm-list-controllers', () => {
       database,
       createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
         path: { farmListId },
-        body: { tileId: 101 },
+        body: { tileId: firstTileId },
       }),
     );
 
@@ -53,7 +60,7 @@ describe('farm-list-controllers', () => {
       database,
       createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
         path: { farmListId },
-        body: { tileId: 102 },
+        body: { tileId: secondTileId },
       }),
     );
 
@@ -66,8 +73,8 @@ describe('farm-list-controllers', () => {
     );
 
     expect(farmList.name).toBe('My Farm List');
-    expect(farmList.tileIds).toContain(101);
-    expect(farmList.tileIds).toContain(102);
+    expect(farmList.tileIds).toContain(firstTileId);
+    expect(farmList.tileIds).toContain(secondTileId);
     expect(farmList.tileIds).toHaveLength(2);
 
     // 5. Unique tile IDs (INSERT OR IGNORE)
@@ -75,7 +82,7 @@ describe('farm-list-controllers', () => {
       database,
       createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
         path: { farmListId },
-        body: { tileId: 101 },
+        body: { tileId: firstTileId },
       }),
     );
 
@@ -92,7 +99,7 @@ describe('farm-list-controllers', () => {
     removeTileFromFarmList(
       database,
       createControllerArgs<'/farm-lists/:farmListId/tiles/:tileId', 'delete'>({
-        path: { farmListId, tileId: 101 },
+        path: { farmListId, tileId: firstTileId },
       }),
     );
 
@@ -103,17 +110,17 @@ describe('farm-list-controllers', () => {
       }),
     );
 
-    expect(farmList.tileIds).not.toContain(101);
+    expect(farmList.tileIds).not.toContain(firstTileId);
     expect(farmList.tileIds).toHaveLength(1);
 
     // 7. Max 100 tiles limit
     for (let i = 0; i < 99; i += 1) {
-      // We already have 1 tile (102). Adding 99 more makes it 100.
+      // Adding 99 more tiles makes it 100.
       addTileToFarmList(
         database,
         createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
           path: { farmListId },
-          body: { tileId: 1000 + i },
+          body: { tileId: additionalTileIds[i] },
         }),
       );
     }
@@ -167,6 +174,11 @@ describe('farm-list-controllers', () => {
   test('should clone farm list to another village without changing source', async () => {
     using database = await prepareTestDatabase();
 
+    const [firstTileId, secondTileId] = database.selectValues({
+      sql: 'SELECT id FROM tiles ORDER BY id LIMIT 2;',
+      schema: z.number(),
+    });
+
     createFarmList(
       database,
       createControllerArgs<'/villages/:villageId/farm-lists', 'post'>({
@@ -186,7 +198,7 @@ describe('farm-list-controllers', () => {
       database,
       createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
         path: { farmListId: sourceFarmListId },
-        body: { tileId: 301 },
+        body: { tileId: firstTileId },
       }),
     );
 
@@ -194,7 +206,7 @@ describe('farm-list-controllers', () => {
       database,
       createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
         path: { farmListId: sourceFarmListId },
-        body: { tileId: 302 },
+        body: { tileId: secondTileId },
       }),
     );
 
@@ -234,6 +246,6 @@ describe('farm-list-controllers', () => {
     expect(clonedFarmList.name).toBe('Source List');
     expect(clonedFarmList.tileIds).toStrictEqual(sourceFarmList.tileIds);
     expect(sourceFarmList.name).toBe('Source List');
-    expect(sourceFarmList.tileIds).toStrictEqual([301, 302]);
+    expect(sourceFarmList.tileIds).toStrictEqual([firstTileId, secondTileId]);
   });
 });

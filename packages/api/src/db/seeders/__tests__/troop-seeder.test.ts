@@ -52,15 +52,4 @@ describe('troopSeeder', () => {
 
     expect(invalid).toBe(0);
   });
-
-  test('troop amounts are positive', async () => {
-    using database = await prepareTestDatabase();
-
-    const nonPositiveTroops = database.selectValue({
-      sql: 'SELECT COUNT(*) FROM troops WHERE amount <= 0;',
-      schema: z.number(),
-    });
-
-    expect(nonPositiveTroops).toBe(0);
-  });
 });

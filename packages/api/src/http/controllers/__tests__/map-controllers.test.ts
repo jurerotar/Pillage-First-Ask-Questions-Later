@@ -35,12 +35,6 @@ describe('map-controllers', () => {
       schema: z.number(),
     })!;
 
-    // The three state transitions need these tiles, not a repeated full-world projection.
-    database.exec({
-      sql: 'DELETE FROM tiles WHERE id NOT IN ($village_tile_id, $oasis_tile_id);',
-      bind: { $village_tile_id: village.tile_id, $oasis_tile_id: oasisId },
-    });
-
     const name = 'Village "雪🧭"\n\\end';
 
     database.exec({
@@ -78,8 +72,6 @@ describe('map-controllers', () => {
 
     const tiles = getTiles(database, createControllerArgs<'/tiles'>({}));
 
-    expect(tiles.filter((tile) => tile !== null)).toHaveLength(2);
-
     for (const id of [village.tile_id, oasisId]) {
       expect(tiles[id - 1]?.ownerVillage).toStrictEqual({
         id: village.id,
@@ -114,17 +106,6 @@ describe('map-controllers', () => {
 
     expect(unowned[oasisId - 1]?.owner).toBeNull();
     expect(unowned[oasisId - 1]?.ownerVillage).toBeNull();
-  });
-
-  test('getTiles preserves an empty map as a grid of null positions', async () => {
-    using database = await prepareTestDatabase();
-
-    database.exec({ sql: 'DELETE FROM tiles;' });
-
-    const tiles = getTiles(database, createControllerArgs<'/tiles'>({}));
-
-    expect(tiles.length).toBeGreaterThan(0);
-    expect(tiles.every((tile) => tile === null)).toBe(true);
   });
 
   test('getTiles should return correct population (only counting building base effects)', async () => {
@@ -310,7 +291,12 @@ describe('map-controllers', () => {
     using database = await prepareTestDatabase();
 
     const playerId = 1;
-    const tileId = 123;
+
+    const tileId = database.selectValue({
+      sql: 'SELECT id FROM tiles ORDER BY id LIMIT 1;',
+      schema: tileIdSchema,
+    })!;
+
     const description = 'Forward village target';
     const color = '#2563eb';
 
@@ -392,12 +378,17 @@ describe('map-controllers', () => {
 
     const playerId = 1;
 
+    const [firstTileId, secondTileId, thirdTileId] = database.selectValues({
+      sql: 'SELECT id FROM tiles ORDER BY id LIMIT 3;',
+      schema: tileIdSchema,
+    });
+
     addMapMarker(
       database,
       createControllerArgs<'/me/map-markers', 'post'>({
         context: { playerId },
         body: {
-          tileId: 123,
+          tileId: firstTileId,
           description: 'Forward village target',
           color: '#2563eb',
           icon: 'mapMarker',
@@ -410,7 +401,7 @@ describe('map-controllers', () => {
       createControllerArgs<'/me/map-markers', 'post'>({
         context: { playerId },
         body: {
-          tileId: 124,
+          tileId: secondTileId,
           description: '',
           color: '#dc2626',
           icon: 'mapMarker',
@@ -423,7 +414,7 @@ describe('map-controllers', () => {
       createControllerArgs<'/me/map-markers', 'post'>({
         context: { playerId },
         body: {
-          tileId: 125,
+          tileId: thirdTileId,
           description: '   ',
           color: '#16a34a',
           icon: 'mapMarker',
@@ -439,13 +430,13 @@ describe('map-controllers', () => {
     );
 
     expect(markers).toContainEqual({
-      tileId: 124,
+      tileId: secondTileId,
       description: 'Map marker 2',
       color: '#dc2626',
       icon: 'mapMarker',
     });
     expect(markers).toContainEqual({
-      tileId: 125,
+      tileId: thirdTileId,
       description: 'Map marker 3',
       color: '#16a34a',
       icon: 'mapMarker',

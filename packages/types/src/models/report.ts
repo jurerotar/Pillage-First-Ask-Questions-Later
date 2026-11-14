@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { battleSchema } from './battle';
+import { battleReportBattleDtoSchema } from '../dtos/battle-report';
 import { buildingIdSchema } from './building';
 import { coordinatesSchema } from './coordinates';
 import { resourceBundleSchema } from './resource';
@@ -74,7 +74,7 @@ export const battleReportSummarySchema = z.strictObject({
 export const battleReportSchema = baseReportSchema.extend({
   type: z.literal('battle'),
   summary: battleReportSummarySchema,
-  battle: battleSchema,
+  battle: battleReportBattleDtoSchema,
 });
 
 export const adventureReportSchema = baseReportSchema.extend({

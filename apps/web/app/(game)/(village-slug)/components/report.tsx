@@ -6,17 +6,10 @@ import {
   useMemo,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  LuArrowLeft,
-  LuChevronLeft,
-  LuChevronRight,
-  LuChevronsLeft,
-  LuChevronsRight,
-} from 'react-icons/lu';
-import { Link, useLocation } from 'react-router';
+import { Link } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
-import type { BattleParticipant } from '@pillage-first/types/models/battle';
+import type { CombatSimulatorReportDto } from '@pillage-first/types/dtos/combat-simulator';
 import type {
   AdventureReport,
   BattleReport,
@@ -32,6 +25,7 @@ import type {
   VillageFoundedReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
+import { calculateBattleUnitCasualties } from '@pillage-first/utils/game/combat';
 import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
@@ -50,9 +44,11 @@ import {
   UnitTableWheatConsumption,
 } from 'app/(game)/components/unit-table';
 import { Icon } from 'app/components/icon';
-import type { IconType } from 'app/components/icons/icons';
+import {
+  type IconType,
+  unitIdToUnitIconMapper,
+} from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
-import { buttonVariants } from 'app/components/ui/cvas/button-cva';
 import {
   Table,
   TableBody,
@@ -61,9 +57,10 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
+import { SiegeResultInformation } from './siege-result-information';
 
 type ReportContextState = {
-  report: ReportType;
+  report: ReportType | CombatSimulatorReportDto;
 };
 
 const ReportContext = createContext<ReportContextState>(
@@ -71,124 +68,7 @@ const ReportContext = createContext<ReportContextState>(
 );
 
 type ReportProps = {
-  report: ReportType;
-};
-
-export const ReportsBackButton = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
-  const label = t('Back');
-
-  return (
-    <Link
-      to={{
-        pathname: '../reports',
-        search: location.search,
-      }}
-      className={buttonVariants({ variant: 'outline', size: 'icon' })}
-      aria-label={label}
-      title={label}
-      data-tooltip-id="general-tooltip"
-      data-tooltip-content={label}
-    >
-      <LuArrowLeft />
-    </Link>
-  );
-};
-
-type ReportNavigationButtonProps = {
-  children: ReactNode;
-  label: string;
-  reportId: number | null;
-};
-
-export const ReportNavigationButton = ({
-  children,
-  label,
-  reportId,
-}: ReportNavigationButtonProps) => {
-  const location = useLocation();
-  const isDisabled = reportId === null;
-
-  const className = buttonVariants({ variant: 'outline', size: 'icon' });
-
-  if (isDisabled) {
-    return (
-      <button
-        type="button"
-        disabled
-        className={className}
-        aria-label={label}
-        title={label}
-        data-tooltip-id="general-tooltip"
-        data-tooltip-content={label}
-      >
-        {children}
-      </button>
-    );
-  }
-
-  return (
-    <Link
-      to={{ pathname: `../reports/${reportId}`, search: location.search }}
-      className={className}
-      aria-label={label}
-      title={label}
-      data-tooltip-id="general-tooltip"
-      data-tooltip-content={label}
-    >
-      {children}
-    </Link>
-  );
-};
-
-type ReportNavigationButtonsProps = {
-  previousReportId: number | null;
-  nextReportId: number | null;
-  previousUnreadReportId: number | null;
-  nextUnreadReportId: number | null;
-};
-
-export const ReportNavigationButtons = ({
-  previousReportId,
-  nextReportId,
-  previousUnreadReportId,
-  nextUnreadReportId,
-}: ReportNavigationButtonsProps) => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex flex-1 items-center justify-between gap-2">
-      <div className="flex items-center gap-1">
-        <ReportNavigationButton
-          label={t('Previous unread')}
-          reportId={previousUnreadReportId}
-        >
-          <LuChevronsLeft />
-        </ReportNavigationButton>
-        <ReportNavigationButton
-          label={t('Previous')}
-          reportId={previousReportId}
-        >
-          <LuChevronLeft />
-        </ReportNavigationButton>
-      </div>
-      <div className="flex items-center gap-1">
-        <ReportNavigationButton
-          label={t('Next')}
-          reportId={nextReportId}
-        >
-          <LuChevronRight />
-        </ReportNavigationButton>
-        <ReportNavigationButton
-          label={t('Next unread')}
-          reportId={nextUnreadReportId}
-        >
-          <LuChevronsRight />
-        </ReportNavigationButton>
-      </div>
-    </div>
-  );
+  report: ReportType | CombatSimulatorReportDto;
 };
 
 export const Report = ({
@@ -217,6 +97,10 @@ export const ReportHeader = ({ actions }: ReportHeaderProps) => {
   const { t } = useTranslation();
   const { report } = use(ReportContext);
 
+  if ('combatMode' in report) {
+    return <Text as="h2">{t('Combat report')}</Text>;
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <Text as="h1">{getReportSubject(report, t)}</Text>
@@ -233,8 +117,17 @@ export const ReportHeader = ({ actions }: ReportHeaderProps) => {
   );
 };
 
+type BattleTableParticipant = {
+  troops: Pick<
+    BattleReport['battle']['attacker']['troops'],
+    'tribe' | 'units' | 'hero'
+  >;
+  player?: BattleReport['battle']['attacker']['player'];
+  village?: BattleReport['battle']['attacker']['village'];
+};
+
 type BattleParticipantTableProps = {
-  participant: BattleParticipant;
+  participant: BattleTableParticipant;
   // It cannot be named "role" because it overlaps with native HTML attribute
   participantRole: 'attacker' | 'defender' | 'reinforcement';
 };
@@ -283,9 +176,8 @@ export const BattleParticipantTable = ({
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext);
 
-  const report = _report as BattleReport;
-  const { canAttackerSeeFullReport, loot, totalCarryCapacity } =
-    report.battle.outcome;
+  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const { loot, totalCarryCapacity } = report.battle.outcome;
   const { troops, player, village } = participant;
 
   const {
@@ -295,9 +187,10 @@ export const BattleParticipantTable = ({
     troopsHospitalized,
     troopsImprisoned,
   } = useMemo(() => {
+    const units = troops.units ?? [];
     const troopsBefore = sortTroops(
       troops.tribe,
-      troops.units.map(({ unitId, amountBefore }) => ({
+      units.map(({ unitId, amountBefore }) => ({
         unitId,
         amount: amountBefore,
       })),
@@ -305,7 +198,7 @@ export const BattleParticipantTable = ({
 
     const troopsAfter = sortTroops(
       troops.tribe,
-      troops.units.map(({ unitId, amountAfter }) => ({
+      units.map(({ unitId, amountAfter }) => ({
         unitId,
         amount: amountAfter,
       })),
@@ -313,23 +206,23 @@ export const BattleParticipantTable = ({
 
     const troopsLost = sortTroops(
       troops.tribe,
-      troops.units.map(({ unitId, amountBefore, amountAfter }) => ({
-        unitId,
-        amount: amountBefore - amountAfter,
+      units.map((unit) => ({
+        unitId: unit.unitId,
+        amount: calculateBattleUnitCasualties(unit),
       })),
     );
 
     const troopsHospitalized = sortTroops(
       troops.tribe,
-      troops.units.map(({ unitId, amountHospitalized }) => ({
+      units.map(({ unitId, amountHospitalized, amountBandaged }) => ({
         unitId,
-        amount: amountHospitalized,
+        amount: (amountHospitalized ?? 0) + (amountBandaged ?? 0),
       })),
     );
 
     const troopsImprisoned = sortTroops(
       troops.tribe,
-      troops.units.map(({ unitId, amountImprisoned }) => ({
+      units.map(({ unitId, amountImprisoned }) => ({
         unitId,
         amount: amountImprisoned,
       })),
@@ -348,24 +241,15 @@ export const BattleParticipantTable = ({
   let totalHospitalized = 0;
   let totalImprisoned = 0;
 
-  for (const {
-    amountBefore,
-    amountAfter,
-    amountHospitalized,
-    amountImprisoned,
-  } of troops.units) {
-    totalLosses += amountBefore - amountAfter;
-    totalHospitalized += amountHospitalized;
-    totalImprisoned += amountImprisoned;
+  for (const unit of troops.units ?? []) {
+    totalLosses += calculateBattleUnitCasualties(unit);
+    totalHospitalized +=
+      (unit.amountHospitalized ?? 0) + (unit.amountBandaged ?? 0);
+    totalImprisoned += unit.amountImprisoned;
   }
 
-  const isReportParticipant = participant.village.id === report.villageId;
-
-  const canSeeTroopDetails =
-    isReportParticipant ||
-    participantRole === 'attacker' ||
-    canAttackerSeeFullReport;
-  const canSeeHospitalizedTroops = isReportParticipant;
+  const isSimulatorReport = 'playerRole' in report;
+  const canSeeTroopDetails = troops.units !== null;
   const canSeeImprisonedTroops = canSeeTroopDetails && totalImprisoned > 0;
 
   return (
@@ -373,12 +257,14 @@ export const BattleParticipantTable = ({
       <UnitTableTitle>
         {participantRole === 'attacker' ? t('Attacker') : t('Defender')}
       </UnitTableTitle>
-      <UnitTablePlayer
-        playerName={player.name}
-        playerSlug={player.slug}
-        tileName={village.name}
-        coordinates={village.coordinates}
-      />
+      {player && village && (
+        <UnitTablePlayer
+          playerName={player.name}
+          playerSlug={player.slug}
+          tileName={village.name}
+          coordinates={village.coordinates}
+        />
+      )}
       <UnitTableUnitIcons />
 
       {!canSeeTroopDetails ? (
@@ -397,7 +283,7 @@ export const BattleParticipantTable = ({
             troops={troopsLost}
             textColor="text-red-500"
           />
-          {canSeeHospitalizedTroops && (
+          {totalHospitalized > 0 && (
             <UnitTableRow
               label={t('Hospitalized')}
               troops={troopsHospitalized}
@@ -427,7 +313,7 @@ export const BattleParticipantTable = ({
                 />
                 {formatNumber(totalLosses)}
               </span>
-              {canSeeHospitalizedTroops && (
+              {totalHospitalized > 0 && (
                 <span
                   className="inline-flex items-center gap-2"
                   title={t('Hospitalized')}
@@ -456,71 +342,214 @@ export const BattleParticipantTable = ({
         </>
       )}
 
+      {troops.hero !== null && (
+        <UnitTableContentRow label={t('Hero')}>
+          <div className="flex items-center gap-4">
+            <Text>
+              {t('Health')}: {troops.hero.healthBefore}% →{' '}
+              {troops.hero.healthAfter}%{' '}
+              {troops.hero.healthAfter === 0 && t('(Died)')}
+            </Text>
+            <Text>
+              {t('Experience gained')}:{' '}
+              {formatNumber(troops.hero.experienceGained)}
+            </Text>
+          </div>
+        </UnitTableContentRow>
+      )}
+
       {participantRole === 'attacker' && (
         <>
-          {report.battle.damagedBuildings.length > 0 && (
-            <UnitTableContentRow label={t('Damaged buildings')}>
-              <div className="flex flex-col gap-1">
-                {report.battle.damagedBuildings.map(
-                  ({ buildingId, levelBefore, levelAfter }) => {
-                    const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
-                    const reportText =
-                      levelAfter === 0
-                        ? t('{{buildingName}} was destroyed', { buildingName })
-                        : t(
-                            '{{buildingName}} was damaged from level {{levelBefore}} to level {{levelAfter}}',
-                            {
-                              buildingName,
-                              levelBefore,
-                              levelAfter,
-                            },
-                          );
-
-                    return (
-                      <Text
-                        key={`${buildingId}:${levelBefore}:${levelAfter}`}
-                        className="text-sm"
-                      >
-                        {reportText}
-                      </Text>
-                    );
-                  },
-                )}
-              </div>
-            </UnitTableContentRow>
-          )}
-          <UnitTableLoot
-            loot={loot}
-            totalCarryCapacity={totalCarryCapacity}
+          <BattleInformationRow
+            outcome={report.battle.outcome}
+            siegeResults={report.battle.siegeResults}
           />
-          {report.battle.outcome.itemId !== null &&
-            report.battle.outcome.itemAmount !== null && (
-              <ReportItemFooterRow>
-                <ReportItem
-                  itemId={report.battle.outcome.itemId}
-                  itemAmount={report.battle.outcome.itemAmount}
-                />
-              </ReportItemFooterRow>
-            )}
+          {!isSimulatorReport && (
+            <UnitTableLoot
+              loot={loot}
+              totalCarryCapacity={totalCarryCapacity}
+            />
+          )}
         </>
       )}
     </UnitTable>
   );
 };
 
+type BattleInformationRowProps = {
+  outcome: BattleReport['battle']['outcome'];
+  siegeResults: BattleReport['battle']['siegeResults'];
+};
+
+const BattleInformationRow = ({
+  outcome,
+  siegeResults,
+}: BattleInformationRowProps) => {
+  const { t } = useTranslation();
+  const entries = new Map<string, ReactNode>();
+
+  if (siegeResults === null) {
+    return null;
+  }
+
+  for (const [index, result] of siegeResults.entries()) {
+    // Results are an immutable ordered list; identical hits must remain separate.
+    entries.set(`siege:${index}`, <SiegeResultInformation result={result} />);
+  }
+
+  if (outcome.loyaltyBefore !== null && outcome.loyaltyAfter !== null) {
+    entries.set(
+      'loyalty',
+      <>
+        {t('Loyalty')}: {outcome.loyaltyBefore}% → {outcome.loyaltyAfter}%
+      </>,
+    );
+  }
+
+  if (outcome.conquest !== null) {
+    entries.set(
+      'conquest',
+      <>
+        {outcome.conquest.target === 'oasis'
+          ? t('Oasis capture')
+          : t('Village conquest')}
+        : {outcome.conquest.succeeded ? t('Successful') : t('Unsuccessful')}
+        {outcome.conquest.failureReason !== null && (
+          <>
+            .{' '}
+            {t(
+              `REPORTS.CONQUEST_FAILURE_REASONS.${outcome.conquest.failureReason}`,
+            )}
+          </>
+        )}
+      </>,
+    );
+  }
+
+  if (outcome.villageDestroyed) {
+    entries.set('village-destroyed', t('The village was destroyed.'));
+  }
+
+  if (outcome.rescuedUnits !== null && outcome.rescuedUnits.length > 0) {
+    let totalFreed = 0;
+    let totalDied = 0;
+
+    for (const unit of outcome.rescuedUnits) {
+      totalFreed += unit.amountFreed;
+      totalDied += unit.amountDied;
+    }
+
+    entries.set(
+      'rescued-units',
+      t(
+        '{{freed}} freed, {{died}} died during rescue, {{returning}} returning home',
+        {
+          freed: formatNumber(totalFreed),
+          died: formatNumber(totalDied),
+          returning: formatNumber(totalFreed - totalDied),
+        },
+      ),
+    );
+  }
+
+  if (outcome.capturedAnimals !== null && outcome.capturedAnimals.length > 0) {
+    entries.set(
+      'captured-animals',
+      <div className="flex flex-wrap items-center gap-2">
+        <span>{t('Animals captured')}:</span>
+        {outcome.capturedAnimals.map(({ unitId, amount }) => (
+          <span
+            key={unitId}
+            className="inline-flex items-center gap-1"
+          >
+            <Icon
+              type={unitIdToUnitIconMapper(unitId)}
+              className="size-5"
+            />
+            {formatNumber(amount)}
+          </span>
+        ))}
+      </div>,
+    );
+  }
+
+  for (const { itemId, amount } of outcome.stolenItems ?? []) {
+    entries.set(
+      `item:${itemId}`,
+      <>
+        {t('Items stolen')}:{' '}
+        <ReportItem
+          itemId={itemId}
+          itemAmount={amount}
+        />
+      </>,
+    );
+  }
+
+  if (entries.size === 0) {
+    return null;
+  }
+
+  return (
+    <UnitTableContentRow label={t('Information')}>
+      <div className="flex flex-col gap-1 text-sm">
+        {Array.from(entries, ([key, entry]) => (
+          <div key={key}>{entry}</div>
+        ))}
+      </div>
+    </UnitTableContentRow>
+  );
+};
+
+export const BattleReportTables = () => {
+  const { report: _report } = use(ReportContext);
+  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const participants =
+    'playerRole' in report
+      ? {
+          attacker: { troops: report.battle.attacker },
+          defender: { troops: report.battle.defender },
+          reinforcements: report.battle.defender.reinforcements.map(
+            ({ id, ...troops }) => ({ key: id, participant: { troops } }),
+          ),
+        }
+      : {
+          attacker: report.battle.attacker,
+          defender: report.battle.defender,
+          reinforcements: report.battle.defender.reinforcements.map(
+            (participant) => ({ key: participant.troops.id, participant }),
+          ),
+        };
+
+  return (
+    <>
+      <BattleParticipantTable
+        participant={participants.attacker}
+        participantRole="attacker"
+      />
+      <BattleParticipantTable
+        participant={participants.defender}
+        participantRole="defender"
+      />
+      {participants.reinforcements.map(({ key, participant }) => (
+        <BattleParticipantTable
+          key={key}
+          participant={participant}
+          participantRole="reinforcement"
+        />
+      ))}
+      <BattleStatisticsTable />
+    </>
+  );
+};
+
 type StatisticsRowProps = {
   name: string;
   icons: [attacker: IconType, defender: IconType];
-  values: [attacker: number, defender: number];
-  showDefendingUnits: boolean;
+  values: [attacker: number, defender: number | null];
 };
 
-const StatisticsRow = ({
-  name,
-  icons,
-  values,
-  showDefendingUnits,
-}: StatisticsRowProps) => (
+const StatisticsRow = ({ name, icons, values }: StatisticsRowProps) => (
   <TableRow>
     <TableCell className="text-left">{name}</TableCell>
     <TableCell className="text-left">
@@ -538,7 +567,7 @@ const StatisticsRow = ({
           type={icons[1]}
           className="size-5"
         />
-        {showDefendingUnits ? formatNumber(Math.round(values[1])) : '?'}
+        {values[1] === null ? '?' : formatNumber(Math.round(values[1]))}
       </span>
     </TableCell>
   </TableRow>
@@ -548,31 +577,30 @@ export const BattleStatisticsTable = () => {
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext);
 
-  const report = _report as BattleReport;
-  const { statistics, outcome } = report.battle;
+  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const { statistics } = report.battle;
   const { attacker, defender } = statistics;
-  const showDefendingUnits = outcome.canAttackerSeeFullReport;
 
-  const rows: Omit<StatisticsRowProps, 'showDefendingUnits'>[] = [
+  const rows: StatisticsRowProps[] = [
     {
       name: t('Combat strength'),
       icons: ['attack', 'defence'],
-      values: [attacker.points, defender.points],
+      values: [attacker.points, defender?.points ?? null],
     },
     {
       name: t('Supply before'),
       icons: ['wheat', 'wheat'],
-      values: [attacker.supplyBefore, defender.supplyBefore],
+      values: [attacker.supplyBefore, defender?.supplyBefore ?? null],
     },
     {
       name: t('Supply lost'),
       icons: ['wheat', 'wheat'],
-      values: [attacker.supplyLost, defender.supplyLost],
+      values: [attacker.supplyLost, defender?.supplyLost ?? null],
     },
     {
       name: t('Resources lost'),
       icons: ['unitCarryCapacity', 'unitCarryCapacity'],
-      values: [attacker.resourcesLost, defender.resourcesLost],
+      values: [attacker.resourcesLost, defender?.resourcesLost ?? null],
     },
   ];
 
@@ -601,7 +629,6 @@ export const BattleStatisticsTable = () => {
             <StatisticsRow
               key={row.name}
               {...row}
-              showDefendingUnits={showDefendingUnits}
             />
           ))}
         </TableBody>
@@ -1239,10 +1266,9 @@ export const ScheduledConstructionCancellationReportTable = () => {
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext);
   const report = _report as ScheduledConstructionCancellationReport;
-  const reason =
-    report.reason === 'missing-resources'
-      ? t('Not enough resources')
-      : t('Building requirements are not met');
+  const reason = t(
+    `REPORTS.SCHEDULED_CONSTRUCTION_CANCELLATION_REASONS.${report.reason}`,
+  );
 
   return (
     <OverflowContainer>

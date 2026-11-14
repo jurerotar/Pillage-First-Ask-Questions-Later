@@ -1,3 +1,3 @@
-CREATE TABLE IF NOT EXISTS meta (
+CREATE TABLE meta (
   last_write INTEGER NOT NULL
 );
