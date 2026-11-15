@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   FaDownload,
   FaEllipsisVertical,
+  FaShareNodes,
   FaSpinner,
   FaTrash,
 } from 'react-icons/fa6';
@@ -9,7 +10,11 @@ import { IoCopyOutline } from 'react-icons/io5';
 import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
-import { parseAppVersion } from '@pillage-first/utils/version';
+import {
+  encodeAppVersionToDatabaseUserVersion,
+  isSupportedDatabaseUserVersion,
+} from '@pillage-first/utils/version';
+import { ShareGameWorldDialog } from 'app/(public)/(game-worlds)/(index)/components/share-game-world-dialog';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -30,6 +35,7 @@ type ServerCardProps = {
 export const ServerCard = ({ server }: ServerCardProps) => {
   const intl = useIntl();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const {
     exportGameWorld,
     isExportGameWorldPending,
@@ -50,11 +56,10 @@ export const ServerCard = ({ server }: ServerCardProps) => {
 
   const gameWorldVersion = server.version ?? '0.0.0';
 
-  const [appMajor, appMinor] = parseAppVersion(appVersion);
-  const [gameWorldMajor, gameWorldMinor] = parseAppVersion(gameWorldVersion);
-
-  const shouldDisplayGameWorldOutdatedAlert =
-    appMajor !== gameWorldMajor || appMinor !== gameWorldMinor;
+  const shouldDisplayGameWorldOutdatedAlert = !isSupportedDatabaseUserVersion(
+    encodeAppVersionToDatabaseUserVersion(gameWorldVersion),
+    appVersion,
+  );
 
   return (
     <div
@@ -65,28 +70,42 @@ export const ServerCard = ({ server }: ServerCardProps) => {
         open={isActionsOpen}
         onOpenChange={setIsActionsOpen}
       >
-        <PopoverTrigger asChild>
-          <Button
-            aria-label="Game world actions"
-            aria-busy={isActionPending}
-            className="absolute right-2 top-2 rounded-full border-border/70 bg-background/80 shadow-sm backdrop-blur-sm"
-            disabled={isActionPending}
-            size="icon"
-            variant="outline"
-          >
-            {isActionPending ? (
-              <FaSpinner className="animate-spin" />
-            ) : (
-              <FaEllipsisVertical />
-            )}
-          </Button>
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <Button
+              aria-label="Game world actions"
+              aria-busy={isActionPending}
+              className="absolute right-2 top-2 rounded-full border-border/70 bg-background/80 shadow-sm backdrop-blur-sm"
+              disabled={isActionPending}
+              size="icon"
+              variant="outline"
+            >
+              {isActionPending ? (
+                <FaSpinner className="animate-spin" />
+              ) : (
+                <FaEllipsisVertical />
+              )}
+            </Button>
+          }
+        />
         <PopoverContent
           align="end"
           className="rounded-lg p-1 shadow-xl"
           side="bottom"
         >
           <div className="flex flex-col">
+            <Button
+              className="h-8 justify-start gap-2 px-2 text-xs"
+              disabled={isActionPending}
+              variant="ghost"
+              onClick={() => {
+                setIsActionsOpen(false);
+                setIsShareOpen(true);
+              }}
+            >
+              <FaShareNodes className="text-gray-400 size-3.5" />
+              Share game world
+            </Button>
             <Button
               className="h-8 justify-start gap-2 px-2 text-xs"
               disabled={isActionPending}
@@ -144,6 +163,11 @@ export const ServerCard = ({ server }: ServerCardProps) => {
           </div>
         </PopoverContent>
       </Popover>
+      <ShareGameWorldDialog
+        server={server}
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+      />
       <Text as="h2">{server.name}</Text>
       <div className="flex gap-2 flex-wrap">
         <Badge variant="successive">{server.configuration.speed}x</Badge>
@@ -151,7 +175,13 @@ export const ServerCard = ({ server }: ServerCardProps) => {
         <Badge variant="successive">
           {server.configuration.mapSize}x{server.configuration.mapSize}
         </Badge>
-        <Badge variant="successive">v{gameWorldVersion}</Badge>
+        <Badge
+          variant={
+            shouldDisplayGameWorldOutdatedAlert ? 'destructive' : 'successive'
+          }
+        >
+          v{gameWorldVersion}
+        </Badge>
       </div>
       <div className="flex gap-2 flex-wrap">
         <span className="flex gap-2">
@@ -167,20 +197,22 @@ export const ServerCard = ({ server }: ServerCardProps) => {
       </div>
       {shouldDisplayGameWorldOutdatedAlert && (
         <Alert variant="error">
-          This game world is incompatible with the latest version of the app. In
-          case of error, create a new game world. Check the{' '}
+          This game world is incompatible with the latest version of the app.
+          Check out{' '}
           <Link
             className="underline"
-            to="../latest-updates"
+            to="/frequently-asked-questions#updating-game-worlds-to-latest-version"
           >
-            latest updates page
+            frequently asked questions
           </Link>{' '}
           for more information.
         </Alert>
       )}
-      <Link to={`/game/${server.slug}/v-1/resources`}>
-        <Button variant="default">Enter server</Button>
-      </Link>
+      {!shouldDisplayGameWorldOutdatedAlert && (
+        <Link to={`/game/${server.slug}/v-1/resources`}>
+          <Button variant="default">Enter</Button>
+        </Link>
+      )}
     </div>
   );
 };

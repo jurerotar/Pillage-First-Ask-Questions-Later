@@ -1,9 +1,12 @@
-import type { z } from 'zod';
+import { z } from 'zod';
+import { oasisDtoSchema } from '@pillage-first/types/dtos/oasis';
 import {
   playerVillageDtoSchema,
+  playerVillageListingDtoSchema,
   playerVillageWithPopulationDtoSchema,
   sentReinforcementDtoSchema,
   villageTroopDtoSchema,
+  villageUnitCountDtoSchema,
   woundedTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import type {
@@ -11,11 +14,21 @@ import type {
   getSentReinforcementsByTileSchema,
   getStationedTroopsByTileSchema,
   getVillagesByPlayerSchema,
+  getVillageUnitCountSchema,
   getWoundedTroopsByVillageSchema,
 } from '../schemas/player-schemas';
 
 export const mapPlayerVillage = (
-  row: z.infer<typeof getVillagesByPlayerSchema>,
+  row: Pick<
+    z.infer<typeof getVillagesByPlayerSchema>,
+    | 'id'
+    | 'tile_id'
+    | 'coordinates_x'
+    | 'coordinates_y'
+    | 'name'
+    | 'slug'
+    | 'resource_field_composition'
+  >,
 ): z.infer<typeof playerVillageDtoSchema> => {
   const dto = {
     id: row.id,
@@ -29,13 +42,27 @@ export const mapPlayerVillage = (
   return playerVillageDtoSchema.parse(dto);
 };
 
+export const mapPlayerVillageListing = (
+  row: z.infer<typeof getVillagesByPlayerSchema>,
+): z.infer<typeof playerVillageListingDtoSchema> => {
+  return playerVillageListingDtoSchema.parse({
+    ...mapPlayerVillage(row),
+    population: row.population,
+  });
+};
+
 export const mapPlayerVillageWithPopulation = (
   row: z.infer<typeof getPlayerVillagesWithPopulationSchema>,
 ): z.infer<typeof playerVillageWithPopulationDtoSchema> => {
+  const occupiedOasis = z
+    .array(oasisDtoSchema)
+    .parse(JSON.parse(row.occupied_oasis_json));
+
   const base = mapPlayerVillage(row);
   const dto = {
     ...base,
     population: row.population,
+    occupiedOasis,
   };
   return playerVillageWithPopulationDtoSchema.parse(dto);
 };
@@ -44,13 +71,24 @@ export const mapVillageTroop = (
   row: z.infer<typeof getStationedTroopsByTileSchema>,
 ): z.infer<typeof villageTroopDtoSchema> => {
   const dto = {
+    canRelocate: row.can_relocate === 1,
     unitId: row.unit_id,
     amount: row.amount,
     tileId: row.tile_id,
-    source: row.source_tile_id,
+    sourceTileId: row.source_tile_id,
     sourceTileType: row.source_tile_type,
   };
   return villageTroopDtoSchema.parse(dto);
+};
+
+export const mapVillageUnitCount = (
+  row: z.infer<typeof getVillageUnitCountSchema>,
+): z.infer<typeof villageUnitCountDtoSchema> => {
+  return villageUnitCountDtoSchema.parse({
+    atHome: row.at_home,
+    inTransit: row.in_transit,
+    stationedAway: row.stationed_away,
+  });
 };
 
 export const mapWoundedTroop = (
@@ -67,6 +105,7 @@ const mapSentReinforcement = (
   row: z.infer<typeof getSentReinforcementsByTileSchema>,
 ): z.infer<typeof sentReinforcementDtoSchema> => {
   const dto = {
+    canRelocate: row.can_relocate === 1,
     targetType: row.target_type,
     village: playerVillageDtoSchema.parse({
       id: row.village_id,
@@ -78,6 +117,7 @@ const mapSentReinforcement = (
     }),
     troops: [
       mapVillageTroop({
+        can_relocate: row.can_relocate,
         unit_id: row.unit_id,
         amount: row.amount,
         tile_id: row.tile_id,

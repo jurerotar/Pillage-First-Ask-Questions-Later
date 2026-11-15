@@ -1,14 +1,81 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
+import {
+  calculateResourceSiteResourcesAt,
+  getVillageTileId,
+} from '../../../../utils/village';
 import { troopTrainingEventResolver } from '../troop-resolvers';
 
 describe(troopTrainingEventResolver, () => {
+  test('should apply new troop upkeep only after training completes', async () => {
+    using database = await prepareTestDatabase();
+    const tileId = getVillageTileId(database, 1);
+    const startsAt = 1_000_000;
+    const resolvesAt = startsAt + 3_600_000;
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE effect_id IN (
+          SELECT id FROM effect_ids
+          WHERE effect IN ('wheatProduction', 'unitWheatConsumption')
+        );
+      `,
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id)
+        SELECT ei.id, input.value, et.id, es.id, eso.id, $tile_id
+        FROM (
+          SELECT 'building' AS source, 100 AS value
+          UNION ALL SELECT 'troops', 0
+        ) input
+        JOIN effect_source_ids eso ON eso.source = input.source
+        JOIN effect_ids ei ON ei.effect = 'wheatProduction'
+        JOIN effect_type_ids et ON et.type = 'base'
+        JOIN effect_scope_ids es ON es.scope = 'local';
+      `,
+      bind: { $tile_id: tileId },
+    });
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wheat = 100, updated_at = $starts_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: { $tile_id: tileId, $starts_at: startsAt },
+    });
+
+    troopTrainingEventResolver(
+      database,
+      createTroopTrainingEventMock({
+        villageId: 1,
+        unitId: 'LEGIONNAIRE',
+        startsAt,
+        duration: 3_600_000,
+        resolvesAt,
+      }),
+    );
+
+    expect(
+      calculateResourceSiteResourcesAt(database, tileId, resolvesAt)
+        .currentWheat,
+    ).toBe(200);
+    expect(
+      calculateResourceSiteResourcesAt(database, tileId, resolvesAt + 3_600_000)
+        .currentWheat,
+    ).toBe(299);
+  });
+
   test('should increase troop count and update wheat consumption', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const unitId: Unit['id'] = 'LEGIONNAIRE';
 
@@ -16,7 +83,7 @@ describe(troopTrainingEventResolver, () => {
     const villageTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: villageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const mockEvent = createTroopTrainingEventMock({
@@ -52,7 +119,7 @@ describe(troopTrainingEventResolver, () => {
       sql: `
         SELECT value
         FROM effects
-        WHERE village_id = $village_id
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND effect_id = $effect_id;
       `,
@@ -112,6 +179,7 @@ describe(troopTrainingEventResolver, () => {
       bind: { $batch_id: batchId, $unit_id: unitId },
       schema: z.number(),
     })!;
+
     expect(history1).toBe(1);
 
     // Add and resolve another event in the same batch
@@ -144,6 +212,7 @@ describe(troopTrainingEventResolver, () => {
       bind: { $batch_id: batchId, $unit_id: unitId },
       schema: z.number(),
     })!;
+
     expect(history2).toBe(2);
   });
 });

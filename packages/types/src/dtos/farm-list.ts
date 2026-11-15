@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 
 export const farmListDtoSchema = z.strictObject({
   id: z.number(),
@@ -8,7 +9,7 @@ export const farmListDtoSchema = z.strictObject({
 });
 
 export const farmListDetailsDtoSchema = farmListDtoSchema.extend({
-  tileIds: z.array(z.number()),
+  tileIds: z.array(tileIdSchema),
 });
 
 export const updateFarmListDtoSchema = z.strictObject({

@@ -1,19 +1,22 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import {
+  createTestVillage,
+  prepareTestDatabase,
+} from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import {
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
-  createGameEventMock,
   createUnitImprovementEventMock,
 } from '@pillage-first/mocks/event';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectEventByIdQuery } from '../../../queries/event-queries';
-import { updateResourceSiteResourcesByVillageIdQuery } from '../../../queries/village-queries';
+import { updateResourceSiteResourcesByTileIdToValuesQuery } from '../../../queries/village-queries';
 import { insertEvents } from '../../../utils/events';
 import { insertScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
@@ -25,131 +28,76 @@ import {
 } from '../event-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
-const createPlayerVillage = (database: DbFacade, name: string) => {
-  const tileId = database.selectValue({
-    sql: `
-      SELECT id
-      FROM tiles
-      WHERE type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
-        AND id NOT IN (SELECT tile_id FROM villages)
-      ORDER BY id
-      LIMIT 1;
-    `,
-    schema: z.number(),
+const getVillageTileId = (database: DbFacade, villageId: number) =>
+  database.selectValue({
+    sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+    bind: { $village_id: villageId },
+    schema: tileIdSchema,
   })!;
-
-  const villageId = database.selectValue({
-    sql: `
-      INSERT INTO villages (name, slug, tile_id, player_id)
-      VALUES ($name, $slug, $tile_id, $player_id)
-      RETURNING id;
-    `,
-    bind: {
-      $name: name,
-      $slug: `${name.toLowerCase().replaceAll(' ', '-')}-${tileId}`,
-      $tile_id: tileId,
-      $player_id: PLAYER_ID,
-    },
-    schema: z.number(),
-  })!;
-
-  return {
-    id: villageId,
-    tileId,
-  };
-};
 
 describe('event-controllers', () => {
-  test.skip('legacy scheduled event cancellation preserves earlier upgrades', async () => {
-    const database = await prepareTestDatabase();
-    const villageId = 1;
-    const startsAt = 5_000;
-
-    insertEvents(
-      database,
-      [2, 3, 4].map((level) =>
-        createGameEventMock('buildingScheduledConstruction', {
-          villageId,
-          buildingId: 'MAIN_BUILDING',
-          buildingFieldId: 38,
-          previousLevel: level - 1,
-          level,
-          startsAt,
-          duration: 0,
-          resolvesAt: startsAt,
-        }),
-      ),
-    );
-
-    const eventId = database.selectValue({
-      sql: `
-        SELECT id
-        FROM events
-        WHERE type = 'buildingScheduledConstruction'
-          AND CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER) = 3;
-      `,
-      schema: z.number(),
-    })!;
-
-    cancelConstructionEvent(
-      database,
-      createControllerArgs<'/events/:eventId', 'delete'>({
-        path: { eventId },
-      }),
-    );
-
-    const remainingLevels = database.selectValues({
-      sql: `
-        SELECT CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
-        FROM events
-        WHERE type = 'buildingScheduledConstruction'
-          AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) = 38
-        ORDER BY id;
-      `,
-      schema: z.number(),
-    });
-
-    expect(remainingLevels).toEqual([2]);
-  });
-
   test('getVillageEvents should return events for a village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
       schema: z.number(),
     })!;
 
-    getVillageEvents(
+    const event = createBuildingLevelChangeEventMock({
+      id: 91_001,
+      villageId,
+    });
+
+    insertEvents(database, [event]);
+
+    const events = getVillageEvents(
       database,
       createControllerArgs<'/villages/:villageId/events'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: 'buildingLevelChange',
+      villageId,
+      buildingFieldId: event.buildingFieldId,
+    });
   });
 
   test('getVillageEventsByType should return events for a village by type', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
       schema: z.number(),
     })!;
 
-    getVillageEventsByType(
+    const event = createBuildingLevelChangeEventMock({
+      id: 91_002,
+      villageId,
+    });
+
+    insertEvents(database, [event]);
+
+    const events = getVillageEventsByType(
       database,
       createControllerArgs<'/villages/:villageId/events/:eventType'>({
-        path: { villageId: villageId, eventType: 'buildingLevelChange' },
+        path: { villageId, eventType: 'buildingLevelChange' },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: 'buildingLevelChange',
+      villageId,
+      buildingFieldId: event.buildingFieldId,
+    });
   });
 
   test('cancelConstructionEvent should promote the next scheduled building upgrade', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     database.exec({
@@ -172,6 +120,7 @@ describe('event-controllers', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const [activeField, scheduledField] = fields;
 
     insertEvents(database, [
@@ -183,6 +132,7 @@ describe('event-controllers', () => {
         level: activeField.level + 1,
       }),
     ]);
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: scheduledField.buildingId,
@@ -236,19 +186,18 @@ describe('event-controllers', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       scheduled: 0,
       promoted: 1,
     });
   });
 
   test('cancelConstructionEvent should promote a scheduled upgrade from the freed Roman construction lane', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
-      sql: `
-        UPDATE players
+    database.execMulti({
+      sql: `UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
         WHERE id = (
           SELECT player_id FROM villages WHERE id = $village_id
@@ -322,6 +271,7 @@ describe('event-controllers', () => {
       buildingFieldId: scheduledVillageField.fieldId,
       level: scheduledVillageField.level + 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: scheduledResourceField.buildingId,
@@ -377,14 +327,15 @@ describe('event-controllers', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       promotedResource: 1,
       queuedVillage: 1,
     });
   });
 
   test('getVillageEventsByType should return outgoing and incoming resource transfer events', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events;' });
 
     const sourceVillage = database.selectObject({
@@ -398,11 +349,12 @@ describe('event-controllers', () => {
       bind: { $player_id: PLAYER_ID },
       schema: z.strictObject({
         id: z.number(),
-        tileId: z.number(),
+        tileId: tileIdSchema,
       }),
     })!;
-    const targetVillage = createPlayerVillage(database, 'Target Village');
-    const unrelatedVillage = createPlayerVillage(
+
+    const targetVillage = createTestVillage(database, 'Target Village');
+    const unrelatedVillage = createTestVillage(
       database,
       'Unrelated Target Village',
     );
@@ -416,8 +368,8 @@ describe('event-controllers', () => {
           ('resourceTransfer', $unrelated_starts_at, 100, $target_village_id, $unrelated_meta);
       `,
       bind: {
-        $outgoing_starts_at: 1_000,
-        $incoming_starts_at: 2_000,
+        $outgoing_starts_at: 1000,
+        $incoming_starts_at: 2000,
         $unrelated_starts_at: 500,
         $source_village_id: sourceVillage.id,
         $target_village_id: targetVillage.id,
@@ -427,6 +379,8 @@ describe('event-controllers', () => {
           targetVillageId: targetVillage.id,
           resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
           merchantAmount: 1,
+          repeatRemaining: 0,
+          repeatResources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
         }),
         $incoming_meta: JSON.stringify({
           originTileId: targetVillage.tileId,
@@ -434,6 +388,8 @@ describe('event-controllers', () => {
           targetVillageId: sourceVillage.id,
           resources: { wood: 10, clay: 25, iron: 50, wheat: 100 },
           merchantAmount: 1,
+          repeatRemaining: 0,
+          repeatResources: { wood: 10, clay: 25, iron: 50, wheat: 100 },
         }),
         $unrelated_meta: JSON.stringify({
           originTileId: targetVillage.tileId,
@@ -441,6 +397,8 @@ describe('event-controllers', () => {
           targetVillageId: unrelatedVillage.id,
           resources: { wood: 1, clay: 1, iron: 1, wheat: 1 },
           merchantAmount: 1,
+          repeatRemaining: 0,
+          repeatResources: { wood: 1, clay: 1, iron: 1, wheat: 1 },
         }),
       },
     });
@@ -458,6 +416,7 @@ describe('event-controllers', () => {
         villageId: sourceVillage.id,
         targetVillageId: targetVillage.id,
       }),
+
       expect.objectContaining({
         type: 'resourceTransfer',
         villageId: targetVillage.id,
@@ -467,9 +426,11 @@ describe('event-controllers', () => {
   });
 
   test('cancelConstructionEvent should refund resources based on completion %', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
+    const tileId = getVillageTileId(database, villageId);
     const now = 1_000_000;
+
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
@@ -494,9 +455,9 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: updateResourceSiteResourcesByVillageIdQuery,
+      sql: updateResourceSiteResourcesByTileIdToValuesQuery,
       bind: {
-        $village_id: villageId,
+        $tile_id: tileId,
         $wood: 100,
         $clay: 100,
         $iron: 100,
@@ -533,13 +494,15 @@ describe('event-controllers', () => {
   });
 
   test('cancelConstructionEvent should refund proportionally when cancelled at 50% completion', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
+    const tileId = getVillageTileId(database, villageId);
     const startsAt = 1_000_000;
     const duration = 100_000;
 
     // 50% completion at startsAt + 50000
     const now = startsAt + 50_000;
+
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
@@ -561,9 +524,9 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: updateResourceSiteResourcesByVillageIdQuery,
+      sql: updateResourceSiteResourcesByTileIdToValuesQuery,
       bind: {
-        $village_id: villageId,
+        $tile_id: tileId,
         $wood: 100,
         $clay: 100,
         $iron: 100,
@@ -607,13 +570,15 @@ describe('event-controllers', () => {
   });
 
   test('cancelConstructionEvent should refund 40% when cancelled at 99% completion', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
+    const tileId = getVillageTileId(database, villageId);
     const startsAt = 1_000_000;
     const duration = 100_000;
 
     // 99% completion at startsAt + 99000
     const now = startsAt + 99_000;
+
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
@@ -635,9 +600,9 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: updateResourceSiteResourcesByVillageIdQuery,
+      sql: updateResourceSiteResourcesByTileIdToValuesQuery,
       bind: {
-        $village_id: villageId,
+        $tile_id: tileId,
         $wood: 100,
         $clay: 100,
         $iron: 100,
@@ -680,8 +645,9 @@ describe('event-controllers', () => {
   });
 
   test('cancelUnitImprovementEvent should delete the event and refund the full upgrade cost', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
+    const tileId = getVillageTileId(database, villageId);
     const startsAt = Date.now();
     const duration = 100_000;
     const unitId = 'PHALANX'; // Using a standard unit ID
@@ -707,9 +673,9 @@ describe('event-controllers', () => {
 
     // Set baseline resources to avoid warehouse capacity caps during refund
     database.exec({
-      sql: updateResourceSiteResourcesByVillageIdQuery,
+      sql: updateResourceSiteResourcesByTileIdToValuesQuery,
       bind: {
-        $village_id: villageId,
+        $tile_id: tileId,
         $wood: 100,
         $clay: 100,
         $iron: 100,
@@ -762,7 +728,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelDemolitionEvent should remove only demolition event in village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const otherVillageId = 2;
     const now = Date.now();
@@ -770,14 +736,14 @@ describe('event-controllers', () => {
     insertEvents(database, [
       createBuildingDestructionEventMock({
         startsAt: now,
-        duration: 10000,
+        duration: 10_000,
         villageId,
         buildingFieldId: 26,
         previousLevel: 10,
       }),
       createBuildingLevelChangeEventMock({
         startsAt: now,
-        duration: 10000,
+        duration: 10_000,
         villageId,
         buildingFieldId: 15,
         previousLevel: 1,
@@ -785,7 +751,7 @@ describe('event-controllers', () => {
       }),
       createBuildingLevelChangeEventMock({
         startsAt: now,
-        duration: 10000,
+        duration: 10_000,
         villageId: otherVillageId,
         buildingFieldId: 26,
         previousLevel: 5,
@@ -855,14 +821,14 @@ describe('event-controllers', () => {
   });
 
   test('cancelDemolitionEvent should remove downgrade buildingLevelChange event in village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const now = Date.now();
 
     insertEvents(database, [
       createBuildingLevelChangeEventMock({
         startsAt: now,
-        duration: 10000,
+        duration: 10_000,
         villageId,
         buildingFieldId: 26,
         previousLevel: 8,

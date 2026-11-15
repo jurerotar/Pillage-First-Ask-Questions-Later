@@ -4,7 +4,6 @@ import type { MapFilters } from '@pillage-first/types/models/map-filters';
 import type { MapMarker } from '@pillage-first/types/models/map-marker';
 import type { Preferences } from '@pillage-first/types/models/preferences';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
-import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import {
   BORDER_TILES_OASIS_VARIANTS,
@@ -12,6 +11,7 @@ import {
 } from 'app/(game)/(village-slug)/hooks/use-map';
 import type { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { Icon } from 'app/components/icon';
+import { getOasisBonusIconType } from 'app/components/icons/utils/icons';
 import cellStyles from './cell.module.scss';
 
 type Tile = ReturnType<typeof useMap>['map'][0];
@@ -22,11 +22,12 @@ type CellBaseProps = {
   mapFilters: MapFilters;
   magnification: number;
   preferences: Preferences;
-  mapMarkers: MapMarker[];
+  mapMarkersByTileId: ReadonlyMap<MapMarker['tileId'], MapMarker>;
   createMapMarker: (args: {
     tileId: number;
     description: string;
     color: MapMarker['color'];
+    icon: MapMarker['icon'];
   }) => void;
   deleteMapMarker: (args: { tileId: number }) => void;
   onClick: (tileId: number) => void;
@@ -40,36 +41,13 @@ type CellIconsProps = CellBaseProps & {
 };
 
 const CellIcons = (props: CellIconsProps) => {
-  const { tile, mapFilters, magnification, mapMarkers } = props;
-  const {
-    shouldShowTreasureIcons,
-    shouldShowOasisIcons,
-    shouldShowWheatFields,
-  } = mapFilters;
-
-  const marker = mapMarkers.find((marker) => marker.tileId === tile.id);
+  const { tile, mapFilters, magnification } = props;
+  const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
 
   const tileIconClasses = clsx(
     cellStyles['tile-icon'],
     cellStyles[`tile-icon-magnification-${magnification}`],
   );
-
-  const mapMarkerClasses = clsx(
-    'size-4 md:size-6',
-    cellStyles['map-marker'],
-    cellStyles[`map-marker-magnification-${magnification}`],
-  );
-
-  if (marker) {
-    return (
-      <Icon
-        className={mapMarkerClasses}
-        style={{ color: marker.color }}
-        type="mapMarker"
-        shouldShowTooltip={false}
-      />
-    );
-  }
 
   if (
     shouldShowWheatFields &&
@@ -92,7 +70,7 @@ const CellIcons = (props: CellIconsProps) => {
   if (
     shouldShowOasisIcons &&
     tile.type === 'oasis' &&
-    tile.attributes.isOccupiable
+    tile.attributes.bonusType !== null
   ) {
     const { oasisResource } = decodeGraphicsProperty(
       tile.attributes.oasisGraphics,
@@ -104,19 +82,10 @@ const CellIcons = (props: CellIconsProps) => {
         variant={tile.owner !== null ? 'red' : 'green'}
       >
         <Icon
-          type={oasisResource}
+          type={getOasisBonusIconType(oasisResource, tile.attributes.bonusType)}
           shouldShowTooltip={false}
         />
       </BorderIndicator>
-    );
-  }
-
-  if (shouldShowTreasureIcons && tile.type === 'free' && tile.item !== null) {
-    return (
-      <TreasureIcon
-        className={tileIconClasses}
-        itemId={tile.item.id}
-      />
     );
   }
 
@@ -137,14 +106,22 @@ const getTileClassNames = (
     );
   }
 
-  if (tile.type === 'free' && tile.owner !== null) {
-    const { faction } = tile.owner;
+  if (
+    tile.type === 'free' &&
+    tile.owner !== null &&
+    tile.ownerVillage !== null
+  ) {
+    const { faction, tribe } = tile.owner;
+    const population = tile.ownerVillage.population;
+    const villageSize =
+      population < 250 ? 'sm' : population < 750 ? 'md' : 'lg';
     const reputationLevel =
       faction === 'player' ? 'player' : getReputation(faction).reputationLevel;
 
     return clsx(
       cellStyles.tile,
       cellStyles['occupied-tile'],
+      cellStyles[`occupied-tile-${tribe}-${villageSize}`],
       cellStyles[`occupied-tile-magnification-${magnification}`],
       shouldShowFactionReputation &&
         cellStyles[`occupied-tile-reputation-${reputationLevel}`],
@@ -183,9 +160,10 @@ export const Cell = ({
   const tileId = tileIndex + 1;
 
   const tile = map[tileIndex];
+  const marker = cellProps.mapMarkersByTileId.get(tile.id);
   const isBorderTile =
     tile.type === 'oasis' &&
-    !tile.attributes.isOccupiable &&
+    tile.attributes.bonusType === null &&
     BORDER_TILES_OASIS_VARIANTS.has(tile.attributes.oasisGraphics);
 
   const className = isBorderTile
@@ -209,6 +187,18 @@ export const Cell = ({
       data-tile-id={tileId}
       className={className}
     >
+      {!isBorderTile && marker && (
+        <Icon
+          className={clsx(
+            'size-4 md:size-6',
+            cellStyles['map-marker'],
+            cellStyles[`map-marker-magnification-${magnification}`],
+          )}
+          style={{ color: marker.color }}
+          type={marker.icon}
+          shouldShowTooltip={false}
+        />
+      )}
       {!isBorderTile && (
         <CellIcons
           tile={tile}

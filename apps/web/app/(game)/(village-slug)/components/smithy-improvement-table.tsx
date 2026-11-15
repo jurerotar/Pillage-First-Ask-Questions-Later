@@ -31,7 +31,7 @@ export const SmithyImprovementTable = () => {
     toggleModal: toggleCancelImprovementDialog,
     openModal,
     closeModal,
-    modalArgs,
+    data,
   } = useDialog<{ eventId: number }>();
   const { mutate: cancelUnitImprovement } = useCancelUnitImprovement();
   const { currentVillage } = useCurrentVillage();
@@ -48,7 +48,7 @@ export const SmithyImprovementTable = () => {
     openModal({ eventId: upgradeEventId });
   };
 
-  const eventIdToBeCancelled = modalArgs.current?.eventId;
+  const eventIdToBeCancelled = data?.eventId;
 
   const mainEventToBeCancelled = unitImprovementEvents.find(
     (upgradeEvent) => upgradeEvent.id === eventIdToBeCancelled,

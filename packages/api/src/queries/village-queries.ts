@@ -1,4 +1,4 @@
-export const updateResourceSiteResourcesByVillageIdQuery = `
+export const updateResourceSiteResourcesByTileIdToValuesQuery = `
   UPDATE resource_sites
   SET
     wood = $wood,
@@ -6,14 +6,7 @@ export const updateResourceSiteResourcesByVillageIdQuery = `
     iron = $iron,
     wheat = $wheat,
     updated_at = $updated_at
-  WHERE
-    tile_id = (
-      SELECT tile_id
-      FROM
-        villages
-      WHERE
-        id = $village_id
-      );
+  WHERE tile_id = $tile_id;
 `;
 
 export const selectVillageBySlugQuery = `
@@ -62,6 +55,14 @@ export const selectVillageTileIdQuery = `
     villages
   WHERE
     id = $village_id;
+`;
+
+export const selectVillageIdByTileIdQuery = `
+  SELECT id
+  FROM
+    villages
+  WHERE
+    tile_id = $tile_id;
 `;
 
 export const selectPlayerIdByVillageIdQuery = `
@@ -128,14 +129,23 @@ export const selectOccupiableOasisInRangeQuery = `
         ot.id AS tile_id,
         ot.x AS x,
         ot.y AS y,
-        ot.oasis_graphics AS oasis_graphics,
-        JSON_GROUP_ARRAY(o.bonus) AS bonuses_json,
+        COALESCE(
+          MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END),
+          MAX(ri.resource)
+        ) AS resource,
+        CASE
+          WHEN COUNT(*) = 1 AND MAX(o.bonus) = 25 THEN 1
+          WHEN COUNT(*) = 2 AND MIN(o.bonus) = 25 AND MAX(o.bonus) = 25 THEN 2
+          WHEN COUNT(*) = 1 AND MAX(o.bonus) = 50 THEN 3
+          ELSE NULL
+        END AS bonus_type,
         MAX(o.village_id) AS occupying_village_id
       FROM
         tiles ot
           JOIN tile_type_ids ott ON ott.id = ot.type_id
           JOIN src_village sv ON 1 = 1
           JOIN oasis o ON o.tile_id = ot.id
+          JOIN resource_ids ri ON ri.id = o.resource_id
       WHERE
         ott.type = 'oasis'
         AND ot.x BETWEEN sv.vx - $radius AND sv.vx + $radius
@@ -147,8 +157,8 @@ export const selectOccupiableOasisInRangeQuery = `
     oa.tile_id,
     oa.x AS tile_coordinates_x,
     oa.y AS tile_coordinates_y,
-    oa.oasis_graphics,
-    oa.bonuses_json,
+    oa.resource,
+    oa.bonus_type,
     oa.occupying_village_id,
     v2.name AS occupying_village_name,
     v2.slug AS occupying_village_slug,
@@ -171,8 +181,9 @@ export const selectOccupiableOasisInRangeQuery = `
 export const selectVillageBuildingLevelQuery = `
   SELECT MAX(bf.level) AS level
   FROM
+    -- Limit the lookup to this village's fields before resolving building names.
     building_fields bf
-      JOIN building_ids bi ON bi.id = bf.building_id
+      CROSS JOIN building_ids bi ON bi.id = bf.building_id
   WHERE
     bf.village_id = $village_id
     AND bi.building = $building_id
@@ -332,7 +343,7 @@ export const insertRearrangedBuildingFieldsQuery = `
 `;
 
 export const updateRearrangedBuildingFieldEventsQuery = `
-  WITH updates_raw(field_id, building_text, source_field_id) AS (
+  WITH updates_raw(field_id, building_text, source_field_id) AS MATERIALIZED (
     SELECT
       CAST(value ->> '$.buildingFieldId' AS INTEGER),
       value ->> '$.buildingId',
@@ -359,7 +370,7 @@ export const updateRearrangedBuildingFieldEventsQuery = `
 `;
 
 export const updateRearrangedScheduledBuildingUpgradesQuery = `
-  WITH updates_raw(field_id, building_text, source_field_id) AS (
+  WITH updates_raw(field_id, building_text, source_field_id) AS MATERIALIZED (
     SELECT
       CAST(value ->> '$.buildingFieldId' AS INTEGER),
       value ->> '$.buildingId',
@@ -442,7 +453,7 @@ export const updateRearrangedBuildingFieldEffectsQuery = `
     WHERE mf.source_field_id = effects.source_specifier
   )
   WHERE
-    village_id = $village_id
+    tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
     AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
     AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
     AND source_specifier IN (

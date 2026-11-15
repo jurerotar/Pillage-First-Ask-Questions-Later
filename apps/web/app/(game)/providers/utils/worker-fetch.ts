@@ -1,12 +1,13 @@
+import { deserializeError } from '@pillage-first/utils/errors';
 import { isControllerMessageErrorNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
 
 export const createWorkerFetcher = (worker: Worker) => {
-  return async <TData = void, TArgs = unknown>(
+  return async (
     url: string,
-    init?: Omit<RequestInit, 'body'> & { body?: TArgs },
-  ): Promise<{ data: TData }> => {
+    init?: Omit<RequestInit, 'body'> & { body?: unknown },
+  ): Promise<{ data: unknown }> => {
     const { port1, port2 } = new MessageChannel();
 
     return new Promise((resolve, reject) => {
@@ -29,7 +30,7 @@ export const createWorkerFetcher = (worker: Worker) => {
         if (isControllerMessageErrorNotificationMessageEvent(event)) {
           const { error } = data;
 
-          reject(error);
+          reject(deserializeError(error));
           return;
         }
 

@@ -4,23 +4,6 @@ export const selectTargetVillageIdByTileIdQuery = `
   WHERE tile_id = $target_tile_id;
 `;
 
-export const selectResourceSiteResourcesByTileIdQuery = `
-  SELECT wood, clay, iron, wheat
-  FROM resource_sites
-  WHERE tile_id = $target_tile_id;
-`;
-
-export const updateResourceSiteResourcesByTileIdQuery = `
-  UPDATE resource_sites
-  SET
-    wood = wood - $wood,
-    clay = clay - $clay,
-    iron = iron - $iron,
-    wheat = wheat - $wheat,
-    updated_at = $updated_at
-  WHERE tile_id = $target_tile_id;
-`;
-
 export const selectBattleReportParticipantsByTargetTileIdQuery = `
   WITH
     target_owner AS (
@@ -93,6 +76,7 @@ export const selectBattleReportParticipantsByTargetTileIdQuery = `
 export const selectHeroAdventureContextByVillageIdQuery = `
   SELECT
     h.id AS heroId,
+    h.player_id AS playerId,
     h.health AS healthBefore,
     ha.completed + 1 AS adventureId
   FROM
@@ -114,13 +98,17 @@ export const updateHeroAfterAdventureByHeroIdQuery = `
       experience +
       CASE
         WHEN MAX(0, health - MAX(0, 5 - damage_reduction)) > 0
-          THEN (
-                 SELECT completed + 1
-                 FROM
-                   hero_adventures
-                 WHERE
-                   hero_id = heroes.id
-                 ) * 10
+          THEN CAST(
+            ROUND(
+              (
+                SELECT completed + 1
+                FROM
+                  hero_adventures
+                WHERE
+                  hero_id = heroes.id
+              ) * 10 * (1 + experience_modifier / 100.0)
+            ) AS INTEGER
+          )
         ELSE 0
         END
   WHERE id = $hero_id
@@ -204,7 +192,7 @@ export const insertBuildingEffectsQuery = `
     type_id,
     scope_id,
     source_id,
-    village_id,
+    tile_id,
     source_specifier
   )
   SELECT
@@ -213,7 +201,7 @@ export const insertBuildingEffectsQuery = `
     effect_type_ids.id,
     effect_scope_ids.id,
     effect_source_ids.id,
-    $village_id,
+    (SELECT tile_id FROM villages WHERE id = $village_id),
     json_extract(effect.value, '$.sourceSpecifier')
   FROM
     json_each($effects) AS effect
@@ -236,7 +224,7 @@ export const insertResourceSiteByTileIdQuery = `
 `;
 
 export const insertNewVillageQuestsQuery = `
-  INSERT INTO quests (quest_id, completed_at, collected_at, village_id)
+  INSERT INTO quests (quest_id, completed_at, collected_at, village_id, player_id)
   SELECT
     quest.value,
     CASE
@@ -244,15 +232,9 @@ export const insertNewVillageQuestsQuery = `
       ELSE NULL
     END,
     NULL,
-    $village_id
+    $village_id,
+    (SELECT player_id FROM villages WHERE id = $village_id)
   FROM json_each($quests) AS quest;
-`;
-
-export const insertVillageFoundingHistoryQuery = `
-  INSERT INTO
-    village_founding_history (village_id, tile_id, x, y, timestamp)
-  VALUES
-    ($village_id, $tile_id, $x, $y, $timestamp);
 `;
 
 export const selectRelocationTargetVillageIdByTileIdQuery = `

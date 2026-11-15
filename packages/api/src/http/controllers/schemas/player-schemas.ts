@@ -1,16 +1,18 @@
 import { z } from 'zod';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
-import { tileTypeSchema } from '@pillage-first/types/models/tile';
+import { tileIdSchema, tileTypeSchema } from '@pillage-first/types/models/tile';
+import { troopSchema } from '@pillage-first/types/models/troop';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getVillagesByPlayerSchema = z
   .strictObject({
     id: z.number(),
-    tile_id: z.number(),
+    tile_id: tileIdSchema,
     coordinates_x: z.number(),
     coordinates_y: z.number(),
     name: z.string(),
     slug: z.string().nullable(),
+    population: z.number(),
     resource_field_composition: resourceFieldCompositionSchema,
   })
   .meta({ id: 'GetVillagesByPlayerRow' });
@@ -18,25 +20,35 @@ export const getVillagesByPlayerSchema = z
 export const getPlayerVillagesWithPopulationSchema = z
   .strictObject({
     id: z.number(),
-    tile_id: z.number(),
+    tile_id: tileIdSchema,
     coordinates_x: z.number(),
     coordinates_y: z.number(),
     name: z.string(),
     slug: z.string().nullable(),
     resource_field_composition: resourceFieldCompositionSchema,
     population: z.number(),
+    occupied_oasis_json: z.string(),
   })
   .meta({ id: 'GetPlayerVillagesWithPopulationRow' });
 
 export const getStationedTroopsByTileSchema = z
   .strictObject({
+    can_relocate: z.union([z.literal(0), z.literal(1)]),
     unit_id: unitIdSchema,
     amount: z.number().min(1),
-    tile_id: z.number(),
-    source_tile_id: z.number(),
+    tile_id: tileIdSchema,
+    source_tile_id: tileIdSchema,
     source_tile_type: tileTypeSchema.nullable(),
   })
   .meta({ id: 'GetStationedTroopsByTileRow' });
+
+export const getVillageUnitCountSchema = z
+  .strictObject({
+    at_home: z.number().min(0),
+    in_transit: z.number().min(0),
+    stationed_away: z.number().min(0),
+  })
+  .meta({ id: 'GetVillageUnitCountRow' });
 
 export const getWoundedTroopsByVillageSchema = z
   .strictObject({
@@ -48,9 +60,10 @@ export const getWoundedTroopsByVillageSchema = z
 
 export const getSentReinforcementsByTileSchema = z
   .strictObject({
+    can_relocate: z.union([z.literal(0), z.literal(1)]),
     village_id: z.number(),
     target_type: z.enum(['village', 'oasis']),
-    tile_id: z.number(),
+    tile_id: tileIdSchema,
     coordinates_x: z.number(),
     coordinates_y: z.number(),
     name: z.string(),
@@ -58,36 +71,35 @@ export const getSentReinforcementsByTileSchema = z
     resource_field_composition: resourceFieldCompositionSchema,
     unit_id: unitIdSchema,
     amount: z.number().min(1),
-    source_tile_id: z.number(),
+    source_tile_id: tileIdSchema,
     source_tile_type: tileTypeSchema.nullable(),
   })
   .meta({ id: 'GetSentReinforcementsByTileRow' });
 
 export const sourceVillageRowSchema = z.strictObject({
+  sourcePlayerId: z.number().nullable(),
+  currentPlayerId: z.number(),
   sourceVillageId: z.number().nullable(),
   sourceTileType: tileTypeSchema.nullable(),
   currentVillageId: z.number(),
-  currentTileId: z.number(),
+  currentTileId: tileIdSchema,
 });
 
 export const stationedVillageRowSchema = z.strictObject({
+  stationedPlayerId: z.number().nullable(),
+  currentPlayerId: z.number(),
   currentVillageId: z.number(),
-  currentTileId: z.number(),
+  currentTileId: tileIdSchema,
   stationedTileType: tileTypeSchema.nullable(),
   stationedVillageId: z.number().nullable(),
 });
 
 export const troopAmountSchema = z.number().nullable();
 
-const reinforcementTileIdSchema = z.coerce.number().int().min(1);
+const reinforcementTileIdSchema = z.coerce.number().pipe(tileIdSchema);
 
 const reinforcementTroopsSchema = z
-  .array(
-    z.strictObject({
-      unitId: unitIdSchema,
-      amount: z.number().int().min(1),
-    }),
-  )
+  .array(troopSchema.pick({ unitId: true, amount: true }))
   .min(1);
 
 export const returnSentReinforcementsSchema = z

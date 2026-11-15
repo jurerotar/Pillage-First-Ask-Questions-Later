@@ -4,8 +4,8 @@ import {
   mapTileDtoSchema,
   mapTileOasisBonusDtoSchema,
   mapTileTroopDtoSchema,
-  mapTileWorldItemDtoSchema,
 } from '@pillage-first/types/dtos/map';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import {
   deleteMapMarkerQuery,
@@ -14,7 +14,6 @@ import {
   selectPlayerMapMarkersQuery,
   selectTileOasisBonusesQuery,
   selectTileTroopsQuery,
-  selectTileWorldItemQuery,
 } from '../../queries/map-queries';
 import { selectServerMapSizeQuery } from '../../queries/server-queries';
 import { createController } from '../controller';
@@ -23,28 +22,19 @@ import {
   mapTile,
   mapTileOasisBonus,
   mapTileTroop,
-  mapTileWorldItem,
 } from './mappers/map-mapper';
 import {
   getMapMarkersSchema,
   getTileOasisBonusesSchema,
-  getTilesSchema,
+  getTilesJsonSchema,
+  type getTilesSchema,
   getTileTroopsSchema,
-  getTileWorldItemSchema,
 } from './schemas/map-schemas';
 
-export const getMapMarkers = createController(
-  '/players/:playerId/map-markers',
-  {
-    summary: 'Get map markers',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: z.array(mapMarkerDtoSchema),
-  },
-)(({ database, path: { playerId } }) => {
+export const getMapMarkers = createController('/me/map-markers', {
+  summary: 'Get map markers',
+  response: z.array(mapMarkerDtoSchema),
+})(({ database, context: { playerId } }) => {
   const rows = database.selectObjects({
     sql: selectPlayerMapMarkersQuery,
     bind: {
@@ -56,57 +46,55 @@ export const getMapMarkers = createController(
   return rows.map(mapMarker);
 });
 
-export const addMapMarker = createController(
-  '/players/:playerId/map-markers',
-  'post',
-  {
-    summary: 'Add map marker',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    requestBody: z.strictObject({
-      tileId: z.number(),
-      description: z.string(),
-      color: mapMarkerDtoSchema.shape.color,
-    }),
-  },
-)(({ database, path: { playerId }, body: { tileId, description, color } }) => {
-  database.transaction((db) => {
-    db.exec({
-      sql: deleteMapMarkerQuery,
-      bind: {
-        $player_id: playerId,
-        $tile_id: tileId,
-      },
-    });
+export const addMapMarker = createController('/me/map-markers', 'post', {
+  summary: 'Add map marker',
+  requestBody: z.strictObject({
+    tileId: tileIdSchema,
+    description: z.string(),
+    color: mapMarkerDtoSchema.shape.color,
+    icon: mapMarkerDtoSchema.shape.icon,
+  }),
+})(
+  ({
+    database,
+    context: { playerId },
+    body: { tileId, description, color, icon },
+  }) => {
+    database.transaction((db) => {
+      db.exec({
+        sql: deleteMapMarkerQuery,
+        bind: {
+          $player_id: playerId,
+          $tile_id: tileId,
+        },
+      });
 
-    db.exec({
-      sql: insertMapMarkerQuery,
-      bind: {
-        $player_id: playerId,
-        $tile_id: tileId,
-        $description: description,
-        $color: color,
-      },
+      db.exec({
+        sql: insertMapMarkerQuery,
+        bind: {
+          $player_id: playerId,
+          $tile_id: tileId,
+          $description: description,
+          $color: color,
+          $icon: icon,
+        },
+      });
     });
-  });
-});
+  },
+);
 
 export const removeMapMarker = createController(
-  '/players/:playerId/map-markers/:tileId',
+  '/me/map-markers/:tileId',
   'delete',
   {
     summary: 'Remove map marker',
     requestParams: {
       path: z.strictObject({
-        playerId: z.coerce.number(),
-        tileId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
   },
-)(({ database, path: { playerId, tileId } }) => {
+)(({ database, context: { playerId }, path: { tileId } }) => {
   database.exec({
     sql: deleteMapMarkerQuery,
     bind: {
@@ -120,10 +108,10 @@ export const getTiles = createController('/tiles', {
   summary: 'Get all tiles',
   response: z.array(mapTileDtoSchema.nullable()),
 })(({ database }) => {
-  const parsedTiles = database.selectObjects({
+  const parsedTiles = database.selectValue({
     sql: selectMapTilesQuery,
-    schema: getTilesSchema,
-  });
+    schema: getTilesJsonSchema,
+  })!;
 
   const mapSize = database.selectValue({
     sql: selectServerMapSizeQuery,
@@ -148,7 +136,7 @@ export const getTileTroops = createController('/tiles/:tileId/troops', {
   summary: 'Get troops on a tile',
   requestParams: {
     path: z.strictObject({
-      tileId: z.coerce.number(),
+      tileId: z.coerce.number().pipe(tileIdSchema),
     }),
   },
   response: z.array(mapTileTroopDtoSchema),
@@ -168,7 +156,7 @@ export const getTileOasisBonuses = createController('/tiles/:tileId/bonuses', {
   summary: 'Get oasis bonuses on a tile',
   requestParams: {
     path: z.strictObject({
-      tileId: z.coerce.number(),
+      tileId: z.coerce.number().pipe(tileIdSchema),
     }),
   },
   response: z.array(mapTileOasisBonusDtoSchema),
@@ -182,25 +170,4 @@ export const getTileOasisBonuses = createController('/tiles/:tileId/bonuses', {
   });
 
   return rows.map(mapTileOasisBonus);
-});
-
-export const getTileWorldItem = createController('/tiles/:tileId/world-item', {
-  summary: 'Get world item on a tile',
-  requestParams: {
-    path: z.strictObject({
-      tileId: z.coerce.number(),
-    }),
-  },
-  response: mapTileWorldItemDtoSchema.nullable(),
-})(({ database, path: { tileId } }) => {
-  const row =
-    database.selectObject({
-      sql: selectTileWorldItemQuery,
-      bind: {
-        $tile_id: tileId,
-      },
-      schema: getTileWorldItemSchema,
-    }) ?? null;
-
-  return row ? mapTileWorldItem(row) : null;
 });

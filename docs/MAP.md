@@ -131,19 +131,19 @@ determined.
 
 Available resource field compositions:
 
-* `4446`
-* `5436`
-* `5346`
-* `4536`
-* `3546`
-* `4356`
-* `3456`
-* `4437`
-* `4347`
-* `3447`
-* `3339`
-* `11115`
-* `00018`
+- `4446`
+- `5436`
+- `5346`
+- `4536`
+- `3546`
+- `4356`
+- `3456`
+- `4437`
+- `4347`
+- `3447`
+- `3339`
+- `11115`
+- `00018`
 
 ### Occupiable tile images
 
@@ -177,7 +177,7 @@ navigation.
 ## 6. Important files
 
 - [`tile.ts`](/packages/types/src/models/tile.ts): Zod schemas and TypeScript types for tiles.
-- [`tiles-seeder.ts`](/packages/db/src/seeders/tiles-seeder.ts): Logic for map generation and initial seeding.
+- [`tiles-seeder.ts`](/packages/api/src/db/seeders/tiles-seeder.ts): Logic for map generation and initial seeding.
 - [`use-map.ts`](/apps/web/app/(game)/(village-slug)/hooks/use-map.ts): Main hook for map data integration on the
   frontend.
 - [`map-controllers.ts`](/packages/api/src/controllers/map-controllers.ts): API controllers for fetching map and

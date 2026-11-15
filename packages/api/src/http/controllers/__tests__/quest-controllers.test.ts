@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import {
   collectQuest,
   getCollectableQuestCount,
@@ -10,25 +10,31 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('quest-controllers', () => {
   test('getQuests should return quests for a village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
       schema: z.number(),
     })!;
 
-    getQuests(
+    const quests = getQuests(
       database,
-      createControllerArgs<'/villages/:villageId/quests'>({
-        path: { villageId: villageId },
+      createControllerArgs<'/me/quests'>({
+        query: { villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(quests.length).toBeGreaterThan(0);
+    expect(quests).toContainEqual({
+      id: 'adventureCount-1',
+      completedAt: null,
+      collectedAt: null,
+      scope: 'global',
+    });
   });
 
   test('getCollectableQuestCount should return collectable quest count', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -39,8 +45,8 @@ describe('quest-controllers', () => {
     // It should include global quests (village_id IS NULL) and village-specific quests.
     const { collectableQuestCount: initialCount } = getCollectableQuestCount(
       database,
-      createControllerArgs<'/villages/:villageId/quests/collectables/count'>({
-        path: { villageId: villageId },
+      createControllerArgs<'/me/quests/collectable-count'>({
+        query: { villageId },
       }),
     );
 
@@ -48,9 +54,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, NULL)
+          (1, $quest_id, $completed_at, NULL)
       `,
       bind: {
         $quest_id: 'test-global-quest',
@@ -62,9 +68,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, $village_id)
+          (1, $quest_id, $completed_at, $village_id)
       `,
       bind: {
         $quest_id: 'test-village-quest',
@@ -77,9 +83,9 @@ describe('quest-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO
-          quests (quest_id, completed_at, village_id)
+          quests (player_id, quest_id, completed_at, village_id)
         VALUES
-          ($quest_id, $completed_at, $village_id)
+          (1, $quest_id, $completed_at, $village_id)
       `,
       bind: {
         $quest_id: 'test-other-village-quest',
@@ -90,8 +96,8 @@ describe('quest-controllers', () => {
 
     const { collectableQuestCount: finalCount } = getCollectableQuestCount(
       database,
-      createControllerArgs<'/villages/:villageId/quests/collectables/count'>({
-        path: { villageId: villageId },
+      createControllerArgs<'/me/quests/collectable-count'>({
+        query: { villageId },
       }),
     );
 
@@ -99,29 +105,41 @@ describe('quest-controllers', () => {
   });
 
   test('collectQuest should collect a quest', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
       schema: z.number(),
     })!;
 
-    // Find a quest that is completed but not collected
-    const questId = database.selectValue({
-      sql: 'SELECT quest_id FROM quests WHERE completed_at IS NOT NULL AND collected_at IS NULL LIMIT 1',
-      schema: z.string(),
-    })!;
+    const questId = 'gatheredResourceCount-1';
+
+    database.exec({
+      sql: `
+        INSERT INTO quests (player_id, quest_id, completed_at, village_id)
+        VALUES (1, $quest_id, $completed_at, $village_id);
+      `,
+      bind: {
+        $quest_id: questId,
+        $completed_at: Date.now(),
+        $village_id: villageId,
+      },
+    });
 
     collectQuest(
       database,
-      createControllerArgs<
-        '/villages/:villageId/quests/:questId/collect',
-        'patch'
-      >({
-        path: { villageId: villageId, questId: questId },
+      createControllerArgs<'/me/quests/:questId/collect', 'post'>({
+        path: { questId },
+        body: { villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(
+      database.selectValue({
+        sql: 'SELECT collected_at FROM quests WHERE quest_id = $quest_id;',
+        bind: { $quest_id: questId },
+        schema: z.number().nullable(),
+      }),
+    ).not.toBeNull();
   });
 });

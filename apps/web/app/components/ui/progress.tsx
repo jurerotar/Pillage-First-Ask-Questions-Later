@@ -1,5 +1,5 @@
+import { Progress as ProgressPrimitive } from '@base-ui/react/progress';
 import { clsx } from 'clsx';
-import { Progress as ProgressPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
 export const Progress = ({
@@ -10,17 +10,23 @@ export const Progress = ({
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
+      value={value}
       className={clsx(
         'bg-primary/20 relative h-2 w-full overflow-hidden rounded-full',
         className,
       )}
       {...props}
     >
-      <ProgressPrimitive.Indicator
-        data-slot="progress-indicator"
-        className="bg-primary h-full w-full flex-1 transition-transform"
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-      />
+      <ProgressPrimitive.Track className="h-full w-full">
+        <ProgressPrimitive.Indicator
+          data-slot="progress-indicator"
+          className="bg-primary h-full w-full flex-1 transition-transform duration-100 ease-linear motion-reduce:transition-none"
+          style={{
+            width: '100%',
+            transform: `translateX(-${100 - (value || 0)}%)`,
+          }}
+        />
+      </ProgressPrimitive.Track>
     </ProgressPrimitive.Root>
   );
 };
@@ -33,17 +39,20 @@ export const VerticalProgress = ({
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
+      value={value}
       className={clsx(
         'relative w-2 h-full bg-primary/20 overflow-hidden rounded',
         className,
       )}
       {...props}
     >
-      <ProgressPrimitive.Indicator
-        data-slot="progress-indicator"
-        className="absolute bottom-0 left-0 w-full bg-primary transition-[height]"
-        style={{ height: `${value}%` }}
-      />
+      <ProgressPrimitive.Track className="h-full w-full">
+        <ProgressPrimitive.Indicator
+          data-slot="progress-indicator"
+          className="absolute bottom-0 left-0 w-full bg-primary transition-[height]"
+          style={{ width: '100%', height: `${value}%` }}
+        />
+      </ProgressPrimitive.Track>
     </ProgressPrimitive.Root>
   );
 };

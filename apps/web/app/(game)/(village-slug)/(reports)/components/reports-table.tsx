@@ -2,9 +2,10 @@ import { clsx } from 'clsx';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuEllipsis } from 'react-icons/lu';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import type { BaseReport } from '@pillage-first/types/models/report';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import type { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -59,7 +60,6 @@ type ReportsTableProps = {
   allVisibleReportsSelected: boolean;
   onToggleReport: (reportId: BaseReport['id']) => void;
   onToggleVisibleReports: () => void;
-  onOpenReport: (report: ReportListingDto) => void;
   updateReports: ReturnType<typeof useReports>['updateReports'];
   deleteReports: ReturnType<typeof useReports>['deleteReports'];
   clearSelectedReports: () => void;
@@ -72,17 +72,17 @@ export const ReportsTable = ({
   allVisibleReportsSelected,
   onToggleReport,
   onToggleVisibleReports,
-  onOpenReport,
   updateReports,
   deleteReports,
   clearSelectedReports,
 }: ReportsTableProps) => {
   const { t } = useTranslation();
+  const location = useLocation();
   const { locale } = use(CookieContext);
   const hasSelectedReports = selectedReportIds.length > 0;
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -126,8 +126,10 @@ export const ReportsTable = ({
               </TableCell>
               <TableCell className="text-left">
                 <Link
-                  onClick={() => onOpenReport(report)}
-                  to={`../reports/${report.id}`}
+                  to={{
+                    pathname: `../reports/${report.id}`,
+                    search: location.search,
+                  }}
                 >
                   <Text
                     className={clsx(
@@ -160,16 +162,18 @@ export const ReportsTable = ({
               </TableCell>
               <TableCell>
                 <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      aria-label={t('Actions')}
-                      title={t('Actions')}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <LuEllipsis />
-                    </Button>
-                  </PopoverTrigger>
+                  <PopoverTrigger
+                    render={
+                      <Button
+                        aria-label={t('Actions')}
+                        title={t('Actions')}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <LuEllipsis />
+                      </Button>
+                    }
+                  />
                   <PopoverContent
                     align="end"
                     className="w-auto rounded-lg p-1 shadow-xl"
@@ -198,6 +202,6 @@ export const ReportsTable = ({
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };

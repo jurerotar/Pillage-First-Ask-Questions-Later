@@ -3,12 +3,17 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { createEvents } from '../../../utils/create-event';
 import {
+  getMarketplaceVillageByTileId,
   getMerchantAmount,
   getTotalResourceAmount,
   getVillageMerchantStats,
 } from '../../../utils/marketplace';
 import { insertTradeReport } from '../../../utils/report';
-import { addVillageResourcesAt } from '../../../utils/village';
+import { getTradeRouteById } from '../../../utils/trade-routes';
+import {
+  addResourceSiteResourcesAt,
+  calculateResourceSiteResourcesAt,
+} from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const resourceTransferResolver: Resolver<
@@ -21,16 +26,56 @@ export const resourceTransferResolver: Resolver<
     targetTileId,
     resources,
     merchantAmount,
+    repeatRemaining,
+    repeatResources,
     resolvesAt,
   } = event;
 
   if (getTotalResourceAmount(resources) === 0) {
+    if (repeatRemaining > 0) {
+      const nextTargetVillage = getMarketplaceVillageByTileId(
+        database,
+        originTileId,
+      );
+
+      if (nextTargetVillage) {
+        try {
+          const { merchant } = getVillageMerchantStats(database, villageId);
+          const nextMerchantAmount = getMerchantAmount(
+            repeatResources,
+            merchant.merchantCapacity,
+          );
+
+          createEvents<'resourceTransfer'>(database, {
+            type: 'resourceTransfer',
+            villageId,
+            targetVillageId: nextTargetVillage.id,
+            originTileId: targetTileId,
+            targetTileId: originTileId,
+            resources: repeatResources,
+            merchantAmount: nextMerchantAmount,
+            startsAt: resolvesAt,
+            repeatRemaining: repeatRemaining - 1,
+            repeatResources,
+          });
+
+          return {
+            affectedVillageIds: [villageId, nextTargetVillage.id],
+            affectedTileIds: [originTileId, targetTileId],
+          };
+        } catch {
+          // Repeated merchant transfers stop when the next leg cannot start.
+        }
+      }
+    }
+
     return {
       affectedVillageIds: [villageId],
+      affectedTileIds: [originTileId, targetTileId],
     };
   }
 
-  addVillageResourcesAt(database, targetVillageId, resolvesAt, [
+  addResourceSiteResourcesAt(database, targetTileId, resolvesAt, [
     resources.wood,
     resources.clay,
     resources.iron,
@@ -93,10 +138,13 @@ export const resourceTransferResolver: Resolver<
     },
     merchantAmount,
     startsAt: resolvesAt,
+    repeatRemaining,
+    repeatResources,
   });
 
   return {
     affectedVillageIds: [villageId, targetVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 
@@ -104,49 +152,87 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
   database,
   event,
 ) => {
+  const route = getTradeRouteById(database, event.tradeRouteId);
+
+  if (!route || route.paused || route.villageId !== event.villageId) {
+    return { affectedVillageIds: [], affectedTileIds: [] };
+  }
+
   const {
     villageId,
     targetVillageId,
     originTileId,
     targetTileId,
-    resources,
-    resolvesAt,
+    resources: requestedResources,
+    minimumResources,
+    minimumMerchants,
     interval,
-  } = event;
+  } = route;
+
+  const { resolvesAt } = event;
 
   try {
-    const { merchant } = getVillageMerchantStats(database, villageId);
-    const merchantAmount = getMerchantAmount(
-      resources,
-      merchant.merchantCapacity,
-    );
+    const { currentWood, currentClay, currentIron, currentWheat } =
+      calculateResourceSiteResourcesAt(database, originTileId, resolvesAt);
 
-    createEvents<'resourceTransfer'>(database, {
-      type: 'resourceTransfer',
-      villageId,
-      targetVillageId,
-      originTileId,
-      targetTileId,
-      resources,
-      merchantAmount,
-      startsAt: resolvesAt,
-    });
+    const resources = {
+      wood: Math.min(
+        requestedResources.wood,
+        Math.max(0, currentWood - minimumResources.wood),
+      ),
+      clay: Math.min(
+        requestedResources.clay,
+        Math.max(0, currentClay - minimumResources.clay),
+      ),
+      iron: Math.min(
+        requestedResources.iron,
+        Math.max(0, currentIron - minimumResources.iron),
+      ),
+      wheat: Math.min(
+        requestedResources.wheat,
+        Math.max(0, currentWheat - minimumResources.wheat),
+      ),
+    };
+
+    if (getTotalResourceAmount(resources) > 0) {
+      const { merchant, marketplaceLevel, usedMerchantAmount } =
+        getVillageMerchantStats(database, villageId);
+      const merchantAmount = getMerchantAmount(
+        resources,
+        merchant.merchantCapacity,
+      );
+
+      if (
+        marketplaceLevel - usedMerchantAmount - merchantAmount >=
+        minimumMerchants
+      ) {
+        createEvents<'resourceTransfer'>(database, {
+          type: 'resourceTransfer',
+          villageId,
+          targetVillageId,
+          originTileId,
+          targetTileId,
+          resources,
+          merchantAmount,
+          repeatRemaining: 0,
+          repeatResources: resources,
+          startsAt: resolvesAt,
+        });
+      }
+    }
   } catch {
     // A route miss is expected when resources or free merchants are unavailable.
   }
 
   createEvents<'tradeRoute'>(database, {
     type: 'tradeRoute',
+    tradeRouteId: route.id,
     villageId,
-    targetVillageId,
-    originTileId,
-    targetTileId,
-    resources,
-    interval,
     startsAt: resolvesAt + interval,
   });
 
   return {
     affectedVillageIds: [villageId, targetVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };

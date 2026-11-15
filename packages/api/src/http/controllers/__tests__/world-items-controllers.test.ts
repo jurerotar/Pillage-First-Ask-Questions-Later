@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { getArtifactsAroundVillage } from '../world-items-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('world-items-controllers', () => {
   test('getArtifactsAroundVillage should return artifacts around a village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Find a village to test with
     const villageId = database.selectValue({
@@ -14,13 +14,25 @@ describe('world-items-controllers', () => {
       schema: z.number(),
     })!;
 
-    getArtifactsAroundVillage(
+    const artifacts = getArtifactsAroundVillage(
       database,
       createControllerArgs<'/villages/:villageId/artifacts'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(artifacts.length).toBeGreaterThan(0);
+    expect(artifacts).toStrictEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          amount: 1,
+          distance: expect.any(Number),
+          coordinates: expect.objectContaining({
+            x: expect.any(Number),
+            y: expect.any(Number),
+          }),
+        }),
+      ]),
+    );
   });
 });

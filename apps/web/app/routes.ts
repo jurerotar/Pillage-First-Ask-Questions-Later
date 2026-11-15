@@ -27,9 +27,18 @@ export default [
       route('create', '(public)/(game-worlds)/(create)/page.tsx'),
       route('import', '(public)/(game-worlds)/(import)/page.tsx'),
     ]),
+    // Design system
+    ...prefix('design-system', [
+      ...prefix('icons', [index('(design-system)/(icons)/page.tsx')]),
+    ]),
     route('*', '(public)/(not-found)/page.tsx', {
       id: 'public-not-found-page',
     }),
+  ]),
+  // Bugs
+  route('bugs', '(bugs)/layout.tsx', [
+    index('(bugs)/page.tsx'),
+    route('reports/:reportId', '(bugs)/reports/page.tsx'),
   ]),
   // Game routes
   ...prefix('game', [
@@ -46,7 +55,9 @@ export default [
             route('village', '(game)/(village-slug)/(village)/page.tsx', {
               id: 'village-page',
             }),
-            route('map', '(game)/(village-slug)/(map)/page.tsx'),
+            route('map', '(game)/(village-slug)/(map)/page.tsx', {
+              id: 'map-page',
+            }),
             layout('(game)/(village-slug)/fixed-width-layout.tsx', [
               route(
                 'resources/:buildingFieldId',
@@ -61,10 +72,6 @@ export default [
                 {
                   id: 'village-building-field-id-page',
                 },
-              ),
-              route(
-                'production-overview',
-                '(game)/(village-slug)/(production-overview)/page.tsx',
               ),
               route('hero', '(game)/(village-slug)/(hero)/page.tsx'),
               route(
@@ -92,7 +99,6 @@ export default [
                 'oasis-animal-finder',
                 '(game)/(village-slug)/(oasis-animal-finder)/page.tsx',
               ),
-              route('events', '(game)/(village-slug)/(events)/page.tsx'),
               ...prefix('players', [
                 index('(game)/(village-slug)/(players)/page.tsx'),
                 route(

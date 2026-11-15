@@ -1,10 +1,12 @@
-import { use } from 'react';
+import { use, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Resources } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
-import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
+import {
+  CurrentVillageLiveResourcesSnapshotContext,
+  CurrentVillageLiveResourcesStoreContext,
+} from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { useIntl } from 'app/hooks/use-intl';
 import { formatFutureTimestamp } from 'app/utils/time';
 import {
@@ -24,10 +26,63 @@ export const getHasEnoughResources = (
   );
 };
 
-export const useHasEnoughResources = (requiredResources: number[]) => {
+type GetResourcesReadyInHoursArgs = {
+  requiredResources: number[];
+  currentResources: Resources;
+  hourlyProductions: number[];
+};
+
+export const getResourcesReadyInHours = ({
+  requiredResources,
+  currentResources,
+  hourlyProductions,
+}: GetResourcesReadyInHoursArgs): number | null => {
+  if (hourlyProductions.some((hourlyProduction) => hourlyProduction < 0)) {
+    return null;
+  }
+
+  const currentResourceAmounts = [
+    currentResources.wood,
+    currentResources.clay,
+    currentResources.iron,
+    currentResources.wheat,
+  ];
+
+  const waitTimes: number[] = [];
+
+  for (const [index, requiredResourceAmount] of requiredResources.entries()) {
+    const resourceDiff = requiredResourceAmount - currentResourceAmounts[index];
+
+    if (resourceDiff <= 0) {
+      waitTimes.push(0);
+      continue;
+    }
+
+    const hourlyProduction = hourlyProductions[index];
+
+    if (hourlyProduction <= 0) {
+      return null;
+    }
+
+    waitTimes.push(resourceDiff / hourlyProduction);
+  }
+
+  return Math.max(...waitTimes);
+};
+
+export const useHasEnoughResources = (requiredResources: number[]): boolean => {
+  const liveResourcesStore = use(CurrentVillageLiveResourcesStoreContext)!;
+
+  return useSyncExternalStore(liveResourcesStore.subscribe, () =>
+    getHasEnoughResources(requiredResources, liveResourcesStore.getSnapshot()),
+  );
+};
+
+export const useResourceAvailability = (requiredResources: number[]) => {
   const { t } = useTranslation();
-  const currentTimestamp = useCountdown();
-  const { wood, clay, iron, wheat } = use(CurrentVillageLiveResourcesContext);
+  const { wood, clay, iron, wheat } = use(
+    CurrentVillageLiveResourcesSnapshotContext,
+  );
   const {
     hourlyWoodProduction,
     hourlyClayProduction,
@@ -40,10 +95,16 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
 
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
+  const hasEnoughResources = getHasEnoughResources(requiredResources, {
+    wood,
+    clay,
+    iron,
+    wheat,
+  });
 
   const errorBag: string[] = [];
 
-  if (!getHasEnoughResources(requiredResources, { wood, clay, iron, wheat })) {
+  if (!hasEnoughResources) {
     const [nextLevelWood, nextLevelClay, nextLevelIron, nextLevelWheat] =
       requiredResources;
 
@@ -97,26 +158,21 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
     );
 
     if (isWarehouseCapacityEnough && isGranaryCapacityEnough) {
-      const waitTimes = [
-        woodDiff > 0 && hourlyWoodProduction > 0
-          ? woodDiff / hourlyWoodProduction
-          : 0,
-        clayDiff > 0 && hourlyClayProduction > 0
-          ? clayDiff / hourlyClayProduction
-          : 0,
-        ironDiff > 0 && hourlyIronProduction > 0
-          ? ironDiff / hourlyIronProduction
-          : 0,
-        wheatDiff > 0 && hourlyWheatProduction > 0
-          ? wheatDiff / hourlyWheatProduction
-          : 0,
-      ];
+      const readyInHours = getResourcesReadyInHours({
+        requiredResources,
+        currentResources: { wood, clay, iron, wheat },
+        hourlyProductions: [
+          hourlyWoodProduction,
+          hourlyClayProduction,
+          hourlyIronProduction,
+          hourlyWheatProduction,
+        ],
+      });
 
-      const maxWaitTimeInHours = Math.max(...waitTimes);
-      const readyAtTimestamp =
-        currentTimestamp + maxWaitTimeInHours * 60 * 60 * 1000;
-
-      if (maxWaitTimeInHours > 0) {
+      if (readyInHours !== null && readyInHours > 0) {
+        const currentTimestamp = Date.now();
+        const readyAtTimestamp =
+          currentTimestamp + readyInHours * 60 * 60 * 1000;
         const { isToday, formattedDate } = formatFutureTimestamp(
           readyAtTimestamp,
           currentTimestamp,
@@ -138,7 +194,7 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
   }
 
   return {
-    hasEnoughResources: errorBag.length === 0,
+    hasEnoughResources,
     errorBag,
   };
 };

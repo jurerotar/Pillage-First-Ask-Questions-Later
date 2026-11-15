@@ -1,10 +1,17 @@
 import { z } from 'zod';
-import { resourcesSchema } from '@pillage-first/types/models/resource';
+import {
+  type Resources,
+  resourcesSchema,
+} from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
-import { selectVillageResourcesRelevantEffectsQuery } from '../queries/effect-queries';
-import { updateResourceSiteResourcesByVillageIdQuery } from '../queries/village-queries';
+import { selectResourceSiteResourcesRelevantEffectsByTileIdQuery } from '../queries/effect-queries';
+import {
+  selectPlayerIdByVillageIdQuery,
+  updateResourceSiteResourcesByTileIdToValuesQuery,
+} from '../queries/village-queries';
 import { apiEffectSchema } from './zod/effect-schemas';
 
 export const demolishBuilding = (
@@ -47,7 +54,8 @@ export const demolishBuilding = (
   });
 };
 
-type CalculateVillageResourcesAtReturn = {
+type CalculateResourceSiteResourcesAtReturn = {
+  hourlyProduction: Resources;
   currentWood: number;
   currentIron: number;
   currentClay: number;
@@ -66,48 +74,77 @@ type CalculateVillageResourcesAtReturn = {
   previousUpdatedAt: number;
 };
 
-export const calculateVillageResourcesAt = (
+const resourceSiteStateSchema = resourcesSchema.extend({
+  last_updated_at: z.number(),
+});
+
+const resourceSiteEffectsSchema = z
+  .string()
+  .transform((value) => JSON.parse(value))
+  .pipe(z.array(apiEffectSchema));
+
+export const getVillageTileId = (
   database: DbFacade,
   villageId: number,
+): number =>
+  database.selectValue({
+    sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+    bind: { $village_id: villageId },
+    schema: tileIdSchema,
+  })!;
+
+export const getVillagePlayerId = (
+  database: DbFacade,
+  villageId: number,
+): number =>
+  database.selectValue({
+    sql: selectPlayerIdByVillageIdQuery,
+    bind: { $village_id: villageId },
+    schema: z.number(),
+  })!;
+
+export const calculateResourceSiteResourcesAt = (
+  database: DbFacade,
+  tileId: number,
   timestamp: number,
-): CalculateVillageResourcesAtReturn => {
-  const effects = database.selectObjects({
-    sql: selectVillageResourcesRelevantEffectsQuery,
+): CalculateResourceSiteResourcesAtReturn => {
+  const effects = database.selectValue({
+    sql: selectResourceSiteResourcesRelevantEffectsByTileIdQuery,
     bind: {
-      $village_id: villageId,
+      $tile_id: tileId,
     },
-    schema: apiEffectSchema,
-  });
+    schema: resourceSiteEffectsSchema,
+  })!;
 
   const { total: warehouseCapacity } = calculateComputedEffect(
     'warehouseCapacity',
     effects,
-    villageId,
+    tileId,
   );
   const { total: granaryCapacity } = calculateComputedEffect(
     'granaryCapacity',
     effects,
-    villageId,
+    tileId,
   );
   const { total: woodProduction } = calculateComputedEffect(
     'woodProduction',
     effects,
-    villageId,
+    tileId,
   );
   const { total: clayProduction } = calculateComputedEffect(
     'clayProduction',
     effects,
-    villageId,
+    tileId,
   );
   const { total: ironProduction } = calculateComputedEffect(
     'ironProduction',
     effects,
-    villageId,
+    tileId,
   );
   const { total: wheatProduction } = calculateComputedEffect(
     'wheatProduction',
     effects,
-    villageId,
+    tileId,
   );
 
   const { wood, clay, iron, wheat, last_updated_at } = database.selectObject({
@@ -119,18 +156,12 @@ export const calculateVillageResourcesAt = (
         rs.iron AS iron,
         rs.wheat AS wheat
       FROM
-        villages v
-          JOIN tiles t
-               ON t.id = v.tile_id
-          LEFT JOIN resource_sites rs
-                    ON rs.tile_id = v.tile_id
+        resource_sites rs
       WHERE
-        v.id = $village_id;
+        rs.tile_id = $tile_id;
     `,
-    bind: { $village_id: villageId },
-    schema: resourcesSchema.extend({
-      last_updated_at: z.number(),
-    }),
+    bind: { $tile_id: tileId },
+    schema: resourceSiteStateSchema,
   })!;
 
   const {
@@ -175,6 +206,12 @@ export const calculateVillageResourcesAt = (
   });
 
   return {
+    hourlyProduction: {
+      wood: woodProduction,
+      clay: clayProduction,
+      iron: ironProduction,
+      wheat: wheatProduction,
+    },
     currentWood,
     currentIron,
     currentClay,
@@ -194,9 +231,9 @@ export const calculateVillageResourcesAt = (
   };
 };
 
-export const updateVillageResourcesAt = (
+export const updateResourceSiteResourcesAt = (
   database: DbFacade,
-  villageId: number,
+  tileId: number,
   timestamp: number,
 ): void => {
   const {
@@ -213,7 +250,7 @@ export const updateVillageResourcesAt = (
     previousIron,
     previousWheat,
     previousUpdatedAt,
-  } = calculateVillageResourcesAt(database, villageId, timestamp);
+  } = calculateResourceSiteResourcesAt(database, tileId, timestamp);
 
   const latestTick = Math.max(
     lastEffectiveWoodUpdate,
@@ -234,9 +271,9 @@ export const updateVillageResourcesAt = (
   }
 
   database.exec({
-    sql: updateResourceSiteResourcesByVillageIdQuery,
+    sql: updateResourceSiteResourcesByTileIdToValuesQuery,
     bind: {
-      $village_id: villageId,
+      $tile_id: tileId,
       $wood: currentWood,
       $clay: currentClay,
       $iron: currentIron,
@@ -246,9 +283,9 @@ export const updateVillageResourcesAt = (
   });
 };
 
-export const addVillageResourcesAt = (
+export const addResourceSiteResourcesAt = (
   database: DbFacade,
-  villageId: number,
+  tileId: number,
   timestamp: number,
   resourcesToAdd: number[],
 ): void => {
@@ -259,7 +296,7 @@ export const addVillageResourcesAt = (
     currentWheat,
     warehouseCapacity,
     granaryCapacity,
-  } = calculateVillageResourcesAt(database, villageId, timestamp);
+  } = calculateResourceSiteResourcesAt(database, tileId, timestamp);
 
   const [addWood, addClay, addIron, addWheat] = resourcesToAdd;
 
@@ -269,9 +306,9 @@ export const addVillageResourcesAt = (
   const newWheat = Math.min(currentWheat + addWheat, granaryCapacity);
 
   database.exec({
-    sql: updateResourceSiteResourcesByVillageIdQuery,
+    sql: updateResourceSiteResourcesByTileIdToValuesQuery,
     bind: {
-      $village_id: villageId,
+      $tile_id: tileId,
       $wood: newWood,
       $clay: newClay,
       $iron: newIron,
@@ -281,19 +318,19 @@ export const addVillageResourcesAt = (
   });
 };
 
-export const subtractVillageResourcesAt = <
+export const subtractResourceSiteResourcesAt = <
   ResourcesToSubtract extends readonly number[],
 >(
   database: DbFacade,
-  villageId: number,
+  tileId: number,
   timestamp: number,
   getResourcesToSubtract: (
-    currentResources: CalculateVillageResourcesAtReturn,
+    currentResources: CalculateResourceSiteResourcesAtReturn,
   ) => ResourcesToSubtract,
 ): ResourcesToSubtract => {
-  const currentResources = calculateVillageResourcesAt(
+  const currentResources = calculateResourceSiteResourcesAt(
     database,
-    villageId,
+    tileId,
     timestamp,
   );
   const { currentWood, currentClay, currentIron, currentWheat } =
@@ -310,9 +347,9 @@ export const subtractVillageResourcesAt = <
   const newWheat = Math.max(currentWheat - subWheat, 0);
 
   database.exec({
-    sql: updateResourceSiteResourcesByVillageIdQuery,
+    sql: updateResourceSiteResourcesByTileIdToValuesQuery,
     bind: {
-      $village_id: villageId,
+      $tile_id: tileId,
       $wood: newWood,
       $clay: newClay,
       $iron: newIron,

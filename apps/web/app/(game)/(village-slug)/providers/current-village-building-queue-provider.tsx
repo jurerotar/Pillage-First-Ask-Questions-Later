@@ -21,8 +21,6 @@ export const CurrentVillageBuildingQueueContextProvider = ({
     useEventsByType('buildingDestruction');
   const { eventsByType: currentVillageBuildingLevelChangeEvents } =
     useEventsByType('buildingLevelChange');
-  const { eventsByType: currentVillageBuildingScheduledConstructionEvents } =
-    useEventsByType('buildingScheduledConstruction');
   const { scheduledBuildingUpgrades } = useScheduledBuildingUpgrades();
 
   const buildingEvents = useMemo(() => {
@@ -30,12 +28,10 @@ export const CurrentVillageBuildingQueueContextProvider = ({
       ...currentVillageBuildingConstructionEvents,
       ...currentVillageBuildingDestructionEvents,
       ...currentVillageBuildingLevelChangeEvents,
-      ...currentVillageBuildingScheduledConstructionEvents,
     ].toSorted((a, b) => a.startsAt + a.duration - (b.startsAt + b.duration));
   }, [
     currentVillageBuildingConstructionEvents,
     currentVillageBuildingLevelChangeEvents,
-    currentVillageBuildingScheduledConstructionEvents,
     currentVillageBuildingDestructionEvents,
   ]);
 

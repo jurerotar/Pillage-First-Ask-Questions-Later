@@ -1,6 +1,5 @@
 import { useWindowEvent } from '@mantine/hooks';
 import {
-  lazy,
   Suspense,
   type UIEvent,
   use,
@@ -24,7 +23,7 @@ import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { Tile } from '@pillage-first/types/models/tile';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
-import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
+import { MapFilters } from 'app/(game)/(village-slug)/(map)/components/map-filters';
 import {
   MapRulerCell,
   MapRulerGridCell,
@@ -46,14 +45,16 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
+import { GameLayoutContext } from 'app/(game)/(village-slug)/providers/game-layout-context';
 import { PageContents } from 'app/components/page-contents';
 import { Tooltip } from 'app/components/tooltip';
 import { Dialog } from 'app/components/ui/dialog';
 import { useDialog } from 'app/hooks/use-dialog';
 import { useWindowSize } from 'app/hooks/use-window-size';
+import { lazyWithRetry } from 'app/utils/imports';
 import { TileTooltip } from './components/tile-tooltip';
 
-const TileDialog = lazy(async () => ({
+const TileDialog = lazyWithRetry(async () => ({
   default: (
     await import('app/(game)/(village-slug)/(map)/components/tile-modal')
   ).TileDialog,
@@ -62,6 +63,10 @@ const TileDialog = lazy(async () => ({
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 const DRAG_CLICK_THRESHOLD = 3;
+const DESKTOP_MAP_CHROME_HEIGHT = 80;
+const MOBILE_BOTTOM_NAVIGATION_HEIGHT = 90;
+const MOBILE_EXPANDED_TOP_HEADER_HEIGHT = 123;
+const MOBILE_COMPACT_TOP_HEADER_HEIGHT = 107;
 
 const MapPageContents = () => {
   const [searchParams] = useSearchParams();
@@ -69,25 +74,27 @@ const MapPageContents = () => {
     isOpen: isTileModalOpened,
     openModal,
     closeModal: closeTileModal,
-    modalArgs,
+    data,
   } = useDialog<Tile>();
   const {
     isOpen: isSendTroopsModalOpen,
     openModal: openSendTroopsModal,
     closeModal: closeSendTroopsModal,
-    modalArgs: sendTroopsModalArgs,
+    data: sendTroopsModalData,
   } = useDialog<MapSendTroopsAction>();
   const {
     isOpen: isSendResourcesModalOpen,
     openModal: openSendResourcesModal,
     closeModal: closeSendResourcesModal,
-    modalArgs: sendResourcesModalArgs,
+    data: sendResourcesModalData,
   } = useDialog<MapSendResourcesAction>();
   const { map } = useMap();
   const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { areMobileDetailsVisible } = use(GameLayoutContext);
   const { mapFilters } = useMapFilters();
-  const { mapMarkers, createMapMarker, deleteMapMarker } = useMapMarkers();
+  const { mapMarkersByTileId, createMapMarker, deleteMapMarker } =
+    useMapMarkers();
   const { gridSize, tileSize, magnification } = use(MapContext);
   const { currentVillage } = useCurrentVillage();
   const location = useLocation();
@@ -107,18 +114,14 @@ const MapPageContents = () => {
   const [bottomMapRuler, setBottomMapRuler] =
     useState<GridImperativeAPI | null>(null);
 
-  /**
-   * List of individual contributions
-   * Desktop:
-   *  - Header is 80px tall
-   * Mobile:
-   *  - Top navigation is 128px tall
-   *   - Navigation section is 63px tall
-   *   - Resource section is 57px tall
-   *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
-   *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
-   */
-  const mapHeight = isWiderThanLg ? height - 80 : height - 218;
+  const topHeaderHeight = areMobileDetailsVisible
+    ? MOBILE_EXPANDED_TOP_HEADER_HEIGHT
+    : MOBILE_COMPACT_TOP_HEADER_HEIGHT;
+  const mobileMapChromeHeight =
+    topHeaderHeight + MOBILE_BOTTOM_NAVIGATION_HEIGHT;
+  const mapHeight = isWiderThanLg
+    ? height - DESKTOP_MAP_CHROME_HEIGHT
+    : height - mobileMapChromeHeight;
 
   const isScrolling = useRef<boolean>(false);
   const [isDragScrolling, setIsDragScrolling] = useState<boolean>(false);
@@ -142,7 +145,7 @@ const MapPageContents = () => {
       magnification,
       preferences,
       getReputation,
-      mapMarkers,
+      mapMarkersByTileId,
       createMapMarker,
       deleteMapMarker,
       onClick: (tileId: number) => {
@@ -164,7 +167,7 @@ const MapPageContents = () => {
     openModal,
     preferences,
     getReputation,
-    mapMarkers,
+    mapMarkersByTileId,
     createMapMarker,
     deleteMapMarker,
   ]);
@@ -219,6 +222,18 @@ const MapPageContents = () => {
     };
   }, [mapGrid]);
 
+  const syncRulers = useCallback(
+    (scrollX: number, scrollY: number) => {
+      bottomMapRuler?.element?.scrollTo({
+        left: scrollX,
+      });
+      leftMapRuler?.element?.scrollTo({
+        top: scrollY,
+      });
+    },
+    [bottomMapRuler, leftMapRuler],
+  );
+
   useWindowEvent('mousemove', ({ clientX, clientY }) => {
     const node = mapGrid?.element;
 
@@ -269,6 +284,16 @@ const MapPageContents = () => {
       syncRulers(nextScroll.x, nextScroll.y);
     });
   });
+
+  const updateCurrentCenterTile = useCallback(
+    (scrollX: number, scrollY: number) => {
+      currentCenterTile.current.x =
+        (scrollX + width / 2) / tileSize - gridSize / 2;
+      currentCenterTile.current.y =
+        gridSize / 2 - (scrollY + mapHeight / 2) / tileSize;
+    },
+    [tileSize, gridSize, width, mapHeight],
+  );
 
   useWindowEvent('mouseup', () => {
     const node = mapGrid?.element;
@@ -323,28 +348,6 @@ const MapPageContents = () => {
     [bottomMapRuler, leftMapRuler, mapGrid],
   );
 
-  const syncRulers = useCallback(
-    (scrollX: number, scrollY: number) => {
-      bottomMapRuler?.element?.scrollTo({
-        left: scrollX,
-      });
-      leftMapRuler?.element?.scrollTo({
-        top: scrollY,
-      });
-    },
-    [bottomMapRuler, leftMapRuler],
-  );
-
-  const updateCurrentCenterTile = useCallback(
-    (scrollX: number, scrollY: number) => {
-      currentCenterTile.current.x =
-        (scrollX + width / 2) / tileSize - gridSize / 2;
-      currentCenterTile.current.y =
-        gridSize / 2 - (scrollY + mapHeight / 2) / tileSize;
-    },
-    [tileSize, gridSize, width, mapHeight],
-  );
-
   const onScroll = useCallback(
     (event: UIEvent<HTMLDivElement>) => {
       const { scrollTop, scrollLeft } = event.currentTarget;
@@ -397,7 +400,7 @@ const MapPageContents = () => {
       }
 
       const tile = map[tileId - 1];
-      const mapMarker = mapMarkers.find((marker) => marker.tileId === tileId);
+      const mapMarker = mapMarkersByTileId.get(tileId);
 
       return (
         <Suspense fallback={null}>
@@ -408,7 +411,7 @@ const MapPageContents = () => {
         </Suspense>
       );
     },
-    [map, mapMarkers],
+    [map, mapMarkersByTileId],
   );
 
   return (
@@ -419,10 +422,12 @@ const MapPageContents = () => {
       >
         <Suspense fallback={null}>
           <TileDialog
-            createMapMarker={createMapMarker}
+            createMapMarker={(marker) => {
+              createMapMarker(marker, { onSuccess: closeTileModal });
+            }}
             deleteMapMarker={deleteMapMarker}
-            mapMarkers={mapMarkers}
-            tile={modalArgs.current!}
+            mapMarkersByTileId={mapMarkersByTileId}
+            tile={data!}
             onAttackOrRaid={(tile) => {
               const isOasis = tile.type === 'oasis';
               const isTargetUnoccupiedOasis =
@@ -470,17 +475,18 @@ const MapPageContents = () => {
         </Suspense>
       </Dialog>
       <MapSendTroopsModal
-        action={sendTroopsModalArgs.current}
+        action={sendTroopsModalData}
         isOpen={isSendTroopsModalOpen}
         onClose={closeSendTroopsModal}
       />
       <MapSendResourcesModal
-        action={sendResourcesModalArgs.current}
+        action={sendResourcesModalData}
         isOpen={isSendResourcesModalOpen}
         onClose={closeSendResourcesModal}
       />
       <Tooltip
         anchorSelect="[data-tile-id]"
+        className="text-xs!"
         closeEvents={{
           mouseleave: true,
         }}
@@ -494,7 +500,7 @@ const MapPageContents = () => {
       />
       <Grid
         key={tileSize}
-        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
+        className="scrollbar-hidden bg-[#8EBF64] transition-[height] duration-300 ease-out lg:transition-none"
         gridRef={setMapGrid}
         columnCount={gridSize}
         columnWidth={tileSize}
@@ -512,7 +518,7 @@ const MapPageContents = () => {
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 non-selectable pointer-events-none">
         <List
-          className="scrollbar-hidden will-change-scroll"
+          className="scrollbar-hidden transition-[height] duration-300 ease-out lg:transition-none"
           listRef={setLeftMapRuler}
           rowHeight={tileSize}
           rowCount={gridSize}
@@ -547,7 +553,7 @@ const MapPageContents = () => {
           overscanCount={1}
         />
       </div>
-      <MapControls />
+      <MapFilters />
     </main>
   );
 };

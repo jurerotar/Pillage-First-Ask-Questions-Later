@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import type { HTMLAttributes } from 'react';
+import { type HTMLAttributes, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IconBaseProps } from 'react-icons';
 import { type IconType, icons } from 'app/components/icons/icons';
@@ -11,7 +11,7 @@ type IconProps = IconBaseProps &
     shouldShowTooltip?: boolean;
   };
 
-export const Icon = (props: IconProps) => {
+export const Icon = memo((props: IconProps) => {
   const { type, subIcon, className, shouldShowTooltip = true, ...rest } = props;
 
   const { t } = useTranslation();
@@ -55,4 +55,4 @@ export const Icon = (props: IconProps) => {
       )}
     </>
   );
-};
+});

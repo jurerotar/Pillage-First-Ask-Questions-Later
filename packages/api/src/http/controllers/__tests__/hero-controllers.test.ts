@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
+import { artifacts, silverItem } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { effectIdSchema } from '@pillage-first/types/models/effect';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { insertEffectQuery } from '../../../queries/effect-queries';
 import { resolveEvent } from '../../events/resolve-event';
 import {
@@ -22,60 +24,265 @@ import { createControllerArgs } from './utils/controller-args';
 describe('hero-controllers', () => {
   const playerId = PLAYER_ID;
 
-  test('getHero should return hero details', async () => {
-    const database = await prepareTestDatabase();
+  test('getHero reports adventure status with the full return time', async () => {
+    using database = await prepareTestDatabase();
 
-    getHero(
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementAdventure',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: null,
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
       database,
-      createControllerArgs<'/players/:playerId/hero'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(hero.status).toStrictEqual({ type: 'adventure', endsAt: 3000 });
+  });
+
+  test('getHero reports adventure status during the return trip', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementReturn',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: 'troopMovementAdventure',
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
+      }),
+    );
+
+    expect(hero.status).toStrictEqual({ type: 'adventure', endsAt: 2000 });
+  });
+
+  test('getHero reports travel status while sending reinforcements', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'DELETE FROM events;',
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ($type, 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id), $meta);
+      `,
+      bind: {
+        $type: 'troopMovementReinforcements',
+        $player_id: playerId,
+        $meta: JSON.stringify({
+          originalMovementType: null,
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        }),
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
+      }),
+    );
+
+    expect(hero.status).toStrictEqual({ type: 'travel', endsAt: 2000 });
+  });
+
+  test('getHero reports dead status even with a remaining movement event', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({
+      sql: `
+        UPDATE heroes SET health = 0 WHERE player_id = $player_id;
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ('troopMovementAdventure', 1000, 1000,
+          (SELECT village_id FROM heroes WHERE player_id = $player_id),
+          '{"troops":[{"unitId":"HERO","amount":1}]}');
+      `,
+      bind: { $player_id: playerId },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
+      }),
+    );
+
+    expect(hero.status).toStrictEqual({ type: 'dead' });
+  });
+
+  test('getHero should return hero details', async () => {
+    using database = await prepareTestDatabase();
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
+      }),
+    );
+
+    expect(hero).toMatchObject({
+      id: expect.any(Number),
+      villageId: expect.any(Number),
+      status: { type: 'stationed', tileId: expect.any(Number) },
+      stats: expect.objectContaining({
+        health: expect.any(Number),
+        experience: expect.any(Number),
+      }),
+    });
   });
 
   test('getHeroLoadout should return equipped items', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
-    getHeroLoadout(
+    const loadout = getHeroLoadout(
       database,
-      createControllerArgs<'/players/:playerId/hero/equipped-items'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/equipped-items'>({
+        context: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    const equippedItemCount = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM hero_equipped_items;',
+      schema: z.number(),
+    })!;
+
+    expect(loadout).toHaveLength(equippedItemCount);
+    expect(
+      loadout.every(
+        ({ itemId, slot, amount }) =>
+          Number.isInteger(itemId) && typeof slot === 'string' && amount > 0,
+      ),
+    ).toBe(true);
   });
 
   test('getHeroInventory should return inventory items', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
-    getHeroInventory(
+    const inventory = getHeroInventory(
       database,
-      createControllerArgs<'/players/:playerId/hero/inventory'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/inventory'>({
+        context: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    const inventoryItemCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM hero_inventory
+        WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $player_id);
+      `,
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    expect(inventory).toHaveLength(inventoryItemCount);
+    expect(
+      inventory.every(
+        ({ id, amount }) => Number.isInteger(id) && Number.isInteger(amount),
+      ),
+    ).toBe(true);
+  });
+
+  test('getHeroInventory should complete expired auction sales before returning inventory', async () => {
+    using database = await prepareTestDatabase();
+    const heroId = database.selectValue({
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO
+          hero_auction_sell_listings (hero_id, item_id, amount, price, sells_at)
+        VALUES
+          ($hero_id, $item_id, $amount, $price, $sells_at);
+      `,
+      bind: {
+        $hero_id: heroId,
+        $item_id: 1022,
+        $amount: 2,
+        $price: 123,
+        $sells_at: Date.now() - 1,
+      },
+    });
+
+    const inventory = getHeroInventory(
+      database,
+      createControllerArgs<'/me/hero/inventory'>({
+        context: { playerId },
+      }),
+    );
+
+    const pendingSaleCount = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM hero_auction_sell_listings WHERE hero_id = $hero_id',
+      bind: { $hero_id: heroId },
+      schema: z.number(),
+    })!;
+
+    expect(inventory).toContainEqual({
+      id: silverItem.id,
+      amount: 123,
+    });
+    expect(pendingSaleCount).toBe(0);
   });
 
   test('getHeroAdventures should return adventures status', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
-    getHeroAdventures(
+    const adventures = getHeroAdventures(
       database,
-      createControllerArgs<'/players/:playerId/hero/adventures'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/adventures'>({
+        context: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(adventures).toMatchObject({
+      available: expect.any(Number),
+      completed: expect.any(Number),
+      nextAvailableAt: expect.any(Number),
+    });
   });
 
   test('startHeroAdventure should not duplicate a hero stationed in its home village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const homeVillage = database.selectObject({
       sql: `
@@ -89,7 +296,7 @@ describe('hero-controllers', () => {
       bind: { $player_id: playerId },
       schema: z.strictObject({
         id: z.number(),
-        tileId: z.number(),
+        tileId: tileIdSchema,
       }),
     })!;
 
@@ -135,8 +342,8 @@ describe('hero-controllers', () => {
 
     startHeroAdventure(
       database,
-      createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero/adventures', 'post'>({
+        context: { playerId },
       }),
     );
 
@@ -163,6 +370,7 @@ describe('hero-controllers', () => {
         villageId: z.number(),
       }),
     })!;
+
     expect(adventureEvent.villageId).toBe(homeVillage.id);
 
     resolveEvent(database, adventureEvent.id);
@@ -171,6 +379,7 @@ describe('hero-controllers', () => {
       sql: "SELECT id FROM events WHERE type = 'troopMovementReturn';",
       schema: z.number(),
     })!;
+
     resolveEvent(database, returnEventId);
 
     const heroTroops = database.selectObjects({
@@ -187,8 +396,8 @@ describe('hero-controllers', () => {
       `,
       schema: z.strictObject({
         amount: z.number(),
-        tileId: z.number(),
-        sourceTileId: z.number(),
+        tileId: tileIdSchema,
+        sourceTileId: tileIdSchema,
       }),
     });
 
@@ -201,8 +410,8 @@ describe('hero-controllers', () => {
     ]);
   });
 
-  test('getHero should report hero as not home while reinforcing another village', async () => {
-    const database = await prepareTestDatabase();
+  test('getHero should report reinforcing status while reinforcing another village', async () => {
+    using database = await prepareTestDatabase();
 
     const homeVillage = database.selectObject({
       sql: `
@@ -213,7 +422,7 @@ describe('hero-controllers', () => {
         LIMIT 1;
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const reinforcedVillage = database.selectObject({
@@ -239,7 +448,7 @@ describe('hero-controllers', () => {
         $home_tile_id: homeVillage.tile_id,
         $player_id: playerId,
       },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     database.exec({
@@ -276,17 +485,20 @@ describe('hero-controllers', () => {
 
     const hero = getHero(
       database,
-      createControllerArgs<'/players/:playerId/hero'>({
-        path: { playerId },
+      createControllerArgs<'/me/hero'>({
+        context: { playerId },
       }),
     );
 
     expect(hero.villageId).toBe(homeVillage.id);
-    expect(hero.isHeroHome).toBe(false);
+    expect(hero.status).toStrictEqual({
+      type: 'reinforcing',
+      tileId: reinforcedVillage.tile_id,
+    });
   });
 
   test('startHeroAdventure should throw while hero is reinforcing another village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const homeVillage = database.selectObject({
       sql: `
@@ -297,7 +509,7 @@ describe('hero-controllers', () => {
         LIMIT 1;
       `,
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const reinforcedVillage = database.selectObject({
@@ -323,7 +535,7 @@ describe('hero-controllers', () => {
         $home_tile_id: homeVillage.tile_id,
         $player_id: playerId,
       },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     database.exec({
@@ -361,21 +573,104 @@ describe('hero-controllers', () => {
     expect(() =>
       startHeroAdventure(
         database,
-        createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/adventures', 'post'>({
+          context: { playerId },
         }),
       ),
     ).toThrow('Hero is not stationed in his home village');
   });
 
   describe(changeHeroAttributes, () => {
-    test('should update hero attributes and base stats', async () => {
-      const database = await prepareTestDatabase();
+    test.each([
+      [
+        'over budget',
+        {
+          attackPower: 1,
+          resourceProduction: 4,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Not enough hero attribute points',
+      ],
+      [
+        'redistributing saved points',
+        {
+          attackPower: 1,
+          resourceProduction: 3,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Hero attribute points cannot be decreased',
+      ],
+      [
+        'removing saved points',
+        {
+          attackPower: 0,
+          resourceProduction: 0,
+          attackBonus: 0,
+          defenceBonus: 0,
+        },
+        'Hero attribute points cannot be decreased',
+      ],
+    ])('rejects %s without changing the hero', async (_label, body, error) => {
+      using database = await prepareTestDatabase();
 
-      changeHeroAttributes(
+      database.exec({
+        sql: 'UPDATE heroes SET experience = 0 WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+      });
+
+      const args = createControllerArgs<'/me/hero', 'get'>({
+        context: { playerId },
+      });
+
+      const before = getHero(database, args);
+
+      expect(() =>
+        changeHeroAttributes(
+          database,
+          createControllerArgs<'/me/hero/attributes', 'patch'>({
+            context: { playerId },
+            body,
+          }),
+        ),
+      ).toThrow(error);
+      expect(getHero(database, args)).toEqual(before);
+    });
+
+    test('accepts an unchanged allocation with no free points', async () => {
+      using database = await prepareTestDatabase();
+      const body = getHero(
         database,
-        createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero', 'get'>({
+          context: { playerId },
+        }),
+      ).selectableAttributes;
+
+      expect(() =>
+        changeHeroAttributes(
+          database,
+          createControllerArgs<'/me/hero/attributes', 'patch'>({
+            context: { playerId },
+            body,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('should update hero attributes and base stats', async () => {
+      using database = await prepareTestDatabase();
+
+      // Level 24 grants exactly the 100 points allocated below.
+      database.exec({
+        sql: 'UPDATE heroes SET experience = 15000 WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+      });
+
+      const result = changeHeroAttributes(
+        database,
+        createControllerArgs<'/me/hero/attributes', 'patch'>({
+          context: { playerId },
           body: {
             attackPower: 10,
             resourceProduction: 20,
@@ -384,6 +679,22 @@ describe('hero-controllers', () => {
           },
         }),
       );
+
+      const village = database.selectObject({
+        sql: `
+          SELECT v.tile_id AS tileId, v.slug AS villageSlug
+          FROM heroes h
+          JOIN villages v ON v.id = h.village_id
+          WHERE h.player_id = $player_id
+        `,
+        bind: { $player_id: playerId },
+        schema: z.strictObject({
+          tileId: tileIdSchema,
+          villageSlug: z.string(),
+        }),
+      })!;
+
+      expect(result).toStrictEqual(village);
 
       const heroSelectable = database.selectObject({
         sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $player_id)',
@@ -438,7 +749,7 @@ describe('hero-controllers', () => {
 
   describe(equipHeroItem, () => {
     test('should equip an item and remove it from inventory', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -457,12 +768,10 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot, amount: 1 },
+        }),
       );
 
       // Verify equipped
@@ -471,6 +780,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
       });
+
       expect(equipped?.item_id).toBe(itemId);
       expect(equipped?.amount).toBe(1);
 
@@ -480,11 +790,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       });
+
       expect(inventory).toBeUndefined();
     });
 
     test('should move existing item to inventory when equipping a different one', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -510,12 +821,10 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId: newItemId, slot, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId: newItemId, slot, amount: 1 },
+        }),
       );
 
       // Verify new item equipped
@@ -524,6 +833,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.number(),
       });
+
       expect(equippedItemId).toBe(newItemId);
 
       // Verify old item moved to inventory
@@ -532,11 +842,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(oldItemId) },
         schema: z.number(),
       });
+
       expect(inventoryOld).toBe(1);
     });
 
     test('should add effects when equipping an item with effects', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -544,7 +855,7 @@ describe('hero-controllers', () => {
         schema: z.number(),
       })!;
 
-      const itemId = 1001; // UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED (has effects)
+      const itemId = artifacts[0].id;
       const slot = 'consumable'; // Using consumable because non-equipable items can't be equipped, but for testing we use a valid slot
 
       // Seed inventory
@@ -555,12 +866,10 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot, amount: 1 },
+        }),
       );
 
       // Verify effects added
@@ -569,11 +878,116 @@ describe('hero-controllers', () => {
         bind: { $itemId: itemId },
         schema: z.number(),
       });
+
       expect(effectIds.length).toBeGreaterThan(0);
     });
 
+    test('should apply helmet experience modifier to gained experience', async () => {
+      using database = await prepareTestDatabase();
+
+      const heroId = database.selectValue({
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      })!;
+
+      const helmetItemId = 104_013; // RARE_HELMET
+      const scrollItemId = 1030; // EXPERIENCE_SCROLL
+
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(helmetItemId) },
+      });
+
+      equipHeroItem(
+        database,
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId: helmetItemId, slot: 'head', amount: 1 },
+        }),
+      );
+
+      const experienceModifier = database.selectValue({
+        sql: 'SELECT experience_modifier FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.number(),
+      });
+
+      expect(experienceModifier).toBe(15);
+
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(scrollItemId) },
+      });
+
+      useHeroItem(
+        database,
+        createControllerArgs<'/me/hero/item', 'post'>({
+          context: { playerId },
+          body: { itemId: scrollItemId, amount: 1 },
+        }),
+      );
+
+      const experience = database.selectValue({
+        sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.number(),
+      });
+
+      expect(experience).toBe(12);
+    });
+
+    test('should update health regeneration when equipping and unequipping leg guards', async () => {
+      using database = await prepareTestDatabase();
+
+      const heroId = database.selectValue({
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      })!;
+
+      const itemId = 104_033; // RARE_LEG_GUARDS
+
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
+      });
+
+      equipHeroItem(
+        database,
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot: 'legs', amount: 1 },
+        }),
+      );
+
+      const equippedHealthRegeneration = database.selectValue({
+        sql: 'SELECT health_regeneration FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.number(),
+      });
+
+      expect(equippedHealthRegeneration).toBe(40);
+
+      unequipHeroItem(
+        database,
+        createControllerArgs<'/me/hero/equipped-items/:slot', 'delete'>({
+          context: { playerId },
+          path: { slot: 'legs' },
+        }),
+      );
+
+      const unequippedHealthRegeneration = database.selectValue({
+        sql: 'SELECT health_regeneration FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.number(),
+      });
+
+      expect(unequippedHealthRegeneration).toBe(10);
+    });
+
     test('should allow multiple items for consumables slot', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -593,12 +1007,10 @@ describe('hero-controllers', () => {
       // Equip 5
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot, amount: 5 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot, amount: 5 },
+        }),
       );
 
       // Verify equipped
@@ -607,17 +1019,16 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.number(),
       });
+
       expect(equipped).toBe(5);
 
       // Equip another 3 of the SAME item
       equipHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
-          {
-            path: { playerId },
-            body: { itemId, slot, amount: 3 },
-          },
-        ),
+        createControllerArgs<'/me/hero/equipped-items', 'patch'>({
+          path: { playerId },
+          body: { itemId, slot, amount: 3 },
+        }),
       );
 
       equipped = database.selectValue({
@@ -625,6 +1036,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.number(),
       });
+
       expect(equipped).toBe(8);
 
       // Verify inventory
@@ -633,13 +1045,14 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       });
+
       expect(inventory).toBe(2);
     });
   });
 
   describe(unequipHeroItem, () => {
     test('should unequip an item and move it to inventory', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -658,11 +1071,9 @@ describe('hero-controllers', () => {
 
       unequipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items/:slot',
-          'delete'
-        >({
-          path: { playerId, slot: 'horse' },
+        createControllerArgs<'/me/hero/equipped-items/:slot', 'delete'>({
+          context: { playerId },
+          path: { slot: 'horse' },
         }),
       );
 
@@ -672,6 +1083,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.number(),
       });
+
       expect(equippedItemId).toBeUndefined();
 
       // Verify moved to inventory
@@ -680,11 +1092,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       });
+
       expect(inventory).toBe(1);
     });
 
     test('should remove effects when unequipping an item', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -715,18 +1128,16 @@ describe('hero-controllers', () => {
           $type: 'bonus',
           $scope: 'global',
           $source: 'hero',
-          $village_id: null,
+          $tile_id: null,
           $source_specifier: itemId,
         },
       });
 
       unequipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items/:slot',
-          'delete'
-        >({
-          path: { playerId, slot },
+        createControllerArgs<'/me/hero/equipped-items/:slot', 'delete'>({
+          context: { playerId },
+          path: { slot },
         }),
       );
 
@@ -736,13 +1147,14 @@ describe('hero-controllers', () => {
         bind: { $itemId: itemId },
         schema: z.number(),
       });
+
       expect(effectIds).toHaveLength(0);
     });
   });
 
   describe(useHeroItem, () => {
     test('should use healing potion and increase health', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -767,8 +1179,8 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/item', 'post'>({
+          context: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -779,6 +1191,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId },
         schema: z.number(),
       })!;
+
       expect(updatedHero).toBe(70);
 
       // Verify inventory
@@ -787,11 +1200,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       })!;
+
       expect(inventory).toBe(10);
     });
 
     test('should not use more healing potions than needed to reach 100 health', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -816,8 +1230,8 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/item', 'post'>({
+          context: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -828,6 +1242,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId },
         schema: z.number(),
       })!;
+
       expect(updatedHero).toBe(100);
 
       // Verify inventory (only 10 should be used)
@@ -836,11 +1251,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       })!;
+
       expect(inventory).toBe(20);
     });
 
     test('should use book of wisdom and reset attributes', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -873,8 +1289,8 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          path: { playerId },
+        createControllerArgs<'/me/hero/item', 'post'>({
+          context: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -890,6 +1306,7 @@ describe('hero-controllers', () => {
           defence_bonus: z.number(),
         }),
       })!;
+
       expect(updatedHero.attack_power).toBe(0);
       expect(updatedHero.resource_production).toBe(0);
       expect(updatedHero.attack_bonus).toBe(0);
@@ -905,6 +1322,7 @@ describe('hero-controllers', () => {
           defence_bonus: z.number(),
         }),
       })!;
+
       // Gauls get 80 initial strength
       expect(updatedHeroStats.base_attack_power).toBe(80);
       expect(updatedHeroStats.attack_bonus).toBe(0);
@@ -931,11 +1349,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       });
+
       expect(inventory).toBeUndefined();
     });
 
     test('should throw error if not enough items in inventory', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const itemId = 1021; // HEALING_POTION
       const amount = 10;
@@ -943,8 +1362,8 @@ describe('hero-controllers', () => {
       expect(() => {
         useHeroItem(
           database,
-          createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-            path: { playerId },
+          createControllerArgs<'/me/hero/item', 'post'>({
+            context: { playerId },
             body: { itemId, amount },
           }),
         );
@@ -954,18 +1373,31 @@ describe('hero-controllers', () => {
 
   describe(changeHeroResourceToProduce, () => {
     test('should update resource to produce', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
-      changeHeroResourceToProduce(
+      const result = changeHeroResourceToProduce(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/resource-to-produce',
-          'patch'
-        >({
-          path: { playerId },
+        createControllerArgs<'/me/hero/resource-to-produce', 'patch'>({
+          context: { playerId },
           body: { resource: 'wood' },
         }),
       );
+
+      const village = database.selectObject({
+        sql: `
+          SELECT v.tile_id AS tileId, v.slug AS villageSlug
+          FROM heroes h
+          JOIN villages v ON v.id = h.village_id
+          WHERE h.player_id = $player_id
+        `,
+        bind: { $player_id: playerId },
+        schema: z.strictObject({
+          tileId: tileIdSchema,
+          villageSlug: z.string(),
+        }),
+      })!;
+
+      expect(result).toStrictEqual(village);
 
       const hero = database.selectValue({
         sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',
@@ -995,7 +1427,7 @@ describe('hero-controllers', () => {
     });
 
     test('should update resource production effects for Egyptians when resource to produce is changed', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       // Change tribe to Egyptians
       database.exec({
@@ -1011,11 +1443,8 @@ describe('hero-controllers', () => {
 
       changeHeroResourceToProduce(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/resource-to-produce',
-          'patch'
-        >({
-          path: { playerId },
+        createControllerArgs<'/me/hero/resource-to-produce', 'patch'>({
+          context: { playerId },
           body: { resource: 'clay' },
         }),
       );
@@ -1039,7 +1468,7 @@ describe('hero-controllers', () => {
     });
 
     test('should update resource production effects to shared when resource to produce is changed to shared', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       // First set it to something else
       database.exec({
@@ -1049,11 +1478,8 @@ describe('hero-controllers', () => {
 
       changeHeroResourceToProduce(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/resource-to-produce',
-          'patch'
-        >({
-          path: { playerId },
+        createControllerArgs<'/me/hero/resource-to-produce', 'patch'>({
+          context: { playerId },
           body: { resource: 'shared' },
         }),
       );

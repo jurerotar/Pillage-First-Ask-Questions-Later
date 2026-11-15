@@ -4,14 +4,12 @@ import {
   mapTileDtoSchema,
   mapTileOasisBonusDtoSchema,
   mapTileTroopDtoSchema,
-  mapTileWorldItemDtoSchema,
 } from '@pillage-first/types/dtos/map';
 import type {
   getMapMarkersSchema,
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
-  getTileWorldItemSchema,
 } from '../schemas/map-schemas';
 
 export const mapTile = (
@@ -60,7 +58,6 @@ export const mapTile = (
         // RFC should be present for free tiles; coalesce to a valid default if missing
         resourceFieldComposition: row.rfc ?? '4446',
       },
-      item: row.item_id === null ? null : { id: row.item_id },
     };
     return mapTileDtoSchema.parse(dto);
   }
@@ -73,7 +70,7 @@ export const mapTile = (
     ownerVillage,
     attributes: {
       oasisGraphics: row.oasis_graphics ?? 0,
-      isOccupiable: row.oasis_is_occupiable === 1,
+      bonusType: row.oasis_bonus_type,
     },
   };
 
@@ -87,7 +84,7 @@ export const mapTileTroop = (
     unitId: row.unit_id,
     amount: row.amount,
     tileId: row.tile_id,
-    source: row.source_tile_id,
+    sourceTileId: row.source_tile_id,
   };
   return mapTileTroopDtoSchema.parse(dto);
 };
@@ -101,21 +98,11 @@ export const mapTileOasisBonus = (
   });
 };
 
-export const mapTileWorldItem = (
-  row: z.infer<typeof getTileWorldItemSchema>,
-): z.infer<typeof mapTileWorldItemDtoSchema> => {
-  return mapTileWorldItemDtoSchema.parse({
-    id: row.item_id,
-    coordinates: { x: 0, y: 0 },
-    distance: 0,
-    amount: row.amount,
-  });
-};
-
 export const mapMarker = (
   row: z.infer<typeof getMapMarkersSchema>,
 ): z.infer<typeof mapMarkerDtoSchema> => {
   return mapMarkerDtoSchema.parse({
+    icon: row.icon,
     tileId: row.tile_id,
     description: row.description,
     color: row.color,

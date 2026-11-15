@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -107,7 +107,7 @@ const expectAtMostOneActiveConstructionPerLane = (
     }),
   });
 
-  expect(violations).toEqual([]);
+  expect(violations).toStrictEqual([]);
 };
 
 const expectScheduledLevelsToBeConsecutive = (
@@ -175,12 +175,12 @@ const expectScheduledLevelsToBeConsecutive = (
     }),
   });
 
-  expect(violations).toEqual([]);
+  expect(violations).toStrictEqual([]);
 };
 
 describe('scheduled building upgrade controllers', () => {
   test('rejects scheduling when no relevant construction is active', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -215,7 +215,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('scheduling an upgrade only queues it', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -233,6 +233,7 @@ describe('scheduled building upgrade controllers', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     insertActiveBuildingUpgrade(database, villageId, field.fieldId);
 
     scheduleBuildingUpgrade(
@@ -263,22 +264,23 @@ describe('scheduled building upgrade controllers', () => {
       }),
     });
 
-    expect(counts).toEqual({
+    expect(counts).toStrictEqual({
       scheduled: 1,
       active: 1,
     });
   });
 
   test('allows scheduling new building construction when requirements are missing', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
+
     insertActiveBuildingUpgrade(database, villageId, buildingFieldId);
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
-        WHERE village_id = $village_id AND source_specifier = $field_id;
+    database.execMulti({
+      sql: `DELETE FROM effects
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND source_specifier = $field_id;
         DELETE FROM building_fields
         WHERE village_id = $village_id AND field_id = $field_id;
       `,
@@ -314,9 +316,10 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('does not check construction requirements when scheduling a level up', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
+
     insertActiveBuildingUpgrade(database, villageId, buildingFieldId);
 
     database.exec({
@@ -353,19 +356,20 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('replaces an orphaned level-zero placeholder when scheduling a new building', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
-        WHERE village_id = $village_id AND source_specifier = $field_id;
+    database.execMulti({
+      sql: `DELETE FROM effects
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND source_specifier = $field_id;
         DELETE FROM building_fields
         WHERE village_id = $village_id AND field_id = $field_id;
       `,
       bind: { $village_id: villageId, $field_id: buildingFieldId },
     });
+
     createBuildingPlaceholder(database, villageId, buildingFieldId, 'CRANNY');
 
     const activeField = database.selectObject({
@@ -384,6 +388,7 @@ describe('scheduled building upgrade controllers', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     insertEvents(database, [
       createBuildingLevelChangeEventMock({
         villageId,
@@ -425,7 +430,8 @@ describe('scheduled building upgrade controllers', () => {
         scheduled: z.number(),
       }),
     });
-    expect(result).toEqual({
+
+    expect(result).toStrictEqual({
       buildingId: 'WAREHOUSE',
       level: 0,
       scheduled: 1,
@@ -433,14 +439,16 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('returns scheduled upgrades in insertion order', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: 'CLAY_PIT',
       buildingFieldId: 2,
       level: 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: 'WOODCUTTER',
@@ -455,20 +463,22 @@ describe('scheduled building upgrade controllers', () => {
       }),
     );
 
-    expect(result.map(({ buildingFieldId }) => buildingFieldId)).toEqual([
+    expect(result.map(({ buildingFieldId }) => buildingFieldId)).toStrictEqual([
       2, 1,
     ]);
   });
 
   test('reorders scheduled upgrades', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
+
     for (const upgrade of [
       { buildingId: 'CLAY_PIT' as const, buildingFieldId: 2, level: 1 },
       { buildingId: 'WOODCUTTER' as const, buildingFieldId: 1, level: 1 },
     ]) {
       insertScheduledBuildingUpgrade(database, { villageId, ...upgrade });
     }
+
     const upgrades = getScheduledBuildingUpgrades(
       database,
       createControllerArgs({ path: { villageId: villageId.toString() } }),
@@ -489,12 +499,13 @@ describe('scheduled building upgrade controllers', () => {
         database,
         createControllerArgs({ path: { villageId: villageId.toString() } }),
       ).map(({ buildingFieldId }) => buildingFieldId),
-    ).toEqual([1, 2]);
+    ).toStrictEqual([1, 2]);
   });
 
   test('rejects reordering higher levels before lower levels', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
+
     for (const level of [1, 2]) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
@@ -503,6 +514,7 @@ describe('scheduled building upgrade controllers', () => {
         level,
       });
     }
+
     const upgrades = getScheduledBuildingUpgrades(
       database,
       createControllerArgs({ path: { villageId: villageId.toString() } }),
@@ -524,7 +536,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('maintains queue invariants after scheduling, reordering, and cancelling', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -542,6 +554,7 @@ describe('scheduled building upgrade controllers', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const [activeField, queuedField] = fields;
 
     insertEvents(database, [
@@ -565,6 +578,7 @@ describe('scheduled building upgrade controllers', () => {
         },
       }),
     );
+
     scheduleBuildingUpgrade(
       database,
       createControllerArgs({
@@ -576,6 +590,7 @@ describe('scheduled building upgrade controllers', () => {
         },
       }),
     );
+
     scheduleBuildingUpgrade(
       database,
       createControllerArgs({
@@ -595,6 +610,7 @@ describe('scheduled building upgrade controllers', () => {
       database,
       createControllerArgs({ path: { villageId: villageId.toString() } }),
     );
+
     const reorderedIds = [
       scheduledUpgrades[2].id,
       scheduledUpgrades[0].id,
@@ -630,7 +646,7 @@ describe('scheduled building upgrade controllers', () => {
       createControllerArgs({ path: { villageId: villageId.toString() } }),
     );
 
-    expect(remaining).toEqual([
+    expect(remaining).toStrictEqual([
       expect.objectContaining({
         buildingFieldId: activeField.fieldId,
         level: activeField.level + 2,
@@ -639,7 +655,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('cancelling an upgrade preserves earlier levels and other fields', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const activeField = database.selectObject({
       sql: `
@@ -657,6 +673,7 @@ describe('scheduled building upgrade controllers', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     insertEvents(database, [
       createBuildingLevelChangeEventMock({
         villageId,
@@ -673,9 +690,11 @@ describe('scheduled building upgrade controllers', () => {
       { buildingId: 'CLAY_PIT' as const, buildingFieldId: 2, level: 3 },
       { buildingId: 'WOODCUTTER' as const, buildingFieldId: 1, level: 1 },
     ];
+
     for (const upgrade of queued) {
       insertScheduledBuildingUpgrade(database, { villageId, ...upgrade });
     }
+
     const cancelledId = database.selectValue({
       sql: `
         SELECT id FROM scheduled_building_upgrades
@@ -710,14 +729,15 @@ describe('scheduled building upgrade controllers', () => {
         level: z.number(),
       }),
     });
-    expect(remaining).toEqual([
+
+    expect(remaining).toStrictEqual([
       { buildingFieldId: 2, level: 1 },
       { buildingFieldId: 1, level: 1 },
     ]);
   });
 
   test('rejects a sixth active or scheduled construction', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const activeField = database.selectObject({
       sql: `
@@ -734,6 +754,7 @@ describe('scheduled building upgrade controllers', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     insertEvents(database, [
       createBuildingLevelChangeEventMock({
         villageId,
@@ -743,7 +764,8 @@ describe('scheduled building upgrade controllers', () => {
         level: activeField.level + 1,
       }),
     ]);
-    for (let level = 1; level <= 4; level++) {
+
+    for (let level = 1; level <= 4; level += 1) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
         buildingId: 'CLAY_PIT',

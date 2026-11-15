@@ -14,7 +14,8 @@ export const selectPlayerMapMarkersQuery = `
       WHEN TRIM(description) = '' THEN 'Map marker ' || ROW_NUMBER() OVER (ORDER BY id)
       ELSE description
       END AS description,
-    color
+    color,
+    icon
   FROM
     map_markers
   WHERE
@@ -25,14 +26,15 @@ export const selectPlayerMapMarkersQuery = `
 
 export const insertMapMarkerQuery = `
   INSERT INTO
-    map_markers (player_id, tile_id, description, color)
+    map_markers (player_id, tile_id, description, color, icon)
   VALUES
-    ($player_id, $tile_id, $description, $color);
+    ($player_id, $tile_id, $description, $color, $icon);
 `;
 
 export const selectVillageAndFirstOasisTileIdsQuery = `
   SELECT
     v.tile_id AS villageTileId,
+    v.player_id AS playerId,
     (
       SELECT tile_id
       FROM
@@ -48,89 +50,72 @@ export const selectVillageAndFirstOasisTileIdsQuery = `
 
 export const selectMapTilesQuery = `
   WITH
-    effects_wheat AS (
-      SELECT e.village_id, SUM(-e.value) AS wheat_production_sum
-      FROM
-        effects e
-      WHERE
-        e.effect_id = 1
-        AND e.type_id = 1
-        AND e.scope_id = 2
-        AND e.source_id = 1
-        AND e.source_specifier = 0
-      GROUP BY e.village_id
-    ),
-
-    world_items_single AS (
-      SELECT tile_id, MIN(item_id) AS item_id
-      FROM
-        world_items
-      GROUP BY tile_id
+    village_details AS MATERIALIZED (
+      SELECT
+        v.id,
+        v.tile_id,
+        v.name,
+        v.slug,
+        p.id AS player_id,
+        p.slug AS player_slug,
+        p.name AS player_name,
+        ti.tribe AS player_tribe,
+        fi.faction AS player_faction,
+        COALESCE((
+          SELECT SUM(-e.value)
+          FROM effects e
+          WHERE e.tile_id = v.tile_id
+            AND e.effect_id = 1
+            AND e.type_id = 1
+            AND e.scope_id = 2
+            AND e.source_id = 1
+            AND e.source_specifier = 0
+        ), 0) AS population
+      FROM villages v
+        LEFT JOIN players p ON p.id = v.player_id
+        LEFT JOIN tribe_ids ti ON ti.id = p.tribe_id
+        LEFT JOIN faction_ids fi ON fi.id = p.faction_id
     )
-
-  SELECT
-    t.id AS id,
-    t.x AS coordinates_x,
-    t.y AS coordinates_y,
-    CASE t.type_id
-      WHEN 1 THEN 'free'
-      WHEN 2 THEN 'oasis'
-    END AS type,
-    rfc.resource_field_composition AS rfc,
-    t.oasis_graphics AS oasis_graphics,
-    CASE
-      WHEN t.type_id = 1 THEN v.id
-      WHEN t.type_id = 2 THEN v_owner.id
-    END AS village_id,
-    CASE
-      WHEN t.type_id = 1 THEN v.name
-      WHEN t.type_id = 2 THEN v_owner.name
-    END AS village_name,
-    CASE
-      WHEN t.type_id = 1 THEN v.slug
-      WHEN t.type_id = 2 THEN v_owner.slug
-    END AS village_slug,
-    p.id AS player_id,
-    p.slug AS player_slug,
-    p.name AS player_name,
-    ti.tribe AS player_tribe,
-    fi.faction AS player_faction,
-
-    CASE
-      WHEN t.type_id = 1 AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0)
-      WHEN t.type_id = 2 AND v_owner.id IS NOT NULL THEN COALESCE(ew_owner.wheat_production_sum, 0)
-    END AS population,
-
-    CASE
-      WHEN t.type_id = 1 THEN wi.item_id
-    END AS item_id,
-
-    CASE
-      WHEN t.type_id = 2 THEN 1
-      ELSE 0
-    END AS oasis_is_occupiable
-
-  FROM
-    tiles t
-      LEFT JOIN villages v ON v.tile_id = t.id
+  -- Positional rows avoid repeating field names for every tile across the WASM boundary.
+  -- Keep this order aligned with the decoder in getTilesJsonSchema.
+  SELECT json_group_array(json_array(
+    t.id,
+    t.x,
+    t.y,
+    CASE t.type_id WHEN 1 THEN 'free' WHEN 2 THEN 'oasis' END,
+    rfc.resource_field_composition,
+    t.oasis_graphics,
+    o.bonus_type,
+    details.id,
+    details.name,
+    details.slug,
+    details.player_id,
+    details.player_slug,
+    details.player_name,
+    details.player_tribe,
+    details.player_faction,
+    details.population
+  )) AS tiles_json
+  FROM tiles t
       LEFT JOIN (
-        SELECT tile_id, MAX(village_id) AS village_id
+        SELECT
+          tile_id,
+          MAX(village_id) AS village_id,
+          CASE
+            WHEN COUNT(*) = 1 AND MAX(bonus) = 25 THEN 1
+            WHEN COUNT(*) = 2 AND MIN(bonus) = 25 AND MAX(bonus) = 25 THEN 2
+            WHEN COUNT(*) = 1 AND MAX(bonus) = 50 THEN 3
+            ELSE NULL
+          END AS bonus_type
         FROM
           oasis
         GROUP BY tile_id
       ) o ON o.tile_id = t.id AND t.type_id = 2
-      LEFT JOIN villages v_owner ON v_owner.id = o.village_id
-      LEFT JOIN players p ON p.id = CASE
-        WHEN t.type_id = 1 THEN v.player_id
-        WHEN t.type_id = 2 THEN v_owner.player_id
+      LEFT JOIN village_details details ON details.tile_id = CASE t.type_id
+        WHEN 1 THEN t.id
+        WHEN 2 THEN (SELECT tile_id FROM villages WHERE id = o.village_id)
       END
-      LEFT JOIN tribe_ids ti ON p.tribe_id = ti.id
-      LEFT JOIN faction_ids fi ON fi.id = p.faction_id
       LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-      LEFT JOIN effects_wheat ew ON ew.village_id = v.id
-      LEFT JOIN effects_wheat ew_owner ON ew_owner.village_id = v_owner.id
-      LEFT JOIN world_items_single wi ON wi.tile_id = t.id
-
   ;
 `;
 
@@ -158,13 +143,4 @@ export const selectTileOasisBonusesQuery = `
       JOIN resource_ids ri ON ri.id = o.resource_id
   WHERE
     o.tile_id = $tile_id;
-`;
-
-export const selectTileWorldItemQuery = `
-  SELECT item_id, amount
-  FROM
-    world_items
-  WHERE
-    tile_id = $tile_id
-  LIMIT 1;
 `;

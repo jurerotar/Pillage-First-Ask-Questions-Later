@@ -1,14 +1,38 @@
 import type { z } from 'zod';
 import {
+  heroAuctionBuyListingDtoSchema,
+  heroAuctionHistoryEntryDtoSchema,
+  heroAuctionSellListingDtoSchema,
   heroDtoSchema,
   heroInventoryEntryDtoSchema,
   heroLoadoutEntryDtoSchema,
 } from '@pillage-first/types/dtos/hero';
 import type {
+  getHeroAuctionBuyListingSchema,
+  getHeroAuctionHistoryEntrySchema,
+  getHeroAuctionSellListingSchema,
   getHeroInventorySchema,
   getHeroLoadoutSchema,
   getHeroSchema,
 } from '../schemas/hero-schemas';
+
+const mapHeroStatus = (
+  row: z.infer<typeof getHeroSchema>,
+): z.infer<typeof heroDtoSchema>['status'] => {
+  if (row.health <= 0) {
+    return { type: 'dead' };
+  }
+
+  if (row.movement_type !== null && row.movement_ends_at !== null) {
+    return { type: row.movement_type, endsAt: row.movement_ends_at };
+  }
+
+  if (row.stationed_tile_id === row.home_tile_id) {
+    return { type: 'stationed', tileId: row.stationed_tile_id };
+  }
+
+  return { type: 'reinforcing', tileId: row.stationed_tile_id! };
+};
 
 export const mapHero = (
   row: z.infer<typeof getHeroSchema>,
@@ -35,7 +59,7 @@ export const mapHero = (
     },
     villageId: row.village_id,
     resourceToProduce: row.resource_to_produce,
-    isHeroHome: Boolean(row.is_home),
+    status: mapHeroStatus(row),
   };
 
   return heroDtoSchema.parse(dto);
@@ -57,5 +81,42 @@ export const mapHeroInventoryEntry = (
   return heroInventoryEntryDtoSchema.parse({
     id: row.item_id,
     amount: row.amount,
+  });
+};
+
+export const mapHeroAuctionBuyListing = (
+  row: z.infer<typeof getHeroAuctionBuyListingSchema>,
+): z.infer<typeof heroAuctionBuyListingDtoSchema> => {
+  return heroAuctionBuyListingDtoSchema.parse({
+    id: row.id,
+    itemId: row.item_id,
+    amount: row.amount,
+    price: row.price,
+    expiresAt: row.expires_at,
+  });
+};
+
+export const mapHeroAuctionSellListing = (
+  row: z.infer<typeof getHeroAuctionSellListingSchema>,
+): z.infer<typeof heroAuctionSellListingDtoSchema> => {
+  return heroAuctionSellListingDtoSchema.parse({
+    id: row.id,
+    itemId: row.item_id,
+    amount: row.amount,
+    price: row.price,
+    sellsAt: row.sells_at,
+  });
+};
+
+export const mapHeroAuctionHistoryEntry = (
+  row: z.infer<typeof getHeroAuctionHistoryEntrySchema>,
+): z.infer<typeof heroAuctionHistoryEntryDtoSchema> => {
+  return heroAuctionHistoryEntryDtoSchema.parse({
+    id: row.id,
+    type: row.type,
+    itemId: row.item_id,
+    amount: row.amount,
+    price: row.price,
+    completedAt: row.completed_at,
   });
 };

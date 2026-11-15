@@ -5,12 +5,8 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
 import { useHasAvailableBuildingQueueSlot } from 'app/(game)/(village-slug)/hooks/current-village/use-has-available-building-queue-slot';
 import {
-  getHasEnoughFreeCrop,
-  useHasEnoughFreeCrop,
-} from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-free-crop';
-import {
-  getHasEnoughResources,
   useHasEnoughResources,
+  useResourceAvailability,
 } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import {
   getHasEnoughGranaryCapacity,
@@ -20,7 +16,6 @@ import {
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 
 type UseBuildingRequirementsReturn = {
   canUpgrade: boolean;
@@ -35,7 +30,6 @@ type UseBuildingConstructionStatusReturn = {
 
 type GetBuildingConstructionStatusArgs = {
   hasAvailableBuildingQueueSlot: boolean;
-  hasEnoughFreeCrop: boolean;
   hasEnoughGranaryCapacity: boolean;
   hasEnoughResources: boolean;
   hasEnoughWarehouseCapacity: boolean;
@@ -43,9 +37,33 @@ type GetBuildingConstructionStatusArgs = {
   isInstantBuildingConstructionEnabled: boolean;
 };
 
+type BuildingConstructionResourceChecks = Pick<
+  GetBuildingConstructionStatusArgs,
+  | 'hasEnoughGranaryCapacity'
+  | 'hasEnoughResources'
+  | 'hasEnoughWarehouseCapacity'
+>;
+
+type GetScheduledBuildingConstructionResourceChecksArgs =
+  BuildingConstructionResourceChecks & {
+    isScheduling: boolean;
+  };
+
+export const getScheduledBuildingConstructionResourceChecks = ({
+  hasEnoughGranaryCapacity,
+  hasEnoughResources,
+  hasEnoughWarehouseCapacity,
+  isScheduling,
+}: GetScheduledBuildingConstructionResourceChecksArgs): BuildingConstructionResourceChecks => {
+  return {
+    hasEnoughGranaryCapacity,
+    hasEnoughResources: isScheduling || hasEnoughResources,
+    hasEnoughWarehouseCapacity,
+  };
+};
+
 const getBuildingConstructionStatus = ({
   hasAvailableBuildingQueueSlot,
-  hasEnoughFreeCrop,
   hasEnoughGranaryCapacity,
   hasEnoughResources,
   hasEnoughWarehouseCapacity,
@@ -54,8 +72,7 @@ const getBuildingConstructionStatus = ({
 }: GetBuildingConstructionStatusArgs): UseBuildingConstructionStatusReturn => {
   const isResourceBlocked =
     !isFreeBuildingConstructionEnabled &&
-    (!hasEnoughFreeCrop ||
-      !hasEnoughResources ||
+    (!hasEnoughResources ||
       !hasEnoughWarehouseCapacity ||
       !hasEnoughGranaryCapacity);
   const isQueueBlocked =
@@ -63,9 +80,7 @@ const getBuildingConstructionStatus = ({
 
   if (
     !isFreeBuildingConstructionEnabled &&
-    (!hasEnoughFreeCrop ||
-      !hasEnoughWarehouseCapacity ||
-      !hasEnoughGranaryCapacity)
+    (!hasEnoughWarehouseCapacity || !hasEnoughGranaryCapacity)
   ) {
     return {
       canUpgrade: !isResourceBlocked && !isQueueBlocked,
@@ -95,12 +110,8 @@ export const useBuildingConstructionStatus = (
   buildingFieldId: BuildingField['id'],
 ): UseBuildingConstructionStatusReturn => {
   const { developerSettings } = useDeveloperSettings();
-  const { wood, clay, iron, wheat } = use(CurrentVillageLiveResourcesContext);
-  const {
-    computedWheatProductionEffect,
-    computedWarehouseCapacityEffect,
-    computedGranaryCapacityEffect,
-  } = use(CurrentVillageComputedEffectsContext);
+  const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
+    use(CurrentVillageComputedEffectsContext);
   const {
     buildingUpgradeEvents,
     getBuildingEventQueue,
@@ -108,24 +119,14 @@ export const useBuildingConstructionStatus = (
   } = use(CurrentVillageBuildingQueueContext);
   const isScheduling = getBuildingEventQueue(buildingFieldId).length > 0;
 
-  const { nextLevelPopulation, population, nextLevelResourceCost } =
-    getBuildingDataForLevel(buildingId, level);
+  const { nextLevelResourceCost } = getBuildingDataForLevel(buildingId, level);
 
   const {
     isFreeBuildingConstructionEnabled,
     isInstantBuildingConstructionEnabled,
   } = developerSettings;
 
-  const hasEnoughFreeCrop = getHasEnoughFreeCrop(
-    nextLevelPopulation - population,
-    computedWheatProductionEffect.buildingWheatLimit,
-  );
-  const hasEnoughResources = getHasEnoughResources(nextLevelResourceCost, {
-    wood,
-    clay,
-    iron,
-    wheat,
-  });
+  const hasEnoughResources = useHasEnoughResources(nextLevelResourceCost);
   const hasEnoughWarehouseCapacity = getHasEnoughWarehouseCapacity(
     computedWarehouseCapacityEffect.total,
     nextLevelResourceCost,
@@ -138,12 +139,16 @@ export const useBuildingConstructionStatus = (
     buildingUpgradeEvents.length < 5 &&
     !downgradedBuildingByFieldId.has(buildingFieldId);
 
+  const resourceChecks = getScheduledBuildingConstructionResourceChecks({
+    hasEnoughGranaryCapacity,
+    hasEnoughResources,
+    hasEnoughWarehouseCapacity,
+    isScheduling,
+  });
+
   return getBuildingConstructionStatus({
     hasAvailableBuildingQueueSlot,
-    hasEnoughFreeCrop: isScheduling || hasEnoughFreeCrop,
-    hasEnoughGranaryCapacity: isScheduling || hasEnoughGranaryCapacity,
-    hasEnoughResources: isScheduling || hasEnoughResources,
-    hasEnoughWarehouseCapacity: isScheduling || hasEnoughWarehouseCapacity,
+    ...resourceChecks,
     isFreeBuildingConstructionEnabled,
     isInstantBuildingConstructionEnabled,
   });
@@ -157,12 +162,10 @@ export const useBuildingConstructionErrorBag = (
   const { developerSettings } = useDeveloperSettings();
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const isScheduling = getBuildingEventQueue(buildingFieldId).length > 0;
-  const { errorBag: hasEnoughFreeCropErrorBag, hasEnoughFreeCrop } =
-    useHasEnoughFreeCrop(buildingId, level);
   const { nextLevelResourceCost } = getBuildingDataForLevel(buildingId, level);
 
   const { errorBag: hasEnoughResourcesErrorBag, hasEnoughResources } =
-    useHasEnoughResources(nextLevelResourceCost);
+    useResourceAvailability(nextLevelResourceCost);
   const {
     errorBag: hasEnoughWarehouseCapacityErrorBag,
     hasEnoughStorageCapacity: hasEnoughWarehouseCapacity,
@@ -182,10 +185,9 @@ export const useBuildingConstructionErrorBag = (
   } = developerSettings;
 
   const errorBag = [
-    ...(!isFreeBuildingConstructionEnabled && !isScheduling
+    ...(!isFreeBuildingConstructionEnabled
       ? [
-          ...hasEnoughFreeCropErrorBag,
-          ...hasEnoughResourcesErrorBag,
+          ...(!isScheduling ? hasEnoughResourcesErrorBag : []),
           ...hasEnoughWarehouseCapacityErrorBag,
           ...hasEnoughGranaryCapacityErrorBag,
         ]
@@ -194,13 +196,16 @@ export const useBuildingConstructionErrorBag = (
       ? [...hasHasAvailableBuildingQueueSlotErrorBag]
       : []),
   ];
+  const resourceChecks = getScheduledBuildingConstructionResourceChecks({
+    hasEnoughGranaryCapacity,
+    hasEnoughResources,
+    hasEnoughWarehouseCapacity,
+    isScheduling,
+  });
 
   const status = getBuildingConstructionStatus({
     hasAvailableBuildingQueueSlot,
-    hasEnoughFreeCrop: isScheduling || hasEnoughFreeCrop,
-    hasEnoughGranaryCapacity: isScheduling || hasEnoughGranaryCapacity,
-    hasEnoughResources: isScheduling || hasEnoughResources,
-    hasEnoughWarehouseCapacity: isScheduling || hasEnoughWarehouseCapacity,
+    ...resourceChecks,
     isFreeBuildingConstructionEnabled,
     isInstantBuildingConstructionEnabled,
   });

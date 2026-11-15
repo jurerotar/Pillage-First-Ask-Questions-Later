@@ -1,12 +1,13 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import {
   createGameEventMock,
   createTroopMovementAdventureEventMock,
   createTroopMovementAttackEventMock,
   createTroopMovementFindNewVillageEventMock,
   createTroopMovementRaidEventMock,
+  createTroopMovementReinforcementsEventMock,
   createTroopMovementRelocationEventMock,
 } from '@pillage-first/mocks/event';
 import { effectSchema } from '@pillage-first/types/models/effect';
@@ -17,10 +18,15 @@ import {
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
+import {
+  insertEffectQuery,
+  selectWheatProductionEffectIdQuery,
+} from '../../../../queries/effect-queries';
 import { removeTroops } from '../../../../utils/troops';
+import { calculateResourceSiteResourcesAt } from '../../../../utils/village';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
@@ -31,11 +37,22 @@ import {
   adventureMovementResolver,
   attackMovementResolver,
   findNewVillageMovementResolver,
+  oasisOccupationMovementResolver,
   raidMovementResolver,
   reinforcementMovementResolver,
   relocationMovementResolver,
   returnMovementResolver,
 } from '../troop-movement-resolver';
+
+const mockRandom = (rolls: number[]) => {
+  const random = vi.spyOn(Math, 'random').mockReturnValue(0);
+
+  for (const roll of rolls) {
+    random.mockReturnValueOnce(roll);
+  }
+
+  return random;
+};
 
 const getTroopWheatProductionEffectValue = (
   database: DbFacade,
@@ -47,7 +64,7 @@ const getTroopWheatProductionEffectValue = (
       FROM effects e
         JOIN effect_ids ei ON e.effect_id = ei.id
       WHERE
-        e.village_id = $village_id
+        e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
         AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
         AND ei.effect = 'wheatProduction';
     `,
@@ -70,7 +87,7 @@ const setTroopWheatProductionEffectValue = (
       UPDATE effects
       SET value = $value
       WHERE
-        village_id = $village_id
+        tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
         AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
         AND effect_id = $effect_id;
     `,
@@ -89,19 +106,85 @@ const getTileIdByCoordinates = (
   database.selectValue({
     sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
     bind: { $x: coordinates.x, $y: coordinates.y },
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 
 const getVillageTileId = (database: DbFacade, villageId: number) =>
   database.selectValue({
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
     bind: { $village_id: villageId },
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
+
+describe(oasisOccupationMovementResolver, () => {
+  test('should occupy oasis and send troops back', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = 1;
+    const originTileId = getVillageTileId(database, villageId);
+    const targetTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1;',
+      schema: z.number(),
+    })!;
+
+    const resolvesAt = Date.now();
+
+    oasisOccupationMovementResolver(
+      database,
+      createGameEventMock('troopMovementOasisOccupation', {
+        villageId,
+        originTileId,
+        targetTileId,
+        startsAt: resolvesAt - 1000,
+        duration: 1000,
+        resolvesAt,
+        troops: [
+          {
+            unitId: 'HERO',
+            amount: 1,
+            tileId: originTileId,
+            sourceTileId: originTileId,
+          },
+        ],
+      }),
+    );
+
+    const occupyingVillageId = database.selectValue({
+      sql: 'SELECT village_id FROM oasis WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetTileId },
+      schema: z.number().nullable(),
+    });
+
+    const returnEvent = database.selectObject({
+      sql: `
+        SELECT
+          JSON_EXTRACT(meta, '$.originTileId') AS origin_tile_id,
+          JSON_EXTRACT(meta, '$.targetTileId') AS target_tile_id,
+          JSON_EXTRACT(meta, '$.originalMovementType') AS original_movement_type
+        FROM
+          events
+        WHERE
+          type = 'troopMovementReturn'
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
+        original_movement_type: z.string(),
+      }),
+    })!;
+
+    expect(occupyingVillageId).toBe(villageId);
+    expect(returnEvent).toStrictEqual({
+      origin_tile_id: targetTileId,
+      target_tile_id: originTileId,
+      original_movement_type: 'troopMovementOasisOccupation',
+    });
+  });
+});
 
 describe(adventureMovementResolver, () => {
   test('should handle hero surviving adventure', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = 1;
 
@@ -136,8 +219,10 @@ describe(adventureMovementResolver, () => {
       villageId,
       originTileId: getVillageTileId(database, villageId),
       targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     });
+
+    using _random = mockRandom([0.1, 0.7, 0.75]);
 
     adventureMovementResolver(database, mockEvent);
 
@@ -169,6 +254,7 @@ describe(adventureMovementResolver, () => {
           roi.report_outcome,
           har.adventure_id,
           har.item_id,
+          har.item_amount,
           har.health_before,
           har.health_after
         FROM
@@ -186,33 +272,44 @@ describe(adventureMovementResolver, () => {
         report_outcome: reportOutcomeSchema,
         adventure_id: z.number(),
         item_id: z.number().nullable(),
+        item_amount: z.number().nullable(),
         health_before: z.number(),
         health_after: z.number(),
       }),
     })!;
 
-    expect(report).toEqual({
+    expect(report).toStrictEqual({
       village_id: villageId,
       timestamp: mockEvent.resolvesAt,
       report_type: 'adventure',
       report_outcome: 'heroAdventure',
       adventure_id: 6,
-      item_id: null,
+      item_id: 1030,
+      item_amount: 9,
       health_before: 100,
       health_after: 97,
     });
+
+    const inventoryAmount = database.selectValue({
+      sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $item_id;',
+      bind: { $hero_id: heroId, $item_id: report.item_id },
+      schema: z.number(),
+    });
+
+    expect(inventoryAmount).toBe(report.item_amount);
 
     // Check if return event was created
     const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
+
     expect(returnEvent).toBeDefined();
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
-
     expect(returnEvent.targetTileId).toBe(
       getVillageTileId(database, villageId),
     );
@@ -240,7 +337,7 @@ describe(adventureMovementResolver, () => {
   });
 
   test('should handle hero death during adventure', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = 1;
     const heroId = database.selectValue({
@@ -267,7 +364,7 @@ describe(adventureMovementResolver, () => {
       villageId,
       originTileId: getVillageTileId(database, villageId),
       targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     });
 
     adventureMovementResolver(database, mockEvent);
@@ -296,6 +393,7 @@ describe(adventureMovementResolver, () => {
         SELECT
           har.adventure_id,
           har.item_id,
+          har.item_amount,
           har.health_before,
           har.health_after
         FROM
@@ -307,49 +405,63 @@ describe(adventureMovementResolver, () => {
       schema: z.strictObject({
         adventure_id: z.number(),
         item_id: z.number().nullable(),
+        item_amount: z.number().nullable(),
         health_before: z.number(),
         health_after: z.number(),
       }),
     });
 
-    expect(report).toEqual({
+    expect(report).toStrictEqual({
       adventure_id: 6,
       item_id: null,
+      item_amount: null,
       health_before: 3,
       health_after: 0,
     });
+
+    const inventoryCount = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM hero_inventory WHERE hero_id = $hero_id;',
+      bind: { $hero_id: heroId },
+      schema: z.number(),
+    });
+
+    expect(inventoryCount).toBe(0);
 
     // Check if return event was NOT created
     const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
       schema: baseEventRowSchema,
     });
+
     const returnEvent = returnEventRow
       ? (mapEventRowToTypedEvent(
           returnEventRow,
         ) as GameEvent<'troopMovementReturn'>)
       : undefined;
+
     expect(returnEvent).toBeUndefined();
 
     const regenerationEvent = database.selectValue({
       sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
       schema: z.string(),
     });
+
     expect(regenerationEvent).toBeUndefined();
 
     // Check if hero effects were removed
     const effectsCount = database.selectValue({
-      sql: "SELECT COUNT(*) FROM effects WHERE village_id = (SELECT village_id FROM heroes WHERE id = $hero_id) AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
+      sql: "SELECT COUNT(*) FROM effects WHERE tile_id = (SELECT v.tile_id FROM heroes h JOIN villages v ON v.id = h.village_id WHERE h.id = $hero_id) AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       bind: { $hero_id: heroId },
       schema: z.number(),
     });
+
     expect(effectsCount).toBe(0);
   });
 });
 
 describe(relocationMovementResolver, () => {
-  test('should update village_id of hero and its effects upon relocation', async () => {
-    const database = await prepareTestDatabase();
+  test('should update hero village_id and hero effects tile_id upon relocation', async () => {
+    using database = await prepareTestDatabase();
 
     const initialVillageId = 1;
     const targetVillageId = 2;
@@ -366,13 +478,14 @@ describe(relocationMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: initialVillageId,
+      originTileId: sourceTileId,
       targetTileId,
       troops: [
         {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -386,17 +499,19 @@ describe(relocationMovementResolver, () => {
       bind: { $player_id: 1 }, // Assuming PLAYER_ID is 1
       schema: z.number(),
     });
+
     expect(heroVillageId).toBe(targetVillageId);
 
-    // Verify hero effects village_id update
-    const effectsVillageIds = database.selectValues({
-      sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
+    // Verify hero effects tile_id update
+    const effectTileIds = database.selectValues({
+      sql: "SELECT tile_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       schema: z.number(),
     });
 
-    expect(effectsVillageIds.length).toBeGreaterThan(0);
-    for (const effect of effectsVillageIds) {
-      expect(effect).toBe(targetVillageId);
+    expect(effectTileIds.length).toBeGreaterThan(0);
+
+    for (const effect of effectTileIds) {
+      expect(effect).toBe(targetTileId);
     }
 
     // Verify hero troop location update
@@ -404,6 +519,7 @@ describe(relocationMovementResolver, () => {
       sql: "SELECT tile_id FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO');",
       schema: z.number(),
     })!;
+
     expect(heroTroopTileId).toBe(targetTileId);
 
     const movementReport = database.selectObject({
@@ -425,8 +541,8 @@ describe(relocationMovementResolver, () => {
         timestamp: z.int(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.int(),
-        target_tile_id: z.int(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         movement_type: z.string(),
         unit_id: unitIdSchema,
         amount: z.int(),
@@ -447,7 +563,7 @@ describe(relocationMovementResolver, () => {
   });
 
   test('should move troop wheatProduction effects from origin village to target village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const targetVillageId = 2;
@@ -456,7 +572,7 @@ describe(relocationMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetVillageTileId = database.selectValue({
@@ -476,6 +592,7 @@ describe(relocationMovementResolver, () => {
       database,
       sourceVillageId,
     );
+
     const targetEffectBefore = getTroopWheatProductionEffectValue(
       database,
       targetVillageId,
@@ -486,13 +603,14 @@ describe(relocationMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetVillageTileId,
       troops: [
         {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -510,7 +628,7 @@ describe(relocationMovementResolver, () => {
 
 describe(reinforcementMovementResolver, () => {
   test('should keep hero effects on origin village when hero is sent as reinforcement', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const targetVillageId = 2;
@@ -518,7 +636,7 @@ describe(reinforcementMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetVillageTileId = database.selectValue({
@@ -537,52 +655,53 @@ describe(reinforcementMovementResolver, () => {
     });
 
     database.exec({
-      sql: "UPDATE effects SET village_id = $village_id WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
+      sql: "UPDATE effects SET tile_id = (SELECT tile_id FROM villages WHERE id = $village_id) WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       bind: { $village_id: sourceVillageId },
     });
 
-    const sourceHeroEffectBeforeVillageIds = database.selectValues({
-      sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
+    const sourceHeroEffectBeforeTileIds = database.selectValues({
+      sql: "SELECT tile_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);",
       bind: { $village_id: sourceVillageId },
       schema: z.number(),
     });
 
-    expect(sourceHeroEffectBeforeVillageIds.length).toBeGreaterThan(0);
+    expect(sourceHeroEffectBeforeTileIds.length).toBeGreaterThan(0);
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 1,
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetVillageTileId,
       troops: [
         {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId,
         },
       ],
     });
 
     reinforcementMovementResolver(database, mockEvent);
 
-    const sourceHeroEffectAfterVillageIds = database.selectValues({
-      sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
+    const sourceHeroEffectAfterTileIds = database.selectValues({
+      sql: "SELECT tile_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);",
       bind: { $village_id: sourceVillageId },
       schema: z.number(),
     });
 
-    const targetHeroEffectAfterVillageIds = database.selectValues({
-      sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
+    const targetHeroEffectAfterTileIds = database.selectValues({
+      sql: "SELECT tile_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);",
       bind: { $village_id: targetVillageId },
       schema: z.number(),
     });
 
-    expect(sourceHeroEffectAfterVillageIds).toHaveLength(
-      sourceHeroEffectBeforeVillageIds.length,
+    expect(sourceHeroEffectAfterTileIds).toHaveLength(
+      sourceHeroEffectBeforeTileIds.length,
     );
-    expect(targetHeroEffectAfterVillageIds).toHaveLength(0);
+    expect(targetHeroEffectAfterTileIds).toHaveLength(0);
 
     const report = database.selectObject({
       sql: `
@@ -601,8 +720,8 @@ describe(reinforcementMovementResolver, () => {
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
         movement_type: z.string(),
-        origin_tile_id: z.int(),
-        target_tile_id: z.int(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         unit_id: unitIdSchema,
         amount: z.int(),
       }),
@@ -620,7 +739,7 @@ describe(reinforcementMovementResolver, () => {
   });
 
   test('should not update hero village_id when hero is sent as reinforcement', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const targetVillageId = 2;
@@ -628,7 +747,7 @@ describe(reinforcementMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetVillageTileId = database.selectValue({
@@ -646,18 +765,19 @@ describe(reinforcementMovementResolver, () => {
       bind: { $village_id: sourceVillageId, $player_id: 1 },
     });
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 1,
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetVillageTileId,
       troops: [
         {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -691,7 +811,7 @@ describe(reinforcementMovementResolver, () => {
   });
 
   test('should move troop wheatProduction effects from origin village to target village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const targetVillageId = 2;
@@ -700,7 +820,7 @@ describe(reinforcementMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetVillageTileId = database.selectValue({
@@ -720,23 +840,25 @@ describe(reinforcementMovementResolver, () => {
       database,
       sourceVillageId,
     );
+
     const targetEffectBefore = getTroopWheatProductionEffectValue(
       database,
       targetVillageId,
     );
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 2,
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetVillageTileId,
       troops: [
         {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -752,7 +874,7 @@ describe(reinforcementMovementResolver, () => {
   });
 
   test('should keep troop wheatProduction effects on origin village when reinforcing an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const owningVillageId = 2;
@@ -761,7 +883,7 @@ describe(reinforcementMovementResolver, () => {
     const sourceTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: sourceVillageId },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const targetOasisTileId = database.selectValue({
@@ -784,23 +906,25 @@ describe(reinforcementMovementResolver, () => {
       database,
       sourceVillageId,
     );
+
     const owningVillageEffectBefore = getTroopWheatProductionEffectValue(
       database,
       owningVillageId,
     );
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 3,
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetOasisTileId,
       troops: [
         {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -834,8 +958,108 @@ describe(reinforcementMovementResolver, () => {
 });
 
 describe(findNewVillageMovementResolver, () => {
+  test('charges settler upkeep until founding and preserves other troop upkeep', async () => {
+    using database = await prepareTestDatabase();
+    const sourceTileId = getVillageTileId(database, 1);
+    const targetTileId = database.selectValue({
+      sql: `
+        SELECT t.id FROM tiles t
+        WHERE t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
+          AND NOT EXISTS (SELECT 1 FROM villages WHERE tile_id = t.id)
+        LIMIT 1;
+      `,
+      schema: z.number(),
+    })!;
+
+    const startsAt = 1_000_000;
+    const hour = 3_600_000;
+    const resolvesAt = startsAt + hour;
+    const wheatEffectId = database.selectValue({
+      sql: selectWheatProductionEffectIdQuery,
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        DELETE FROM effects WHERE effect_id IN (
+          SELECT id FROM effect_ids
+          WHERE effect IN ('wheatProduction', 'unitWheatConsumption')
+        );
+      `,
+    });
+
+    for (const [source, value] of [
+      ['building', 100],
+      ['troops', 10],
+    ] as const) {
+      database.exec({
+        sql: insertEffectQuery,
+        bind: {
+          $effect_id: wheatEffectId,
+          $value: value,
+          $type: 'base',
+          $scope: 'local',
+          $source: source,
+          $tile_id: sourceTileId,
+          $source_specifier: 0,
+        },
+      });
+    }
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wood = 0, clay = 0, iron = 0, wheat = 100, updated_at = $starts_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: { $tile_id: sourceTileId, $starts_at: startsAt },
+    });
+
+    findNewVillageMovementResolver(
+      database,
+      createTroopMovementFindNewVillageEventMock({
+        villageId: 1,
+        originTileId: sourceTileId,
+        targetTileId,
+        startsAt,
+        duration: hour,
+        resolvesAt,
+        troops: [
+          {
+            unitId: 'GAUL_SETTLER',
+            amount: 3,
+            tileId: sourceTileId,
+            sourceTileId,
+          },
+        ],
+      }),
+    );
+
+    // The elapsed hour consumes 10 wheat; subsequent hours consume only the remaining 7.
+    expect(
+      calculateResourceSiteResourcesAt(database, sourceTileId, resolvesAt)
+        .currentWheat,
+    ).toBe(190);
+    expect(
+      calculateResourceSiteResourcesAt(
+        database,
+        sourceTileId,
+        resolvesAt + hour,
+      ).currentWheat,
+    ).toBe(283);
+    expect(getTroopWheatProductionEffectValue(database, 1)).toBe(7);
+
+    const newVillageId = database.selectValue({
+      sql: 'SELECT id FROM villages WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetTileId },
+      schema: z.number(),
+    })!;
+
+    expect(getTroopWheatProductionEffectValue(database, newVillageId)).toBe(0);
+  });
+
   test('should create a new village with building fields, resource site, and quests', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Pick a free tile that is not (0,0)
     const targetTile = database.selectObject({
@@ -853,11 +1077,14 @@ describe(findNewVillageMovementResolver, () => {
     // Set initial troop consumption for source village to 3 (3 settlers)
     setTroopWheatProductionEffectValue(database, 1, 3);
 
+    const sourceTileId = getVillageTileId(database, 1);
+
     const mockEvent = createTroopMovementFindNewVillageEventMock({
       id: 1,
       startsAt: 1000,
       duration: 1000,
       villageId: 1, // existing village
+      originTileId: sourceTileId,
       targetTileId: targetTile.id,
       troops: [],
     });
@@ -872,11 +1099,43 @@ describe(findNewVillageMovementResolver, () => {
         id: z.number(),
         name: z.string(),
         slug: z.string(),
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
       }),
     })!;
+
     expect(newVillage.name).toBe('New village');
     expect(newVillage.slug).toBe('v-2'); // 2nd village for player
+
+    const villageFoundedReport = database.selectObject({
+      sql: `
+        SELECT r.village_id, r.timestamp, rti.report_type, roi.report_outcome,
+          vfr.origin_tile_id, vfr.target_tile_id
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN village_founding_reports vfr ON vfr.report_id = r.id
+        WHERE rti.report_type = 'villageFounded'
+        ORDER BY r.id DESC
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        village_id: z.number(),
+        timestamp: z.number(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
+      }),
+    })!;
+
+    expect(villageFoundedReport).toStrictEqual({
+      village_id: mockEvent.villageId,
+      timestamp: mockEvent.resolvesAt,
+      report_type: 'villageFounded',
+      report_outcome: 'villageFounded',
+      origin_tile_id: mockEvent.originTileId,
+      target_tile_id: targetTile.id,
+    });
 
     const gatheringExpeditionState = database.selectValue({
       sql: 'SELECT completed FROM gatherers_hut_expeditions WHERE village_id = $village_id;',
@@ -896,11 +1155,13 @@ describe(findNewVillageMovementResolver, () => {
         level: z.number(),
       }),
     });
+
     // buildingFieldsFactory 'player' size creates 18 resource fields + Rally Point (39) + Main Building (38) + Wall (40) = 21 fields
     expect(buildingFields).toHaveLength(21);
 
     // Check Main Building level 1
     const mainBuilding = buildingFields.find((f) => f.field_id === 38);
+
     expect(mainBuilding?.level).toBe(1);
 
     // Verify resource site
@@ -908,13 +1169,11 @@ describe(findNewVillageMovementResolver, () => {
       sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
       bind: { $tile_id: targetTile.id },
       schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
+        ...resourcesSchema.shape,
         updated_at: z.number(),
       }),
     })!;
+
     expect(resourceSite.wood).toBe(750);
     expect(resourceSite.updated_at).toBe(resolvesAt);
 
@@ -930,6 +1189,7 @@ describe(findNewVillageMovementResolver, () => {
 
     // Check if some key quests are present
     const questIds = quests.map((q) => q.quest_id);
+
     expect(questIds).toContain('oneOf-MAIN_BUILDING-1');
     expect(questIds).toContain('oneOf-WHEAT_FIELD-1');
 
@@ -937,6 +1197,7 @@ describe(findNewVillageMovementResolver, () => {
     const mainBuildingQuest = quests.find(
       (q) => q.quest_id === 'oneOf-MAIN_BUILDING-1',
     );
+
     expect(mainBuildingQuest?.completed_at).toBe(resolvesAt);
 
     // Check building wheat consumption (population)
@@ -948,7 +1209,7 @@ describe(findNewVillageMovementResolver, () => {
           et.type,
           es.scope,
           eso.source,
-          e.village_id AS villageId,
+          e.tile_id AS tileId,
           e.source_specifier AS sourceSpecifier
         FROM effects e
           JOIN effect_ids ei ON e.effect_id = ei.id
@@ -956,19 +1217,22 @@ describe(findNewVillageMovementResolver, () => {
           JOIN effect_scope_ids es ON es.id = e.scope_id
           JOIN effect_source_ids eso ON eso.id = e.source_id
         WHERE
-          e.village_id = $villageId
+          e.tile_id = (SELECT tile_id FROM villages WHERE id = $villageId)
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
           AND ei.effect = 'wheatProduction';
       `,
       bind: { $villageId: newVillage.id },
       schema: effectSchema,
     });
+
     // Main Building level 1 (2) + Rally Point level 1 (1) = 3
     expect(buildingWheatEffects.length).toBeGreaterThan(0);
+
     // Find the one with source_specifier 0 (base effect)
     const baseBuildingEffect = buildingWheatEffects.find(
       (e) => e.sourceSpecifier === 0,
     );
+
     expect(baseBuildingEffect).toBeDefined();
     expect(baseBuildingEffect!.value).toBe(-3);
 
@@ -981,7 +1245,7 @@ describe(findNewVillageMovementResolver, () => {
           et.type,
           es.scope,
           eso.source,
-          e.village_id AS villageId,
+          e.tile_id AS tileId,
           e.source_specifier AS sourceSpecifier
         FROM effects e
           JOIN effect_ids ei ON e.effect_id = ei.id
@@ -989,22 +1253,24 @@ describe(findNewVillageMovementResolver, () => {
           JOIN effect_scope_ids es ON es.id = e.scope_id
           JOIN effect_source_ids eso ON eso.id = e.source_id
         WHERE
-          e.village_id = $villageId
+          e.tile_id = (SELECT tile_id FROM villages WHERE id = $villageId)
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
       bind: { $villageId: newVillage.id },
       schema: effectSchema,
     });
+
     expect(troopWheatEffects).toHaveLength(1);
     expect(troopWheatEffects[0].sourceSpecifier).toBe(0);
     expect(troopWheatEffects[0].value).toBe(0);
 
     // Verify troop consumption in source village
     const sourceTroopWheatEffects = database.selectValues({
-      sql: "SELECT e.value FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = 1 AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops') AND ei.effect = 'wheatProduction';",
+      sql: "SELECT e.value FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.tile_id = (SELECT tile_id FROM villages WHERE id = 1) AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops') AND ei.effect = 'wheatProduction';",
       schema: z.number(),
     });
+
     // Assuming initial value was 3 (for 3 settlers)
     expect(sourceTroopWheatEffects[0]).toBe(0);
   });
@@ -1012,7 +1278,7 @@ describe(findNewVillageMovementResolver, () => {
 
 describe(attackMovementResolver, () => {
   test('should create a return event starting at the attack resolution time', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     const mockEvent = createTroopMovementAttackEventMock({
@@ -1021,7 +1287,9 @@ describe(attackMovementResolver, () => {
       duration: 500,
       villageId,
       originTileId: getVillageTileId(database, villageId),
-      troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
+      troops: [
+        { unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, sourceTileId: 1 },
+      ],
       targetTileId: getTileIdByCoordinates(database, { x: 0, y: 1 }),
     });
 
@@ -1031,28 +1299,28 @@ describe(attackMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
-
     expect(returnEvent.targetTileId).toBe(
       getVillageTileId(database, villageId),
     );
   });
 
   test('should loot target resources, create a battle report, and carry loot home on return', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const originTileId = getVillageTileId(database, villageId);
     const target = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE id != $village_id LIMIT 1;',
       bind: { $village_id: villageId },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
-    const resolvesAt = 5_500;
+    const resolvesAt = 5500;
 
     database.exec({
       sql: `
@@ -1066,9 +1334,19 @@ describe(attackMovementResolver, () => {
       },
     });
 
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'crannyCapacity');
+      `,
+      bind: { $village_id: target.id },
+    });
+
     const mockEvent = createTroopMovementAttackEventMock({
       id: 4,
-      startsAt: 5_000,
+      startsAt: 5000,
       duration: 500,
       villageId,
       originTileId,
@@ -1078,7 +1356,7 @@ describe(attackMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: 10,
           tileId: originTileId,
-          source: originTileId,
+          sourceTileId: originTileId,
         },
       ],
     });
@@ -1113,7 +1391,6 @@ describe(attackMovementResolver, () => {
           br.loot_clay,
           br.loot_iron,
           br.loot_wheat,
-          br.can_attacker_see_full_report,
           ui.unit AS attacker_unit_id,
           bru.amount_before,
           bru.amount_after
@@ -1136,14 +1413,13 @@ describe(attackMovementResolver, () => {
         timestamp: z.number(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         is_raid: z.number(),
-        loot_wood: z.number(),
-        loot_clay: z.number(),
-        loot_iron: z.number(),
-        loot_wheat: z.number(),
-        can_attacker_see_full_report: z.number(),
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
         attacker_unit_id: unitIdSchema,
         amount_before: z.number(),
         amount_after: z.number(),
@@ -1163,7 +1439,6 @@ describe(attackMovementResolver, () => {
       loot_clay: 100,
       loot_iron: 100,
       loot_wheat: 100,
-      can_attacker_see_full_report: 1,
       attacker_unit_id: 'LEGIONNAIRE',
       amount_before: 10,
       amount_after: 10,
@@ -1174,7 +1449,7 @@ describe(attackMovementResolver, () => {
       createControllerArgs<'/reports/:reportId'>({
         path: { reportId: battleReport.id },
       }),
-    );
+    )!;
 
     if (fullReport.type !== 'battle') {
       throw new Error('Expected battle report');
@@ -1187,6 +1462,8 @@ describe(attackMovementResolver, () => {
       amountAfter: 10,
       amountHospitalized: 0,
       amountImprisoned: 0,
+      amountBandaged: 0,
+      amountConsumed: 0,
     });
     expect(fullReport.battle.defender.village.tileId).toBe(target.tile_id);
 
@@ -1194,6 +1471,7 @@ describe(attackMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
@@ -1225,11 +1503,132 @@ describe(attackMovementResolver, () => {
       wheat: 100,
     });
   });
+
+  test('should subtract target village cranny capacity from total loot', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = 1;
+    const originTileId = getVillageTileId(database, villageId);
+    const target = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages WHERE id != $village_id LIMIT 1;',
+      bind: { $village_id: villageId },
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
+    })!;
+
+    const resolvesAt = 5500;
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wood = 100, clay = 100, iron = 100, wheat = 100, updated_at = $updated_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: {
+        $tile_id: target.tile_id,
+        $updated_at: resolvesAt,
+      },
+    });
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'crannyCapacity');
+      `,
+      bind: { $village_id: target.id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
+        VALUES (
+          (SELECT id FROM effect_ids WHERE effect = 'crannyCapacity'),
+          100,
+          (SELECT id FROM effect_type_ids WHERE type = 'base'),
+          (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+          (SELECT id FROM effect_source_ids WHERE source = 'building'),
+          (SELECT tile_id FROM villages WHERE id = $village_id),
+          19
+        );
+      `,
+      bind: { $village_id: target.id },
+    });
+
+    const mockEvent = createTroopMovementAttackEventMock({
+      id: 6,
+      startsAt: 5000,
+      duration: 500,
+      villageId,
+      originTileId,
+      targetTileId: target.tile_id,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 10,
+          tileId: originTileId,
+          sourceTileId: originTileId,
+        },
+      ],
+    });
+
+    attackMovementResolver(database, mockEvent);
+
+    const targetResources = database.selectObject({
+      sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
+      bind: { $tile_id: target.tile_id },
+      schema: resourcesSchema,
+    })!;
+
+    expect(targetResources).toStrictEqual({
+      wood: 25,
+      clay: 25,
+      iron: 25,
+      wheat: 25,
+    });
+
+    const battleReport = database.selectObject({
+      sql: `
+        SELECT
+          br.loot_wood,
+          br.loot_clay,
+          br.loot_iron,
+          br.loot_wheat
+        FROM battle_reports br
+        JOIN reports r ON r.id = br.report_id
+        ORDER BY r.id DESC
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
+      }),
+    })!;
+
+    expect(battleReport).toStrictEqual({
+      loot_wood: 75,
+      loot_clay: 75,
+      loot_iron: 75,
+      loot_wheat: 75,
+    });
+
+    const returnEventRow = database.selectObject({
+      sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: baseEventRowSchema,
+    })!;
+
+    const returnEvent = mapEventRowToTypedEvent(
+      returnEventRow,
+    ) as GameEvent<'troopMovementReturn'>;
+
+    expect(returnEvent.loot).toStrictEqual([75, 75, 75, 75]);
+  });
 });
 
 describe(raidMovementResolver, () => {
   test('should create a return event starting at the raid resolution time', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     const mockEvent = createTroopMovementRaidEventMock({
@@ -1238,7 +1637,9 @@ describe(raidMovementResolver, () => {
       duration: 200,
       villageId,
       originTileId: getVillageTileId(database, villageId),
-      troops: [{ unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, source: 1 }],
+      troops: [
+        { unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, sourceTileId: 1 },
+      ],
       targetTileId: getTileIdByCoordinates(database, { x: 0, y: 1 }),
     });
 
@@ -1248,12 +1649,12 @@ describe(raidMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
-
     expect(returnEvent.targetTileId).toBe(
       getVillageTileId(database, villageId),
     );
@@ -1273,7 +1674,7 @@ describe(raidMovementResolver, () => {
   });
 
   test('should loot an oasis resource site and carry loot home on return', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const originTileId = getVillageTileId(database, villageId);
     const targetOasisTileId = database.selectValue({
@@ -1287,7 +1688,7 @@ describe(raidMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const resolvesAt = 7_500;
+    const resolvesAt = 7500;
 
     database.exec({
       sql: `
@@ -1303,7 +1704,7 @@ describe(raidMovementResolver, () => {
 
     const mockEvent = createTroopMovementRaidEventMock({
       id: 5,
-      startsAt: 7_000,
+      startsAt: 7000,
       duration: 500,
       villageId,
       originTileId,
@@ -1313,7 +1714,7 @@ describe(raidMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: 4,
           tileId: originTileId,
-          source: originTileId,
+          sourceTileId: originTileId,
         },
       ],
     });
@@ -1348,12 +1749,12 @@ describe(raidMovementResolver, () => {
         LIMIT 1;
       `,
       schema: z.strictObject({
-        target_tile_id: z.number(),
+        target_tile_id: tileIdSchema,
         is_raid: z.number(),
-        loot_wood: z.number(),
-        loot_clay: z.number(),
-        loot_iron: z.number(),
-        loot_wheat: z.number(),
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
       }),
     })!;
 
@@ -1370,10 +1771,329 @@ describe(raidMovementResolver, () => {
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: baseEventRowSchema,
     })!;
+
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.loot).toStrictEqual([80, 20, 0, 100]);
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          (
+            tile_id = $tile_id
+            OR scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
+          )
+          AND effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN (
+              'warehouseCapacity',
+              'granaryCapacity',
+              'woodProduction',
+              'clayProduction',
+              'ironProduction',
+              'wheatProduction'
+            )
+          );
+      `,
+      bind: { $tile_id: originTileId },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
+        SELECT
+          ei.id,
+          CASE
+            WHEN ei.effect IN ('warehouseCapacity', 'granaryCapacity') THEN 1000
+            ELSE 20
+            END,
+          (SELECT id FROM effect_type_ids WHERE type = 'base'),
+          (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+          (SELECT id FROM effect_source_ids WHERE source = 'building'),
+          $tile_id,
+          0
+        FROM effect_ids ei
+        WHERE ei.effect IN (
+          'warehouseCapacity',
+          'granaryCapacity',
+          'woodProduction',
+          'clayProduction',
+          'ironProduction',
+          'wheatProduction'
+        );
+      `,
+      bind: { $tile_id: originTileId },
+    });
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET
+          wood = 930,
+          clay = 950,
+          iron = 990,
+          wheat = 850,
+          updated_at = $updated_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: {
+        $tile_id: originTileId,
+        $updated_at: returnEvent.resolvesAt - 3_600_000,
+      },
+    });
+
+    returnMovementResolver(database, returnEvent);
+
+    const originResources = database.selectObject({
+      sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
+      bind: { $tile_id: originTileId },
+      schema: resourcesSchema,
+    })!;
+
+    expect(originResources).toStrictEqual({
+      wood: 1000,
+      clay: 990,
+      iron: 1000,
+      wheat: 970,
+    });
+  });
+
+  test('should calculate latest oasis resources from production and storage effects before looting', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = 1;
+    const originTileId = getVillageTileId(database, villageId);
+    const targetOasisTileId = database.selectValue({
+      sql: `
+        SELECT DISTINCT o.tile_id
+        FROM oasis o
+        JOIN resource_sites rs ON rs.tile_id = o.tile_id
+        WHERE o.village_id IS NULL
+        LIMIT 1;
+      `,
+      schema: z.number(),
+    })!;
+
+    const resolvesAt = 7500;
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wood = 0, clay = 0, iron = 0, wheat = 0, updated_at = $updated_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: {
+        $tile_id: targetOasisTileId,
+        $updated_at: resolvesAt - 3_600_000,
+      },
+    });
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+          AND tile_id = $tile_id
+          AND source_specifier = $tile_id;
+      `,
+      bind: { $tile_id: targetOasisTileId },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
+        SELECT
+          ei.id,
+          CASE
+            WHEN ei.effect IN ('warehouseCapacity', 'granaryCapacity') THEN 1000
+            ELSE 40
+            END,
+          (SELECT id FROM effect_type_ids WHERE type = 'base'),
+          (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+          (SELECT id FROM effect_source_ids WHERE source = 'oasis'),
+          $tile_id,
+          $tile_id
+        FROM effect_ids ei
+        WHERE ei.effect IN (
+          'warehouseCapacity',
+          'granaryCapacity',
+          'woodProduction',
+          'clayProduction',
+          'ironProduction',
+          'wheatProduction'
+        );
+      `,
+      bind: { $tile_id: targetOasisTileId },
+    });
+
+    const mockEvent = createTroopMovementRaidEventMock({
+      id: 7,
+      startsAt: 7000,
+      duration: 500,
+      villageId,
+      originTileId,
+      targetTileId: targetOasisTileId,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 1,
+          tileId: originTileId,
+          sourceTileId: originTileId,
+        },
+      ],
+    });
+
+    raidMovementResolver(database, mockEvent);
+
+    const targetResources = database.selectObject({
+      sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetOasisTileId },
+      schema: resourcesSchema,
+    })!;
+
+    expect(targetResources).toStrictEqual({
+      wood: 27,
+      clay: 27,
+      iron: 28,
+      wheat: 28,
+    });
+
+    const returnEventRow = database.selectObject({
+      sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: baseEventRowSchema,
+    })!;
+
+    const returnEvent = mapEventRowToTypedEvent(
+      returnEventRow,
+    ) as GameEvent<'troopMovementReturn'>;
+
+    expect(returnEvent.loot).toStrictEqual([13, 13, 12, 12]);
+  });
+
+  test('should cap latest oasis resources at the 2000 storage limit before looting', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = 1;
+    const originTileId = getVillageTileId(database, villageId);
+    const targetOasisTileId = database.selectValue({
+      sql: `
+        SELECT DISTINCT o.tile_id
+        FROM oasis o
+        JOIN resource_sites rs ON rs.tile_id = o.tile_id
+        WHERE o.village_id IS NULL
+        LIMIT 1;
+      `,
+      schema: z.number(),
+    })!;
+
+    const resolvesAt = 7500;
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wood = 1990, clay = 1990, iron = 1990, wheat = 1990, updated_at = $updated_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: {
+        $tile_id: targetOasisTileId,
+        $updated_at: resolvesAt - 3_600_000,
+      },
+    });
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          (
+            tile_id = $tile_id
+            OR scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
+          )
+          AND effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN (
+              'warehouseCapacity',
+              'granaryCapacity',
+              'woodProduction',
+              'clayProduction',
+              'ironProduction',
+              'wheatProduction'
+            )
+          );
+      `,
+      bind: { $tile_id: targetOasisTileId },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
+        SELECT
+          ei.id,
+          CASE
+            WHEN ei.effect IN ('warehouseCapacity', 'granaryCapacity') THEN 2000
+            ELSE 40
+            END,
+          (SELECT id FROM effect_type_ids WHERE type = 'base'),
+          (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+          (SELECT id FROM effect_source_ids WHERE source = 'oasis'),
+          $tile_id,
+          $tile_id
+        FROM effect_ids ei
+        WHERE ei.effect IN (
+          'warehouseCapacity',
+          'granaryCapacity',
+          'woodProduction',
+          'clayProduction',
+          'ironProduction',
+          'wheatProduction'
+        );
+      `,
+      bind: { $tile_id: targetOasisTileId },
+    });
+
+    const mockEvent = createTroopMovementRaidEventMock({
+      id: 8,
+      startsAt: 7000,
+      duration: 500,
+      villageId,
+      originTileId,
+      targetTileId: targetOasisTileId,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 1,
+          tileId: originTileId,
+          sourceTileId: originTileId,
+        },
+      ],
+    });
+
+    raidMovementResolver(database, mockEvent);
+
+    const targetResources = database.selectObject({
+      sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetOasisTileId },
+      schema: resourcesSchema,
+    })!;
+
+    expect(targetResources).toStrictEqual({
+      wood: 1987,
+      clay: 1987,
+      iron: 1988,
+      wheat: 1988,
+    });
+
+    const returnEventRow = database.selectObject({
+      sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: baseEventRowSchema,
+    })!;
+
+    const returnEvent = mapEventRowToTypedEvent(
+      returnEventRow,
+    ) as GameEvent<'troopMovementReturn'>;
+
+    expect(returnEvent.loot).toStrictEqual([13, 13, 12, 12]);
   });
 });

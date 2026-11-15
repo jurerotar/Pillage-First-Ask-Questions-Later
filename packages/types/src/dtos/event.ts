@@ -1,13 +1,15 @@
 import { z } from 'zod';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { buildingIdSchema } from '../models/building';
 import { effectIdSchema } from '../models/effect';
 import {
   catapultTargetsSchema,
+  culturePointsCelebrationTypeSchema,
   gameEventTypeSchema,
   heroOasisAnimalActionSchema,
   scoutingTargetSchema,
 } from '../models/game-event';
-import { resourceBundleSchema } from '../models/resource';
+import { resourceBundleSchema, resourcesSchema } from '../models/resource';
 import { troopSchema } from '../models/troop';
 import { unitIdSchema } from '../models/unit';
 
@@ -49,24 +51,17 @@ const buildingEventSchema = {
 const troopMovementEventSchema = {
   ...villageEventSchema,
   troops: z.array(troopSchema),
-  originTileId: z.number(),
-  targetTileId: z.number(),
+  originTileId: tileIdSchema,
+  targetTileId: tileIdSchema,
   scoutingTarget: scoutingTargetSchema.optional(),
   catapultTargets: catapultTargetsSchema.optional(),
   heroOasisAnimalAction: heroOasisAnimalActionSchema.optional(),
 };
 
-const resourcesSchema = z.strictObject({
-  wood: z.number(),
-  clay: z.number(),
-  iron: z.number(),
-  wheat: z.number(),
-});
-
 const merchantMovementEventSchema = {
   ...villageEventSchema,
-  originTileId: z.number(),
-  targetTileId: z.number(),
+  originTileId: tileIdSchema,
+  targetTileId: tileIdSchema,
   targetVillageId: z.number(),
   resources: resourcesSchema,
 };
@@ -74,6 +69,8 @@ const merchantMovementEventSchema = {
 const resourceTransferEventSchema = {
   ...merchantMovementEventSchema,
   merchantAmount: z.number(),
+  repeatRemaining: z.number().int().min(0).max(4),
+  repeatResources: resourcesSchema,
 };
 
 const troopTrainingDurationEffectIdSchema = effectIdSchema.extract([
@@ -184,13 +181,18 @@ export const createEventDtoSchema = z
       ...globalEventSchema,
     }),
     z.strictObject({
+      type: z.literal('culturePointsCelebration'),
+      ...villageEventSchema,
+      celebrationType: culturePointsCelebrationTypeSchema,
+    }),
+    z.strictObject({
       type: z.literal('resourceTransfer'),
       ...resourceTransferEventSchema,
     }),
     z.strictObject({
       type: z.literal('tradeRoute'),
-      ...merchantMovementEventSchema,
-      interval: z.number(),
+      ...villageEventSchema,
+      tradeRouteId: z.number(),
     }),
   ])
   .meta({ id: 'CreateEventDto' });

@@ -9,14 +9,11 @@ export const usePlayerVillages = (playerId: number) => {
   const { data: playerVillages } = useSuspenseQuery({
     queryKey: [playerVillagesCacheKey, playerId],
     queryFn: async () => {
-      const { data } = await apiClient.get(
-        '/players/:playerId/villages-with-population',
-        {
-          path: {
-            playerId,
-          },
+      const { data } = await apiClient.get('/players/:playerId/villages', {
+        path: {
+          playerId,
         },
-      );
+      });
 
       return data;
     },

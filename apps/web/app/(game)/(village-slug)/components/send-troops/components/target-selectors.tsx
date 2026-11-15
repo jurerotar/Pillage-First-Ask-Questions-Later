@@ -29,9 +29,11 @@ type PlayerVillageSelectorProps = {
   excludedVillageIds?: number[];
 };
 
+const emptyVillageIds: number[] = [];
+
 export const PlayerVillageSelector = ({
   disabled = false,
-  excludedVillageIds = [],
+  excludedVillageIds = emptyVillageIds,
 }: PlayerVillageSelectorProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
@@ -108,8 +110,20 @@ export const CoordinateSelector = ({
   const { mapSize } = useServer();
   const target = watch('target');
 
+  const coordinateRadius = mapSize / 2;
+  const minCoordinate = Math.ceil(-coordinateRadius);
+  const maxCoordinate = Math.floor(coordinateRadius);
   const xValue = target.x ?? '';
   const yValue = target.y ?? '';
+
+  const clampCoordinate = (coordinate: number | undefined) => {
+    if (coordinate === undefined) {
+      return undefined;
+    }
+
+    return Math.min(Math.max(coordinate, minCoordinate), maxCoordinate);
+  };
+
   const updateTarget = (nextTarget: TargetFormValues['target']) => {
     const targetFromCoordinates = createTroopFormTargetFromCoordinates(
       nextTarget,
@@ -136,9 +150,12 @@ export const CoordinateSelector = ({
             id="target-x"
             type="number"
             disabled={disabled}
+            min={minCoordinate}
+            max={maxCoordinate}
+            step={1}
             value={xValue}
             onChange={(e) => {
-              const x = parseOptionalInteger(e.target.value);
+              const x = clampCoordinate(parseOptionalInteger(e.target.value));
               updateTarget({ ...target, x });
             }}
             className="w-16 h-8 bg-emerald-50/50 dark:bg-emerald-950/20"
@@ -155,9 +172,12 @@ export const CoordinateSelector = ({
             id="target-y"
             type="number"
             disabled={disabled}
+            min={minCoordinate}
+            max={maxCoordinate}
+            step={1}
             value={yValue}
             onChange={(e) => {
-              const y = parseOptionalInteger(e.target.value);
+              const y = clampCoordinate(parseOptionalInteger(e.target.value));
               updateTarget({ ...target, y });
             }}
             className="w-16 h-8 bg-emerald-50/50 dark:bg-emerald-950/20"

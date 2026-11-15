@@ -15,6 +15,7 @@ import {
   sentReinforcementsCacheKey,
   troopMovementsCacheKey,
   villageTroopsCacheKey,
+  villageUnitCountCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -58,7 +59,7 @@ export const useVillageTroops = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: villageTroops } = useSuspenseQuery({
-    queryKey: [villageTroopsCacheKey, currentVillage.id],
+    queryKey: [villageTroopsCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await apiClient.get('/tiles/:tileId/stationed-troops', {
         path: {
@@ -71,7 +72,7 @@ export const useVillageTroops = () => {
   });
 
   const { data: sentReinforcements } = useSuspenseQuery({
-    queryKey: [sentReinforcementsCacheKey, currentVillage.id],
+    queryKey: [sentReinforcementsCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await apiClient.get(
         '/tiles/:tileId/sent-reinforcements',
@@ -88,8 +89,9 @@ export const useVillageTroops = () => {
 
   const getDeployableTroops = useCallback(() => {
     return villageTroops.filter(
-      ({ tileId, source }) =>
-        tileId === currentVillage.tileId && source === currentVillage.tileId,
+      ({ tileId, sourceTileId }) =>
+        tileId === currentVillage.tileId &&
+        sourceTileId === currentVillage.tileId,
     );
   }, [villageTroops, currentVillage]);
 
@@ -119,8 +121,9 @@ export const useVillageTroops = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [villageTroopsCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.id],
+        [villageTroopsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
+        [troopMovementsCacheKey],
       ]);
     },
   });
@@ -142,8 +145,9 @@ export const useVillageTroops = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [villageTroopsCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [villageTroopsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });
@@ -165,9 +169,10 @@ export const useVillageTroops = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [villageTroopsCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [villageTroopsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
+        [troopMovementsCacheKey],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });
@@ -189,9 +194,10 @@ export const useVillageTroops = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [sentReinforcementsCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [sentReinforcementsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
+        [troopMovementsCacheKey],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });
@@ -213,7 +219,8 @@ export const useVillageTroops = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [sentReinforcementsCacheKey, currentVillage.id],
+        [sentReinforcementsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
       ]);
     },
   });

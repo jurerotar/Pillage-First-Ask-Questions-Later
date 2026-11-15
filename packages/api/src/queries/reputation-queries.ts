@@ -6,11 +6,5 @@ export const selectPlayerFactionReputationsQuery = `
     faction_reputation fr
       JOIN faction_ids fi ON fr.target_faction_id = fi.id
   WHERE
-    fr.source_faction_id = (
-      SELECT faction_id
-      FROM
-        players
-      WHERE
-        id = $player_id
-      );
+    fr.player_id = $player_id;
 `;

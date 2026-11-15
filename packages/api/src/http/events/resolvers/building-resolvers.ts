@@ -13,11 +13,15 @@ import {
 import { selectTribeByVillageId } from '../../../queries/village-queries';
 import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
 import { createEvents } from '../../../utils/create-event';
+import { updatePlayerCulturePointsAt } from '../../../utils/culture-points';
+import { updateOasisEffectsForVillage } from '../../../utils/oasis';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
 import { promoteNextScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
   demolishBuilding,
-  updateVillageResourcesAt,
+  getVillagePlayerId,
+  getVillageTileId,
+  updateResourceSiteResourcesAt,
 } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
@@ -33,7 +37,16 @@ export const buildingLevelChangeResolver: Resolver<
     resolvesAt,
   } = args;
 
-  // Update building level
+  const tileId = getVillageTileId(database, villageId);
+
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+
+  updatePlayerCulturePointsAt(
+    database,
+    resolvesAt,
+    getVillagePlayerId(database, villageId),
+  );
+
   database.exec({
     sql: `
       UPDATE building_fields
@@ -111,7 +124,9 @@ export const buildingLevelChangeResolver: Resolver<
         AND effects.source_id = (
           SELECT id FROM effect_source_ids WHERE source = 'building'
         )
-        AND effects.village_id = $village_id
+        AND effects.tile_id = (
+          SELECT tile_id FROM villages WHERE id = $village_id
+        )
         AND effects.source_specifier = $source_specifier;
     `,
       bind: {
@@ -126,6 +141,10 @@ export const buildingLevelChangeResolver: Resolver<
         $source_specifier: buildingFieldId,
       },
     });
+  }
+
+  if (buildingId === 'WATERWORKS') {
+    updateOasisEffectsForVillage(database, villageId);
   }
 
   const isLevelIncreasing = previousLevel < level;
@@ -147,10 +166,9 @@ export const buildingLevelChangeResolver: Resolver<
     );
   }
 
-  updateVillageResourcesAt(database, villageId, resolvesAt);
-
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [tileId],
   };
 };
 
@@ -180,13 +198,24 @@ export const buildingConstructionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [getVillageTileId(database, villageId)],
   };
 };
 
 export const buildingDestructionResolver: Resolver<
   GameEvent<'buildingDestruction'>
 > = (database, args) => {
-  const { buildingFieldId, villageId, buildingId, previousLevel } = args;
+  const { buildingFieldId, villageId, buildingId, previousLevel, resolvesAt } =
+    args;
+  const tileId = getVillageTileId(database, villageId);
+
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+
+  updatePlayerCulturePointsAt(
+    database,
+    resolvesAt,
+    getVillagePlayerId(database, villageId),
+  );
 
   // Remove building field
   demolishBuilding(database, villageId, buildingFieldId);
@@ -237,7 +266,9 @@ export const buildingDestructionResolver: Resolver<
           AND effects.source_id = (
             SELECT id FROM effect_source_ids WHERE source = 'building'
           )
-          AND effects.village_id = $village_id
+          AND effects.tile_id = (
+            SELECT tile_id FROM villages WHERE id = $village_id
+          )
           AND effects.source_specifier = $source_specifier;
       `,
         bind: {
@@ -260,7 +291,7 @@ export const buildingDestructionResolver: Resolver<
         sql: `
           DELETE FROM effects
           WHERE
-            village_id = $village_id
+            tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
             AND effect_id = (
               SELECT id FROM effect_ids WHERE effect = $effect_id
             )
@@ -268,7 +299,7 @@ export const buildingDestructionResolver: Resolver<
         `,
         bind: {
           $village_id: villageId,
-          $effect_id: effects[0]!.effectId,
+          $effect_id: effects[0].effectId,
           $source_specifier: buildingFieldId,
         },
       });
@@ -277,14 +308,14 @@ export const buildingDestructionResolver: Resolver<
         sql: `
         DELETE
         FROM effects
-        WHERE village_id = $village_id
-          AND effect_id IN (
-            SELECT effect_ids.id
-            FROM
-              json_each($effect_ids) AS effect
-              JOIN effect_ids ON effect_ids.effect = effect.value
-          )
-          AND source_specifier = $source_specifier;
+        WHERE rowid IN (
+          SELECT existing.rowid
+          FROM json_each($effect_ids) AS effect
+          JOIN effect_ids ON effect_ids.effect = effect.value
+          CROSS JOIN effects existing ON existing.effect_id = effect_ids.id
+          WHERE existing.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+            AND existing.source_specifier = $source_specifier
+        );
       `,
         bind: {
           $village_id: villageId,
@@ -310,23 +341,12 @@ export const buildingDestructionResolver: Resolver<
     },
   });
 
-  return {
-    affectedVillageIds: [villageId],
-  };
-};
-
-export const buildingScheduledConstructionEventResolver: Resolver<
-  GameEvent<'buildingScheduledConstruction'>
-> = (database, args) => {
-  const { villageId, resolvesAt, buildingFieldId } = args;
-  promoteNextScheduledBuildingUpgrade(
-    database,
-    villageId,
-    resolvesAt,
-    buildingFieldId,
-  );
+  if (buildingId === 'WATERWORKS') {
+    updateOasisEffectsForVillage(database, villageId);
+  }
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [tileId],
   };
 };

@@ -7,7 +7,7 @@ import {
   use,
   useMemo,
 } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
   type CalculatedCumulativeEffect,
@@ -22,17 +22,17 @@ import {
   type AssessedBuildingRequirement,
   assessBuildingRequirements,
 } from '@pillage-first/utils/game/building-requirements';
+import { VillageBuildingLink } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/village-building-link';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
+import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -52,6 +52,7 @@ import { formatTime } from 'app/utils/time';
 type BuildingCardContextState = {
   buildingId: Building['id'];
   building: Building;
+  buildingInstanceNumber?: number;
   buildingConstructionReadinessAssessment?: ReturnType<
     typeof assessBuildingRequirements
   >;
@@ -64,6 +65,7 @@ const BuildingCardContext = createContext<BuildingCardContextState>(
 
 type BuildingCardProps = {
   buildingId: Building['id'];
+  buildingInstanceNumber?: number;
   buildingConstructionReadinessAssessment?: ReturnType<
     typeof assessBuildingRequirements
   >;
@@ -72,17 +74,15 @@ type BuildingCardProps = {
 
 const unfinishedBuildings = new Set<Building['id']>([
   'HORSE_DRINKING_TROUGH',
-  'RESIDENCE',
   'RALLY_POINT',
-  'TOWN_HALL',
   'EMBASSY',
   'COMMAND_CENTER',
-  'TRAPPER',
   'MARKETPLACE',
 ]);
 
 export const BuildingCard = ({
   buildingId,
+  buildingInstanceNumber,
   buildingConstructionReadinessAssessment,
   shouldAllowUnmetRequirementsForScheduledConstruction,
   children,
@@ -94,12 +94,14 @@ export const BuildingCard = ({
     () => ({
       buildingId,
       building,
+      buildingInstanceNumber,
       buildingConstructionReadinessAssessment,
       shouldAllowUnmetRequirementsForScheduledConstruction,
     }),
     [
       buildingId,
       building,
+      buildingInstanceNumber,
       buildingConstructionReadinessAssessment,
       shouldAllowUnmetRequirementsForScheduledConstruction,
     ],
@@ -107,7 +109,7 @@ export const BuildingCard = ({
 
   return (
     <BuildingCardContext value={value}>
-      <article className="flex flex-col gap-2 relative [&>section:nth-of-type(2)]:pt-0! [&>section:nth-of-type(2)]:border-t-0!">
+      <article className="flex flex-col gap-2 relative">
         <InformationPopover ariaLabel={t(`BUILDINGS.${building.id}.NAME`)}>
           <Text>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</Text>
         </InformationPopover>
@@ -119,7 +121,7 @@ export const BuildingCard = ({
 
 export const BuildingOverview = () => {
   const { t } = useTranslation();
-  const { buildingId } = use(BuildingCardContext);
+  const { buildingId, buildingInstanceNumber } = use(BuildingCardContext);
   const { actualLevel, virtualLevel, isUpgrading, isDowngrading } =
     use(BuildingFieldContext);
 
@@ -130,12 +132,17 @@ export const BuildingOverview = () => {
 
   return (
     <section className="flex flex-col gap-2">
-      <Text
-        as="h2"
-        className="inline-flex"
-      >
-        {t(`BUILDINGS.${building.id}.NAME`)}
-      </Text>
+      <div className="flex flex-col gap-1 md:max-w-4/5">
+        <Text
+          as="h2"
+          className="inline-flex"
+        >
+          {buildingInstanceNumber !== undefined &&
+            buildingInstanceNumber > 1 &&
+            `${buildingInstanceNumber}. `}
+          {t(`BUILDINGS.${building.id}.NAME`)}
+        </Text>
+      </div>
       {(isUpgrading || isDowngrading) && (
         <span className="inline-flex text-warning">
           {t(
@@ -162,8 +169,8 @@ export const BuildingOverview = () => {
 export const BuildingCost = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { virtualLevel, doesBuildingExist } = use(BuildingFieldContext);
-  const { total: buildingDuration } = useComputedEffect('buildingDuration');
+  const { virtualLevel, buildingDuration } = use(BuildingFieldContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
     getBuildingDataForLevel(buildingId, virtualLevel);
@@ -177,31 +184,22 @@ export const BuildingCost = () => {
   }
 
   return (
-    <>
-      <section className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border">
-        <Text as="h3">
-          {doesBuildingExist
-            ? t('Cost to upgrade to level {{level}}', {
-                level: virtualLevel + 1,
-              })
-            : t('Building construction cost')}
-        </Text>
-        <div className="flex gap-2">
-          <Resources resources={nextLevelResourceCost} />
-        </div>
-      </section>
-      <section className="flex flex-col flex-wrap gap-2 pt-2 border-t border-border justify-center">
-        <Text as="h3">
-          {t('Construction duration for level {{level}}', {
-            level: virtualLevel + 1,
-          })}
-        </Text>
-        <span className="flex gap-1">
-          <Icon type="buildingDuration" />
+    <section className="flex flex-col flex-wrap gap-2 justify-center">
+      <Text as="h3">{t('Cost and duration')}</Text>
+      <div className="flex gap-2 items-center flex-wrap">
+        <Resources
+          availableResources={currentResources}
+          resources={nextLevelResourceCost}
+        />
+        <span className="flex gap-1 items-center">
+          <Icon
+            type="buildingDuration"
+            className="size-5"
+          />
           {formattedTime}
         </span>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 
@@ -301,16 +299,16 @@ type BuildingBenefitProps = {
 };
 
 const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
-  const { hasEffect, serverEffectValue } = useEffectServerValue(
-    effect.effectId,
-  );
-
+  const { serverEffectValueByEffectId } = use(BuildingFieldContext);
+  const serverEffectValue = serverEffectValueByEffectId.get(effect.effectId);
   const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
 
   const isIncreasing = increasingPercentageBuildingEffects.has(effect.effectId);
 
   const effectModifier =
-    effect.type === 'base' && hasEffect ? serverEffectValue : 1;
+    effect.type === 'base' && serverEffectValue !== undefined
+      ? serverEffectValue
+      : 1;
 
   return (
     <span
@@ -328,22 +326,24 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
       />
       <span>
         {!isMaxLevel && effect.currentLevelValue !== effect.nextLevelValue && (
-          <>
+          <span>
             {formattingFn(
               Math.abs(effect.currentLevelValue * effectModifier),
               isIncreasing,
             )}
             <span className="mx-0.5">&rarr;</span>
-          </>
+          </span>
         )}
-        {formattingFn(
-          Math.abs(
-            isMaxLevel
-              ? effect.currentLevelValue * effectModifier
-              : effect.nextLevelValue * effectModifier,
-          ),
-          isIncreasing,
-        )}
+        <span>
+          {formattingFn(
+            Math.abs(
+              isMaxLevel
+                ? effect.currentLevelValue * effectModifier
+                : effect.nextLevelValue * effectModifier,
+            ),
+            isIncreasing,
+          )}
+        </span>
       </span>
     </span>
   );
@@ -432,18 +432,13 @@ export const BuildingBenefits = () => {
             })}
           />
           <span>
-            {!isMaxLevel && (
-              <>
-                {population}
-                {population !== nextLevelPopulation && (
-                  <>
-                    <span className="mx-0.5">&rarr;</span>
-                    {nextLevelPopulation}
-                  </>
-                )}
-              </>
+            <span>{population}</span>
+            {!isMaxLevel && population !== nextLevelPopulation && (
+              <span>
+                <span className="mx-0.5">&rarr;</span>
+                <span>{nextLevelPopulation}</span>
+              </span>
             )}
-            {isMaxLevel && population}
           </span>
         </span>
         <span className="flex gap-2">
@@ -455,18 +450,13 @@ export const BuildingBenefits = () => {
             })}
           />
           <span>
-            {!isMaxLevel && (
-              <>
-                {culturePoints}
-                {culturePoints !== nextLevelCulturePoints && (
-                  <>
-                    <span className="mx-0.5">&rarr;</span>
-                    {nextLevelCulturePoints}
-                  </>
-                )}
-              </>
+            <span>{culturePoints}</span>
+            {!isMaxLevel && culturePoints !== nextLevelCulturePoints && (
+              <span>
+                <span className="mx-0.5">&rarr;</span>
+                <span>{nextLevelCulturePoints}</span>
+              </span>
             )}
-            {isMaxLevel && culturePoints}
           </span>
         </span>
         {effectsToShow.map((effect) => (
@@ -507,37 +497,74 @@ export const BuildingRequirements = () => {
       return instanceAlreadyExists;
     }
 
-    return ['building', 'amount'].includes(type);
+    return ['building', 'amount', 'or'].includes(type);
   });
 
   return (
-    <section className="flex flex-col border-t border-border pt-2 gap-2">
+    <section className="flex flex-col gap-2">
       <Text as="h3">{t('Requirements')}</Text>
       <ul className="flex gap-x-2 flex-wrap">
         {requirementsToDisplay.map(
           (assessedRequirement: AssessedBuildingRequirement, index) => (
             <Fragment key={assessedRequirement.id}>
-              <li className="whitespace-nowrap">
-                <Text
-                  className={clsx(
-                    assessedRequirement.fulfilled &&
-                      'text-muted-foreground line-through',
-                  )}
-                >
+              <li
+                className={clsx(
+                  assessedRequirement.type !== 'or' && 'whitespace-nowrap',
+                )}
+              >
+                <Text>
+                  {assessedRequirement.type === 'or' &&
+                    assessedRequirement.requirements.map(
+                      (alternative, index) => (
+                        <Fragment key={alternative.id}>
+                          {index > 0 && <> {t('or')} </>}
+                          <span className="inline-block whitespace-nowrap">
+                            <VillageBuildingLink
+                              buildingId={alternative.buildingId}
+                            />{' '}
+                            <span
+                              className={clsx(
+                                !assessedRequirement.fulfilled &&
+                                  'text-destructive',
+                              )}
+                            >
+                              {t('level {{level}}', {
+                                level: alternative.level,
+                              })}
+                            </span>
+                          </span>
+                        </Fragment>
+                      ),
+                    )}
                   {assessedRequirement.type === 'amount' &&
                     instanceAlreadyExists && (
-                      <Trans>
-                        <VillageBuildingLink buildingId={buildingId} /> level{' '}
-                        {{ level: maxLevel }}
-                      </Trans>
+                      <>
+                        <VillageBuildingLink buildingId={buildingId} />{' '}
+                        <span
+                          className={clsx(
+                            !assessedRequirement.fulfilled &&
+                              'text-destructive',
+                          )}
+                        >
+                          {t('level {{level}}', { level: maxLevel })}
+                        </span>
+                      </>
                     )}
                   {assessedRequirement.type === 'building' && (
-                    <Trans>
+                    <>
                       <VillageBuildingLink
                         buildingId={assessedRequirement.buildingId}
                       />{' '}
-                      level {{ level: assessedRequirement.level }}
-                    </Trans>
+                      <span
+                        className={clsx(
+                          !assessedRequirement.fulfilled && 'text-destructive',
+                        )}
+                      >
+                        {t('level {{level}}', {
+                          level: assessedRequirement.level,
+                        })}
+                      </span>
+                    </>
                   )}
                   {index !== requirementsToDisplay.length - 1 && ','}
                 </Text>
@@ -561,15 +588,16 @@ const BuildingCardActionsConstruction = ({
 }: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const { errorBag } = useBuildingConstructionErrorBag(
     buildingId,
     0,
     buildingFieldId,
   );
+  const isScheduling = getBuildingEventQueue(buildingFieldId).length > 0;
 
   return (
     <>
-      <ErrorBag errorBag={errorBag} />
       <Button
         data-testid="building-actions-construct-building-button"
         variant="default"
@@ -577,8 +605,9 @@ const BuildingCardActionsConstruction = ({
         onClick={onBuildingConstruction}
         disabled={errorBag.length > 0}
       >
-        {t('Construct')}
+        {t(isScheduling ? 'Schedule' : 'Construct')}
       </Button>
+      <ErrorBag errorBag={errorBag} />
     </>
   );
 };
@@ -593,18 +622,19 @@ const BuildingCardActionsUpgrade = ({
   buildingLevel,
 }: BuildingCardActionsUpgradeProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId, buildingField } = use(BuildingFieldContext);
-  const { buildingId, level } = buildingField!;
+  const { buildingId } = use(BuildingCardContext);
+  const { actualLevel, buildingFieldId } = use(BuildingFieldContext);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
 
   const { errorBag } = useBuildingConstructionErrorBag(
     buildingId,
-    level,
+    actualLevel,
     buildingFieldId,
   );
+  const isScheduling = getBuildingEventQueue(buildingFieldId).length > 0;
 
   return (
     <>
-      <ErrorBag errorBag={errorBag} />
       <Button
         data-testid="building-actions-upgrade-building-button"
         variant="default"
@@ -612,14 +642,16 @@ const BuildingCardActionsUpgrade = ({
         onClick={onBuildingUpgrade}
         disabled={errorBag.length > 0}
       >
-        {t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
+        {isScheduling
+          ? t('Schedule')
+          : t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
       </Button>
+      <ErrorBag errorBag={errorBag} />
     </>
   );
 };
 
 export const BuildingActions = () => {
-  const { t } = useTranslation();
   const {
     buildingId,
     building,
@@ -695,8 +727,7 @@ export const BuildingActions = () => {
     }
 
     return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
-        <Text as="h3">{t('Available actions')}</Text>
+      <section className="flex flex-col gap-2">
         <BuildingCardActionsConstruction
           buildingId={buildingId}
           onBuildingConstruction={onBuildingConstruction}
@@ -717,8 +748,7 @@ export const BuildingActions = () => {
   }
 
   return (
-    <section className="flex flex-col gap-2 pt-2 border-t border-border">
-      <Text as="h3">{t('Available actions')}</Text>
+    <section className="flex flex-col gap-2">
       <BuildingCardActionsUpgrade
         buildingLevel={virtualLevel}
         onBuildingUpgrade={onBuildingUpgrade}

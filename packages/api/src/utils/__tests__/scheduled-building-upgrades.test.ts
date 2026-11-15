@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { calculateBuildingCostForLevel } from '@pillage-first/game-assets/utils/buildings';
 import {
   createBuildingConstructionEventMock,
@@ -11,6 +11,7 @@ import {
   buildingIdSchema,
 } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import * as notificationPort from '../../worker/notification-port';
 import { createBuildingPlaceholder } from '../building-placeholder';
 import { insertEvents } from '../events';
 import {
@@ -63,12 +64,151 @@ const expectAtMostOneActiveConstructionPerLane = (
     }),
   });
 
-  expect(violations).toEqual([]);
+  expect(violations).toStrictEqual([]);
 };
 
 describe('scheduled building upgrades', () => {
+  test.each([
+    ['GREAT_WAREHOUSE', 'WAREHOUSE'],
+    ['GREAT_GRANARY', 'GRANARY'],
+  ] as const)(
+    'reports unmet %s alternatives as one OR group',
+    async (buildingId, regularBuildingId) => {
+      using database = await prepareTestDatabase();
+      using postWorkerMessage = vi.spyOn(notificationPort, 'postWorkerMessage');
+      const villageId = 1;
+      const buildingFieldId = 37;
+
+      database.exec({
+        sql: `
+        UPDATE building_fields SET level = 10
+        WHERE village_id = $village_id
+          AND building_id = (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING');
+      `,
+        bind: { $village_id: villageId },
+      });
+      createBuildingPlaceholder(
+        database,
+        villageId,
+        buildingFieldId,
+        buildingId,
+      );
+      insertScheduledBuildingUpgrade(database, {
+        villageId,
+        buildingId,
+        buildingFieldId,
+        level: 1,
+      });
+
+      promoteNextScheduledBuildingUpgrade(database, villageId);
+
+      const reasonDetail = {
+        type: 'missing-requirements',
+        unmetRequirements: [
+          {
+            type: 'or',
+            requirements: [
+              {
+                buildingId: regularBuildingId,
+                requiredLevel: 20,
+                currentLevel: null,
+              },
+              { buildingId, requiredLevel: 20, currentLevel: null },
+            ],
+          },
+        ],
+      };
+      const persistedDetail = database.selectValue({
+        sql: `
+        SELECT reason_detail_json
+        FROM scheduled_construction_cancellation_reports
+        WHERE village_id = $village_id AND field_id = $field_id;
+      `,
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
+        schema: z.string(),
+      });
+
+      expect(JSON.parse(persistedDetail!)).toStrictEqual(reasonDetail);
+      expect(postWorkerMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eventKey: 'scheduled-building-construction:cancelled',
+          reasonDetail,
+        }),
+      );
+    },
+  );
+
+  test('uses a JSON-safe unlimited amount in cancellation reports and notifications', async () => {
+    using database = await prepareTestDatabase();
+    using postWorkerMessage = vi.spyOn(notificationPort, 'postWorkerMessage');
+    const villageId = 1;
+    const buildingFieldId = 38;
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND source_specifier IN (36, 37, $field_id);
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+    });
+
+    database.exec({
+      sql: `
+        DELETE FROM building_fields
+        WHERE village_id = $village_id AND field_id IN (36, 37, $field_id);
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+    });
+
+    createBuildingPlaceholder(database, villageId, 36, 'MAIN_BUILDING');
+    createBuildingPlaceholder(database, villageId, 37, 'GRANARY');
+    database.exec({
+      sql: `
+        UPDATE building_fields
+        SET level = 1
+        WHERE village_id = $village_id
+          AND field_id IN (36, 37);
+      `,
+      bind: { $village_id: villageId },
+    });
+
+    createBuildingPlaceholder(database, villageId, buildingFieldId, 'GRANARY');
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: 'GRANARY',
+      buildingFieldId,
+      level: 1,
+    });
+
+    promoteNextScheduledBuildingUpgrade(database, villageId);
+
+    const reasonDetail = {
+      type: 'missing-requirements',
+      unmetRequirements: [{ type: 'amount', amount: null }],
+    };
+
+    const persistedDetail = database.selectValue({
+      sql: `
+        SELECT reason_detail_json
+        FROM scheduled_construction_cancellation_reports
+        WHERE village_id = $village_id AND field_id = $field_id;
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+      schema: z.string(),
+    });
+
+    expect(JSON.parse(persistedDetail!)).toStrictEqual(reasonDetail);
+    expect(postWorkerMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventKey: 'scheduled-building-construction:cancelled',
+        reasonDetail,
+      }),
+    );
+  });
+
   test('starts only the first queued upgrade for a non-Roman village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -87,14 +227,17 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    database.exec({
+    database.execMulti({
       sql: `
         UPDATE players
-        SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
-        WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
+        SET
+          tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
+        WHERE
+          id = (SELECT player_id FROM villages WHERE id = $village_id);
       `,
       bind: { $village_id: villageId },
     });
+
     database.exec({
       sql: `
         INSERT INTO scheduled_building_upgrades
@@ -105,10 +248,10 @@ describe('scheduled building upgrades', () => {
       `,
       bind: {
         $village_id: villageId,
-        $building_1: fields[0].buildingId as Building['id'],
+        $building_1: fields[0].buildingId,
         $field_1: fields[0].fieldId,
         $level_1: fields[0].level + 1,
-        $building_2: fields[1].buildingId as Building['id'],
+        $building_2: fields[1].buildingId,
         $field_2: fields[1].fieldId,
         $level_2: fields[1].level + 1,
       },
@@ -128,7 +271,7 @@ describe('scheduled building upgrades', () => {
       schema: z.strictObject({ active: z.number(), scheduled: z.number() }),
     });
 
-    expect(counts).toEqual({ active: 1, scheduled: 1 });
+    expect(counts).toStrictEqual({ active: 1, scheduled: 1 });
 
     const firstActiveField = database.selectValue({
       sql: `
@@ -139,6 +282,7 @@ describe('scheduled building upgrades', () => {
       bind: { $village_id: villageId },
       schema: z.number(),
     });
+
     expect(firstActiveField).toBe(fields[0].fieldId);
 
     database.exec({
@@ -148,6 +292,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     promoteNextScheduledBuildingUpgrade(database, villageId);
 
     const promoted = database.selectObject({
@@ -162,11 +307,15 @@ describe('scheduled building upgrades', () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ fieldId: z.number(), scheduled: z.number() }),
     });
-    expect(promoted).toEqual({ fieldId: fields[1].fieldId, scheduled: 0 });
+
+    expect(promoted).toStrictEqual({
+      fieldId: fields[1].fieldId,
+      scheduled: 0,
+    });
   });
 
   test('does not promote a scheduled upgrade while a new building is constructing', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -192,6 +341,7 @@ describe('scheduled building upgrades', () => {
         buildingFieldId: 25,
       }),
     ]);
+
     database.exec({
       sql: `
         INSERT INTO scheduled_building_upgrades
@@ -204,7 +354,7 @@ describe('scheduled building upgrades', () => {
         );
       `,
       bind: {
-        $building_id: field.buildingId as Building['id'],
+        $building_id: field.buildingId,
         $village_id: villageId,
         $field_id: field.fieldId,
         $level: field.level + 1,
@@ -225,11 +375,12 @@ describe('scheduled building upgrades', () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ active: z.number(), scheduled: z.number() }),
     });
-    expect(counts).toEqual({ active: 1, scheduled: 1 });
+
+    expect(counts).toStrictEqual({ active: 1, scheduled: 1 });
   });
 
   test('queue-full stops without deleting or trying later scheduled upgrades', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -255,6 +406,7 @@ describe('scheduled building upgrades', () => {
         buildingFieldId: 25,
       }),
     ]);
+
     for (const field of fields) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
@@ -288,7 +440,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       promoted: 0,
       scheduled: 2,
       scheduledFieldIds: fields.map(({ fieldId }) => fieldId).join(','),
@@ -296,9 +448,10 @@ describe('scheduled building upgrades', () => {
   });
 
   test('promotes only the next queued upgrade for Romans', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
-    database.exec({
+
+    database.execMulti({
       sql: `
         UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
@@ -306,6 +459,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     const fields = database.selectObjects({
       sql: `
         SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
@@ -322,13 +476,14 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const resourceField = fields.find(({ fieldId }) => fieldId <= 18)!;
     const villageField = fields.find(({ fieldId }) => fieldId > 18)!;
 
     for (const field of [resourceField, villageField]) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
-        buildingId: field.buildingId as Building['id'],
+        buildingId: field.buildingId,
         buildingFieldId: field.fieldId,
         level: field.level + 1,
       });
@@ -353,17 +508,18 @@ describe('scheduled building upgrades', () => {
         scheduled: z.number(),
       }),
     });
-    expect(result).toEqual({
+
+    expect(result).toStrictEqual({
       fieldId: resourceField.fieldId,
       scheduled: 1,
     });
   });
 
   test('lane-filtered promotion preserves the Roman active construction invariant', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
+    database.execMulti({
       sql: `
         UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
@@ -391,6 +547,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     const villageFields = database.selectObjects({
       sql: `
         SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
@@ -409,6 +566,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const [activeVillageField, queuedVillageField] = villageFields;
 
     insertEvents(database, [
@@ -420,12 +578,14 @@ describe('scheduled building upgrades', () => {
         level: activeVillageField.level + 1,
       }),
     ]);
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: queuedVillageField.buildingId,
       buildingFieldId: queuedVillageField.fieldId,
       level: queuedVillageField.level + 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: resourceField.buildingId,
@@ -467,14 +627,14 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       promotedResource: 1,
       queuedVillage: 1,
     });
   });
 
   test('removes an unaffordable upgrade and all dependent levels', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -491,6 +651,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     database.exec({
       sql: `
         UPDATE resource_sites
@@ -499,6 +660,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     for (const level of [field.level + 1, field.level + 2]) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
@@ -523,7 +685,6 @@ describe('scheduled building upgrades', () => {
         schema: z.number(),
       }),
     ).toBe(0);
-
     expect(
       database.selectObject({
         sql: `
@@ -542,15 +703,50 @@ describe('scheduled building upgrades', () => {
           buildingId: buildingIdSchema,
         }),
       }),
-    ).toEqual({
+    ).toStrictEqual({
       level: field.level + 1,
       fieldId: field.fieldId,
       buildingId: field.buildingId,
     });
+    expect(
+      database.selectObject({
+        sql: `
+          SELECT
+            rti.report_type AS reportType,
+            roi.report_outcome AS reportOutcome,
+            sccr.field_id AS fieldId,
+            bi.building AS buildingId,
+            sccr.level,
+            sccr.reason
+          FROM scheduled_construction_cancellation_reports sccr
+          JOIN reports r ON r.id = sccr.report_id
+          JOIN report_type_ids rti ON rti.id = r.type_id
+          JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+          JOIN building_ids bi ON bi.id = sccr.building_id
+          WHERE sccr.village_id = $village_id;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          reportType: z.literal('scheduledConstructionCancellation'),
+          reportOutcome: z.literal('scheduledConstructionCancelled'),
+          fieldId: z.number(),
+          buildingId: buildingIdSchema,
+          level: z.number(),
+          reason: z.literal('missing-resources'),
+        }),
+      }),
+    ).toStrictEqual({
+      reportType: 'scheduledConstructionCancellation',
+      reportOutcome: 'scheduledConstructionCancelled',
+      fieldId: field.fieldId,
+      buildingId: field.buildingId,
+      level: field.level + 1,
+      reason: 'missing-resources',
+    });
   });
 
   test('removes an invalid head candidate and promotes the next candidate', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -568,6 +764,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     const [invalidField, validField] = fields;
 
     const invalidLevel = invalidField.level + 5;
@@ -602,12 +799,14 @@ describe('scheduled building upgrades', () => {
       buildingFieldId: invalidField.fieldId,
       level: invalidLevel,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: invalidField.buildingId,
       buildingFieldId: invalidField.fieldId,
       level: invalidLevel + 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: validField.buildingId,
@@ -633,14 +832,14 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(promoted).toEqual({
+    expect(promoted).toStrictEqual({
       fieldId: validField.fieldId,
       scheduled: 0,
     });
   });
 
   test('removes invalid candidates until the scheduled queue is empty', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -658,6 +857,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     });
+
     database.exec({
       sql: `
         UPDATE resource_sites
@@ -666,6 +866,7 @@ describe('scheduled building upgrades', () => {
       `,
       bind: { $village_id: villageId },
     });
+
     for (const field of fields) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
@@ -695,14 +896,14 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(counts).toEqual({
+    expect(counts).toStrictEqual({
       promoted: 0,
       scheduled: 0,
     });
   });
 
   test('removes a failed level-one placeholder and continues to the next candidate', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const placeholderFieldId = 25;
     const placeholderBuildingId: Building['id'] = 'TREASURY';
@@ -722,19 +923,22 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     const validLevel = validField.level + 1;
     const validCost = calculateBuildingCostForLevel(
       validField.buildingId,
       validLevel,
     );
 
-    database.exec({
+    database.execMulti({
       sql: `
         DELETE FROM effects
-        WHERE village_id = $village_id
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $placeholder_field_id;
         DELETE FROM building_fields
-        WHERE village_id = $village_id
+        WHERE
+          village_id = $village_id
           AND field_id = $placeholder_field_id;
       `,
       bind: {
@@ -742,6 +946,7 @@ describe('scheduled building upgrades', () => {
         $placeholder_field_id: placeholderFieldId,
       },
     });
+
     database.exec({
       sql: `
         UPDATE resource_sites
@@ -760,18 +965,21 @@ describe('scheduled building upgrades', () => {
         $wheat: validCost[3],
       },
     });
+
     createBuildingPlaceholder(
       database,
       villageId,
       placeholderFieldId,
       placeholderBuildingId,
     );
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: placeholderBuildingId,
       buildingFieldId: placeholderFieldId,
       level: 1,
     });
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: validField.buildingId,
@@ -790,7 +998,7 @@ describe('scheduled building upgrades', () => {
              AND field_id = $placeholder_field_id) AS placeholderFields,
           (SELECT COUNT(*)
            FROM effects
-           WHERE village_id = $village_id
+           WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
              AND source_specifier = $placeholder_field_id
              AND source_id = (
                SELECT id FROM effect_source_ids WHERE source = 'building'
@@ -811,7 +1019,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       placeholderFields: 0,
       placeholderEffects: 0,
       promotedFieldId: validField.fieldId,
@@ -819,17 +1027,19 @@ describe('scheduled building upgrades', () => {
   });
 
   test('removes scheduled construction with missing requirements when it tries to start', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
 
-    database.exec({
+    database.execMulti({
       sql: `
         DELETE FROM effects
-        WHERE village_id = $village_id
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
-        WHERE village_id = $village_id
+        WHERE
+          village_id = $village_id
           AND field_id = $field_id;
       `,
       bind: {
@@ -837,6 +1047,7 @@ describe('scheduled building upgrades', () => {
         $field_id: buildingFieldId,
       },
     });
+
     createBuildingPlaceholder(database, villageId, buildingFieldId, 'BARRACKS');
     insertScheduledBuildingUpgrade(database, {
       villageId,
@@ -873,17 +1084,93 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       active: 0,
       scheduled: 0,
       placeholderFields: 0,
     });
   });
 
+  test('starts a new building when its later levels are scheduled', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = 1;
+    const buildingFieldId = 25;
+
+    database.execMulti({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND source_specifier = $field_id;
+        DELETE FROM building_fields
+        WHERE
+          village_id = $village_id
+          AND field_id = $field_id;
+        UPDATE developer_settings
+        SET
+          is_free_building_construction_enabled = 1;
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+      },
+    });
+
+    createBuildingPlaceholder(database, villageId, buildingFieldId, 'GRANARY');
+
+    for (const level of [1, 2]) {
+      insertScheduledBuildingUpgrade(database, {
+        villageId,
+        buildingId: 'GRANARY',
+        buildingFieldId,
+        level,
+      });
+    }
+
+    promoteNextScheduledBuildingUpgrade(database, villageId);
+
+    const result = database.selectObject({
+      sql: `
+        SELECT
+          CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) AS fieldId,
+          JSON_EXTRACT(e.meta, '$.buildingId') AS buildingId,
+          CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) AS previousLevel,
+          CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) AS level,
+          (SELECT COUNT(*)
+           FROM scheduled_building_upgrades sbu
+           WHERE sbu.village_id = $village_id
+             AND sbu.building_field_id = $field_id
+             AND sbu.level = 2) AS scheduledLevelTwo
+        FROM events e
+        WHERE e.village_id = $village_id
+          AND e.type = 'buildingLevelChange';
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+      },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        buildingId: buildingIdSchema,
+        previousLevel: z.number(),
+        level: z.number(),
+        scheduledLevelTwo: z.number(),
+      }),
+    });
+
+    expect(result).toStrictEqual({
+      fieldId: buildingFieldId,
+      buildingId: 'GRANARY',
+      previousLevel: 0,
+      level: 1,
+      scheduledLevelTwo: 1,
+    });
+  });
+
   test.each([0, -100])(
-    'does not promote an upgrade when current free crop is %i',
+    'promotes an upgrade regardless of current wheat production (%i)',
     async (wheatProduction) => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const field = database.selectObject({
         sql: `
@@ -901,11 +1188,12 @@ describe('scheduled building upgrades', () => {
           buildingId: buildingIdSchema,
         }),
       })!;
+
       database.exec({
         sql: `
           UPDATE effects
           SET value = $value
-          WHERE village_id = $village_id
+          WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
             AND effect_id = (
               SELECT id FROM effect_ids WHERE effect = 'wheatProduction'
             );
@@ -915,6 +1203,7 @@ describe('scheduled building upgrades', () => {
           $village_id: villageId,
         },
       });
+
       insertScheduledBuildingUpgrade(database, {
         villageId,
         buildingId: field.buildingId,
@@ -939,12 +1228,13 @@ describe('scheduled building upgrades', () => {
           scheduled: z.number(),
         }),
       });
-      expect(counts).toEqual({ active: 0, scheduled: 0 });
+
+      expect(counts).toStrictEqual({ active: 1, scheduled: 0 });
     },
   );
 
   test('starts an offline-promoted upgrade at the predecessor completion time', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const predecessorResolvesAt = Date.now() - 60_000;
     const field = database.selectObject({
@@ -962,6 +1252,7 @@ describe('scheduled building upgrades', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+
     insertScheduledBuildingUpgrade(database, {
       villageId,
       buildingId: field.buildingId,

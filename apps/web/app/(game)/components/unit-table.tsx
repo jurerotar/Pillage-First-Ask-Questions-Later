@@ -9,7 +9,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
-import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units';
+import {
+  getUnitsByTribe,
+  getUnitsByTribeWithHero,
+} from '@pillage-first/game-assets/utils/units';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
@@ -19,10 +22,13 @@ import { OverflowContainer } from 'app/(game)/(village-slug)/components/building
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
+import { useIntl } from 'app/hooks/use-intl';
+import { Countdown } from '../(village-slug)/components/countdown';
 import { Resources } from '../(village-slug)/components/resources';
 
 type UnitTableContextValue = {
   tribe: Tribe;
+  includeHero: boolean;
 };
 
 const UnitTableContext = createContext<UnitTableContextValue>(
@@ -32,14 +38,20 @@ const UnitTableContext = createContext<UnitTableContextValue>(
 type UnitTableProps = {
   tribe: Tribe;
   children: ReactNode;
+  includeHero?: boolean;
 };
 
-export const UnitTable = ({ tribe, children }: UnitTableProps) => {
+export const UnitTable = ({
+  tribe,
+  children,
+  includeHero = true,
+}: UnitTableProps) => {
   const value = useMemo(() => {
     return {
       tribe,
+      includeHero,
     };
-  }, [tribe]);
+  }, [tribe, includeHero]);
 
   return (
     <UnitTableContext.Provider value={value}>
@@ -52,9 +64,14 @@ export const UnitTable = ({ tribe, children }: UnitTableProps) => {
   );
 };
 
-export const UnitTableTitle = ({ children }: PropsWithChildren) => {
+export const UnitTableTitle = ({
+  children,
+  className = 'bg-muted',
+}: PropsWithChildren<{ className?: string }>) => {
   return (
-    <thead className="bg-muted border-b dark:border-border font-medium">
+    <thead
+      className={clsx('border-b dark:border-border font-medium', className)}
+    >
       <tr>
         <th
           colSpan={12}
@@ -114,20 +131,20 @@ export const UnitTablePlayer = ({
 };
 
 export const UnitTableUnitIcons = () => {
-  const { tribe } = use(UnitTableContext);
-  const tribeUnits = getUnitsByTribeWithHero(tribe);
+  const { tribe, includeHero } = use(UnitTableContext);
+
+  const tribeUnits = includeHero
+    ? getUnitsByTribeWithHero(tribe)
+    : getUnitsByTribe(tribe);
 
   return (
     <thead className="border-b dark:border-border">
       <tr>
         <th className="border-r dark:border-border w-16" />
-        {tribeUnits.map((unitDef, index) => (
+        {tribeUnits.map((unitDef) => (
           <th
             key={unitDef.id}
-            className={clsx(
-              'p-2 text-center',
-              index !== tribeUnits.length - 1 && 'border-r dark:border-border',
-            )}
+            className="p-2 text-center border-r last:border-r-0 dark:border-border"
           >
             <div className="flex justify-center">
               <Icon
@@ -159,13 +176,10 @@ export const UnitTableRow = ({
         <td className="px-2 py-1 border-r dark:border-border">
           <Text className="text-sm font-medium">{label}</Text>
         </td>
-        {troops.map(({ unitId, amount }, index) => (
+        {troops.map(({ unitId, amount }) => (
           <td
             key={unitId}
-            className={clsx(
-              'h-7 text-center',
-              index !== troops.length - 1 && 'border-r dark:border-border',
-            )}
+            className="h-7 text-center border-r last:border-r-0 dark:border-border"
           >
             <Text className={clsx('text-sm', textColor)}>
               {formatNumber(amount)}
@@ -202,6 +216,43 @@ export const UnitTableContentRow = ({
   );
 };
 
+export const UnitTableArrivalRow = ({ endsAt }: { endsAt: number }) => {
+  const { t } = useTranslation();
+  const intl = useIntl();
+
+  return (
+    <UnitTableContentRow label={t('Arrival')}>
+      <div className="flex items-center justify-between gap-2 text-sm tabular-nums">
+        <span>
+          {t('in')} <Countdown endsAt={endsAt} />
+        </span>
+        <span>
+          {t('at')} {intl.time.format(endsAt)}
+        </span>
+      </div>
+    </UnitTableContentRow>
+  );
+};
+
+export const UnitTableLootRow = ({ loot }: { loot?: ResourceBundle }) => {
+  const { t } = useTranslation();
+
+  if (!loot?.some((amount) => amount > 0)) {
+    return null;
+  }
+
+  return (
+    <UnitTableContentRow label={t('Loot')}>
+      <div className="flex items-center gap-2 text-sm">
+        <Resources
+          resources={loot}
+          iconClassName="size-4"
+        />
+      </div>
+    </UnitTableContentRow>
+  );
+};
+
 export const UnitTableNoLabelContentRow = ({ children }: PropsWithChildren) => {
   return (
     <tbody className="border-b last:border-b-0 dark:border-border">
@@ -232,13 +283,10 @@ export const UnitTableHiddenRow = ({
         <td className="px-2 py-1 border-r dark:border-border">
           <Text className="text-sm font-medium">{label}</Text>
         </td>
-        {troops.map(({ unitId }, index) => (
+        {troops.map(({ unitId }) => (
           <td
             key={unitId}
-            className={clsx(
-              'h-7 text-center',
-              index !== troops.length - 1 && 'border-r dark:border-border',
-            )}
+            className="h-7 text-center border-r last:border-r-0 dark:border-border"
           >
             <Text className="text-sm text-gray-700">?</Text>
           </td>

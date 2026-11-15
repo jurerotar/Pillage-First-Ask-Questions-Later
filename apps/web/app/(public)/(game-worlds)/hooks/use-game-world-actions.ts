@@ -1,10 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
-import {
-  isFileSystemLockError,
-  retryWhenFileSystemLocked,
-} from '@pillage-first/utils/opfs-lock-retry';
+import { isFileSystemLockError } from '@pillage-first/utils/opfs-lock-retry';
 import type {
   ImportGameWorldWorkerPayload,
   ImportGameWorldWorkerResponse,
@@ -94,21 +91,30 @@ const reportMissingServerDatabase = (
   );
 };
 
-const exportServerDatabase = async (server: Server): Promise<ArrayBuffer> => {
+const reportMissingServerDatabaseIfNeeded = async (
+  rootHandle: FileSystemDirectoryHandle,
+  server: Server,
+): Promise<void> => {
+  const serverStorageStatus = await getServerStorageStatus(rootHandle, server);
+
+  if (serverStorageStatus === 'present') {
+    return;
+  }
+
+  reportMissingServerDatabase(server, serverStorageStatus);
+};
+
+export const exportGameWorldDatabase = async (
+  server: Server,
+): Promise<ArrayBuffer> => {
   const url = new URL(ExportServerWorker, import.meta.url);
   url.searchParams.set('server-slug', server.slug);
 
-  const result = await retryWhenFileSystemLocked(async () => {
-    const workerResult = await workerFactory<void, ExportServerWorkerReturn>(
-      url,
-    );
+  const result = await workerFactory<ExportServerWorkerReturn>(url);
 
-    if (!workerResult.resolved) {
-      throw new Error(workerResult.error);
-    }
-
-    return workerResult;
-  });
+  if (!result.resolved) {
+    throw new Error(result.error);
+  }
 
   return result.databaseBuffer;
 };
@@ -120,10 +126,11 @@ const importGameWorldDatabase = async (
     databaseBuffer,
   };
 
-  const result = await workerFactory<
-    ImportGameWorldWorkerPayload,
-    ImportGameWorldWorkerResponse
-  >(ImportGameWorldWorker, payload, [payload.databaseBuffer]);
+  const result = await workerFactory<ImportGameWorldWorkerResponse>(
+    ImportGameWorldWorker,
+    payload,
+    [payload.databaseBuffer],
+  );
 
   if (!result.resolved) {
     throw new Error(result.error || 'Failed to import game world.');
@@ -132,22 +139,12 @@ const importGameWorldDatabase = async (
   return result.server;
 };
 
-const deleteServerData = async (server: Server): Promise<Server[] | null> => {
-  const rootHandle = await getRootHandle();
-  const serverStorageStatus = await getServerStorageStatus(rootHandle, server);
-  let missingServerDatabaseReported = false;
-
-  if (serverStorageStatus !== 'present') {
-    reportMissingServerDatabase(server, serverStorageStatus);
-    missingServerDatabaseReported = true;
-  }
-
+const deleteServerData = async (
+  rootHandle: FileSystemDirectoryHandle,
+  server: Server,
+): Promise<Server[] | null> => {
   try {
-    await retryWhenFileSystemLocked(async () => {
-      await rootHandle.removeEntry(server.slug, {
-        recursive: true,
-      });
-    });
+    await rootHandle.removeEntry(server.slug, { recursive: true });
   } catch (error) {
     if (isFileSystemLockError(error)) {
       toast.error("Server couldn't be deleted", {
@@ -160,10 +157,6 @@ const deleteServerData = async (server: Server): Promise<Server[] | null> => {
 
     if (!isNotFoundError(error)) {
       throw error;
-    }
-
-    if (!missingServerDatabaseReported) {
-      reportMissingServerDatabase(server, 'missing-directory');
     }
   }
 
@@ -187,7 +180,7 @@ export const useGameWorldActions = () => {
   const { mutateAsync: exportGameWorld, isPending: isExportGameWorldPending } =
     useMutation<void, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
-        const databaseBuffer = await exportServerDatabase(server);
+        const databaseBuffer = await exportGameWorldDatabase(server);
 
         const blob = new Blob([databaseBuffer], {
           type: 'application/x-sqlite3',
@@ -226,7 +219,7 @@ export const useGameWorldActions = () => {
     isPending: isDuplicateGameWorldPending,
   } = useMutation<Server, Error, { server: Server }>({
     mutationFn: async ({ server }) => {
-      const databaseBuffer = await exportServerDatabase(server);
+      const databaseBuffer = await exportGameWorldDatabase(server);
 
       return importGameWorldDatabase(databaseBuffer);
     },
@@ -250,10 +243,37 @@ export const useGameWorldActions = () => {
     },
   });
 
+  const { mutateAsync: deleteGameWorldData } = useMutation<
+    Server[] | null,
+    Error,
+    { server: Server }
+  >({
+    mutationFn: async ({ server }) => {
+      const rootHandle = await getRootHandle();
+      return deleteServerData(rootHandle, server);
+    },
+    onSuccess: async (updatedServers, _vars, _onMutateResult, context) => {
+      if (!updatedServers) {
+        return;
+      }
+
+      context.client.setQueryData([availableServerCacheKey], updatedServers);
+      await invalidateQueries(context, [[availableServerCacheKey]]);
+    },
+    onError: (error) => {
+      toast.error('Failed to delete game world data', {
+        description: error.message,
+      });
+    },
+  });
+
   const { mutateAsync: deleteGameWorld, isPending: isDeleteGameWorldPending } =
     useMutation<Server[] | null, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
-        return deleteServerData(server);
+        const rootHandle = await getRootHandle();
+        await reportMissingServerDatabaseIfNeeded(rootHandle, server);
+
+        return deleteServerData(rootHandle, server);
       },
       onSuccess: async (
         updatedServers,
@@ -282,6 +302,7 @@ export const useGameWorldActions = () => {
     isExportGameWorldPending,
     duplicateGameWorld,
     isDuplicateGameWorldPending,
+    deleteGameWorldData,
     deleteGameWorld,
     isDeleteGameWorldPending,
   };

@@ -68,13 +68,10 @@ export const pushGameWorldExported = (server: Server): void => {
   pushProductEvent('game_world_exported', getGameWorldEventAttributes(server));
 };
 
-export const pushGameWorldImported = (
-  server: Server,
-  attributes: ProductEventAttributes = {},
-): void => {
+export const pushGameWorldImported = (server: Server): void => {
   pushProductEvent('game_world_imported', {
     ...getGameWorldEventAttributes(server),
-    ...attributes,
+    import_method: 'manual_upload',
   });
 };
 

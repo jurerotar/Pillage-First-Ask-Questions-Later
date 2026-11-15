@@ -1,5 +1,10 @@
-import type { ReactNode } from 'react';
-import { createContext, type PropsWithChildren, use, useMemo } from 'react';
+import {
+  createContext,
+  type PropsWithChildren,
+  type ReactNode,
+  use,
+  useMemo,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
@@ -9,6 +14,7 @@ import {
 } from '@pillage-first/utils/map';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import {
   UnitTable,
@@ -207,6 +213,7 @@ const TroopConfirmationMovementDetails = ({
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
+  const { hero } = useHero();
   const { mapSize } = useServer();
 
   const resolvedOriginTileId = originTileId ?? currentVillage.tileId;
@@ -217,7 +224,6 @@ const TroopConfirmationMovementDetails = ({
 
   const travelDuration = useMemo(() => {
     return calculateTravelDuration({
-      originVillageId: currentVillage.id,
       originTileId: resolvedOriginTileId,
       targetTileId: formData.target.tileId,
       mapSize,
@@ -225,13 +231,15 @@ const TroopConfirmationMovementDetails = ({
         unitId: t.unitId,
         amount: t.selected,
         tileId: currentVillage.tileId,
-        source: currentVillage.tileId,
+        sourceTileId: currentVillage.tileId,
       })),
       effects,
+      heroSpeed: hero.stats.speed,
     });
   }, [
     currentVillage,
     formData.target.tileId,
+    hero.stats.speed,
     mapSize,
     resolvedOriginTileId,
     selectedTroops,

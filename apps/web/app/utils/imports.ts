@@ -1,4 +1,4 @@
-import { type JSX, lazy } from 'react';
+import { type ComponentType, lazy } from 'react';
 
 const retry = async <T>(
   fn: () => Promise<T>,
@@ -7,14 +7,19 @@ const retry = async <T>(
 ): Promise<T> => {
   try {
     return await fn();
-  } catch {
+  } catch (error) {
+    if (retries <= 0) {
+      throw error;
+    }
+
     await new Promise((resolve) => setTimeout(resolve, delay));
-    return retry(fn, retries - 1);
+    return retry(fn, retries - 1, delay);
   }
 };
 
-export const lazyWithRetry = <T extends { default: () => JSX.Element }>(
-  importFn: () => Promise<T>,
+// biome-ignore lint/suspicious/noExplicitAny: Match React.lazy's constraint while preserving each component's props.
+export const lazyWithRetry = <T extends ComponentType<any>>(
+  importFn: () => Promise<{ default: T }>,
   retries = 3,
   delay = 250,
 ) => {

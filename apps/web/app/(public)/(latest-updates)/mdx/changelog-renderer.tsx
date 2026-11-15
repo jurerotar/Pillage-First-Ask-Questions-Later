@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { Alert } from 'app/components/ui/alert';
 import {
   type ChangelogEntry,
   groupOrder,
   makeSectionId,
   parseChangelog as parseChangelogFromMarkdown,
-} from 'app/utils/changelog';
+} from '@pillage-first/utils/changelog';
+import { CopySectionLinkButton } from 'app/(public)/components/copy-section-link-button';
+import { Alert } from 'app/components/ui/alert';
 import changelogRaw from '../../../../../../CHANGELOG.md?raw';
 import { BugFixesBlock } from './components/bug-fixes-block';
 import { CopyReleaseButton } from './components/copy-release-button';
@@ -23,7 +24,7 @@ const tagToBlock = {
 };
 
 const inlineMarkdownPattern =
-  /(<br\s*\/?>)|\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)]\(([^)]+)\)/gi;
+  /(<br\s*\/?>)|\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)/giu;
 
 const renderInlineMarkdown = (text: string): ReactNode[] => {
   const nodes: ReactNode[] = [];
@@ -40,15 +41,15 @@ const renderInlineMarkdown = (text: string): ReactNode[] => {
     }
 
     if (match[1]) {
-      nodes.push(<br key={key++} />);
+      nodes.push(<br key={key} />);
     } else if (match[2]) {
-      nodes.push(<strong key={key++}>{match[2]}</strong>);
+      nodes.push(<strong key={key}>{match[2]}</strong>);
     } else if (match[3]) {
-      nodes.push(<code key={key++}>{match[3]}</code>);
+      nodes.push(<code key={key}>{match[3]}</code>);
     } else if (match[4] && match[5]) {
       nodes.push(
         <a
-          key={key++}
+          key={key}
           href={match[5]}
         >
           {match[4]}
@@ -56,6 +57,7 @@ const renderInlineMarkdown = (text: string): ReactNode[] => {
       );
     }
 
+    key += 1;
     lastIndex = match.index + match[0].length;
   }
 
@@ -68,81 +70,19 @@ const renderInlineMarkdown = (text: string): ReactNode[] => {
 
 const releases = parseChangelogFromMarkdown(changelogRaw);
 
-export const ChangelogRenderer = () => {
-  if (!releases.length) {
-    return null;
-  }
-
-  return (
-    <>
-      {releases.map((release) => (
-        <section
-          key={release.version}
-          id={makeSectionId(release.version)}
-          style={{ position: 'relative' }}
-        >
-          {import.meta.env.DEV && (
-            <CopyReleaseButton text={buildReleaseMarkdown(release)} />
-          )}
-          <h2>Version {release.version}</h2>
-          <h4>
-            {release.date.toLocaleDateString('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-            })}
-          </h4>
-
-          {groupOrder.map((tag) => {
-            const items = release.groups[tag] ?? [];
-
-            if (!items.length) {
-              return null;
-            }
-
-            if (tag === 'Breaking') {
-              return (
-                <Alert
-                  key={tag}
-                  variant="error"
-                >
-                  {items[0]}
-                </Alert>
-              );
-            }
-
-            const Block =
-              tagToBlock[tag as keyof typeof tagToBlock] ??
-              TechnicalImprovementBlock;
-
-            return (
-              <Block key={tag}>
-                <ul>
-                  {items.map((item) => (
-                    <li key={item}>{renderInlineMarkdown(item)}</li>
-                  ))}
-                </ul>
-              </Block>
-            );
-          })}
-        </section>
-      ))}
-    </>
-  );
-};
-
-const buildReleaseMarkdown = (release: ChangelogEntry): string => {
+const buildReleaseMarkdown = (
+  release: ChangelogEntry,
+  platform: 'Reddit' | 'Discord',
+): string => {
   const lines: string[] = [];
 
-  lines.push(`Version ${release.version} released`);
-
-  lines.push(
-    release.date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    }),
-  );
+  if (platform === 'Discord') {
+    lines.push('Hey, all! 😄');
+    lines.push('');
+    lines.push(`I've just released version \`${release.version}\` 🥳`);
+  } else {
+    lines.push(`Version ${release.version} released`);
+  }
 
   lines.push('');
 
@@ -175,7 +115,7 @@ const buildReleaseMarkdown = (release: ChangelogEntry): string => {
   const known = new Set<string>(groupOrder as readonly string[]);
   const unknownTags = Object.keys(release.groups)
     .filter((k) => !known.has(k) && (release.groups[k]?.length ?? 0) > 0)
-    .sort();
+    .toSorted();
 
   for (const tag of unknownTags) {
     const items = release.groups[tag] ?? [];
@@ -187,20 +127,98 @@ const buildReleaseMarkdown = (release: ChangelogEntry): string => {
     lines.push('');
   }
 
-  lines.push('');
-  lines.push('Links:');
-  lines.push('');
-  lines.push('* [Try it out at pillagefirst.com](https://pillagefirst.com)');
-  lines.push(
-    '* [Star us on GitHub](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later)',
-  );
-  lines.push(
-    '* [Join the community on Discord](https://discord.gg/Ep7NKVXUZA)',
-  );
+  if (platform === 'Reddit') {
+    lines.push('');
+    lines.push('Links:');
+    lines.push('');
+    lines.push('* [Try it out at pillagefirst.com](https://pillagefirst.com)');
+    lines.push(
+      '* [Star us on GitHub](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later)',
+    );
+    lines.push(
+      '* [Join the community on Discord](https://discord.gg/Ep7NKVXUZA)',
+    );
+  }
 
   while (lines.length && lines[lines.length - 1] === '') {
     lines.pop();
   }
 
   return lines.join('\n');
+};
+
+export const ChangelogRenderer = () => {
+  if (!releases.length) {
+    return null;
+  }
+
+  return (
+    <>
+      {releases.map((release) => (
+        <section
+          key={release.version}
+          id={makeSectionId(release.version)}
+          style={{ position: 'relative' }}
+        >
+          {import.meta.env.DEV && (
+            <div className="absolute top-0 right-0 flex gap-2">
+              <CopyReleaseButton
+                platform="Reddit"
+                text={buildReleaseMarkdown(release, 'Reddit')}
+              />
+              <CopyReleaseButton
+                platform="Discord"
+                text={buildReleaseMarkdown(release, 'Discord')}
+              />
+            </div>
+          )}
+          <h2 className="group">
+            Version {release.version}
+            <CopySectionLinkButton
+              sectionId={makeSectionId(release.version)}
+              sectionType="release"
+            />
+          </h2>
+          <h4>
+            {release.date.toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </h4>
+
+          {groupOrder.map((tag) => {
+            const items = release.groups[tag] ?? [];
+
+            if (!items.length) {
+              return null;
+            }
+
+            if (tag === 'Breaking') {
+              return (
+                <Alert
+                  key={tag}
+                  variant="error"
+                >
+                  {items[0]}
+                </Alert>
+              );
+            }
+
+            const Block = tagToBlock[tag] ?? TechnicalImprovementBlock;
+
+            return (
+              <Block key={tag}>
+                <ul>
+                  {items.map((item) => (
+                    <li key={item}>{renderInlineMarkdown(item)}</li>
+                  ))}
+                </ul>
+              </Block>
+            );
+          })}
+        </section>
+      ))}
+    </>
+  );
 };

@@ -21,7 +21,19 @@ export const useWindowSize = () => {
   });
 
   const setSize = useCallback(() => {
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    setWindowSize((current) => {
+      if (current.width === width && current.height === height) {
+        return current;
+      }
+
+      return {
+        width,
+        height,
+      };
+    });
   }, []);
 
   useWindowEvent('resize', setSize, eventListerOptions);

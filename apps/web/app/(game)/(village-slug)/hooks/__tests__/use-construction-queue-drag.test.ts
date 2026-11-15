@@ -22,7 +22,7 @@ const getValidDropTargetIds = (
   upgrades: ScheduledBuildingUpgrade[],
   draggedId: number | null,
 ) =>
-  [...getValidScheduledConstructionDropTargetIds(upgrades, draggedId)].sort(
+  [...getValidScheduledConstructionDropTargetIds(upgrades, draggedId)].toSorted(
     (a, b) => a - b,
   );
 
@@ -40,7 +40,7 @@ describe(getValidScheduledConstructionDropTargetIds, () => {
         ],
         null,
       ),
-    ).toEqual([]);
+    ).toStrictEqual([]);
   });
 
   test('marks all other slots valid when moving between unrelated building fields', () => {
@@ -65,7 +65,7 @@ describe(getValidScheduledConstructionDropTargetIds, () => {
       }),
     ];
 
-    expect(getValidDropTargetIds(upgrades, 1)).toEqual([2, 3]);
+    expect(getValidDropTargetIds(upgrades, 1)).toStrictEqual([2, 3]);
   });
 
   test('does not allow moving a higher same-field level before a lower same-field level', () => {
@@ -84,7 +84,7 @@ describe(getValidScheduledConstructionDropTargetIds, () => {
       }),
     ];
 
-    expect(getValidDropTargetIds(upgrades, 2)).toEqual([]);
+    expect(getValidDropTargetIds(upgrades, 2)).toStrictEqual([]);
   });
 
   test('allows moving a lower same-field level as long as it stays before higher same-field levels', () => {
@@ -115,7 +115,7 @@ describe(getValidScheduledConstructionDropTargetIds, () => {
       }),
     ];
 
-    expect(getValidDropTargetIds(upgrades, 1)).toEqual([2]);
+    expect(getValidDropTargetIds(upgrades, 1)).toStrictEqual([2]);
   });
 });
 
@@ -143,7 +143,7 @@ describe(getOrderedScheduledConstructionEvents, () => {
       getOrderedScheduledConstructionEvents(scheduledEvents, orderedEvents).map(
         ({ id }) => id,
       ),
-    ).toEqual([2]);
+    ).toStrictEqual([2]);
   });
 
   test('deduplicates stale ordered events', () => {
@@ -171,7 +171,7 @@ describe(getOrderedScheduledConstructionEvents, () => {
       getOrderedScheduledConstructionEvents(scheduledEvents, orderedEvents).map(
         ({ id }) => id,
       ),
-    ).toEqual([2, 1]);
+    ).toStrictEqual([2, 1]);
   });
 
   test('uses the current scheduled event payload for retained events', () => {
@@ -194,7 +194,7 @@ describe(getOrderedScheduledConstructionEvents, () => {
 
     expect(
       getOrderedScheduledConstructionEvents(scheduledEvents, orderedEvents),
-    ).toEqual(scheduledEvents);
+    ).toStrictEqual(scheduledEvents);
   });
 
   test('appends newly scheduled events in server order', () => {
@@ -224,6 +224,6 @@ describe(getOrderedScheduledConstructionEvents, () => {
       getOrderedScheduledConstructionEvents(scheduledEvents, orderedEvents).map(
         ({ id }) => id,
       ),
-    ).toEqual([2, 1, 3]);
+    ).toStrictEqual([2, 1, 3]);
   });
 });

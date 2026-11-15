@@ -1,0 +1,110 @@
+import { describe, expect, test } from 'vitest';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  reportFilterNameByScope,
+  reportListingFilterSchema,
+} from '@pillage-first/types/dtos/report';
+import { getFilters, updateFilters } from '../filter-controllers';
+import { createControllerArgs } from './utils/controller-args';
+
+describe('filter-controllers', () => {
+  test('getFilters should return active filters by name', async () => {
+    using database = await prepareTestDatabase();
+
+    const filters = getFilters(
+      database,
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
+      }),
+    );
+
+    expect(filters).toStrictEqual(
+      [...reportListingFilterSchema.options].toSorted(),
+    );
+  });
+
+  test('updateFilters should replace active filters for the requested name', async () => {
+    using database = await prepareTestDatabase();
+
+    updateFilters(
+      database,
+      createControllerArgs<'/me/filters/:name', 'patch'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
+        body: { filters: ['battle', 'unitResearch', 'unitImprovement'] },
+      }),
+    );
+
+    const filters = getFilters(
+      database,
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
+      }),
+    );
+
+    expect(filters).toStrictEqual([
+      'battle',
+      'unitImprovement',
+      'unitResearch',
+    ]);
+  });
+
+  test('updateFilters should only update the requested filter group', async () => {
+    using database = await prepareTestDatabase();
+
+    updateFilters(
+      database,
+      createControllerArgs<'/me/filters/:name', 'patch'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.unread },
+        body: { filters: ['battle'] },
+      }),
+    );
+
+    const unreadFilters = getFilters(
+      database,
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.unread },
+      }),
+    );
+
+    const globalFilters = getFilters(
+      database,
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
+      }),
+    );
+
+    expect(unreadFilters).toStrictEqual(['battle']);
+    expect(globalFilters).toStrictEqual(
+      [...reportListingFilterSchema.options].toSorted(),
+    );
+  });
+
+  test('updateFilters should ignore duplicate filters', async () => {
+    using database = await prepareTestDatabase();
+
+    updateFilters(
+      database,
+      createControllerArgs<'/me/filters/:name', 'patch'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
+        body: { filters: ['battle', 'battle'] },
+      }),
+    );
+
+    const filters = getFilters(
+      database,
+      createControllerArgs<'/me/filters/:name'>({
+        context: { playerId: 1 },
+        path: { name: reportFilterNameByScope.global },
+      }),
+    );
+
+    expect(filters).toStrictEqual(['battle']);
+  });
+});

@@ -1,9 +1,5 @@
-import type {
-  Effect,
-  VillageBuildingEffect,
-  VillageEffect,
-} from '@pillage-first/types/models/effect';
-import type { Village } from '@pillage-first/types/models/village';
+import type { Effect, VillageEffect } from '@pillage-first/types/models/effect';
+import type { Tile } from '@pillage-first/types/models/tile';
 import {
   isAdditiveBonusEffect,
   isMultiplicativeBonusEffect,
@@ -90,7 +86,7 @@ type GetEffectBreakdownReturn = {
 export const getEffectBreakdown = (
   effectId: Effect['id'],
   effects: Effect[],
-  currentVillageId: Village['id'],
+  currentTileId: Tile['id'],
 ): GetEffectBreakdownReturn => {
   let serverEffectValue = 1;
 
@@ -132,7 +128,7 @@ export const getEffectBreakdown = (
     const shouldEffectApplyToCurrentVillage =
       effect.scope === 'global' ||
       effect.scope === 'server' ||
-      (effect as VillageEffect).villageId === currentVillageId;
+      (effect as VillageEffect).tileId === currentTileId;
 
     if (!shouldEffectApplyToCurrentVillage) {
       continue;
@@ -151,13 +147,6 @@ export const getEffectBreakdown = (
         break;
       }
       case 'building': {
-        const buildingEffect = effect as VillageBuildingEffect;
-
-        // "Waterworks" is special, because it applies an oasis effect instead of a building one
-        if (buildingEffect.buildingId === 'WATERWORKS') {
-          assignEffectValue(buildingEffect, oasisEffectValues);
-          break;
-        }
         assignEffectValue(effect, buildingEffectValues);
         break;
       }
@@ -205,31 +194,26 @@ export type ComputedEffectReturn = {
 
 export type WheatProductionEffectReturn = ComputedEffectReturn & {
   population: number;
-  buildingWheatLimit: number;
 };
 
 export function calculateComputedEffect(
   effectId: 'wheatProduction',
   effects: Effect[],
-  currentVillageId: Village['id'],
+  currentTileId: Tile['id'],
 ): WheatProductionEffectReturn;
 
 export function calculateComputedEffect(
   effectId: Effect['id'],
   effects: Effect[],
-  currentVillageId: Village['id'],
+  currentTileId: Tile['id'],
 ): ComputedEffectReturn;
 
 export function calculateComputedEffect(
   effectId: Effect['id'],
   effects: Effect[],
-  currentVillageId: Village['id'],
+  currentTileId: Tile['id'],
 ): ComputedEffectReturn | WheatProductionEffectReturn {
-  const effectBreakdown = getEffectBreakdown(
-    effectId,
-    effects,
-    currentVillageId,
-  );
+  const effectBreakdown = getEffectBreakdown(effectId, effects, currentTileId);
 
   const {
     serverEffectValue,
@@ -252,7 +236,6 @@ export function calculateComputedEffect(
         return {
           total: 0,
           population: 0,
-          buildingWheatLimit: 0,
         };
       }
       return {
@@ -302,7 +285,6 @@ export function calculateComputedEffect(
         return {
           total,
           population: 0,
-          buildingWheatLimit: 0,
         };
       }
 
@@ -380,7 +362,7 @@ export function calculateComputedEffect(
     const unitWheatConsumptionBreakdown = getEffectBreakdown(
       'unitWheatConsumption',
       effects,
-      currentVillageId,
+      currentTileId,
     );
 
     const total =
@@ -397,9 +379,6 @@ export function calculateComputedEffect(
     return {
       total,
       population: -summedBuildingEffectBaseNegativeValue,
-      buildingWheatLimit:
-        summedBuildingEffectBasePositiveValue +
-        summedBuildingEffectBaseNegativeValue,
     };
   }
 

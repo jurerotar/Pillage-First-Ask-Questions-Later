@@ -53,7 +53,9 @@ export const isControllerMessageErrorNotificationMessageEvent = (
   event: MessageEvent,
 ): event is MessageEvent<ControllerErrorEvent> => {
   return (
-    isNotificationMessageEvent(event) && event.data.eventKey === 'event:error'
+    isNotificationMessageEvent(event) &&
+    event.data.eventKey === 'event:error' &&
+    'error' in event.data
   );
 };
 

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { SendResourcesModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/marketplace/components/send-resources-modal';
-import type { VillageOption } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/marketplace/utils/villages';
+import { SendResourcesModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/marketplace/components/send-resources-modal';
+import type { VillageOption } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/marketplace/utils/villages';
 
 export type MapSendResourcesAction = {
   targetVillage: VillageOption;

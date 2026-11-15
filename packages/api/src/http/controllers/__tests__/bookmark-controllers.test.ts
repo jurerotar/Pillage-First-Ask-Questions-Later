@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import { getBookmarks, updateBookmark } from '../bookmark-controllers';
@@ -7,7 +7,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('bookmark-controllers', () => {
   test('getBookmarks should return bookmarks for all buildings', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     const result = getBookmarks(
@@ -22,11 +22,10 @@ describe('bookmark-controllers', () => {
     for (const buildingId of buildingIds) {
       expect(result).toHaveProperty(buildingId);
     }
-    expect(true).toBe(true);
   });
 
   test('updateBookmark should update the bookmark correctly', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingId: Building['id'] = 'WOODCUTTER';
     const newTabName = 'custom-tab';

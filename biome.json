@@ -42,7 +42,16 @@
   },
   "linter": {
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
+      "nursery": {
+        "noArrayForEach": "error",
+        "noAwaitInPromiseMethods": "error",
+        "noLateEventControl": "error",
+        "noMismatchedMapKey": "error",
+        "noMisusedPromises": "error",
+        "noTailwindLegacyUtilities": "warn",
+        "noUselessTypeAssertion": "error"
+      },
       "suspicious": {
         "noDocumentCookie": "off",
         "noUnknownAtRules": "off",
@@ -58,6 +67,7 @@
         "noUnusedImports": "error"
       },
       "style": {
+        "useErrorCause": "error",
         "noNonNullAssertion": "off",
         "useBlockStatements": "error",
         "noParameterAssign": "error",
@@ -85,6 +95,16 @@
     }
   },
   "overrides": [
+    {
+      "includes": ["apps/remote-api/src/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
     {
       "includes": ["**/vite.config.ts", "plugins/**/*.ts"],
       "linter": {

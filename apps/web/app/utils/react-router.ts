@@ -37,8 +37,8 @@ export const getGameRoutePaths = (): string[] => {
       continue;
     }
 
-    const normalizedPath = path.replace(
-      /:([A-Za-z0-9_]+)([?*+]*)/g,
+    const normalizedPath = path.replaceAll(
+      /:([A-Za-z0-9_]+)([?*+]*)/gu,
       (_, name, suffix) => `${kebabCase(name)}${suffix}`,
     );
 

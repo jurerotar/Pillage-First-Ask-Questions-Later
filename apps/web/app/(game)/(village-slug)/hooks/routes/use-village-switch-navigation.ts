@@ -13,7 +13,7 @@ type BuildingRouteMatch = {
 };
 
 const getBuildingRouteMatch = (pathname: string): BuildingRouteMatch | null => {
-  const match = pathname.match(/\/(?:resources|village)\/(\d+)$/);
+  const match = pathname.match(/\/(?:resources|village)\/(\d+)$/u);
 
   if (!match) {
     return null;
@@ -78,6 +78,9 @@ export const useVillageSwitchNavigation = () => {
   const navigateToVillage = useCallback(
     async (villageSlug: string) => {
       if (villageSlug === currentVillage.slug) {
+        if (pathname === `${getVillageBasePath(villageSlug)}/map`) {
+          await navigate(pathname);
+        }
         return;
       }
 

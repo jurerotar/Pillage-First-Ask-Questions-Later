@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   unitCategorySchema,
   unitIdSchema,
@@ -18,7 +19,8 @@ const targetSchema = z.strictObject({
   tileId: z.coerce
     .number({ error: 'Target tile is required' })
     .int({ error: 'Target tile must be an integer' })
-    .min(1, { error: 'Target tile is required' }),
+    .min(1, { error: 'Target tile is required' })
+    .pipe(tileIdSchema),
   x: z.number().int().optional(),
   y: z.number().int().optional(),
 });

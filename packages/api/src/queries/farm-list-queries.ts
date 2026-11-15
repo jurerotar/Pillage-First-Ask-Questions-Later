@@ -94,13 +94,18 @@ export const deletePlayerFarmListTileQuery = `
     farm_list_tiles
   WHERE
     tile_id = $tile_id
-    AND farm_list_id IN (
-      SELECT fl.id
+    AND EXISTS (
+      SELECT 1
       FROM
         farm_lists fl
-          JOIN villages v ON v.id = fl.village_id
       WHERE
-        v.player_id = $player_id
+        fl.id = farm_list_tiles.farm_list_id
+        AND EXISTS (
+          SELECT 1
+          FROM villages v
+          WHERE v.id = fl.village_id
+            AND v.player_id = $player_id
+        )
     );
 `;
 

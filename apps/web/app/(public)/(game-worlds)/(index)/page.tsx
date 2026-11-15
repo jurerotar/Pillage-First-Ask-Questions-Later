@@ -1,9 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
-import type { Route } from '@react-router/types/app/(public)/(game-worlds)/(index)/+types/page';
 import { ServerCard } from 'app/(public)/(game-worlds)/(index)/components/server-card';
-import { removeUnlistedGameWorldDirectoriesMiddleware } from 'app/(public)/(game-worlds)/(index)/middleware/remove-unlisted-game-world-directories-middleware';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
@@ -17,10 +15,6 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
-
-export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
-  removeUnlistedGameWorldDirectoriesMiddleware,
-];
 
 const MyGameWorldsPage = () => {
   const { t } = useTranslation('public');

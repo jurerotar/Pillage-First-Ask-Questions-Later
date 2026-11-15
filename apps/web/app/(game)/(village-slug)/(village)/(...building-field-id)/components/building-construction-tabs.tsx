@@ -24,13 +24,6 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const tabs = ['infrastructure', 'military', 'resources'];
@@ -44,8 +37,12 @@ const BuildingConstructionList = ({
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
   const tribe = useTribe();
-  const { buildingFieldId, maxLevelByBuildingId, buildingIdsInQueue } =
-    use(BuildingFieldContext);
+  const {
+    buildingFieldId,
+    maxLevelByBuildingId,
+    buildingIdsInQueue,
+    nextInstanceNumberByBuildingId,
+  } = use(BuildingFieldContext);
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
 
   const shouldAllowUnmetRequirementsForScheduledConstruction =
@@ -130,6 +127,9 @@ const BuildingConstructionList = ({
             >
               <BuildingCard
                 buildingId={building.id}
+                buildingInstanceNumber={nextInstanceNumberByBuildingId.get(
+                  building.id,
+                )}
                 buildingConstructionReadinessAssessment={assessments.get(
                   building.id,
                 )}
@@ -141,8 +141,8 @@ const BuildingConstructionList = ({
                 <BuildingUnfinishedNotice />
                 <BuildingBenefits />
                 <BuildingCost />
-                <BuildingActions />
                 <BuildingRequirements />
+                <BuildingActions />
               </BuildingCard>
             </div>
           ))}
@@ -154,7 +154,6 @@ const BuildingConstructionList = ({
 
 export const BuildingConstructionTabs = () => {
   const { t } = useTranslation();
-  const { buildingFieldId } = use(BuildingFieldContext);
 
   const { tabIndex, navigateToTab } = useTabParam(
     tabs,
@@ -162,19 +161,8 @@ export const BuildingConstructionTabs = () => {
     tabs[0],
   );
 
-  const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
-
   return (
     <>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to={backlinkTarget}>{t('Village')}</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('Construct new building')}
         className="top-2 right-2"

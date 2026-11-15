@@ -1,6 +1,8 @@
 import type { Building } from './models/building';
 import type { BuildingField } from './models/building-field';
 import type { GameEvent, GameEventType } from './models/game-event';
+import type { ScheduledConstructionCancellationReasonDetail } from './models/report';
+import type { Tile } from './models/tile';
 import type { Village } from './models/village';
 
 type EventKey =
@@ -15,14 +17,22 @@ export type ApiNotificationEvent = {
   eventKey: EventKey;
 };
 
+export type SerializedError = {
+  name: string;
+  message: string;
+  stack?: string;
+  cause?: SerializedError | string;
+  context?: Record<string, string>;
+};
+
 export type DatabaseInitializationErrorEvent = {
   eventKey: EventKey;
-  error: Error;
+  error: SerializedError;
 };
 
 export type ControllerErrorEvent = {
   eventKey: EventKey;
-  error: Error;
+  error: SerializedError;
 };
 
 export type EventApiNotificationEvent<
@@ -30,6 +40,7 @@ export type EventApiNotificationEvent<
 > = GameEvent<T> & {
   eventKey: EventKey;
   affectedVillageIds: (Village['id'] | null)[];
+  affectedTileIds: Tile['id'][];
 };
 
 export type ScheduledBuildingConstructionCancellationReason =
@@ -43,4 +54,5 @@ export type ScheduledBuildingConstructionCancelledNotificationEvent = {
   buildingFieldId: BuildingField['id'];
   level: number;
   reason: ScheduledBuildingConstructionCancellationReason;
+  reasonDetail: ScheduledConstructionCancellationReasonDetail;
 };

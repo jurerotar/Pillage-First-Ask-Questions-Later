@@ -9,8 +9,7 @@ export const getReputationLevel = (value: number | null): ReputationLevel => {
   }
 
   // Iterate from highest threshold to lowest to find the first matching level
-  for (let i = 0; i < entries.length; i += 1) {
-    const [level, threshold] = entries[i];
+  for (const [level, threshold] of entries) {
     if (value >= threshold) {
       return level;
     }

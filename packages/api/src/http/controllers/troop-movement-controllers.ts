@@ -1,15 +1,19 @@
 import { z } from 'zod';
 import {
+  tileTroopMovementDtoSchema,
   troopMovementItemDtoSchema,
   troopMovementStatsItemDtoSchema,
 } from '@pillage-first/types/dtos/troop-movement';
 import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import {
   deleteEventByIdQuery,
   selectEventByIdQuery,
-  selectTroopMovementStatsByVillageIdQuery,
-  selectTroopMovementsByVillageIdQuery,
+  selectTileTroopMovementsQuery,
+  selectTroopMovementStatsByTileIdQuery,
+  selectTroopMovementsByTileIdQuery,
 } from '../../queries/event-queries';
+import { selectVillageIdByTileIdQuery } from '../../queries/village-queries';
 import { createEvents } from '../../utils/create-event';
 import { validateTroopMovement as validateTroopMovementLogic } from '../../utils/troops';
 import {
@@ -23,6 +27,7 @@ import {
   mapTroopMovementStatsRowToDto,
 } from './mappers/troop-movement-mapper';
 import {
+  getTileTroopMovementsRowSchema,
   getVillageTroopMovementStatsRowSchema,
   getVillageTroopMovementsRowSchema,
   troopMovementValidationBodySchema,
@@ -38,53 +43,80 @@ export const validateTroopMovement = createController(
       errors: z.array(z.string()),
     }),
   },
-)(({ database, body }) => {
+)(({ database, body: { originTileId, ...body } }) => {
+  const villageId = database.selectValue({
+    sql: selectVillageIdByTileIdQuery,
+    bind: {
+      $tile_id: originTileId,
+    },
+    schema: z.number().nullable(),
+  });
+
   const errors = validateTroopMovementLogic(database, {
     ...body,
+    originTileId,
+    villageId: villageId ?? undefined,
   } as Partial<TroopMovementEvent>);
 
   return { errors };
 });
 
-export const getVillageTroopMovements = createController(
-  '/villages/:villageId/troop-movements',
+export const getTileTroopMovements = createController(
+  '/tiles/:tileId/movements',
   {
-    summary: 'Get village troop movements',
+    summary: 'Get active player-visible troop movements involving a tile',
+    requestParams: {
+      path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
+    },
+    response: z.array(tileTroopMovementDtoSchema),
+  },
+)(({ database, context: { playerId }, path: { tileId } }) => {
+  return database.selectObjects({
+    sql: selectTileTroopMovementsQuery,
+    bind: { $tile_id: tileId, $player_id: playerId, $now: Date.now() },
+    schema: getTileTroopMovementsRowSchema,
+  });
+});
+
+export const getVillageTroopMovements = createController(
+  '/tiles/:tileId/troop-movements',
+  {
+    summary: 'Get tile troop movements',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     response: z.array(troopMovementItemDtoSchema),
   },
-)(({ database, path: { villageId } }) => {
+)(({ database, context: { playerId }, path: { tileId } }) => {
   const rows = database.selectObjects({
-    sql: selectTroopMovementsByVillageIdQuery,
+    sql: selectTroopMovementsByTileIdQuery,
     bind: {
-      $village_id: villageId,
+      $tile_id: tileId,
     },
     schema: getVillageTroopMovementsRowSchema,
   });
 
-  return rows.map(mapTroopMovementRowToDto);
+  return rows.map((row) => mapTroopMovementRowToDto(row, playerId));
 });
 
 export const getVillageTroopMovementStats = createController(
-  '/villages/:villageId/troop-movements/stats',
+  '/tiles/:tileId/troop-movements/stats',
   {
-    summary: 'Get village troop movement stats',
+    summary: 'Get tile troop movement stats',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
+        tileId: z.coerce.number().pipe(tileIdSchema),
       }),
     },
     response: z.array(troopMovementStatsItemDtoSchema),
   },
-)(({ database, path: { villageId } }) => {
+)(({ database, path: { tileId } }) => {
   const rows = database.selectObjects({
-    sql: selectTroopMovementStatsByVillageIdQuery,
+    sql: selectTroopMovementStatsByTileIdQuery,
     bind: {
-      $village_id: villageId,
+      $tile_id: tileId,
     },
     schema: getVillageTroopMovementStatsRowSchema,
   });
@@ -99,7 +131,7 @@ export const cancelTroopMovement = createController(
     summary: 'Cancel troop movement',
     requestParams: {
       path: z.strictObject({
-        eventId: z.coerce.number(),
+        eventId: z.coerce.number().int().positive(),
       }),
     },
   },

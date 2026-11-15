@@ -15,21 +15,21 @@
     ".": {
       "default": "./src/worker/api-worker.ts"
     },
-    "./api-routes": {
-      "default": "./src/http/api-routes.ts"
-    },
     "./api-route-types": {
       "default": "./src/http/api-route-types.generated.d.ts"
     },
-    "./open-api": {
-      "default": "./src/open-api.ts"
+    "./db": {
+      "default": "./src/db/index.ts"
+    },
+    "./testing": {
+      "default": "./src/db/testing/index.ts"
     }
   },
   "scripts": {
     "lint:check": "biome lint --no-errors-on-unmatched",
     "lint": "biome lint --fix --no-errors-on-unmatched",
-    "lint:check/oxlint": "oxlint --type-aware .",
-    "lint/oxlint": "oxlint --type-aware --fix .",
+    "lint:check/oxlint": "oxlint .",
+    "lint/oxlint": "oxlint --fix .",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
     "knip": "knip",
@@ -37,24 +37,25 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@pillage-first/db": "*",
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
+    "@sqlite.org/sqlite-wasm": "3.54.1-build1",
     "moderndash": "4.0.2",
-    "path-to-regexp": "8.4.2",
+    "path-to-regexp": "9.0.0",
     "ts-seedrandom": "1.6.0",
-    "zod": "4.4.3",
-    "zod-openapi": "6.0.0"
+    "zod": "4.6.7"
   },
   "devDependencies": {
-    "knip": "6.32.1",
+    "knip": "6.43.0",
     "typescript": "7.0.2",
-    "vitest": "4.1.10"
+    "vitest": "5.0.5"
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@6/schema.json",
+    "entry": [
+      "src/http/api-routes.ts"
+    ],
     "ignoreBinaries": [
       "biome",
       "oxlint"

@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import type { RequestContext } from './request-context';
 
-export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
+export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'query';
 
 type JsonRequestBody = {
   content?: {
@@ -54,7 +55,7 @@ type NormalizeControllerOperation<
           requestBody: infer TRequestBody extends JsonRequestBody;
         }
       ? { requestBody: TRequestBody }
-      : Record<never, never>) &
+      : unknown) &
   (TOperation extends { response: z.core.$ZodType }
     ? {
         responses: {
@@ -102,6 +103,7 @@ export type ControllerArgs<
   TBody = undefined,
   TOperation extends ControllerOperationConfig = ControllerOperationConfig,
 > = {
+  context: RequestContext;
   readonly __route?: {
     path: TPath;
     method: TMethod;
@@ -143,13 +145,14 @@ type JsonSchemaFor<
   TOperation,
   TStatusCode extends string,
 > = TOperation extends {
-  responses: {
-    [S in TStatusCode]: {
+  responses: Record<
+    TStatusCode,
+    {
       content: {
         'application/json': { schema: infer TSchema };
       };
-    };
-  };
+    }
+  >;
 }
   ? TSchema
   : never;
@@ -177,6 +180,45 @@ type SuccessResponseFor<TOperation> = TOperation extends {
               : unknown
       : unknown
     : undefined;
+
+const normalizeControllerOperation = <
+  TOperation extends ControllerOperationConfig,
+>(
+  operation: TOperation,
+): NormalizeControllerOperation<TOperation> => {
+  const { response, ...rest } = operation;
+  const normalizedRequestBody =
+    rest.requestBody instanceof z.ZodType
+      ? {
+          content: {
+            'application/json': {
+              schema: rest.requestBody,
+            },
+          },
+        }
+      : rest.requestBody;
+
+  return {
+    ...rest,
+    ...(normalizedRequestBody ? { requestBody: normalizedRequestBody } : {}),
+    responses: response
+      ? {
+          '200': {
+            description: operation.summary ?? 'OK',
+            content: {
+              'application/json': {
+                schema: response,
+              },
+            },
+          },
+        }
+      : (operation.responses ?? {
+          '204': {
+            description: operation.summary ?? 'No Content',
+          },
+        }),
+  } as NormalizeControllerOperation<TOperation>;
+};
 
 export function createController<
   const TPath extends string,
@@ -262,45 +304,6 @@ export function createController<
     return controller;
   };
 }
-
-const normalizeControllerOperation = <
-  TOperation extends ControllerOperationConfig,
->(
-  operation: TOperation,
-): NormalizeControllerOperation<TOperation> => {
-  const { response, ...rest } = operation;
-  const normalizedRequestBody =
-    rest.requestBody instanceof z.ZodType
-      ? {
-          content: {
-            'application/json': {
-              schema: rest.requestBody,
-            },
-          },
-        }
-      : rest.requestBody;
-
-  return {
-    ...rest,
-    ...(normalizedRequestBody ? { requestBody: normalizedRequestBody } : {}),
-    responses: response
-      ? {
-          '200': {
-            description: operation.summary ?? 'OK',
-            content: {
-              'application/json': {
-                schema: response,
-              },
-            },
-          },
-        }
-      : (operation.responses ?? {
-          '204': {
-            description: operation.summary ?? 'No Content',
-          },
-        }),
-  } as NormalizeControllerOperation<TOperation>;
-};
 
 export const getJsonRequestBodySchema = (
   requestBody: ControllerOperationConfig['requestBody'],

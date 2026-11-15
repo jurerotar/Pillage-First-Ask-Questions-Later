@@ -2,6 +2,7 @@ import { Suspense, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GiRallyTheTroops } from 'react-icons/gi';
 import { Tooltip } from 'react-tooltip';
+import { sortTroopsByUnitOrder } from '@pillage-first/game-assets/utils/troops';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { partition } from '@pillage-first/utils/array';
 import { formatNumber } from '@pillage-first/utils/format';
@@ -21,17 +22,17 @@ const TroopListContent = () => {
   const tooltipId = useId();
   const tooltipKey = isWiderThanLg ? 'wider-than-lg' : 'not-wider-than-lg';
 
-  const currentVillagePlayerTroops = villageTroops.filter(
-    ({ tileId }) => tileId === currentVillage.tileId,
+  const currentVillagePlayerTroops = sortTroopsByUnitOrder(
+    villageTroops.filter(({ tileId }) => tileId === currentVillage.tileId),
   );
 
   const [ownTroops, reinforcements] = partition<Troop>(
     currentVillagePlayerTroops,
-    ({ tileId, source }) => tileId === source,
+    ({ tileId, sourceTileId }) => tileId === sourceTileId,
   );
 
   return (
-    <aside className="fixed right-0 bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs transition-[bottom]">
+    <aside className="fixed right-safe bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs transition-[background-color,border-color,bottom,color,right]">
       <div
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer transition-colors"
@@ -44,12 +45,13 @@ const TroopListContent = () => {
         id={tooltipId}
         className="z-20! rounded-xs! px-2! py-1! bg-background! text-foreground! border border-border transition-colors"
         classNameArrow="border-r border-b border-border transition-colors"
+        clickable
         place="top-start"
         {...(isWiderThanLg && {
           isOpen: true,
         })}
       >
-        <div className="flex flex-col gap-2 max-h-96 lg:max-h-125 overflow-y-scroll scrollbar-hidden">
+        <div className="flex flex-col gap-2 max-h-[min(24rem,50dvh)] overflow-y-auto scrollbar-hidden">
           <div className="flex flex-col gap-1">
             <Text as="h3">{t('Own troops')}</Text>
             {ownTroops.length === 0 && (

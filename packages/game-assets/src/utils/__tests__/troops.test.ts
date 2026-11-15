@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest';
 import {
   calculateTotalCarryCapacity,
   calculateTotalUnitWheatConsumption,
-  distributeLoot,
 } from '../troops';
 
 describe(calculateTotalUnitWheatConsumption, () => {
@@ -16,7 +15,7 @@ describe(calculateTotalUnitWheatConsumption, () => {
         { unitId: 'LEGIONNAIRE', amount: 10 },
         { unitId: 'EQUITES_CAESARIS', amount: 3 },
       ]),
-    ).toBe(10 * 1 + 3 * 4);
+    ).toBe(10 + 3 * 4);
   });
 
   test('includes hero wheat consumption', () => {
@@ -50,33 +49,5 @@ describe(calculateTotalCarryCapacity, () => {
         { unitId: 'ROMAN_CATAPULT', amount: 2 },
       ]),
     ).toBe(0);
-  });
-});
-
-describe(distributeLoot, () => {
-  test('returns no loot when carry capacity is 0', () => {
-    expect(distributeLoot([100, 100, 100, 100], 0)).toStrictEqual([0, 0, 0, 0]);
-  });
-
-  test('does not loot more than available resources', () => {
-    expect(distributeLoot([10, 20, 30, 40], 1_000)).toStrictEqual([
-      10, 20, 30, 40,
-    ]);
-  });
-
-  test('distributes carry capacity evenly across available resources', () => {
-    expect(distributeLoot([100, 100, 100, 100], 40)).toStrictEqual([
-      10, 10, 10, 10,
-    ]);
-  });
-
-  test('redistributes capacity when a resource is exhausted', () => {
-    expect(distributeLoot([1000, 20, 300, 5], 250)).toStrictEqual([
-      113, 20, 112, 5,
-    ]);
-  });
-
-  test('skips empty resource buckets', () => {
-    expect(distributeLoot([0, 100, 0, 50], 75)).toStrictEqual([0, 38, 0, 37]);
   });
 });

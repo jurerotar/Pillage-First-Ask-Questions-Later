@@ -4,7 +4,7 @@ const vitestConfig: ViteUserConfig = defineConfig({
   test: {
     root: './',
     watch: false,
-    reporters: ['default'],
+    fsModuleCache: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

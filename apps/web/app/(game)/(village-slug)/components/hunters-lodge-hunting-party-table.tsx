@@ -3,6 +3,7 @@ import {
   calculateHuntersLodgeHuntCost,
   getHunterLodgeCatchableAnimals,
 } from '@pillage-first/game-assets/utils/hunters-lodge';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
@@ -52,7 +53,7 @@ export const HuntersLodgeHuntingPartyTable = () => {
   const { isFreeHuntingPartiesEnabled } = developerSettings;
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -102,6 +103,6 @@ export const HuntersLodgeHuntingPartyTable = () => {
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import {
   createBuildingConstructionEventMock,
   createBuildingLevelChangeEventMock,
@@ -22,7 +22,7 @@ describe('building effects', () => {
 
   for (const { id, effectId } of buildingsToTest) {
     test(`should update ${effectId} effect when ${id} is upgraded`, async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const buildingFieldId = 20;
 
@@ -43,7 +43,7 @@ describe('building effects', () => {
 
       // Verify level 0 effect value (should be 1)
       const effectValue0 = database.selectValue({
-        sql: 'SELECT value FROM effects WHERE village_id = $village_id AND source_specifier = $field_id AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId);',
+        sql: 'SELECT value FROM effects WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id) AND source_specifier = $field_id AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId);',
         bind: {
           $village_id: villageId,
           $field_id: buildingFieldId,
@@ -51,6 +51,7 @@ describe('building effects', () => {
         },
         schema: z.number(),
       });
+
       expect(effectValue0).toBe(1);
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
@@ -70,7 +71,7 @@ describe('building effects', () => {
 
       // Verify level 2 effect value
       const effectValue2 = database.selectValue({
-        sql: 'SELECT value FROM effects WHERE village_id = $village_id AND source_specifier = $field_id AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId);',
+        sql: 'SELECT value FROM effects WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id) AND source_specifier = $field_id AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId);',
         bind: {
           $village_id: villageId,
           $field_id: buildingFieldId,
@@ -78,6 +79,7 @@ describe('building effects', () => {
         },
         schema: z.number(),
       });
+
       expect(effectValue2).toBeCloseTo(0.9091, 4);
     });
   }

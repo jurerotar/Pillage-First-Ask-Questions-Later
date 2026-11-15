@@ -2,14 +2,25 @@ import type { z } from 'zod';
 import { unitsMap } from '@pillage-first/game-assets/units';
 import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
 import type {
-  BattleDamagedBuilding,
+  BattleSiegeResult,
   BattleType,
 } from '@pillage-first/types/models/battle';
-import type { BattleReportSummary } from '@pillage-first/types/models/report';
 import {
+  battleConquestSchema,
+  battleSchema,
+  battleUnitSchema,
+} from '@pillage-first/types/models/battle';
+import {
+  type BattleReportSummary,
   type movementReportUnitSchema,
   reportSchema,
 } from '@pillage-first/types/models/report';
+import {
+  type CombatUnit,
+  calculateCombatStatistics,
+  calculateSurvivingCarryCapacity,
+  canAttackerSeeDefendingTroops,
+} from '@pillage-first/utils/game/combat';
 import type {
   getReportListingsRowSchema,
   getReportsRowSchema,
@@ -28,6 +39,13 @@ type GatheringExpeditionReportRow = Extract<
   { type: 'gatheringExpedition' }
 >;
 type ScoutingReportRow = Extract<ReportRow, { type: 'scouting' }>;
+type UnitResearchReportRow = Extract<ReportRow, { type: 'unitResearch' }>;
+type UnitImprovementReportRow = Extract<ReportRow, { type: 'unitImprovement' }>;
+type VillageFoundedReportRow = Extract<ReportRow, { type: 'villageFounded' }>;
+type ScheduledConstructionCancellationReportRow = Extract<
+  ReportRow,
+  { type: 'scheduledConstructionCancellation' }
+>;
 
 const mapBattleReportRowToSummaryDto = (
   row: BattleReportRow,
@@ -97,40 +115,88 @@ const mapBaseReportRowToDto = (row: ReportRow) => ({
 
 export const mapReportListingRowToDto = (
   row: ReportListingRow,
-): ReportListingDto =>
-  reportListingDtoSchema.parse({
+): ReportListingDto => {
+  const summary = JSON.parse(row.summary_json);
+
+  if (row.type === 'unitResearch') {
+    return reportListingDtoSchema.parse({
+      id: row.id,
+      villageId: row.village_id,
+      timestamp: row.timestamp,
+      type: row.type,
+      outcome: row.outcome,
+      summary: {
+        villageId: summary.villageId,
+        villageName: summary.villageName,
+        villageCoordinates: summary.villageCoordinates,
+      },
+      unitId: summary.unitId,
+      tags: JSON.parse(row.tags_json),
+    });
+  }
+
+  if (row.type === 'unitImprovement') {
+    return reportListingDtoSchema.parse({
+      id: row.id,
+      villageId: row.village_id,
+      timestamp: row.timestamp,
+      type: row.type,
+      outcome: row.outcome,
+      summary: {
+        villageId: summary.villageId,
+        villageName: summary.villageName,
+        villageCoordinates: summary.villageCoordinates,
+      },
+      unitId: summary.unitId,
+      level: summary.level,
+      tags: JSON.parse(row.tags_json),
+    });
+  }
+
+  if (row.type === 'scheduledConstructionCancellation') {
+    return reportListingDtoSchema.parse({
+      id: row.id,
+      villageId: row.village_id,
+      timestamp: row.timestamp,
+      type: row.type,
+      outcome: row.outcome,
+      summary: {
+        villageId: summary.villageId,
+        villageName: summary.villageName,
+        villageCoordinates: summary.villageCoordinates,
+      },
+      buildingId: summary.buildingId,
+      buildingFieldId: summary.buildingFieldId,
+      level: summary.level,
+      reason: summary.reason,
+      reasonDetail: summary.reasonDetail,
+      tags: JSON.parse(row.tags_json),
+    });
+  }
+
+  return reportListingDtoSchema.parse({
     id: row.id,
     villageId: row.village_id,
     timestamp: row.timestamp,
     type: row.type,
     outcome: row.outcome,
-    summary: JSON.parse(row.summary_json),
+    summary,
     tags: JSON.parse(row.tags_json),
   });
+};
 
 export const mapBattleReportRowToDto = (
   rows: BattleReportRow[],
-  damagedBuildings: BattleDamagedBuilding[],
+  siegeResults: BattleSiegeResult[],
 ) => {
-  const row = rows[0]!;
+  const [row] = rows;
 
   const participants = new Map<number, BattleType['attacker']>();
   const reinforcements: BattleType['defender']['reinforcements'] = [];
-  const attackerStatistics = {
-    points: row.attacker_points,
-    supplyBefore: 0,
-    supplyLost: 0,
-    resourcesLost: 0,
-  };
-  const defenderStatistics = {
-    points: row.defender_points,
-    supplyBefore: 0,
-    supplyLost: 0,
-    resourcesLost: 0,
-  };
+  const attackerUnits: CombatUnit[] = [];
+  const defenderUnits: CombatUnit[] = [];
   let attacker: BattleType['attacker'] | undefined;
   let defender: BattleType['attacker'] | undefined;
-  let totalCarryCapacity = 0;
 
   for (const participantRow of rows) {
     let participant = participants.get(participantRow.participant_id);
@@ -154,6 +220,10 @@ export const mapBattleReportRowToDto = (
           id: participantRow.participant_id,
           tribe: participantRow.participant_tribe,
           units: [],
+          hero:
+            participantRow.hero_json === null
+              ? null
+              : JSON.parse(participantRow.hero_json),
         },
       };
       participants.set(participantRow.participant_id, participant);
@@ -167,42 +237,31 @@ export const mapBattleReportRowToDto = (
       }
     }
 
-    if (
-      participantRow.participant_unit_id &&
-      participantRow.participant_amount_before != null &&
-      participantRow.participant_amount_after != null
-    ) {
-      participant.troops.units.push({
+    if (participantRow.participant_unit_id !== null) {
+      const battleUnit = battleUnitSchema.parse({
         unitId: participantRow.participant_unit_id,
         amountBefore: participantRow.participant_amount_before,
         amountAfter: participantRow.participant_amount_after,
-        amountHospitalized: participantRow.participant_amount_hospitalized ?? 0,
-        amountImprisoned: participantRow.participant_amount_imprisoned ?? 0,
+        amountHospitalized: participantRow.participant_amount_hospitalized,
+        amountImprisoned: participantRow.participant_amount_imprisoned,
+        amountBandaged: participantRow.participant_amount_bandaged,
+        amountConsumed: participantRow.participant_amount_consumed,
       });
+      participant.troops.units.push(battleUnit);
 
       const unit = unitsMap.get(participantRow.participant_unit_id);
       if (unit) {
-        const amountLost =
-          participantRow.participant_amount_before -
-          participantRow.participant_amount_after;
-        const statistics =
+        const combatUnits =
           participantRow.participant_role === 'attacker'
-            ? attackerStatistics
-            : defenderStatistics;
+            ? attackerUnits
+            : defenderUnits;
 
-        let resourceCost = 0;
-        for (const cost of unit.baseRecruitmentCost) {
-          resourceCost += cost;
-        }
-
-        statistics.supplyBefore += participantRow.participant_amount_before;
-        statistics.supplyLost += amountLost;
-        statistics.resourcesLost += resourceCost * amountLost;
-
-        if (participantRow.participant_role === 'attacker') {
-          totalCarryCapacity +=
-            unit.unitCarryCapacity * participantRow.participant_amount_after;
-        }
+        combatUnits.push({
+          ...battleUnit,
+          unitWheatConsumption: unit.unitWheatConsumption,
+          baseRecruitmentCost: unit.baseRecruitmentCost,
+          unitCarryCapacity: unit.unitCarryCapacity,
+        });
       }
     }
   }
@@ -211,24 +270,112 @@ export const mapBattleReportRowToDto = (
     throw new Error(`Battle participants missing for report ${row.id}`);
   }
 
-  const battle: BattleType = {
+  const battle = battleSchema.parse({
     id: row.battle_id,
     attacker,
     defender: { ...defender, reinforcements },
     outcome: {
       loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
-      totalCarryCapacity,
-      canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
+      totalCarryCapacity: calculateSurvivingCarryCapacity(attackerUnits),
+      loyaltyBefore: row.loyalty_before,
+      loyaltyAfter: row.loyalty_after,
+      conquest:
+        row.conquest_target === null
+          ? null
+          : battleConquestSchema.parse({
+              target: row.conquest_target,
+              succeeded: Boolean(row.conquest_succeeded),
+              failureReason: row.conquest_failure_reason,
+            }),
+      villageDestroyed: Boolean(row.village_destroyed),
+      trapsDestroyed: row.traps_destroyed,
+      rescuedUnits: JSON.parse(row.rescued_units_json),
+      capturedAnimals: JSON.parse(row.captured_animals_json),
+      stolenItems: JSON.parse(row.stolen_items_json),
     },
-    damagedBuildings,
-    statistics: { attacker: attackerStatistics, defender: defenderStatistics },
+    siegeResults,
+    statistics: {
+      attacker: {
+        ...calculateCombatStatistics(attackerUnits),
+        points: row.attacker_points,
+      },
+      defender: {
+        ...calculateCombatStatistics(defenderUnits),
+        points: row.defender_points,
+      },
+    },
+  });
+
+  const ownsParticipant = (participant: BattleType['attacker']) =>
+    participant.village.id === row.village_id;
+
+  const canSeeDefenders =
+    ownsParticipant(battle.defender) ||
+    (ownsParticipant(battle.attacker) &&
+      canAttackerSeeDefendingTroops(
+        battle.attacker.troops.units,
+        [battle.defender, ...battle.defender.reinforcements].flatMap(
+          ({ troops }) => troops.units,
+        ),
+      ));
+
+  const redactParticipant = (
+    participant: BattleType['attacker'],
+    isAttacker = false,
+  ) => {
+    const isOwn = ownsParticipant(participant);
+
+    return {
+      ...participant,
+      troops: {
+        ...participant.troops,
+        units:
+          isOwn || isAttacker || canSeeDefenders
+            ? participant.troops.units.map((unit) => ({
+                ...unit,
+                amountHospitalized: isOwn ? unit.amountHospitalized : null,
+                amountBandaged: isOwn ? unit.amountBandaged : null,
+              }))
+            : null,
+        hero: isOwn ? participant.troops.hero : null,
+      },
+    };
   };
 
   return reportSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'battle',
     summary: mapBattleReportRowToSummaryDto(row),
-    battle,
+    battle: {
+      ...battle,
+      attacker: redactParticipant(battle.attacker, true),
+      defender: {
+        ...redactParticipant(battle.defender),
+        reinforcements: battle.defender.reinforcements
+          .filter(
+            (participant) => canSeeDefenders || ownsParticipant(participant),
+          )
+          .map((participant) => redactParticipant(participant)),
+      },
+      outcome: canSeeDefenders
+        ? battle.outcome
+        : {
+            ...battle.outcome,
+            loyaltyBefore: null,
+            loyaltyAfter: null,
+            conquest: null,
+            villageDestroyed: null,
+            trapsDestroyed: null,
+            rescuedUnits: null,
+            capturedAnimals: null,
+            stolenItems: null,
+          },
+      siegeResults: canSeeDefenders ? battle.siegeResults : null,
+      statistics: {
+        attacker: battle.statistics.attacker,
+        defender: canSeeDefenders ? battle.statistics.defender : null,
+      },
+    },
   });
 };
 
@@ -344,7 +491,7 @@ export const mapScoutingReportRowToDto = (
     ...new Set(reinforcementRows.map(({ tileId }) => tileId)),
   ].map((tileId) => {
     const rows = reinforcementRows.filter((unit) => unit.tileId === tileId);
-    const first = rows[0]!;
+    const [first] = rows;
     return {
       tribe: first.tribe,
       player: { name: first.playerName, slug: first.playerSlug },
@@ -386,10 +533,71 @@ export const mapScoutingReportRowToDto = (
         reinforcements: hideIntelligence ? [] : reinforcements,
       },
       resources:
-        hideIntelligence || row.wood == null
+        hideIntelligence || row.wood === null
           ? null
           : [row.wood, row.clay, row.iron, row.wheat],
+      itemId: hideIntelligence ? null : row.item_id,
+      itemAmount: hideIntelligence ? null : row.item_amount,
       defensiveStructures: hideIntelligence ? [] : defensiveStructures,
     },
   });
 };
+
+export const mapUnitResearchReportRowToDto = (row: UnitResearchReportRow) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'unitResearch',
+    summary: {
+      villageId: row.village_id,
+      villageName: row.village_name,
+      villageCoordinates: { x: row.village_x, y: row.village_y },
+    },
+    unitId: row.unit_id,
+  });
+
+export const mapUnitImprovementReportRowToDto = (
+  row: UnitImprovementReportRow,
+) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'unitImprovement',
+    summary: {
+      villageId: row.village_id,
+      villageName: row.village_name,
+      villageCoordinates: { x: row.village_x, y: row.village_y },
+    },
+    unitId: row.unit_id,
+    level: row.level,
+  });
+
+export const mapVillageFoundedReportRowToDto = (row: VillageFoundedReportRow) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'villageFounded',
+    summary: {
+      originName: row.origin_name,
+      originCoordinates: { x: row.origin_x, y: row.origin_y },
+      targetName: row.target_name,
+      targetCoordinates: { x: row.target_x, y: row.target_y },
+    },
+    originTileId: row.origin_tile_id,
+    targetTileId: row.target_tile_id,
+  });
+
+export const mapScheduledConstructionCancellationReportRowToDto = (
+  row: ScheduledConstructionCancellationReportRow,
+) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'scheduledConstructionCancellation',
+    summary: {
+      villageId: row.village_id,
+      villageName: row.village_name,
+      villageCoordinates: { x: row.village_x, y: row.village_y },
+    },
+    buildingId: row.building_id,
+    buildingFieldId: row.field_id,
+    level: row.level,
+    reason: row.reason,
+    reasonDetail: JSON.parse(row.reason_detail_json),
+  });

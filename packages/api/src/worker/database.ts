@@ -4,18 +4,24 @@ import type {
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
-import { upgradeDb } from '@pillage-first/db';
 import { env } from '@pillage-first/utils/env';
-import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
+import {
+  type ErrorWithContext,
+  MissingGameWorldDatabaseError,
+  OutdatedAppVersionError,
+  OutdatedDatabaseSchemaError,
+  serializeError,
+} from '@pillage-first/utils/errors';
 import {
   createDbFacade,
   type DbFacade,
+  type OpfsSahPoolOptions,
 } from '@pillage-first/utils/facades/database';
-import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 import {
-  parseAppVersion,
-  parseDatabaseUserVersion,
+  encodeAppVersionToDatabaseUserVersion,
+  isSupportedDatabaseUserVersion,
 } from '@pillage-first/utils/version';
+import { upgradeDb } from '../db';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
@@ -38,36 +44,41 @@ const releaseWorkerDatabase = (dbFacade?: DbFacade): void => {
 export const openWorkerDatabase = async (
   serverSlug: string,
 ): Promise<DbFacade> => {
-  if (sqlite3 === null) {
-    const { default: sqlite3InitModule } = await import(
-      '@sqlite.org/sqlite-wasm'
-    );
-
-    sqlite3 = await sqlite3InitModule();
-  }
-
-  const opfsSahPoolOptions = {
-    directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-    forceReinitIfPreviouslyFailed: true,
-  };
-
-  opfsSahPool = await retryWhenFileSystemLocked(() =>
-    sqlite3!.installOpfsSAHPoolVfs(opfsSahPoolOptions),
-  );
-
   let dbFacade: DbFacade | undefined;
+  let fileNames: string[] | null = null;
+  let databaseVersion: number | null = null;
 
   try {
-    // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
-    if (opfsSahPool.getFileCount() === 0) {
-      throw new OutdatedDatabaseSchemaError();
+    if (sqlite3 === null) {
+      const { default: sqlite3InitModule } = await import(
+        '@sqlite.org/sqlite-wasm'
+      );
+
+      sqlite3 = await sqlite3InitModule();
     }
 
-    database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
+    const opfsSahPoolOptions: OpfsSahPoolOptions = {
+      directory: `/pillage-first-ask-questions-later/${serverSlug}`,
+      preserveOnInitFailure: true,
+    };
 
-    dbFacade = createDbFacade(database, false);
+    opfsSahPool = await sqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions);
 
-    dbFacade.exec({
+    const databasePath = `/${serverSlug}.sqlite3`;
+
+    fileNames = opfsSahPool.getFileNames();
+
+    if (!fileNames.includes(databasePath)) {
+      throw new MissingGameWorldDatabaseError();
+    }
+
+    database = new opfsSahPool.OpfsSAHPoolDb(databasePath);
+
+    dbFacade = createDbFacade(database, () =>
+      sqlite3!.capi.sqlite3_js_db_export(database!.pointer!, 'main'),
+    );
+
+    dbFacade.execMulti({
       sql: `
       PRAGMA foreign_keys = ON;        -- keep referential integrity
       PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
@@ -82,18 +93,16 @@ export const openWorkerDatabase = async (
 
     const version = dbFacade.selectValue({
       sql: 'PRAGMA user_version',
-      schema: z.number().nullable(),
-    });
+      schema: z.number(),
+    })!;
 
-    // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
-    if (!version) {
-      throw new OutdatedDatabaseSchemaError();
+    databaseVersion = version;
+
+    if (version > encodeAppVersionToDatabaseUserVersion(env.VERSION)) {
+      throw new OutdatedAppVersionError();
     }
 
-    const [, dbMinor] = parseDatabaseUserVersion(version);
-    const [, appMinor] = parseAppVersion(env.VERSION);
-
-    if (dbMinor !== appMinor) {
+    if (!isSupportedDatabaseUserVersion(version, env.VERSION)) {
       throw new OutdatedDatabaseSchemaError();
     }
 
@@ -101,8 +110,27 @@ export const openWorkerDatabase = async (
 
     return dbFacade;
   } catch (error) {
-    releaseWorkerDatabase(dbFacade);
-    throw error;
+    const failure: ErrorWithContext =
+      error instanceof Error ? error : new Error(String(error));
+
+    failure.context = {
+      ...failure.context,
+      database_server_slug: serverSlug,
+      database_app_version: env.VERSION,
+      database_file_names: JSON.stringify(fileNames),
+      database_user_version:
+        databaseVersion === null ? 'unknown' : String(databaseVersion),
+    };
+
+    try {
+      releaseWorkerDatabase(dbFacade);
+    } catch (cleanupError) {
+      failure.context.database_cleanup_error = JSON.stringify(
+        serializeError(cleanupError),
+      );
+    }
+
+    throw failure;
   }
 };
 

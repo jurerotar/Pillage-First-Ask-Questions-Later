@@ -1,5 +1,5 @@
 export const formatNumberWithCommas = (number: number): string => {
-  return number.toString().replaceAll(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return number.toString().replaceAll(/\B(?=(\d{3})+(?!\d))/gu, ',');
 };
 
 export const truncateToShortForm = (value: number): string => {

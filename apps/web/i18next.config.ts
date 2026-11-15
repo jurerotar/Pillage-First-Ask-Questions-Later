@@ -15,6 +15,7 @@ const i18nextCliConfig: I18nextToolkitConfig = defineConfig({
       'FACTIONS.*',
       'RESOURCES.*',
       'ICONS.*',
+      'REPORTS.*',
     ],
     output:
       'app/localization/locales/{{language}}/extracted/{{namespace}}.json',

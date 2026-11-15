@@ -14,8 +14,8 @@ import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
-  buildingScheduledConstructionEventResolver,
 } from './resolvers/building-resolvers';
+import { culturePointsCelebrationResolver } from './resolvers/culture-points-resolvers';
 import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-resolvers';
 import {
   heroHealthRegenerationResolver,
@@ -53,7 +53,6 @@ const gameEventResolvers = {
   buildingLevelChange: buildingLevelChangeResolver,
   buildingConstruction: buildingConstructionResolver,
   buildingDestruction: buildingDestructionResolver,
-  buildingScheduledConstruction: buildingScheduledConstructionEventResolver,
   troopTraining: troopTrainingEventResolver,
   troopMovementReinforcements: reinforcementMovementResolver,
   troopMovementRelocation: relocationMovementResolver,
@@ -66,6 +65,7 @@ const gameEventResolvers = {
   heroRevival: heroRevivalResolver,
   heroHealthRegeneration: heroHealthRegenerationResolver,
   loyaltyIncrease: loyaltyIncreaseResolver,
+  culturePointsCelebration: culturePointsCelebrationResolver,
   unitResearch: unitResearchResolver,
   unitImprovement: unitImprovementResolver,
   animalCageProduction: animalCageProductionResolver,
@@ -79,6 +79,7 @@ const gameEventResolvers = {
 export const resolveEvent = (
   database: DbFacade,
   eventId: GameEvent['id'],
+  notify: (event: EventApiNotificationEvent) => void = postWorkerMessage,
 ): void => {
   const eventRow = database.selectObject({
     sql: `
@@ -101,22 +102,22 @@ export const resolveEvent = (
 
   try {
     const resolver = gameEventResolvers[event.type];
-    const { affectedVillageIds } = (
+    const { affectedVillageIds, affectedTileIds } = (
       resolver as (db: DbFacade, ev: GameEvent) => ResolverResult
     )(database, event);
 
-    postWorkerMessage({
+    notify({
       eventKey: 'event:success',
       ...event,
       affectedVillageIds,
+      affectedTileIds,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
-    console.error(error);
-
-    postWorkerMessage({
+    notify({
       eventKey: 'event:error',
       ...event,
       affectedVillageIds: [],
+      affectedTileIds: [],
     } satisfies EventApiNotificationEvent);
 
     throw error;

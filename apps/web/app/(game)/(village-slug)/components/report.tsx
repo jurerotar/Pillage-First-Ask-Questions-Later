@@ -1,0 +1,1423 @@
+import {
+  createContext,
+  type PropsWithChildren,
+  type ReactNode,
+  use,
+  useMemo,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
+import { sortTroops } from '@pillage-first/game-assets/utils/troops';
+import type { CombatSimulatorReportDto } from '@pillage-first/types/dtos/combat-simulator';
+import type {
+  AdventureReport,
+  BattleReport,
+  GatheringExpeditionReport,
+  HuntingPartyReport,
+  Report as ReportType,
+  ScheduledConstructionCancellationReport,
+  ScoutingReport,
+  TradeReport,
+  TroopMovementReport,
+  UnitImprovementReport,
+  UnitResearchReport,
+  VillageFoundedReport,
+} from '@pillage-first/types/models/report';
+import { formatNumber } from '@pillage-first/utils/format';
+import { calculateBattleUnitCasualties } from '@pillage-first/utils/game/combat';
+import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
+import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import {
+  UnitTable,
+  UnitTableContentRow,
+  UnitTableHiddenRow,
+  UnitTableLoot,
+  UnitTableNoLabelContentRow,
+  UnitTablePlayer,
+  UnitTableRow,
+  UnitTableScoutedLoot,
+  UnitTableTitle,
+  UnitTableUnitIcons,
+  UnitTableWheatConsumption,
+} from 'app/(game)/components/unit-table';
+import { Icon } from 'app/components/icon';
+import {
+  type IconType,
+  unitIdToUnitIconMapper,
+} from 'app/components/icons/icons';
+import { Text } from 'app/components/text';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
+import { SiegeResultInformation } from './siege-result-information';
+
+type ReportContextState = {
+  report: ReportType | CombatSimulatorReportDto;
+};
+
+const ReportContext = createContext<ReportContextState>(
+  {} as ReportContextState,
+);
+
+type ReportProps = {
+  report: ReportType | CombatSimulatorReportDto;
+};
+
+export const Report = ({
+  report,
+  children,
+}: PropsWithChildren<ReportProps>) => {
+  const value = useMemo(
+    () => ({
+      report,
+    }),
+    [report],
+  );
+
+  return (
+    <ReportContext value={value}>
+      <article className="flex flex-col gap-2">{children}</article>
+    </ReportContext>
+  );
+};
+
+type ReportHeaderProps = {
+  actions?: ReactNode;
+};
+
+export const ReportHeader = ({ actions }: ReportHeaderProps) => {
+  const { t } = useTranslation();
+  const { report } = use(ReportContext);
+
+  if ('combatMode' in report) {
+    return <Text as="h2">{t('Combat report')}</Text>;
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Text as="h1">{getReportSubject(report, t)}</Text>
+      <div className="flex items-center justify-between gap-2">
+        <Text
+          as="span"
+          className="text-foreground-muted"
+        >
+          {new Date(report.timestamp).toLocaleString()}
+        </Text>
+        {actions}
+      </div>
+    </div>
+  );
+};
+
+type BattleTableParticipant = {
+  troops: Pick<
+    BattleReport['battle']['attacker']['troops'],
+    'tribe' | 'units' | 'hero'
+  >;
+  player?: BattleReport['battle']['attacker']['player'];
+  village?: BattleReport['battle']['attacker']['village'];
+};
+
+type BattleParticipantTableProps = {
+  participant: BattleTableParticipant;
+  // It cannot be named "role" because it overlaps with native HTML attribute
+  participantRole: 'attacker' | 'defender' | 'reinforcement';
+};
+
+type ReportItemProps = {
+  itemId: number;
+  itemAmount: number;
+};
+
+const ReportItem = ({ itemId, itemAmount }: ReportItemProps) => {
+  const { t } = useTranslation();
+  const item = getItemDefinition(itemId);
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span>{formatNumber(itemAmount)}x</span>
+      <ItemTooltip item={item}>{t(`ITEMS.${item.name}.NAME`)}</ItemTooltip>
+    </span>
+  );
+};
+
+const ReportItemFooterRow = ({ children }: PropsWithChildren) => {
+  const { t } = useTranslation();
+
+  return (
+    <tfoot className="border-t dark:border-border">
+      <tr>
+        <td className="p-2">
+          <Text className="text-sm font-medium">{t('Item')}</Text>
+        </td>
+        <td
+          colSpan={100}
+          className="p-2 text-left"
+        >
+          {children}
+        </td>
+      </tr>
+    </tfoot>
+  );
+};
+
+export const BattleParticipantTable = ({
+  participant,
+  participantRole,
+}: BattleParticipantTableProps) => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+
+  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const { loot, totalCarryCapacity } = report.battle.outcome;
+  const { troops, player, village } = participant;
+
+  const {
+    troopsBefore,
+    troopsAfter,
+    troopsLost,
+    troopsHospitalized,
+    troopsImprisoned,
+  } = useMemo(() => {
+    const units = troops.units ?? [];
+    const troopsBefore = sortTroops(
+      troops.tribe,
+      units.map(({ unitId, amountBefore }) => ({
+        unitId,
+        amount: amountBefore,
+      })),
+    );
+
+    const troopsAfter = sortTroops(
+      troops.tribe,
+      units.map(({ unitId, amountAfter }) => ({
+        unitId,
+        amount: amountAfter,
+      })),
+    );
+
+    const troopsLost = sortTroops(
+      troops.tribe,
+      units.map((unit) => ({
+        unitId: unit.unitId,
+        amount: calculateBattleUnitCasualties(unit),
+      })),
+    );
+
+    const troopsHospitalized = sortTroops(
+      troops.tribe,
+      units.map(({ unitId, amountHospitalized, amountBandaged }) => ({
+        unitId,
+        amount: (amountHospitalized ?? 0) + (amountBandaged ?? 0),
+      })),
+    );
+
+    const troopsImprisoned = sortTroops(
+      troops.tribe,
+      units.map(({ unitId, amountImprisoned }) => ({
+        unitId,
+        amount: amountImprisoned,
+      })),
+    );
+
+    return {
+      troopsBefore,
+      troopsAfter,
+      troopsLost,
+      troopsHospitalized,
+      troopsImprisoned,
+    };
+  }, [troops]);
+
+  let totalLosses = 0;
+  let totalHospitalized = 0;
+  let totalImprisoned = 0;
+
+  for (const unit of troops.units ?? []) {
+    totalLosses += calculateBattleUnitCasualties(unit);
+    totalHospitalized +=
+      (unit.amountHospitalized ?? 0) + (unit.amountBandaged ?? 0);
+    totalImprisoned += unit.amountImprisoned;
+  }
+
+  const isSimulatorReport = 'playerRole' in report;
+  const canSeeTroopDetails = troops.units !== null;
+  const canSeeImprisonedTroops = canSeeTroopDetails && totalImprisoned > 0;
+
+  return (
+    <UnitTable tribe={troops.tribe}>
+      <UnitTableTitle>
+        {participantRole === 'attacker' ? t('Attacker') : t('Defender')}
+      </UnitTableTitle>
+      {player && village && (
+        <UnitTablePlayer
+          playerName={player.name}
+          playerSlug={player.slug}
+          tileName={village.name}
+          coordinates={village.coordinates}
+        />
+      )}
+      <UnitTableUnitIcons />
+
+      {!canSeeTroopDetails ? (
+        <UnitTableHiddenRow
+          label={t('Troops')}
+          troops={troopsBefore}
+        />
+      ) : (
+        <>
+          <UnitTableRow
+            label={t('Initial')}
+            troops={troopsBefore}
+          />
+          <UnitTableRow
+            label={t('Casualties')}
+            troops={troopsLost}
+            textColor="text-red-500"
+          />
+          {totalHospitalized > 0 && (
+            <UnitTableRow
+              label={t('Hospitalized')}
+              troops={troopsHospitalized}
+              textColor="text-green-700"
+            />
+          )}
+          {canSeeImprisonedTroops && (
+            <UnitTableRow
+              label={t('Prisoners')}
+              troops={troopsImprisoned}
+              textColor="text-amber-700"
+            />
+          )}
+          <UnitTableRow
+            label={t('Remaining')}
+            troops={troopsAfter}
+          />
+          <UnitTableNoLabelContentRow>
+            <div className="flex justify-end gap-4">
+              <span
+                className="inline-flex items-center gap-2"
+                title={t('Losses')}
+              >
+                <Icon
+                  type="troopLosses"
+                  className="size-4"
+                />
+                {formatNumber(totalLosses)}
+              </span>
+              {totalHospitalized > 0 && (
+                <span
+                  className="inline-flex items-center gap-2"
+                  title={t('Hospitalized')}
+                >
+                  <Icon
+                    type="troopsHospitalized"
+                    className="size-4"
+                  />
+                  {formatNumber(totalHospitalized)}
+                </span>
+              )}
+              {canSeeImprisonedTroops && (
+                <span
+                  className="inline-flex items-center gap-2"
+                  title={t('Prisoners')}
+                >
+                  <Icon
+                    type="troopsImprisoned"
+                    className="size-4"
+                  />
+                  {formatNumber(totalImprisoned)}
+                </span>
+              )}
+            </div>
+          </UnitTableNoLabelContentRow>
+        </>
+      )}
+
+      {troops.hero !== null && (
+        <UnitTableContentRow label={t('Hero')}>
+          <div className="flex items-center gap-4">
+            <Text>
+              {t('Health')}: {troops.hero.healthBefore}% →{' '}
+              {troops.hero.healthAfter}%{' '}
+              {troops.hero.healthAfter === 0 && t('(Died)')}
+            </Text>
+            <Text>
+              {t('Experience gained')}:{' '}
+              {formatNumber(troops.hero.experienceGained)}
+            </Text>
+          </div>
+        </UnitTableContentRow>
+      )}
+
+      {participantRole === 'attacker' && (
+        <>
+          <BattleInformationRow
+            outcome={report.battle.outcome}
+            siegeResults={report.battle.siegeResults}
+          />
+          {!isSimulatorReport && (
+            <UnitTableLoot
+              loot={loot}
+              totalCarryCapacity={totalCarryCapacity}
+            />
+          )}
+        </>
+      )}
+    </UnitTable>
+  );
+};
+
+type BattleInformationRowProps = {
+  outcome: BattleReport['battle']['outcome'];
+  siegeResults: BattleReport['battle']['siegeResults'];
+};
+
+const BattleInformationRow = ({
+  outcome,
+  siegeResults,
+}: BattleInformationRowProps) => {
+  const { t } = useTranslation();
+  const entries = new Map<string, ReactNode>();
+
+  if (siegeResults === null) {
+    return null;
+  }
+
+  for (const [index, result] of siegeResults.entries()) {
+    // Results are an immutable ordered list; identical hits must remain separate.
+    entries.set(`siege:${index}`, <SiegeResultInformation result={result} />);
+  }
+
+  if (outcome.loyaltyBefore !== null && outcome.loyaltyAfter !== null) {
+    entries.set(
+      'loyalty',
+      <>
+        {t('Loyalty')}: {outcome.loyaltyBefore}% → {outcome.loyaltyAfter}%
+      </>,
+    );
+  }
+
+  if (outcome.conquest !== null) {
+    entries.set(
+      'conquest',
+      <>
+        {outcome.conquest.target === 'oasis'
+          ? t('Oasis capture')
+          : t('Village conquest')}
+        : {outcome.conquest.succeeded ? t('Successful') : t('Unsuccessful')}
+        {outcome.conquest.failureReason !== null && (
+          <>
+            .{' '}
+            {t(
+              `REPORTS.CONQUEST_FAILURE_REASONS.${outcome.conquest.failureReason}`,
+            )}
+          </>
+        )}
+      </>,
+    );
+  }
+
+  if (outcome.villageDestroyed) {
+    entries.set('village-destroyed', t('The village was destroyed.'));
+  }
+
+  if (outcome.rescuedUnits !== null && outcome.rescuedUnits.length > 0) {
+    let totalFreed = 0;
+    let totalDied = 0;
+
+    for (const unit of outcome.rescuedUnits) {
+      totalFreed += unit.amountFreed;
+      totalDied += unit.amountDied;
+    }
+
+    entries.set(
+      'rescued-units',
+      t(
+        '{{freed}} freed, {{died}} died during rescue, {{returning}} returning home',
+        {
+          freed: formatNumber(totalFreed),
+          died: formatNumber(totalDied),
+          returning: formatNumber(totalFreed - totalDied),
+        },
+      ),
+    );
+  }
+
+  if (outcome.capturedAnimals !== null && outcome.capturedAnimals.length > 0) {
+    entries.set(
+      'captured-animals',
+      <div className="flex flex-wrap items-center gap-2">
+        <span>{t('Animals captured')}:</span>
+        {outcome.capturedAnimals.map(({ unitId, amount }) => (
+          <span
+            key={unitId}
+            className="inline-flex items-center gap-1"
+          >
+            <Icon
+              type={unitIdToUnitIconMapper(unitId)}
+              className="size-5"
+            />
+            {formatNumber(amount)}
+          </span>
+        ))}
+      </div>,
+    );
+  }
+
+  for (const { itemId, amount } of outcome.stolenItems ?? []) {
+    entries.set(
+      `item:${itemId}`,
+      <>
+        {t('Items stolen')}:{' '}
+        <ReportItem
+          itemId={itemId}
+          itemAmount={amount}
+        />
+      </>,
+    );
+  }
+
+  if (entries.size === 0) {
+    return null;
+  }
+
+  return (
+    <UnitTableContentRow label={t('Information')}>
+      <div className="flex flex-col gap-1 text-sm">
+        {Array.from(entries, ([key, entry]) => (
+          <div key={key}>{entry}</div>
+        ))}
+      </div>
+    </UnitTableContentRow>
+  );
+};
+
+export const BattleReportTables = () => {
+  const { report: _report } = use(ReportContext);
+  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const participants =
+    'playerRole' in report
+      ? {
+          attacker: { troops: report.battle.attacker },
+          defender: { troops: report.battle.defender },
+          reinforcements: report.battle.defender.reinforcements.map(
+            ({ id, ...troops }) => ({ key: id, participant: { troops } }),
+          ),
+        }
+      : {
+          attacker: report.battle.attacker,
+          defender: report.battle.defender,
+          reinforcements: report.battle.defender.reinforcements.map(
+            (participant) => ({ key: participant.troops.id, participant }),
+          ),
+        };
+
+  return (
+    <>
+      <BattleParticipantTable
+        participant={participants.attacker}
+        participantRole="attacker"
+      />
+      <BattleParticipantTable
+        participant={participants.defender}
+        participantRole="defender"
+      />
+      {participants.reinforcements.map(({ key, participant }) => (
+        <BattleParticipantTable
+          key={key}
+          participant={participant}
+          participantRole="reinforcement"
+        />
+      ))}
+      <BattleStatisticsTable />
+    </>
+  );
+};
+
+type StatisticsRowProps = {
+  name: string;
+  icons: [attacker: IconType, defender: IconType];
+  values: [attacker: number, defender: number | null];
+};
+
+const StatisticsRow = ({ name, icons, values }: StatisticsRowProps) => (
+  <TableRow>
+    <TableCell className="text-left">{name}</TableCell>
+    <TableCell className="text-left">
+      <span className="inline-flex gap-2 items-center text-left">
+        <Icon
+          type={icons[0]}
+          className="size-5"
+        />
+        {formatNumber(Math.round(values[0]))}
+      </span>
+    </TableCell>
+    <TableCell className="text-left">
+      <span className="inline-flex gap-2 items-center">
+        <Icon
+          type={icons[1]}
+          className="size-5"
+        />
+        {values[1] === null ? '?' : formatNumber(Math.round(values[1]))}
+      </span>
+    </TableCell>
+  </TableRow>
+);
+
+export const BattleStatisticsTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+
+  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const { statistics } = report.battle;
+  const { attacker, defender } = statistics;
+
+  const rows: StatisticsRowProps[] = [
+    {
+      name: t('Combat strength'),
+      icons: ['attack', 'defence'],
+      values: [attacker.points, defender?.points ?? null],
+    },
+    {
+      name: t('Supply before'),
+      icons: ['wheat', 'wheat'],
+      values: [attacker.supplyBefore, defender?.supplyBefore ?? null],
+    },
+    {
+      name: t('Supply lost'),
+      icons: ['wheat', 'wheat'],
+      values: [attacker.supplyLost, defender?.supplyLost ?? null],
+    },
+    {
+      name: t('Resources lost'),
+      icons: ['unitCarryCapacity', 'unitCarryCapacity'],
+      values: [attacker.resourcesLost, defender?.resourcesLost ?? null],
+    },
+  ];
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={3}
+              className="text-left col-span-full"
+            >
+              <Text>{t('Statistics')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          <TableRow>
+            <TableCell />
+            <TableCell className="text-left">{t('Attacker')}</TableCell>
+            <TableCell className="text-left">{t('Defender')}</TableCell>
+          </TableRow>
+
+          {rows.map((row) => (
+            <StatisticsRow
+              key={row.name}
+              {...row}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const MovementReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as TroopMovementReport;
+  const { movement } = report;
+
+  const troops = useMemo(
+    () => sortTroops(movement.tribe, movement.units),
+    [movement.tribe, movement.units],
+  );
+
+  const title =
+    movement.movementType === 'reinforcement'
+      ? t('Reinforcement')
+      : t('Relocation');
+
+  const {
+    originPlayerName,
+    originPlayerSlug,
+    originName,
+    originCoordinates,
+    targetPlayerName,
+    targetPlayerSlug,
+    targetName,
+    targetCoordinates,
+  } = report.summary;
+
+  return (
+    <UnitTable tribe={movement.tribe}>
+      <UnitTableTitle>{title}</UnitTableTitle>
+      <thead className="bg-muted border-b dark:border-border font-medium">
+        <tr>
+          <th
+            colSpan={12}
+            className="p-2 text-left font-medium"
+          >
+            <Link
+              to={`../players/${originPlayerSlug}`}
+              className="text-link"
+            >
+              {originPlayerName}
+            </Link>{' '}
+            {t('from')}{' '}
+            <Link
+              to={`../map?x=${originCoordinates.x}&y=${originCoordinates.y}`}
+              className="text-link"
+            >
+              {originName} ({originCoordinates.x}|{originCoordinates.y})
+            </Link>{' '}
+            {t('to')}{' '}
+            {targetPlayerName && targetPlayerSlug && (
+              <>
+                <Link
+                  to={`../players/${targetPlayerSlug}`}
+                  className="text-link"
+                >
+                  {targetPlayerName}
+                </Link>{' '}
+              </>
+            )}
+            {t('from')}{' '}
+            <Link
+              to={`../map?x=${targetCoordinates.x}&y=${targetCoordinates.y}`}
+              className="text-link"
+            >
+              {targetName} ({targetCoordinates.x}|{targetCoordinates.y})
+            </Link>
+          </th>
+        </tr>
+      </thead>
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={t('Troops')}
+        troops={troops}
+      />
+      <UnitTableWheatConsumption troops={troops} />
+    </UnitTable>
+  );
+};
+
+export const TradeReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as TradeReport;
+  const {
+    originPlayerName,
+    originPlayerSlug,
+    originName,
+    originCoordinates,
+    targetPlayerName,
+    targetPlayerSlug,
+    targetName,
+    targetCoordinates,
+  } = report.summary;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Trade')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left normal-case"
+            >
+              <Link
+                to={`../players/${originPlayerSlug}`}
+                className="text-link"
+              >
+                {originPlayerName}
+              </Link>{' '}
+              {t('from')}{' '}
+              <Link
+                to={`../map?x=${originCoordinates.x}&y=${originCoordinates.y}`}
+                className="text-link"
+              >
+                {originName} ({originCoordinates.x}|{originCoordinates.y})
+              </Link>{' '}
+              {t('to')}{' '}
+              <Link
+                to={`../players/${targetPlayerSlug}`}
+                className="text-link"
+              >
+                {targetPlayerName}
+              </Link>{' '}
+              {t('from')}{' '}
+              <Link
+                to={`../map?x=${targetCoordinates.x}&y=${targetCoordinates.y}`}
+                className="text-link"
+              >
+                {targetName} ({targetCoordinates.x}|{targetCoordinates.y})
+              </Link>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Resources')}
+            </TableCell>
+            <TableCell className="text-left">
+              <div className="flex flex-wrap items-center gap-2">
+                <Resources
+                  resources={report.trade.resources}
+                  iconClassName="size-4"
+                />
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const ScoutingReportTables = () => {
+  const { t } = useTranslation();
+  const { report: rawReport } = use(ReportContext);
+
+  const report = rawReport as ScoutingReport;
+  const { scouting, summary } = report;
+
+  const attackerTroopsBefore = sortTroops(
+    scouting.attacker.tribe,
+    scouting.attacker.units.map(({ unitId, amountBefore }) => ({
+      unitId,
+      amount: amountBefore,
+    })),
+  );
+
+  const attackerTroopsAfter = sortTroops(
+    scouting.attacker.tribe,
+    scouting.attacker.units.map(({ unitId, amountAfter }) => ({
+      unitId,
+      amount: amountAfter,
+    })),
+  );
+
+  const attackerTroopsLost = sortTroops(
+    scouting.attacker.tribe,
+    scouting.attacker.units.map(({ unitId, amountBefore, amountAfter }) => ({
+      unitId,
+      amount: amountBefore - amountAfter,
+    })),
+  );
+
+  const defenderTroops = sortTroops(
+    scouting.defender.tribe,
+    scouting.defender.units,
+  );
+
+  const hideIntelligence = !scouting.successful;
+
+  return (
+    <>
+      <UnitTable tribe={scouting.attacker.tribe}>
+        <UnitTableTitle>{t('Attacker')}</UnitTableTitle>
+        <UnitTablePlayer
+          playerName={summary.originPlayerName}
+          playerSlug={summary.originPlayerSlug}
+          tileName={summary.originName}
+          coordinates={summary.originCoordinates}
+        />
+        <UnitTableUnitIcons />
+        <UnitTableRow
+          label={t('Initial')}
+          troops={attackerTroopsBefore}
+        />
+        <UnitTableRow
+          label={t('Casualties')}
+          troops={attackerTroopsLost}
+          textColor="text-red-500"
+        />
+        <UnitTableRow
+          label={t('Remaining')}
+          troops={attackerTroopsAfter}
+          textColor="text-green-700"
+        />
+      </UnitTable>
+      <UnitTable tribe={scouting.defender.tribe}>
+        <UnitTableTitle>{t('Defender')}</UnitTableTitle>
+        <UnitTablePlayer
+          playerName={summary.targetPlayerName}
+          playerSlug={summary.targetPlayerSlug}
+          tileName={summary.targetName}
+          coordinates={summary.targetCoordinates}
+        />
+        <UnitTableUnitIcons />
+        {hideIntelligence ? (
+          <UnitTableHiddenRow
+            label={t('Troops')}
+            troops={defenderTroops}
+          />
+        ) : (
+          <UnitTableRow
+            label={t('Troops')}
+            troops={defenderTroops}
+          />
+        )}
+        {hideIntelligence && (
+          <tfoot className="border-t dark:border-border">
+            <tr>
+              <td
+                colSpan={12}
+                className="p-2 text-left"
+              >
+                <Text className="text-sm font-medium">
+                  {t('No information was gathered')}
+                </Text>
+              </td>
+            </tr>
+          </tfoot>
+        )}
+        {!hideIntelligence && scouting.resources && (
+          <UnitTableScoutedLoot loot={scouting.resources} />
+        )}
+        {!hideIntelligence && scouting.defensiveStructures.length > 0 && (
+          <tfoot className="border-t dark:border-border">
+            {scouting.defensiveStructures.map(({ buildingId, level }) => (
+              <tr key={buildingId}>
+                <td className="p-2">
+                  <Text className="text-sm font-medium">
+                    {t(`BUILDINGS.${buildingId}.NAME`)}
+                  </Text>
+                </td>
+                <td
+                  colSpan={100}
+                  className="p-2 text-left"
+                >
+                  <Text className="text-sm">
+                    {t('Level {{level}}', { level })}
+                  </Text>
+                </td>
+              </tr>
+            ))}
+          </tfoot>
+        )}
+        {!hideIntelligence &&
+          scouting.itemId !== null &&
+          scouting.itemAmount !== null && (
+            <ReportItemFooterRow>
+              <ReportItem
+                itemId={scouting.itemId}
+                itemAmount={scouting.itemAmount}
+              />
+            </ReportItemFooterRow>
+          )}
+      </UnitTable>
+      {!hideIntelligence &&
+        scouting.defender.reinforcements.map((reinforcement) => {
+          const troops = sortTroops(reinforcement.tribe, reinforcement.units);
+          return (
+            <UnitTable
+              key={`${reinforcement.village.coordinates.x}:${reinforcement.village.coordinates.y}`}
+              tribe={reinforcement.tribe}
+            >
+              <UnitTableTitle>{t('Reinforcement')}</UnitTableTitle>
+              <UnitTablePlayer
+                playerName={reinforcement.player.name}
+                playerSlug={reinforcement.player.slug}
+                tileName={reinforcement.village.name}
+                coordinates={reinforcement.village.coordinates}
+              />
+              <UnitTableUnitIcons />
+              <UnitTableRow
+                label={t('Troops')}
+                troops={troops}
+              />
+            </UnitTable>
+          );
+        })}
+    </>
+  );
+};
+
+export const HuntingPartyReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as HuntingPartyReport;
+  const troops = sortTroops(report.tribe, report.units);
+
+  return (
+    <UnitTable tribe={report.tribe}>
+      <UnitTablePlayer
+        playerName={t('Hunting party')}
+        tileName={report.summary.villageName}
+        coordinates={report.summary.villageCoordinates}
+      />
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={t('Captured animals')}
+        troops={troops}
+      />
+    </UnitTable>
+  );
+};
+
+export const GatheringExpeditionReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as GatheringExpeditionReport;
+  const troops = sortTroops(report.tribe, report.units);
+
+  let totalLoot = 0;
+
+  for (const amount of report.loot) {
+    totalLoot += amount;
+  }
+
+  return (
+    <UnitTable tribe={report.tribe}>
+      <UnitTablePlayer
+        playerName={t('Gathering expedition')}
+        tileName={report.summary.villageName}
+        coordinates={report.summary.villageCoordinates}
+      />
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={t('Sent troops')}
+        troops={troops}
+      />
+      <UnitTableLoot
+        loot={report.loot}
+        totalCarryCapacity={totalLoot}
+      />
+    </UnitTable>
+  );
+};
+
+export const AdventureReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as AdventureReport;
+  const { adventureId, healthBefore, healthAfter, itemId, itemAmount } = report;
+  const healthDifference = healthAfter - healthBefore;
+  const hasHeroDied = healthAfter === 0;
+  const experienceGained = hasHeroDied ? 0 : adventureId * 10;
+
+  const formattedHealthDifference = `${healthDifference > 0 ? '+' : ''}${healthDifference}%`;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Outcome')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Health')}
+            </TableCell>
+            <TableCell className="text-left">
+              {healthBefore}% → {healthAfter}% ({formattedHealthDifference})
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Experience')}
+            </TableCell>
+            <TableCell className="text-left">
+              +{formatNumber(experienceGained)}
+            </TableCell>
+          </TableRow>
+          {hasHeroDied ? (
+            <TableRow>
+              <TableCell
+                colSpan={2}
+                className="text-left text-red-500"
+              >
+                {t('Hero died.')}
+              </TableCell>
+            </TableRow>
+          ) : (
+            <TableRow>
+              <TableCell className="text-left font-medium">
+                {t('Item')}
+              </TableCell>
+              <TableCell className="text-left">
+                {itemId === null || itemAmount === null ? (
+                  t('Hero found nothing.')
+                ) : (
+                  <ReportItem
+                    itemId={itemId}
+                    itemAmount={itemAmount}
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const AdventureHeroTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as AdventureReport;
+  const { originVillageName, originCoordinates, tribe } = report.summary;
+  const troops = sortTroops(tribe, [{ unitId: 'HERO', amount: 1 }]);
+
+  return (
+    <UnitTable tribe={tribe}>
+      <UnitTablePlayer
+        playerName={t('Adventure')}
+        tileName={originVillageName}
+        coordinates={originCoordinates}
+      />
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={t('Troops')}
+        troops={troops}
+      />
+    </UnitTable>
+  );
+};
+
+export const UnitResearchReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as UnitResearchReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Unit research')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">{t('Unit')}</TableCell>
+            <TableCell className="text-left">
+              {t(`UNITS.${report.unitId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const UnitImprovementReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as UnitImprovementReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Unit improvement')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">{t('Unit')}</TableCell>
+            <TableCell className="text-left">
+              {t(`UNITS.${report.unitId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Level')}
+            </TableCell>
+            <TableCell className="text-left">{report.level}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const VillageFoundedReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as VillageFoundedReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Village founded')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Origin')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.originCoordinates.x}&y=${report.summary.originCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.originName} (
+                {report.summary.originCoordinates.x}|
+                {report.summary.originCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('New village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.targetCoordinates.x}&y=${report.summary.targetCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.targetName} (
+                {report.summary.targetCoordinates.x}|
+                {report.summary.targetCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const ScheduledConstructionCancellationReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext);
+  const report = _report as ScheduledConstructionCancellationReport;
+  const reason = t(
+    `REPORTS.SCHEDULED_CONSTRUCTION_CANCELLATION_REASONS.${report.reason}`,
+  );
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Scheduled construction cancelled')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Building')}
+            </TableCell>
+            <TableCell className="text-left">
+              {t(`BUILDINGS.${report.buildingId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Level')}
+            </TableCell>
+            <TableCell className="text-left">{report.level}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Field')}
+            </TableCell>
+            <TableCell className="text-left">
+              {report.buildingFieldId}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Reason')}
+            </TableCell>
+            <TableCell className="text-left">{reason}</TableCell>
+          </TableRow>
+          {report.reasonDetail.type === 'missing-resources' && (
+            <TableRow>
+              <TableCell className="text-left font-medium">
+                {t('Missing resources')}
+              </TableCell>
+              <TableCell className="text-left">
+                <Resources resources={report.reasonDetail.missingResources} />
+              </TableCell>
+            </TableRow>
+          )}
+          {report.reasonDetail.type === 'missing-requirements' && (
+            <TableRow>
+              <TableCell className="text-left font-medium">
+                {t('Missing requirements')}
+              </TableCell>
+              <TableCell className="text-left">
+                <ul className="list-disc pl-4">
+                  {report.reasonDetail.unmetRequirements.map((requirement) => {
+                    if (requirement.type === 'or') {
+                      return (
+                        <li
+                          key={`or:${requirement.requirements.map(({ buildingId }) => buildingId).join(':')}`}
+                        >
+                          {requirement.requirements
+                            .map((alternative) =>
+                              t(
+                                '{{buildingName}} level {{requiredLevel}} required. Current level: {{currentLevel}}.',
+                                {
+                                  buildingName: t(
+                                    `BUILDINGS.${alternative.buildingId}.NAME`,
+                                  ),
+                                  requiredLevel: alternative.requiredLevel,
+                                  currentLevel: alternative.currentLevel ?? 0,
+                                },
+                              ),
+                            )
+                            .join(` ${t('or')} `)}
+                        </li>
+                      );
+                    }
+
+                    if (requirement.type === 'building') {
+                      return (
+                        <li
+                          key={`${requirement.type}:${requirement.buildingId}`}
+                        >
+                          {t(
+                            '{{buildingName}} level {{requiredLevel}} required. Current level: {{currentLevel}}.',
+                            {
+                              buildingName: t(
+                                `BUILDINGS.${requirement.buildingId}.NAME`,
+                              ),
+                              requiredLevel: requirement.requiredLevel,
+                              currentLevel: requirement.currentLevel ?? 0,
+                            },
+                          )}
+                        </li>
+                      );
+                    }
+
+                    if (requirement.type === 'tribe') {
+                      return (
+                        <li key={`${requirement.type}:${requirement.tribe}`}>
+                          {t('Requires {{tribeName}} tribe.', {
+                            tribeName: t(
+                              `TRIBES.${requirement.tribe.toUpperCase()}`,
+                            ),
+                          })}
+                        </li>
+                      );
+                    }
+
+                    return (
+                      <li key={`${requirement.type}:${requirement.amount}`}>
+                        {t(
+                          'Another {{buildingName}} cannot be queued until an existing one reaches max level.',
+                          {
+                            buildingName: t(
+                              `BUILDINGS.${report.buildingId}.NAME`,
+                            ),
+                          },
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};

@@ -1,41 +1,29 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import {
+  prepareTestDatabase,
+  setTestBuildingLevel,
+} from '@pillage-first/api/testing';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import {
   reportOutcomeSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { createEvents } from '../../../../utils/create-event';
 import { resolveEvent } from '../../resolve-event';
 
 describe('hunters lodge resolvers', () => {
   test('huntersLodgeHunt should not schedule another hunt after resolving', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const now = 1_000_000;
+
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    database.exec({
-      sql: `
-        INSERT INTO
-          building_fields (village_id, field_id, building_id, level)
-        SELECT
-          $village_id, 20, id, 1
-        FROM
-          building_ids
-        WHERE
-          building = 'HUNTERS_LODGE'
-        ON CONFLICT(village_id, field_id) DO UPDATE SET
-          building_id = EXCLUDED.building_id,
-          level = EXCLUDED.level;
-      `,
-      bind: {
-        $village_id: villageId,
-      },
-    });
+    setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 1, 20);
 
     database.exec({
       sql: `
@@ -103,27 +91,10 @@ describe('hunters lodge resolvers', () => {
   });
 
   test('huntersLodgeHunt should add one eligible animal to the village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
-      sql: `
-        INSERT INTO
-          building_fields (village_id, field_id, building_id, level)
-        SELECT
-          $village_id, 20, id, 1
-        FROM
-          building_ids
-        WHERE
-          building = 'HUNTERS_LODGE'
-        ON CONFLICT(village_id, field_id) DO UPDATE SET
-          building_id = EXCLUDED.building_id,
-          level = EXCLUDED.level;
-      `,
-      bind: {
-        $village_id: villageId,
-      },
-    });
+    setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 1, 20);
 
     createEvents<'huntersLodgeHunt'>(database, {
       type: 'huntersLodgeHunt',
@@ -153,7 +124,7 @@ describe('hunters lodge resolvers', () => {
           effects e
             JOIN effect_ids ei ON ei.id = e.effect_id
         WHERE
-          e.village_id = $village_id
+          e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
@@ -201,7 +172,7 @@ describe('hunters lodge resolvers', () => {
       schema: z.strictObject({
         unitId: unitIdSchema,
         amount: z.number(),
-        sourceTileId: z.number(),
+        sourceTileId: tileIdSchema,
       }),
     });
 
@@ -212,7 +183,7 @@ describe('hunters lodge resolvers', () => {
           effects e
             JOIN effect_ids ei ON ei.id = e.effect_id
         WHERE
-          e.village_id = $village_id
+          e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
@@ -250,7 +221,7 @@ describe('hunters lodge resolvers', () => {
         timestamp: z.int(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        village_tile_id: z.int(),
+        village_tile_id: tileIdSchema,
         unit_id: unitIdSchema,
         amount: z.int(),
       }),
@@ -262,10 +233,28 @@ describe('hunters lodge resolvers', () => {
       report_outcome: 'huntingParty',
       village_tile_id: database.selectValue({
         sql: 'SELECT tile_id FROM villages WHERE id = 1;',
-        schema: z.int(),
+        schema: tileIdSchema,
       }),
       unit_id: caughtAnimals[0].unitId,
       amount: 1,
     });
+
+    const completedCaptureQuestCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM quests
+        WHERE
+          village_id IS NULL
+          AND completed_at IS NOT NULL
+          AND quest_id IN (
+            'captureAnimalCountById-RAT-1',
+            'captureAnimalCountById-SPIDER-1',
+            'captureAnimalCountById-SERPENT-1'
+          );
+      `,
+      schema: z.number(),
+    });
+
+    expect(completedCaptureQuestCount).toBe(1);
   });
 });

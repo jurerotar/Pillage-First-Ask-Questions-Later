@@ -1,18 +1,30 @@
-import { IoCopyOutline } from 'react-icons/io5';
+import { FaRedditAlien } from 'react-icons/fa';
+import { FaDiscord } from 'react-icons/fa6';
+import { Button } from 'app/components/ui/button';
 
 type CopyReleaseButtonProps = {
   text: string;
+  platform: 'Reddit' | 'Discord';
 };
 
-export const CopyReleaseButton = ({ text }: CopyReleaseButtonProps) => {
+export const CopyReleaseButton = ({
+  text,
+  platform,
+}: CopyReleaseButtonProps) => {
   return (
-    <button
+    <Button
       type="button"
+      variant="secondary"
       onClick={async () => navigator.clipboard.writeText(text)}
-      title="Copy release markdown"
-      className="absolute top-0 right-0 p-1.5 text-xs rounded border border-black/10 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+      title={`Copy release markdown for ${platform}`}
+      aria-label={`Copy release markdown for ${platform}`}
+      className="flex items-center gap-1 p-1.5 text-xs rounded border border-black/10 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
     >
-      <IoCopyOutline className="size-4" />
-    </button>
+      {platform === 'Discord' ? (
+        <FaDiscord className="size-5" />
+      ) : (
+        <FaRedditAlien className="size-5" />
+      )}
+    </Button>
   );
 };

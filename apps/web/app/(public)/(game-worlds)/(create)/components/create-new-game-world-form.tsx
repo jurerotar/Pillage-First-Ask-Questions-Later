@@ -1,4 +1,3 @@
-import { faro } from '@grafana/faro-web-sdk';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { clsx } from 'clsx';
@@ -6,6 +5,7 @@ import { randomInt } from 'moderndash';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { LuRefreshCcw } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import {
@@ -15,6 +15,7 @@ import {
 import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { env } from '@pillage-first/utils/env';
+import { useBrowserStorageQuota } from 'app/(public)/(game-worlds)/(create)/hooks/use-browser-storage-quota';
 import type {
   CreateNewGameWorldWorkerPayload,
   CreateNewGameWorldWorkerResponse,
@@ -84,6 +85,10 @@ const createServerFromFormValues = (values: CreateServerFormValues) => {
     version: env.VERSION,
     createdAt: Date.now(),
     ...values,
+    configuration: {
+      ...values.configuration,
+      culturePointsRequirementSpeed: 1,
+    },
   };
 };
 
@@ -94,8 +99,13 @@ type MutateArgs = {
 export const CreateNewGameWorldForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { createGameWorld, deleteGameWorld } = useGameWorldActions();
+  const { createGameWorld, deleteGameWorldData } = useGameWorldActions();
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
+  const {
+    checkStorageQuota,
+    hasUnavailableStorageQuota,
+    isCheckingStorageQuota,
+  } = useBrowserStorageQuota();
   const generationOverviewRef = useRef<HTMLDivElement>(null);
 
   const steps = [
@@ -118,9 +128,9 @@ export const CreateNewGameWorldForm = () => {
     error,
     isPending,
     isSuccess,
-  } = useMutation<number, Error, MutateArgs>({
+  } = useMutation<void, Error, MutateArgs>({
     mutationFn: async ({ server }) => {
-      return new Promise<number>((resolve, reject) => {
+      return new Promise<void>((resolve, reject) => {
         const worker = new Worker(CreateNewGameWorldWorker, { type: 'module' });
         const channel = new MessageChannel();
 
@@ -132,68 +142,59 @@ export const CreateNewGameWorldForm = () => {
           [channel.port2],
         );
 
-        channel.port1.onmessage = (
-          event: MessageEvent<CreateNewGameWorldWorkerResponse>,
-        ) => {
-          const data = event.data;
+        channel.port1.addEventListener(
+          'message',
+          (event: MessageEvent<CreateNewGameWorldWorkerResponse>) => {
+            const { data } = event;
 
-          if (data.type === 'progress') {
-            setCurrentStepIndex((currentIndex) => {
-              return currentIndex + 1;
-            });
-          } else if (data.type === 'result') {
-            setCurrentStepIndex(steps.length);
-            worker.terminate();
-            channel.port1.close();
-            resolve(data.migrationDuration);
-          } else if (data.type === 'error') {
-            const error = new Error(data.message);
-            if (data.stack) {
-              error.stack = data.stack;
+            if (data.type === 'progress') {
+              setCurrentStepIndex((currentIndex) => {
+                return currentIndex + 1;
+              });
+            } else if (data.type === 'result') {
+              setCurrentStepIndex(steps.length);
+              worker.terminate();
+              channel.port1.close();
+              resolve();
+            } else if (data.type === 'error') {
+              const error = new Error(data.message);
+              if (data.stack) {
+                error.stack = data.stack;
+              }
+
+              reportError(error, 'Game world seeding failed', {
+                source: 'CreateNewGameWorldForm',
+              });
+
+              worker.terminate();
+              channel.port1.close();
+              reject(error);
             }
+          },
+        );
 
-            reportError(error, 'Game world seeding failed', {
-              source: 'CreateNewGameWorldForm',
-            });
+        channel.port1.start();
 
-            worker.terminate();
-            channel.port1.close();
-            reject(error);
-          }
-        };
-
-        worker.onerror = (err) => {
+        worker.addEventListener('error', (err) => {
           worker.terminate();
           channel.port1.close();
           reject(err);
-        };
+        });
       });
     },
     onMutate: () => {
       setCurrentStepIndex(0);
     },
-    onSuccess: async (
-      migrationDuration,
-      { server },
-      _onMutateResult,
-      context,
-    ) => {
-      faro.api?.pushMeasurement({
-        type: 'performance',
-        values: {
-          migration_and_seed_duration: migrationDuration,
-        },
-      });
-
-      pushGameWorldCreated(server, {
-        migration_duration_ms: migrationDuration,
-      });
+    onSuccess: async (_, { server }, _onMutateResult, context) => {
+      pushGameWorldCreated(server);
 
       await createGameWorld({ server });
       await invalidateQueries(context, [[availableServerCacheKey]]);
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
-    onError: (_, { server }) => deleteGameWorld({ server }),
+    onError: (_, { server }) => {
+      void deleteGameWorldData({ server });
+    },
   });
 
   const form = useForm<CreateServerFormValues>({
@@ -215,7 +216,13 @@ export const CreateNewGameWorldForm = () => {
     },
   });
 
-  const onSubmit = (values: CreateServerFormValues) => {
+  const onSubmit = async (values: CreateServerFormValues) => {
+    const isStorageUnavailable = await checkStorageQuota();
+
+    if (isStorageUnavailable) {
+      return;
+    }
+
     const server = createServerFromFormValues(values);
 
     // @ts-expect-error - Not an error, values for speed and mapSize are already cast as numbers
@@ -248,42 +255,37 @@ export const CreateNewGameWorldForm = () => {
 
   return (
     <div className="relative">
-      <div className={clsx(isPending && 'blur-sm pointer-events-none')}>
+      <div
+        className={clsx(
+          'flex flex-col gap-2 p-2 shadow-xl rounded-md border border-border',
+          (isPending || hasUnavailableStorageQuota) &&
+            'blur-sm pointer-events-none',
+        )}
+      >
+        <Text as="h2">Configuration</Text>
+
+        <Alert variant="error">
+          The game is still in development. Updates may make existing worlds
+          incompatible, so please use it for testing only until release.
+        </Alert>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 p-2 shadow-xl rounded-md border border-border"
+            className="flex flex-col gap-4"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-6">
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <Text as="h2">Game world configuration</Text>
+                    <Text as="h3">Game world</Text>
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="seed"
-                    render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Seed</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={isPending || isSuccess}
-                            placeholder="abc123"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   <FormField
                     control={form.control}
                     name="name"
                     disabled={isPending || isSuccess}
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input
@@ -298,72 +300,106 @@ export const CreateNewGameWorldForm = () => {
 
                   <FormField
                     control={form.control}
-                    name="configuration.mapSize"
+                    name="seed"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Size</FormLabel>
-                        <Select
-                          disabled={isPending || isSuccess}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
+                      <FormItem className="flex flex-col gap-2">
+                        <FormLabel>Seed</FormLabel>
+                        <div className="relative">
                           <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
+                            <Input
+                              className="pr-9"
+                              disabled={isPending || isSuccess}
+                              placeholder="abc123"
+                              {...field}
+                            />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="100">100x100</SelectItem>
-                            <SelectItem value="200">200x200</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <button
+                            aria-label={t('Randomize seed')}
+                            className="absolute inset-y-px right-px flex w-8 items-center justify-center rounded-r-md text-muted-foreground transition-colors hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50"
+                            disabled={isPending || isSuccess}
+                            onClick={() => {
+                              field.onChange(generateSeed());
+                            }}
+                            type="button"
+                          >
+                            <LuRefreshCcw className="size-4" />
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="configuration.speed"
-                    render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Speed</FormLabel>
-                        <Select
-                          disabled={isPending || isSuccess}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">1x</SelectItem>
-                            <SelectItem value="2">2x</SelectItem>
-                            <SelectItem value="3">3x</SelectItem>
-                            <SelectItem value="5">5x</SelectItem>
-                            <SelectItem value="10">10x</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                    <FormField
+                      control={form.control}
+                      name="configuration.mapSize"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col gap-2">
+                          <FormLabel>Size</FormLabel>
+                          <Select
+                            disabled={isPending || isSuccess}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="100">100x100</SelectItem>
+                              <SelectItem value="200">200x200</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="configuration.speed"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col gap-2">
+                          <FormLabel>Speed</FormLabel>
+                          <Select
+                            disabled={isPending || isSuccess}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="1">1x</SelectItem>
+                              <SelectItem value="2">2x</SelectItem>
+                              <SelectItem value="3">3x</SelectItem>
+                              <SelectItem value="5">5x</SelectItem>
+                              <SelectItem value="10">10x</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="flex flex-col gap-6">
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <Text as="h2">Player configuration</Text>
+                    <Text as="h3">Player</Text>
                   </div>
                   <FormField
                     control={form.control}
                     name="playerConfiguration.name"
                     disabled={isPending || isSuccess}
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -377,7 +413,7 @@ export const CreateNewGameWorldForm = () => {
                     control={form.control}
                     name="playerConfiguration.tribe"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Tribe</FormLabel>
                         <Select
                           disabled={isPending || isSuccess}
@@ -408,7 +444,7 @@ export const CreateNewGameWorldForm = () => {
             {/*  <summary className="py-2 underline hover:cursor-pointer">*/}
             {/*    Advanced options*/}
             {/*  </summary>*/}
-            {/*  <div className="space-y-4 px-2">*/}
+            {/*  <div className="flex flex-col gap-4 px-2">*/}
             {/*    <div className="flex flex-col">*/}
             {/*      <Text*/}
             {/*        className="text-lg"*/}
@@ -454,7 +490,13 @@ export const CreateNewGameWorldForm = () => {
             <div className="flex justify-end">
               <Button
                 size="fit"
-                disabled={isPending || isSuccess || isError}
+                disabled={
+                  isPending ||
+                  isSuccess ||
+                  isError ||
+                  isCheckingStorageQuota ||
+                  hasUnavailableStorageQuota
+                }
                 type="submit"
               >
                 Create world
@@ -463,13 +505,33 @@ export const CreateNewGameWorldForm = () => {
           </form>
         </Form>
       </div>
+      {hasUnavailableStorageQuota && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-xs z-10 rounded-md">
+          <div className="flex flex-col gap-4 p-4 shadow-2xl rounded-lg border border-border bg-background max-w-sm w-full mx-4">
+            <div className="flex flex-col gap-2">
+              <Text
+                as="h2"
+                className="text-lg font-bold"
+              >
+                Browser storage is unavailable
+              </Text>
+              <Alert variant="error">
+                Pillage First! requires access to browser storage to function
+                properly. Your browser does not allow data storage. This issue
+                happens most often in iOS Safari's Private Mode. Please turn off
+                Private Mode, then try again.
+              </Alert>
+            </div>
+          </div>
+        </div>
+      )}
       {isPending && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-xs z-10 rounded-md">
           <div
             ref={generationOverviewRef}
             className="flex flex-col gap-4 p-6 shadow-2xl rounded-lg border border-border bg-background max-w-sm w-full mx-4"
           >
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Text
                 as="h2"
                 className="text-lg font-bold"
@@ -491,7 +553,7 @@ export const CreateNewGameWorldForm = () => {
                 aria-hidden="true"
               >
                 <div
-                  className="w-full rounded-full bg-success transition-[height] duration-500"
+                  className="w-full rounded-full bg-success transition-[height]"
                   style={{ height: `${generationProgress}%` }}
                 />
               </div>
@@ -511,7 +573,7 @@ export const CreateNewGameWorldForm = () => {
                     >
                       <div
                         className={clsx(
-                          'size-3 rounded-full transition-colors duration-300',
+                          'size-3 rounded-full transition-colors',
                           isCompleted ? 'bg-success' : 'bg-muted-foreground/30',
                           isCurrent && 'bg-muted-foreground/60 animate-pulse',
                         )}
@@ -519,7 +581,7 @@ export const CreateNewGameWorldForm = () => {
                     </div>
                     <Text
                       className={clsx(
-                        'text-sm transition-colors duration-300',
+                        'text-sm transition-colors',
                         isCompleted && 'text-foreground font-medium',
                         isCurrent && 'text-primary font-bold',
                         !isCompleted && !isCurrent && 'text-muted-foreground',

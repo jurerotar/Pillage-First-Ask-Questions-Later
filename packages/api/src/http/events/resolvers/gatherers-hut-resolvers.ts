@@ -1,9 +1,11 @@
 import { z } from 'zod';
 import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
+import { assessGatheredResourceCountQuestCompletion } from '../../../utils/quests';
 import { insertGatheringExpeditionReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
-import { addVillageResourcesAt } from '../../../utils/village';
+import { addResourceSiteResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const gatherersHutGatheringTripResolver: Resolver<
@@ -21,20 +23,21 @@ export const gatherersHutGatheringTripResolver: Resolver<
 
   addTroops(database, troops);
 
-  addVillageResourcesAt(database, villageId, resolvesAt, loot);
-
   const village = database.selectObject({
     sql: `
-      SELECT v.tile_id, p.tribe_id
+      SELECT v.tile_id, v.player_id, p.tribe_id
       FROM villages v JOIN players p ON p.id = v.player_id
       WHERE v.id = $village_id;
     `,
     bind: { $village_id: villageId },
     schema: z.strictObject({
-      tile_id: z.int(),
+      tile_id: tileIdSchema,
+      player_id: z.number(),
       tribe_id: z.int(),
     }),
   })!;
+
+  addResourceSiteResourcesAt(database, village.tile_id, resolvesAt, loot);
 
   insertGatheringExpeditionReport(database, {
     villageId,
@@ -44,6 +47,12 @@ export const gatherersHutGatheringTripResolver: Resolver<
     loot,
     units: troops,
   });
+
+  assessGatheredResourceCountQuestCompletion(
+    database,
+    resolvesAt,
+    village.player_id,
+  );
 
   database.exec({
     sql: `
@@ -59,5 +68,6 @@ export const gatherersHutGatheringTripResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [village.tile_id],
   };
 };

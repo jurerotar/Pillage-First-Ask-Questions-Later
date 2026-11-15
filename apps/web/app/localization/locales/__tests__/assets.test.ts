@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { items } from '@pillage-first/game-assets/items';
 import { icons } from 'app/components/icons/icons';
 import enUSAssets from '../en-US/assets.json' with { type: 'json' };
 
@@ -6,6 +7,20 @@ const locales = [{ locale: 'en-US', data: enUSAssets }];
 
 // map to array-of-tuples [locale, data] so describe.each can use %s for the locale string
 const localesArr = locales.map(({ locale, data }) => [locale, data] as const);
+
+const getMissingKeys = (
+  requiredKeys: string[],
+  candidateKeys: string[],
+): string[] => {
+  return requiredKeys.filter((key) => !candidateKeys.includes(key));
+};
+
+const getUnexpectedKeys = (
+  allowedKeys: string[],
+  candidateKeys: string[],
+): string[] => {
+  return candidateKeys.filter((key) => !allowedKeys.includes(key));
+};
 
 describe('localization completeness check for assets.json', () => {
   describe.each(localesArr)('locale: %s', (_locale, data) => {
@@ -23,7 +38,6 @@ describe('localization completeness check for assets.json', () => {
           Object.hasOwn(unitData, 'DESCRIPTION'),
           `Missing DESCRIPTION in UNITS.${unitKey}`,
         ).toBe(true);
-
         expect(unitData.NAME, `UNITS.${unitKey}.NAME is empty`).not.toBe('');
         expect(
           unitData.NAME_other,
@@ -52,7 +66,6 @@ describe('localization completeness check for assets.json', () => {
           Object.hasOwn(buildingData, 'DESCRIPTION'),
           `Missing DESCRIPTION in BUILDINGS.${buildingKey}`,
         ).toBe(true);
-
         expect(
           buildingData.NAME,
           `BUILDINGS.${buildingKey}.NAME is empty`,
@@ -66,6 +79,20 @@ describe('localization completeness check for assets.json', () => {
           `BUILDINGS.${buildingKey}.DESCRIPTION is empty`,
         ).not.toBe('');
       }
+    });
+
+    test('items should match game asset item definitions', () => {
+      const itemDefinitionKeys = items.map((item) => item.name).toSorted();
+      const localizedItemKeys = Object.keys(data.ITEMS).toSorted();
+
+      expect(
+        getMissingKeys(itemDefinitionKeys, localizedItemKeys),
+        'Missing ITEMS keys',
+      ).toStrictEqual([]);
+      expect(
+        getUnexpectedKeys(itemDefinitionKeys, localizedItemKeys),
+        'Unexpected ITEMS keys',
+      ).toStrictEqual([]);
     });
 
     test('items should have NAME, NAME_other and DESCRIPTION set', () => {
@@ -87,8 +114,10 @@ describe('localization completeness check for assets.json', () => {
           itemData.NAME_other,
           `ITEMS.${itemKey}.NAME_other is empty`,
         ).not.toBe('');
-        // TODO: Fill in the DESCRIPTION fields
-        // expect(itemData.NAME, `ITEMS.${itemKey}.DESCRIPTION is empty`).not.toBe('');
+        expect(
+          itemData.DESCRIPTION,
+          `ITEMS.${itemKey}.DESCRIPTION is empty`,
+        ).not.toBe('');
       }
     });
 

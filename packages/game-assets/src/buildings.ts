@@ -54,19 +54,6 @@ const createResourceBoosterEffect = (
   };
 };
 
-const createOasisBonusBoosterEffect = (
-  effectId: ResourceProductionEffectId,
-): BuildingEffect => {
-  return {
-    effectId,
-    valuesPerLevel: [
-      1, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65,
-      1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2,
-    ],
-    type: 'bonus-booster',
-  };
-};
-
 const createTroopDurationEffect = (
   effectId: TroopTrainingDurationEffectId,
 ): BuildingEffect => {
@@ -421,12 +408,9 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 2,
-    effects: () => [
-      createOasisBonusBoosterEffect('woodProduction'),
-      createOasisBonusBoosterEffect('clayProduction'),
-      createOasisBonusBoosterEffect('ironProduction'),
-      createOasisBonusBoosterEffect('wheatProduction'),
-    ],
+    // Waterworks modifies occupied oasis bonus rows directly when an oasis is
+    // captured or the building level changes, so it has no generic effect rows.
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -1199,7 +1183,7 @@ export const buildings: Building[] = [
       },
     ],
     baseBuildingCost: [3210, 2050, 2750, 3830],
-    buildingCostCoefficient: 1.4,
+    buildingCostCoefficient: 1.24,
     maxLevel: 20,
     buildingDurationBase: 1.16,
     buildingDurationModifier: 11_750,
@@ -1508,7 +1492,7 @@ export const buildings: Building[] = [
         level: 1,
       },
     ],
-    baseBuildingCost: [1400, 1330, 1200, 400],
+    baseBuildingCost: [180, 130, 150, 80],
     buildingCostCoefficient: 1.28,
     maxLevel: 20,
     buildingDurationBase: 1.16,
@@ -1637,9 +1621,11 @@ export const buildings: Building[] = [
       },
       {
         id: 3,
-        type: 'building',
-        buildingId: 'GRANARY',
-        level: 20,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'GRANARY', level: 20 },
+          { id: 2, type: 'building', buildingId: 'GREAT_GRANARY', level: 20 },
+        ],
       },
     ],
     baseBuildingCost: [400, 500, 350, 100],
@@ -1669,9 +1655,11 @@ export const buildings: Building[] = [
       },
       {
         id: 3,
-        type: 'building',
-        buildingId: 'WAREHOUSE',
-        level: 20,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'WAREHOUSE', level: 20 },
+          { id: 2, type: 'building', buildingId: 'GREAT_WAREHOUSE', level: 20 },
+        ],
       },
     ],
     baseBuildingCost: [650, 800, 450, 200],

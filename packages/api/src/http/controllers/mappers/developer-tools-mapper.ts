@@ -23,5 +23,7 @@ export const mapDeveloperSettingsRowToDto = (
     isFreeUnitResearchEnabled: Boolean(row.is_free_unit_research_enabled),
     isFreeHuntingPartiesEnabled: Boolean(row.is_free_hunting_parties_enabled),
     isInstantHeroReviveEnabled: Boolean(row.is_instant_hero_revive_enabled),
+    isFreeCelebrationsEnabled: Boolean(row.is_free_celebrations_enabled),
+    isInstantCelebrationsEnabled: Boolean(row.is_instant_celebrations_enabled),
     isFreeHeroReviveEnabled: Boolean(row.is_free_hero_revive_enabled),
   });

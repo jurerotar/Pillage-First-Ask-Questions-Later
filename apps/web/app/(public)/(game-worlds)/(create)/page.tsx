@@ -4,7 +4,6 @@ import { CreateNewGameWorldForm } from 'app/(public)/(game-worlds)/(create)/comp
 import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
-import { Alert } from 'app/components/ui/alert';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -53,19 +52,10 @@ const CreateNewGameWorldPage = () => {
             {t('Create a new game world')}
           </Text>
           <Text>
-            Creating a new game world will generate a game state and store it in
-            your browser's persistent memory. You can safely close the tab or
-            browser at any time, your server will still be there when you
-            return. A link to your new server will appear in the server list on
-            the homepage, and you'll be automatically redirected to it after
-            creation.
+            Game world states are stored in your browser's persistent memory.
+            You can safely close the tab or browser at any time.
           </Text>
-          <Alert variant="error">
-            The game is still in development, game worlds may become
-            incompatible between updates. This means worlds will sometimes need
-            to be <b>deleted and recreated</b>. Please use the app for testing
-            purposes only until the full release.
-          </Alert>
+
           <CreateNewGameWorldForm />
 
           <div className="flex flex-col gap-2">

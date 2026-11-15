@@ -11,13 +11,16 @@ import {
 } from '../../units';
 import {
   calculateMaxUnits,
+  calculateSmithyImprovedUnitValue,
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
+  getSmithyUpgradeableUnitsByTribe,
   getUnitByTribeAndTier,
   getUnitDefinition,
   getUnitsByTribe,
+  isSmithyUpgradeableUnit,
 } from '../units';
 
 describe('units', () => {
@@ -41,31 +44,50 @@ describe('units', () => {
 
   test('getUnitByTribeAndTier returns correct unit', () => {
     const unit = getUnitByTribeAndTier('romans', mockUnit.tier);
+
     expect(unit.tier).toBe(mockUnit.tier);
     expect(getUnitsByTribe('romans')).toContain(unit);
+  });
+
+  test('isSmithyUpgradeableUnit excludes administration units', () => {
+    expect(isSmithyUpgradeableUnit(getUnitDefinition('ROMAN_CHIEF'))).toBe(
+      false,
+    );
+    expect(isSmithyUpgradeableUnit(mockUnit)).toBe(true);
+  });
+
+  test('getSmithyUpgradeableUnitsByTribe excludes administration units', () => {
+    const smithyUnits = getSmithyUpgradeableUnitsByTribe('romans');
+
+    expect(smithyUnits).not.toContain(getUnitDefinition('ROMAN_CHIEF'));
+    expect(smithyUnits).toContain(mockUnit);
   });
 
   test('calculateMaxUnits returns correct max number of units', () => {
     const resources = { wood: 1000, clay: 1000, iron: 1000, wheat: 1000 };
     const costs = [100, 200, 300, 400];
     const result = calculateMaxUnits(resources, costs);
+
     expect(result).toBe(2);
   });
 
   test('calculateMaxUnits returns 0 if resources are zero', () => {
     const resources = { wood: 0, clay: 0, iron: 0, wheat: 0 };
     const costs = [1, 1, 1, 1];
+
     expect(calculateMaxUnits(resources, costs)).toBe(0);
   });
 
   test('calculateUnitUpgradeCostForLevel returns correct cost at level 2', () => {
     const result = calculateUnitUpgradeCostForLevel(mockUnitId, 2);
-    expect(result).toStrictEqual([675, 880, 1080, 475]);
+
+    expect(result).toStrictEqual([600, 780, 960, 420]);
   });
 
   test('calculateUnitUpgradeDurationForLevel returns correct duration at level 2', () => {
     const result = calculateUnitUpgradeDurationForLevel(mockUnitId, 2);
-    expect(result).toBe(14_256_000);
+
+    expect(result).toBe(2_024_000);
   });
 
   test('upgrade cost increases consistently with level', () => {
@@ -80,16 +102,29 @@ describe('units', () => {
   test('upgrade duration increases with level', () => {
     const level2 = calculateUnitUpgradeDurationForLevel(mockUnitId, 2);
     const level3 = calculateUnitUpgradeDurationForLevel(mockUnitId, 3);
+
     expect(level3).toBeGreaterThan(level2);
+  });
+
+  test('calculateSmithyImprovedUnitValue returns unit attribute value for upgrade level', () => {
+    expect(
+      calculateSmithyImprovedUnitValue({
+        baseValue: mockUnit.attack,
+        level: 2,
+        upkeep: mockUnit.unitWheatConsumption,
+      }),
+    ).toBeCloseTo(31.02, 2);
   });
 
   test('calculateUnitResearchCost returns correct values', () => {
     const result = calculateUnitResearchCost(mockUnitId);
+
     expect(result).toStrictEqual([1000, 1300, 1600, 700]);
   });
 
   test('calculateUnitResearchDuration returns correct value', () => {
     const result = calculateUnitResearchDuration(mockUnitId);
+
     expect(result).toBe(14_080_000);
   });
 });

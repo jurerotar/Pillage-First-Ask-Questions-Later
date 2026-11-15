@@ -33,7 +33,6 @@ type BaseBuildingEvent = {
 };
 
 type BuildingLevelChangeEvent = BaseBuildingEvent;
-type BuildingScheduledConstructionEvent = BaseBuildingEvent;
 type BuildingDestructionEvent = BaseBuildingEvent;
 
 type UnitResearchEvent = {
@@ -87,10 +86,22 @@ type BaseMerchantRouteEvent = {
 
 type BaseMerchantMovementEvent = BaseMerchantRouteEvent & {
   merchantAmount: number;
+  repeatRemaining: number;
+  repeatResources: Resources;
 };
 
-type TradeRouteEvent = BaseMerchantRouteEvent & {
-  interval: number;
+type TradeRouteEvent = {
+  tradeRouteId: number;
+};
+
+export const culturePointsCelebrationTypeSchema = z.enum(['small', 'large']);
+
+export type CulturePointsCelebrationType = z.infer<
+  typeof culturePointsCelebrationTypeSchema
+>;
+
+type CulturePointsCelebrationEvent = {
+  celebrationType: CulturePointsCelebrationType;
 };
 
 export type TroopMovementEventType = Extract<
@@ -133,7 +144,6 @@ export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
 };
 
 export const gameEventTypeSchema = z.enum([
-  'buildingScheduledConstruction',
   'buildingConstruction',
   'buildingLevelChange',
   'buildingDestruction',
@@ -155,15 +165,25 @@ export const gameEventTypeSchema = z.enum([
   'heroRevival',
   'heroHealthRegeneration',
   'loyaltyIncrease',
+  'culturePointsCelebration',
   'resourceTransfer',
   'tradeRoute',
+]);
+
+export const troopMovementTypeSchema = gameEventTypeSchema.extract([
+  'troopMovementReinforcements',
+  'troopMovementRelocation',
+  'troopMovementReturn',
+  'troopMovementFindNewVillage',
+  'troopMovementAttack',
+  'troopMovementRaid',
+  'troopMovementOasisOccupation',
+  'troopMovementAdventure',
 ]);
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
-  buildingScheduledConstruction: BuildingScheduledConstructionEvent &
-    VillageGameEvent;
   buildingConstruction: BaseBuildingEvent & VillageGameEvent;
   buildingLevelChange: BuildingLevelChangeEvent & VillageGameEvent;
   buildingDestruction: BuildingDestructionEvent & VillageGameEvent;
@@ -185,6 +205,7 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   heroRevival: VillageGameEvent;
   heroHealthRegeneration: GlobalGameEvent;
   loyaltyIncrease: GlobalGameEvent;
+  culturePointsCelebration: CulturePointsCelebrationEvent & VillageGameEvent;
   resourceTransfer: BaseMerchantMovementEvent & VillageGameEvent;
   tradeRoute: TradeRouteEvent & VillageGameEvent;
 }[T];
@@ -201,7 +222,6 @@ export type TroopMovementEvent =
 
 export type BuildingEvent =
   | GameEvent<'buildingDestruction'>
-  | GameEvent<'buildingScheduledConstruction'>
   | GameEvent<'buildingLevelChange'>
   | GameEvent<'buildingConstruction'>;
 

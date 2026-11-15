@@ -1,8 +1,14 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import {
+  prepareTestDatabase,
+  setTestBuildingLevel,
+} from '@pillage-first/api/testing';
+import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { buildingLevelChangeResolver } from '../../events/resolvers/building-resolvers';
 import { abandonOasis, occupyOasis } from '../oasis-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -10,7 +16,7 @@ describe('oasis-controllers', () => {
   const villageRowSchema = z.strictObject({
     id: z.number(),
     player_id: z.number(),
-    tile_id: z.number(),
+    tile_id: tileIdSchema,
   });
 
   const insertResourceSite = (database: DbFacade, tileId: number) => {
@@ -77,8 +83,43 @@ describe('oasis-controllers', () => {
     });
   };
 
+  const selectOccupiedOasisBonusEffects = (
+    database: DbFacade,
+    villageTileId: number,
+    oasisTileId: number,
+  ) => {
+    return database.selectObjects({
+      sql: `
+        SELECT
+          e.value,
+          o.bonus
+        FROM
+          effects e
+            JOIN effect_ids ei ON ei.id = e.effect_id
+            JOIN resource_ids ri ON ei.effect = ri.resource || 'Production'
+            JOIN oasis o ON o.resource_id = ri.id
+              AND o.tile_id = e.source_specifier
+        WHERE
+          e.tile_id = $village_tile_id
+          AND e.source_specifier = $oasis_tile_id
+          AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'bonus')
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+        ORDER BY
+          ei.effect;
+      `,
+      bind: {
+        $village_tile_id: villageTileId,
+        $oasis_tile_id: oasisTileId,
+      },
+      schema: z.strictObject({
+        value: z.number(),
+        bonus: z.number(),
+      }),
+    });
+  };
+
   test('occupyOasis should occupy an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
@@ -92,8 +133,8 @@ describe('oasis-controllers', () => {
 
     occupyOasis(
       database,
-      createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'post'>({
-        path: { villageId: village.id, oasisId: oasisTileId },
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: village.tile_id, oasisTileId },
       }),
     );
 
@@ -106,8 +147,154 @@ describe('oasis-controllers', () => {
     expect(occupyingVillageId).toBe(village.id);
   });
 
+  test('occupyOasis should move oasis effects from previous owner', async () => {
+    using database = await prepareTestDatabase();
+
+    const [previousOwner, nextOwner] = database.selectObjects({
+      sql: 'SELECT id, player_id, tile_id FROM villages ORDER BY id LIMIT 2',
+      schema: villageRowSchema,
+    });
+
+    const oasisTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
+      schema: z.number(),
+    })!;
+
+    occupyOasis(
+      database,
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: previousOwner.tile_id, oasisTileId },
+      }),
+    );
+
+    occupyOasis(
+      database,
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: nextOwner.tile_id, oasisTileId },
+      }),
+    );
+
+    const previousOwnerEffectCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM
+          effects
+        WHERE
+          tile_id = $tile_id
+          AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+          AND source_specifier = $oasis_tile_id;
+      `,
+      bind: {
+        $tile_id: previousOwner.tile_id,
+        $oasis_tile_id: oasisTileId,
+      },
+      schema: z.number(),
+    });
+
+    const nextOwnerEffectCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM
+          effects
+        WHERE
+          tile_id = $tile_id
+          AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+          AND source_specifier = $oasis_tile_id;
+      `,
+      bind: {
+        $tile_id: nextOwner.tile_id,
+        $oasis_tile_id: oasisTileId,
+      },
+      schema: z.number(),
+    });
+
+    expect(previousOwnerEffectCount).toBe(0);
+    expect(nextOwnerEffectCount).toBeGreaterThan(0);
+  });
+
+  test('occupyOasis should apply current Waterworks multiplier to oasis effects', async () => {
+    using database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
+      schema: villageRowSchema,
+    })!;
+
+    setTestBuildingLevel(database, village.id, 'WATERWORKS', 20, 19);
+
+    const oasisTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
+      schema: z.number(),
+    })!;
+
+    occupyOasis(
+      database,
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: village.tile_id, oasisTileId },
+      }),
+    );
+
+    const effects = selectOccupiedOasisBonusEffects(
+      database,
+      village.tile_id,
+      oasisTileId,
+    );
+
+    expect(effects.length).toBeGreaterThan(0);
+
+    for (const { value, bonus } of effects) {
+      expect(value).toBe(1 + (bonus / 100) * 2);
+    }
+  });
+
+  test('waterworks level changes should update occupied oasis effects', async () => {
+    using database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
+      schema: villageRowSchema,
+    })!;
+
+    const oasisTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
+      schema: z.number(),
+    })!;
+
+    occupyOasis(
+      database,
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: village.tile_id, oasisTileId },
+      }),
+    );
+
+    setTestBuildingLevel(database, village.id, 'WATERWORKS', 1, 19);
+
+    buildingLevelChangeResolver(
+      database,
+      createBuildingLevelChangeEventMock({
+        villageId: village.id,
+        buildingId: 'WATERWORKS',
+        buildingFieldId: 19,
+        previousLevel: 1,
+        level: 20,
+      }),
+    );
+
+    const effects = selectOccupiedOasisBonusEffects(
+      database,
+      village.tile_id,
+      oasisTileId,
+    );
+
+    expect(effects.length).toBeGreaterThan(0);
+
+    for (const { value, bonus } of effects) {
+      expect(value).toBe(1 + (bonus / 100) * 2);
+    }
+  });
+
   test('abandonOasis should abandon an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
@@ -129,8 +316,8 @@ describe('oasis-controllers', () => {
 
     abandonOasis(
       database,
-      createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'delete'>({
-        path: { villageId: village.id, oasisId: oasisTileId },
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'delete'>({
+        path: { tileId: village.tile_id, oasisTileId },
       }),
     );
 
@@ -144,7 +331,7 @@ describe('oasis-controllers', () => {
   });
 
   test('abandonOasis should return oasis reinforcements to each source village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const owningVillage = database.selectObject({
       sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
@@ -179,7 +366,7 @@ describe('oasis-controllers', () => {
         $oasis_tile_id: oasisTileId,
         $owning_tile_id: owningVillage.tile_id,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     });
 
     expect(sourceTileIds).toHaveLength(2);
@@ -190,6 +377,7 @@ describe('oasis-controllers', () => {
       owningVillage.player_id,
       'First Oasis Reinforcement Source',
     );
+
     const secondSourceVillageId = insertVillage(
       database,
       sourceTileIds[1],
@@ -203,8 +391,8 @@ describe('oasis-controllers', () => {
 
     abandonOasis(
       database,
-      createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'delete'>({
-        path: { villageId: owningVillage.id, oasisId: oasisTileId },
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'delete'>({
+        path: { tileId: owningVillage.tile_id, oasisTileId },
       }),
     );
 
@@ -242,8 +430,8 @@ describe('oasis-controllers', () => {
       },
       schema: z.strictObject({
         village_id: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         first_unit_id: unitIdSchema,
         first_amount: z.number(),
         troop_groups: z.number(),
@@ -258,7 +446,7 @@ describe('oasis-controllers', () => {
 
     expect(remainingReinforcements).toBe(0);
     expect(occupyingVillageId).toBeNull();
-    expect(returnEvents).toEqual([
+    expect(returnEvents).toStrictEqual([
       {
         first_amount: 5,
         first_unit_id: 'LEGIONNAIRE',

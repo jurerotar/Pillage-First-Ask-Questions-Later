@@ -4,6 +4,17 @@ import type {
   QuestRequirement,
   QuestReward,
 } from '@pillage-first/types/models/quest';
+import type { NatureUnitId } from '@pillage-first/types/models/unit';
+
+const MAX_RESOURCE_REWARD = 10_000;
+
+const scaleMilestoneResourceReward = (amount: number): number => {
+  // Keep early rewards intact, then add 2,250 per tenfold increase.
+  const scaledAmount =
+    amount <= 1000 ? amount : 1000 + 2250 * Math.log10(amount / 1000);
+
+  return Math.min(MAX_RESOURCE_REWARD, Math.round(scaledAmount));
+};
 
 const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['WOODCUTTER', 100],
@@ -40,6 +51,17 @@ const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
 ]);
 
 export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
+  if (questId.startsWith('celebrationCount-')) {
+    const count = Number(questId.split('-')[1]);
+    return [
+      {
+        type: 'culture-points',
+        amount:
+          200 + [1, 3, 5, 10, 15, 20, 30, 50, 75, 100].indexOf(count) * 100,
+      },
+    ];
+  }
+
   if (questId.startsWith('queuedTroopCountById')) {
     const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
@@ -47,7 +69,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     return [
       {
         type: 'resources',
-        amount: count * 100,
+        amount: scaleMilestoneResourceReward(count * 100),
       },
     ];
   }
@@ -59,7 +81,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     return [
       {
         type: 'resources',
-        amount: count * 10,
+        amount: scaleMilestoneResourceReward(count * 10),
       },
     ];
   }
@@ -83,7 +105,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     return [
       {
         type: 'resources',
-        amount: count * 10,
+        amount: scaleMilestoneResourceReward(count * 10),
       },
     ];
   }
@@ -95,7 +117,43 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     return [
       {
         type: 'resources',
-        amount: count * 100,
+        amount: scaleMilestoneResourceReward(count * 100),
+      },
+    ];
+  }
+
+  if (questId.startsWith('captureAnimalCountById')) {
+    const cnt = questId.split('-').at(2)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'hero-exp',
+        amount: count * 10,
+      },
+    ];
+  }
+
+  if (questId.startsWith('captureAnimalKindCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'hero-exp',
+        amount: count * 10,
+      },
+    ];
+  }
+
+  if (questId.startsWith('gatheredResourceCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'hero-exp',
+        amount: Math.max(1, Math.floor(count / 100)),
       },
     ];
   }
@@ -126,7 +184,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
   return [
     {
       type: 'resources',
-      amount,
+      amount: Math.min(MAX_RESOURCE_REWARD, amount),
     },
   ];
 };
@@ -134,6 +192,11 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
 export const getQuestRequirements = (
   questId: Quest['id'],
 ): QuestRequirement[] => {
+  if (questId.startsWith('celebrationCount-')) {
+    return [
+      { type: 'celebration-count', count: Number(questId.split('-')[1]) },
+    ];
+  }
   if (questId.startsWith('queuedTroopCountById')) {
     const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
@@ -189,6 +252,47 @@ export const getQuestRequirements = (
     return [
       {
         type: 'unit-kill-count',
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('captureAnimalCountById')) {
+    const [, unitId, cnt] = questId.split('-') as [
+      'captureAnimalCountById',
+      NatureUnitId,
+      string,
+    ];
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'capture-animal-count-by-id',
+        unitId,
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('captureAnimalKindCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'capture-animal-kind-count',
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('gatheredResourceCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'gathered-resource-count',
         count,
       },
     ];

@@ -11,14 +11,11 @@ export const useCollectableQuestCount = () => {
   const { data: collectableQuestCount } = useSuspenseQuery({
     queryKey: [collectableQuestCountCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await apiClient.get(
-        '/villages/:villageId/quests/collectables/count',
-        {
-          path: {
-            villageId: currentVillage.id,
-          },
+      const { data } = await apiClient.get('/me/quests/collectable-count', {
+        query: {
+          villageId: currentVillage.id,
         },
-      );
+      });
 
       return data.collectableQuestCount;
     },

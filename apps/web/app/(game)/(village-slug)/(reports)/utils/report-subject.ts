@@ -7,8 +7,12 @@ import {
   isGatheringExpeditionReport,
   isHuntingPartyReport,
   isMovementReport,
+  isScheduledConstructionCancellationReport,
   isScoutingReport,
   isTradeReport,
+  isUnitImprovementReport,
+  isUnitResearchReport,
+  isVillageFoundedReport,
 } from '@pillage-first/utils/guards/report';
 
 export const getReportSubject = (
@@ -118,6 +122,55 @@ export const getReportSubject = (
       x: report.summary.villageCoordinates.x,
       y: report.summary.villageCoordinates.y,
     });
+  }
+
+  if (isUnitResearchReport(report)) {
+    return t('{{unitName}} researched in {{villageName}} ({{x}}|{{y}})', {
+      unitName: t(`UNITS.${report.unitId}.NAME`),
+      villageName: report.summary.villageName,
+      x: report.summary.villageCoordinates.x,
+      y: report.summary.villageCoordinates.y,
+    });
+  }
+
+  if (isUnitImprovementReport(report)) {
+    return t(
+      '{{unitName}} improved to level {{level}} in {{villageName}} ({{x}}|{{y}})',
+      {
+        unitName: t(`UNITS.${report.unitId}.NAME`),
+        level: report.level,
+        villageName: report.summary.villageName,
+        x: report.summary.villageCoordinates.x,
+        y: report.summary.villageCoordinates.y,
+      },
+    );
+  }
+
+  if (isVillageFoundedReport(report)) {
+    return t(
+      '{{originName}} ({{originX}}|{{originY}}) founded {{targetName}} ({{targetX}}|{{targetY}})',
+      {
+        originName: report.summary.originName,
+        originX: report.summary.originCoordinates.x,
+        originY: report.summary.originCoordinates.y,
+        targetName: report.summary.targetName,
+        targetX: report.summary.targetCoordinates.x,
+        targetY: report.summary.targetCoordinates.y,
+      },
+    );
+  }
+
+  if (isScheduledConstructionCancellationReport(report)) {
+    return t(
+      '{{buildingName}} level {{level}} could not be scheduled in {{villageName}} ({{x}}|{{y}})',
+      {
+        buildingName: t(`BUILDINGS.${report.buildingId}.NAME`),
+        level: report.level,
+        villageName: report.summary.villageName,
+        x: report.summary.villageCoordinates.x,
+        y: report.summary.villageCoordinates.y,
+      },
+    );
   }
 
   return '';

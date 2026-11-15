@@ -1,11 +1,16 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type { GameEventType } from '@pillage-first/types/models/game-event';
+import type {
+  GameEventType,
+  ScoutingTarget,
+} from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   cancelTroopMovement,
+  getTileTroopMovements,
   getVillageTroopMovementStats,
   getVillageTroopMovements,
   validateTroopMovement,
@@ -13,6 +18,71 @@ import {
 import { createControllerArgs } from './utils/controller-args';
 
 describe('troop-movement-controllers', () => {
+  test.each([
+    'troopMovementReinforcements',
+    'troopMovementRelocation',
+    'troopMovementAttack',
+    'troopMovementRaid',
+  ] as const)('rejects empty %s movements', async (type) => {
+    using database = await prepareTestDatabase();
+    const home = getPlayerVillage(database);
+    const away = createVillage(database, 'Empty movement destination');
+
+    for (const troops of [[], [{ unitId: 'HERO' as const, amount: 0 }]]) {
+      const result = validateTroopMovement(
+        database,
+        createControllerArgs<'/troop-movements/validate', 'post'>({
+          body: {
+            type,
+            originTileId: home.tile_id,
+            targetTileId: away.tile_id,
+            troops,
+          },
+        }),
+      );
+
+      expect(result.errors).toContain('At least 1 troop must be selected');
+    }
+  });
+
+  test('includes loot on returning player troops', async () => {
+    using database = await prepareTestDatabase();
+
+    const home = getPlayerVillage(database);
+    const away = createVillage(database, 'Loot destination');
+    const eventId = insertTroopMovementEvent(database, {
+      type: 'troopMovementReturn',
+      villageId: home.id,
+      originTileId: away.tile_id,
+      targetTileId: home.tile_id,
+      startsAt: Date.now(),
+      duration: 60_000,
+      originalMovementType: 'troopMovementRaid',
+    });
+
+    database.exec({
+      sql: `
+        UPDATE events
+        SET meta = json_set(meta, '$.loot', json('[100,200,0,50]'))
+        WHERE id = $id;
+      `,
+      bind: { $id: eventId },
+    });
+
+    const result = getVillageTroopMovements(
+      database,
+      createControllerArgs<'/tiles/:tileId/troop-movements'>({
+        path: { tileId: home.tile_id },
+      }),
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      type: 'troopMovementReturn',
+      loot: [100, 200, 0, 50],
+    });
+  });
+
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -27,7 +97,7 @@ describe('troop-movement-controllers', () => {
         LIMIT 1
       `,
       bind: { $player_id: PLAYER_ID },
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
   const createVillage = (
@@ -42,7 +112,7 @@ describe('troop-movement-controllers', () => {
         ORDER BY id
         LIMIT 1
       `,
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
     const villageId = database.selectValue({
@@ -73,6 +143,7 @@ describe('troop-movement-controllers', () => {
       startsAt: number;
       duration: number;
       originalMovementType?: GameEventType;
+      scoutingTarget?: ScoutingTarget;
     },
   ) =>
     database.selectValue({
@@ -94,11 +165,14 @@ describe('troop-movement-controllers', () => {
               unitId: 'LEGIONNAIRE',
               amount: 3,
               tileId: args.originTileId,
-              source: args.originTileId,
+              sourceTileId: args.originTileId,
             },
           ],
           ...(args.originalMovementType
             ? { originalMovementType: args.originalMovementType }
+            : {}),
+          ...(args.scoutingTarget
+            ? { scoutingTarget: args.scoutingTarget }
             : {}),
         }),
       },
@@ -106,7 +180,7 @@ describe('troop-movement-controllers', () => {
     })!;
 
   test('validateTroopMovement should return validation errors', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const village = getPlayerVillage(database);
 
     const result = validateTroopMovement(
@@ -114,7 +188,7 @@ describe('troop-movement-controllers', () => {
       createControllerArgs<'/troop-movements/validate', 'post'>({
         body: {
           type: 'troopMovementAttack',
-          villageId: village.id,
+          originTileId: village.tile_id,
           targetTileId: 999_999,
           troops: [{ unitId: 'LEGIONNAIRE', amount: 1 }],
         },
@@ -126,7 +200,8 @@ describe('troop-movement-controllers', () => {
   });
 
   test('getVillageTroopMovements should return outgoing and incoming movements', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -137,7 +212,7 @@ describe('troop-movement-controllers', () => {
       villageId: currentVillage.id,
       originTileId: currentVillage.tile_id,
       targetTileId: targetVillage.tile_id,
-      startsAt: 1_000,
+      startsAt: 1000,
       duration: 500,
     });
 
@@ -146,34 +221,431 @@ describe('troop-movement-controllers', () => {
       villageId: targetVillage.id,
       originTileId: targetVillage.tile_id,
       targetTileId: currentVillage.tile_id,
-      startsAt: 2_000,
+      startsAt: 2000,
       duration: 500,
     });
 
     const result = getVillageTroopMovements(
       database,
-      createControllerArgs<'/villages/:villageId/troop-movements'>({
-        path: { villageId: currentVillage.id },
+      createControllerArgs<'/tiles/:tileId/troop-movements'>({
+        path: { tileId: currentVillage.tile_id },
       }),
     );
 
     expect(result).toHaveLength(2);
-    expect(result.map(({ type }) => type)).toEqual([
+    expect(result.map(({ type }) => type)).toStrictEqual([
       'troopMovementAttack',
       'troopMovementReinforcements',
     ]);
     expect(result[0]).toMatchObject({
       originatingVillageId: currentVillage.id,
       targetTileId: targetVillage.tile_id,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 3,
+          tileId: currentVillage.tile_id,
+          sourceTileId: currentVillage.tile_id,
+        },
+      ],
     });
     expect(result[1]).toMatchObject({
       originatingVillageId: targetVillage.id,
       targetTileId: currentVillage.tile_id,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 3,
+          tileId: targetVillage.tile_id,
+          sourceTileId: targetVillage.tile_id,
+        },
+      ],
     });
   });
 
+  test('returns use the actual departure tile and count as incoming at home', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({ sql: 'DELETE FROM events' });
+
+    const home = getPlayerVillage(database);
+    const away = createVillage(database, 'Return Origin');
+
+    insertTroopMovementEvent(database, {
+      type: 'troopMovementReturn',
+      villageId: home.id,
+      originTileId: away.tile_id,
+      targetTileId: home.tile_id,
+      startsAt: 1000,
+      duration: 500,
+      originalMovementType: 'troopMovementRaid',
+    });
+
+    const result = getVillageTroopMovements(
+      database,
+      createControllerArgs<'/tiles/:tileId/troop-movements'>({
+        path: { tileId: home.tile_id },
+      }),
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      originatingVillageId: away.id,
+      originatingTileId: away.tile_id,
+      targetTileId: home.tile_id,
+    });
+
+    const stats = getVillageTroopMovementStats(
+      database,
+      createControllerArgs<'/tiles/:tileId/troop-movements/stats'>({
+        path: { tileId: home.tile_id },
+      }),
+    );
+
+    expect(stats).toStrictEqual([
+      { type: 'deploymentIncoming', count: 1, earliestResolvesAt: 1500 },
+    ]);
+
+    database.exec({
+      sql: 'DELETE FROM villages WHERE id = $id',
+      bind: { $id: away.id },
+    });
+
+    const oasisReturn = getVillageTroopMovements(
+      database,
+      createControllerArgs<'/tiles/:tileId/troop-movements'>({
+        path: { tileId: home.tile_id },
+      }),
+    );
+
+    expect(oasisReturn[0]).toMatchObject({
+      originatingVillageId: null,
+      originatingVillageName: null,
+      originatingTileId: away.tile_id,
+    });
+  });
+
+  test.each(['troopMovementAttack', 'troopMovementRaid'] as const)(
+    'redacts enemy %s troops but preserves friendly troops',
+    async (type) => {
+      using database = await prepareTestDatabase();
+
+      database.exec({ sql: 'DELETE FROM events' });
+
+      const home = getPlayerVillage(database);
+      const enemy = database.selectObject({
+        sql: 'SELECT id, tile_id FROM villages WHERE player_id != $player_id LIMIT 1',
+        bind: { $player_id: PLAYER_ID },
+        schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
+      })!;
+
+      insertTroopMovementEvent(database, {
+        type,
+        villageId: enemy.id,
+        originTileId: enemy.tile_id,
+        targetTileId: home.tile_id,
+        startsAt: 1000,
+        duration: 500,
+      });
+
+      insertTroopMovementEvent(database, {
+        type,
+        villageId: home.id,
+        originTileId: home.tile_id,
+        targetTileId: enemy.tile_id,
+        startsAt: 2000,
+        duration: 500,
+      });
+
+      const result = getVillageTroopMovements(
+        database,
+        createControllerArgs<'/tiles/:tileId/troop-movements'>({
+          path: { tileId: home.tile_id },
+        }),
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result[0].troops).toBeNull();
+      expect(result[1].troops).toEqual([
+        expect.objectContaining({ unitId: 'LEGIONNAIRE', amount: 3 }),
+      ]);
+    },
+  );
+
+  test('getVillageTroopMovements should hide incoming scouting and keep outgoing scouting', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({ sql: 'DELETE FROM events' });
+
+    const currentVillage = getPlayerVillage(database);
+    const otherVillage = createVillage(database, 'Scout Target');
+
+    insertTroopMovementEvent(database, {
+      type: 'troopMovementAttack',
+      villageId: otherVillage.id,
+      originTileId: otherVillage.tile_id,
+      targetTileId: currentVillage.tile_id,
+      startsAt: 1000,
+      duration: 500,
+      scoutingTarget: 'resources',
+    });
+
+    insertTroopMovementEvent(database, {
+      type: 'troopMovementAttack',
+      villageId: otherVillage.id,
+      originTileId: otherVillage.tile_id,
+      targetTileId: currentVillage.tile_id,
+      startsAt: 1500,
+      duration: 500,
+    });
+
+    insertTroopMovementEvent(database, {
+      type: 'troopMovementRaid',
+      villageId: currentVillage.id,
+      originTileId: currentVillage.tile_id,
+      targetTileId: otherVillage.tile_id,
+      startsAt: 2000,
+      duration: 500,
+      scoutingTarget: 'defensiveStructures',
+    });
+
+    const result = getVillageTroopMovements(
+      database,
+      createControllerArgs<'/tiles/:tileId/troop-movements'>({
+        path: { tileId: currentVillage.tile_id },
+      }),
+    );
+
+    expect(result).toHaveLength(2);
+    expect(
+      result.map(({ type, originatingVillageId }) => ({
+        type,
+        originatingVillageId,
+      })),
+    ).toStrictEqual([
+      {
+        type: 'troopMovementAttack',
+        originatingVillageId: otherVillage.id,
+      },
+      {
+        type: 'troopMovementRaid',
+        originatingVillageId: currentVillage.id,
+      },
+    ]);
+
+    const stats = getVillageTroopMovementStats(
+      database,
+      createControllerArgs<'/tiles/:tileId/troop-movements/stats'>({
+        path: { tileId: currentVillage.tile_id },
+      }),
+    );
+
+    expect(stats).toStrictEqual(
+      expect.arrayContaining([
+        {
+          type: 'offensiveMovementIncoming',
+          count: 1,
+          earliestResolvesAt: 2000,
+        },
+        {
+          type: 'offensiveMovementOutgoing',
+          count: 1,
+          earliestResolvesAt: 2500,
+        },
+      ]),
+    );
+    expect(
+      stats.find((stat) => stat.type === 'offensiveMovementIncoming')?.count,
+    ).toBe(1);
+  });
+
+  test('tile movements include other villages, incoming attacks, and returns while excluding unrelated routes', async () => {
+    using database = await prepareTestDatabase();
+    using _clock = vi.spyOn(Date, 'now').mockReturnValue(1000);
+
+    database.exec({ sql: 'DELETE FROM events;' });
+
+    const home = getPlayerVillage(database);
+    const secondHome = createVillage(database, 'Second Home');
+
+    const enemy = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages WHERE player_id != 1 LIMIT 1;',
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
+    })!;
+
+    const base = {
+      villageId: home.id,
+      originTileId: home.tile_id,
+      targetTileId: enemy.tile_id,
+      startsAt: 0,
+      duration: 4000,
+    };
+
+    const raidId = insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementRaid',
+    });
+
+    const secondRaidId = insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementAttack',
+      villageId: secondHome.id,
+      originTileId: secondHome.tile_id,
+      duration: 2000,
+    });
+
+    const returnId = insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementReturn',
+      originTileId: enemy.tile_id,
+      targetTileId: home.tile_id,
+      duration: 3000,
+      originalMovementType: 'troopMovementRaid',
+    });
+
+    const incomingId = insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementAttack',
+      villageId: enemy.id,
+      originTileId: enemy.tile_id,
+      targetTileId: home.tile_id,
+      duration: 1500,
+    });
+
+    insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementRaid',
+      villageId: enemy.id,
+    });
+
+    insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementRaid',
+      duration: 1000,
+    });
+
+    insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementRaid',
+      startsAt: 2000,
+    });
+
+    insertTroopMovementEvent(database, { ...base, type: 'resourceTransfer' });
+    insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementAdventure',
+    });
+
+    insertTroopMovementEvent(database, {
+      ...base,
+      type: 'troopMovementRaid',
+      targetTileId: secondHome.tile_id,
+    });
+
+    const movements = getTileTroopMovements(
+      database,
+      createControllerArgs<'/tiles/:tileId/movements'>({
+        path: { tileId: enemy.tile_id },
+      }),
+    );
+
+    expect(movements.map(({ id }) => id)).toStrictEqual([
+      incomingId,
+      secondRaidId,
+      returnId,
+      raidId,
+    ]);
+  });
+
+  test('tile movements include attacks arriving at owned oases', async () => {
+    using database = await prepareTestDatabase();
+    using _clock = vi.spyOn(Date, 'now').mockReturnValue(1000);
+
+    database.exec({ sql: 'DELETE FROM events;' });
+
+    const home = getPlayerVillage(database);
+
+    const enemy = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages WHERE player_id != 1 LIMIT 1;',
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
+    })!;
+
+    const oasisTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis LIMIT 1;',
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: 'UPDATE oasis SET village_id = $village_id WHERE tile_id = $tile_id;',
+      bind: { $village_id: home.id, $tile_id: oasisTileId },
+    });
+
+    const eventId = insertTroopMovementEvent(database, {
+      type: 'troopMovementAttack',
+      villageId: enemy.id,
+      originTileId: enemy.tile_id,
+      targetTileId: oasisTileId,
+      startsAt: 0,
+      duration: 2000,
+    });
+
+    expect(
+      getTileTroopMovements(
+        database,
+        createControllerArgs<'/tiles/:tileId/movements'>({
+          path: { tileId: oasisTileId },
+        }),
+      ).map(({ id }) => id),
+    ).toStrictEqual([eventId]);
+  });
+
+  test('movement routes distinguish the actual return origin from the home village', async () => {
+    using database = await prepareTestDatabase();
+    using _clock = vi.spyOn(Date, 'now').mockReturnValue(1000);
+
+    database.exec({ sql: 'DELETE FROM events;' });
+
+    const home = getPlayerVillage(database);
+    const target = createVillage(database, 'Return Origin');
+
+    const eventId = insertTroopMovementEvent(database, {
+      type: 'troopMovementReturn',
+      villageId: home.id,
+      originTileId: target.tile_id,
+      targetTileId: home.tile_id,
+      startsAt: 1000,
+      duration: 500,
+      originalMovementType: 'troopMovementRaid',
+    });
+
+    const movements = getTileTroopMovements(
+      database,
+      createControllerArgs<'/tiles/:tileId/movements'>({
+        path: { tileId: home.tile_id },
+      }),
+    );
+
+    const coordinates = (tileId: number) =>
+      database.selectObject({
+        sql: 'SELECT x, y FROM tiles WHERE id = $tile_id;',
+        bind: { $tile_id: tileId },
+        schema: z.strictObject({ x: z.number(), y: z.number() }),
+      });
+
+    expect(movements).toStrictEqual([
+      expect.objectContaining({
+        id: eventId,
+        originName: 'Return Origin',
+        originCoordinates: coordinates(target.tile_id),
+        targetTileId: home.tile_id,
+        targetCoordinates: coordinates(home.tile_id),
+      }),
+    ]);
+  });
+
   test('getVillageTroopMovementStats should group movements by direction and purpose', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -184,7 +656,7 @@ describe('troop-movement-controllers', () => {
       villageId: currentVillage.id,
       originTileId: currentVillage.tile_id,
       targetTileId: targetVillage.tile_id,
-      startsAt: 1_000,
+      startsAt: 1000,
       duration: 500,
     });
 
@@ -193,35 +665,36 @@ describe('troop-movement-controllers', () => {
       villageId: targetVillage.id,
       originTileId: targetVillage.tile_id,
       targetTileId: currentVillage.tile_id,
-      startsAt: 2_000,
+      startsAt: 2000,
       duration: 700,
     });
 
     const result = getVillageTroopMovementStats(
       database,
-      createControllerArgs<'/villages/:villageId/troop-movements/stats'>({
-        path: { villageId: currentVillage.id },
+      createControllerArgs<'/tiles/:tileId/troop-movements/stats'>({
+        path: { tileId: currentVillage.tile_id },
       }),
     );
 
-    expect(result).toEqual(
+    expect(result).toStrictEqual(
       expect.arrayContaining([
         {
           type: 'offensiveMovementOutgoing',
           count: 1,
-          earliestResolvesAt: 1_500,
+          earliestResolvesAt: 1500,
         },
         {
           type: 'deploymentIncoming',
           count: 1,
-          earliestResolvesAt: 2_700,
+          earliestResolvesAt: 2700,
         },
       ]),
     );
   });
 
   test('cancelTroopMovement should delete the movement and create a return movement', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     vi.setSystemTime(new Date(1_000_000));
@@ -265,8 +738,8 @@ describe('troop-movement-controllers', () => {
         type: z.string(),
         starts_at: z.number(),
         duration: z.number(),
-        origin_tile_id: z.number(),
-        target_tile_id: z.number(),
+        origin_tile_id: tileIdSchema,
+        target_tile_id: tileIdSchema,
         original_movement_type: z.string(),
       }),
     })!;
@@ -281,7 +754,7 @@ describe('troop-movement-controllers', () => {
   });
 
   test('cancelTroopMovement should reject missing movement events', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     expect(() =>
       cancelTroopMovement(
@@ -294,7 +767,8 @@ describe('troop-movement-controllers', () => {
   });
 
   test('cancelTroopMovement should reject return movements', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -304,7 +778,7 @@ describe('troop-movement-controllers', () => {
       villageId: currentVillage.id,
       originTileId: targetVillage.tile_id,
       targetTileId: currentVillage.tile_id,
-      startsAt: 1_000,
+      startsAt: 1000,
       duration: 500,
       originalMovementType: 'troopMovementAttack',
     });
@@ -320,7 +794,8 @@ describe('troop-movement-controllers', () => {
   });
 
   test('cancelTroopMovement should reject movements older than one minute', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
+
     database.exec({ sql: 'DELETE FROM events' });
 
     vi.setSystemTime(new Date(1_000_000));

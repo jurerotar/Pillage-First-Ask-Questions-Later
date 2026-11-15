@@ -1,13 +1,8 @@
-import type {
-  ReportListingDto,
-  ReportListingFilter,
-} from '@pillage-first/types/dtos/report';
+import type { ReactNode } from 'react';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
-import {
-  type ReportScope,
-  useReports,
-} from 'app/(game)/(village-slug)/hooks/use-reports';
+import type { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Pagination } from 'app/components/ui/pagination';
 import { useReportSelection } from '../hooks/use-report-selection';
 import { ReportsTable } from './reports-table';
@@ -15,22 +10,22 @@ import { ReportsTable } from './reports-table';
 const REPORTS_PER_PAGE = 20;
 
 type ReportsListProps = {
-  scope: ReportScope;
+  reports: ReportListingDto[];
   page: number;
-  reportFilters: ReportListingFilter[];
+  footerActions?: ReactNode;
+  updateReports: ReturnType<typeof useReports>['updateReports'];
+  deleteReports: ReturnType<typeof useReports>['deleteReports'];
   handlePageChange: (newPage: number | ((prev: number) => number)) => void;
 };
 
 export const ReportsList = ({
-  scope,
+  reports,
   page,
-  reportFilters,
+  footerActions,
+  updateReports,
+  deleteReports,
   handlePageChange,
 }: ReportsListProps) => {
-  const { reports, updateReports, deleteReports } = useReports(
-    scope,
-    reportFilters,
-  );
   const pagination = usePagination(reports, REPORTS_PER_PAGE, page);
   const {
     selectedReportIds,
@@ -39,12 +34,6 @@ export const ReportsList = ({
     toggleVisibleReports,
     clearSelectedReports,
   } = useReportSelection(pagination.currentPageItems);
-
-  const markAsRead = (report: ReportListingDto) => {
-    if (!report.tags.includes('read')) {
-      updateReports({ reportIds: [report.id], tags: { read: true } });
-    }
-  };
 
   return (
     <Section>
@@ -55,12 +44,12 @@ export const ReportsList = ({
         allVisibleReportsSelected={allVisibleReportsSelected}
         onToggleReport={toggleSelectedReport}
         onToggleVisibleReports={toggleVisibleReports}
-        onOpenReport={markAsRead}
         updateReports={updateReports}
         deleteReports={deleteReports}
         clearSelectedReports={clearSelectedReports}
       />
-      <div className="flex w-full justify-end">
+      <div className="flex w-full items-center justify-between gap-2">
+        <div>{footerActions}</div>
         <Pagination
           {...pagination}
           setPage={handlePageChange}

@@ -23,9 +23,9 @@ type CookieName =
   | typeof UI_COLOR_SCHEME_COOKIE_NAME
   | typeof GRAPHICS_TIME_OF_DAY_COOKIE_NAME;
 
-export const setCookie = async <T extends string>(
+export const setCookie = async (
   name: CookieName,
-  value: T,
+  value: string,
 ): Promise<void> => {
   const expires = new Date();
   expires.setTime(expires.getTime() + 365 * 24 * 60 * 60 * 1000);
@@ -37,6 +37,9 @@ export const setCookie = async <T extends string>(
       expires: expires.getTime(),
       path: '/',
     });
+
+    const event = new Event(COOKIE_UPDATE_EVENT_NAME);
+    document.dispatchEvent(event);
     return;
   }
 
@@ -57,18 +60,8 @@ export const getCookie = async (name: CookieName): Promise<string | null> => {
   return cookie?.split('=')[1] || null;
 };
 
-export const getDeviceId = (): string => {
-  if (typeof window === 'undefined') {
-    return 'server';
-  }
-
-  const KEY = 'pillage-first:device-id';
-  let deviceId = window.localStorage.getItem(KEY);
-
-  if (!deviceId) {
-    deviceId = window.crypto.randomUUID();
-    window.localStorage.setItem(KEY, deviceId);
-  }
-
-  return deviceId;
+export const wait = (duration: number): Promise<void> => {
+  return new Promise((resolve) => {
+    globalThis.setTimeout(resolve, duration);
+  });
 };

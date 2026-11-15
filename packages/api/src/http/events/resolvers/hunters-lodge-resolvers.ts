@@ -4,9 +4,14 @@ import {
   getHunterLodgeCatchableAnimals,
 } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { randomArrayElement } from '@pillage-first/utils/random';
-import { insertAnimalCagesIntoHeroInventoryQuery } from '../../../queries/hero-queries';
+import { insertHeroItemIntoHeroInventoryQuery } from '../../../queries/hero-queries';
 import { selectVillageAndFirstOasisTileIdsQuery } from '../../../queries/map-queries';
+import {
+  assessCaptureAnimalCountByIdQuestCompletion,
+  assessCaptureAnimalKindCountQuestCompletion,
+} from '../../../utils/quests';
 import { insertHuntingPartyReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import type { Resolver } from '../resolver';
@@ -17,7 +22,7 @@ export const animalCageProductionResolver: Resolver<
   const { cageAmount, villageId } = args;
 
   database.exec({
-    sql: insertAnimalCagesIntoHeroInventoryQuery,
+    sql: insertHeroItemIntoHeroInventoryQuery,
     bind: {
       $village_id: villageId,
       $item_id: ANIMAL_CAGE_ITEM_ID,
@@ -27,6 +32,7 @@ export const animalCageProductionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [],
   };
 };
 
@@ -41,8 +47,9 @@ export const huntersLodgeHuntResolver: Resolver<
       $village_id: villageId,
     },
     schema: z.strictObject({
-      villageTileId: z.number(),
-      sourceTileId: z.number(),
+      villageTileId: tileIdSchema,
+      playerId: z.number(),
+      sourceTileId: tileIdSchema,
     }),
   })!;
 
@@ -54,7 +61,7 @@ export const huntersLodgeHuntResolver: Resolver<
       unitId,
       amount: 1,
       tileId: huntersLodge.villageTileId,
-      source: huntersLodge.sourceTileId,
+      sourceTileId: huntersLodge.sourceTileId,
     },
   ]);
 
@@ -66,7 +73,35 @@ export const huntersLodgeHuntResolver: Resolver<
     amount: 1,
   });
 
+  database.exec({
+    sql: `
+      INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+      SELECT $player_id, ui.id, 1
+      FROM unit_ids ui
+      WHERE ui.unit = $unit_id
+      ON CONFLICT (player_id, unit_id) DO UPDATE SET
+        amount = hunting_capture_history.amount + EXCLUDED.amount;
+    `,
+    bind: {
+      $player_id: huntersLodge.playerId,
+      $unit_id: unitId,
+    },
+  });
+
+  assessCaptureAnimalCountByIdQuestCompletion(
+    database,
+    unitId,
+    resolvesAt,
+    huntersLodge.playerId,
+  );
+  assessCaptureAnimalKindCountQuestCompletion(
+    database,
+    resolvesAt,
+    huntersLodge.playerId,
+  );
+
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [huntersLodge.villageTileId],
   };
 };

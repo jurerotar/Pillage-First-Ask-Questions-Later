@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const resourceBundleSchema = z
-  .tuple([z.int(), z.int(), z.int(), z.int()])
+  .tuple([z.int().min(0), z.int().min(0), z.int().min(0), z.int().min(0)])
   .meta({ id: 'ResourceBundle' });
 
 export const resourceSchema = z
@@ -10,10 +10,10 @@ export const resourceSchema = z
 
 export const resourcesSchema = z
   .strictObject({
-    wood: z.number(),
-    clay: z.number(),
-    iron: z.number(),
-    wheat: z.number(),
+    wood: z.number().int().min(0),
+    clay: z.number().int().min(0),
+    iron: z.number().int().min(0),
+    wheat: z.number().int().min(0),
   })
   .meta({ id: 'Resources' });
 

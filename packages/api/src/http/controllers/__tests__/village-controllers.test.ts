@@ -1,8 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { effectIdSchema } from '@pillage-first/types/models/effect';
+import {
+  baseEventRowSchema,
+  mapEventRowToTypedEvent,
+} from '../../../utils/zod/event-schemas';
 import { getTrapperCageStats } from '../trapper-controllers';
 import {
   getGatherersHutExpeditions,
@@ -14,43 +18,55 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('village-controllers', () => {
   test('getVillageBySlug should return village details by slug', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectValue({
-      sql: 'SELECT slug FROM villages LIMIT 1',
+      sql: 'SELECT slug FROM villages WHERE slug IS NOT NULL ORDER BY id LIMIT 1',
       schema: z.string(),
     })!;
 
-    getVillageBySlug(
+    const result = getVillageBySlug(
       database,
       createControllerArgs<'/villages/:villageSlug'>({
         path: { villageSlug: village },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(result).toMatchObject({ slug: village });
   });
 
   test('getOccupiableOasisInRange should return occupiable oasis in range', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
       schema: z.number(),
     })!;
 
-    getOccupiableOasisInRange(
+    const oases = getOccupiableOasisInRange(
       database,
       createControllerArgs<'/villages/:villageId/occupiable-oasis'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(oases).toStrictEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          oasis: expect.objectContaining({
+            id: expect.any(Number),
+            coordinates: expect.objectContaining({
+              x: expect.any(Number),
+              y: expect.any(Number),
+            }),
+          }),
+        }),
+      ]),
+    );
   });
 
   test('getGatherersHutExpeditions should return completed expedition count', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -60,7 +76,7 @@ describe('village-controllers', () => {
     const result = getGatherersHutExpeditions(
       database,
       createControllerArgs<'/villages/:villageId/gatherers-hut/expeditions'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
@@ -68,7 +84,7 @@ describe('village-controllers', () => {
   });
 
   test('getTrapperCageStats should return village cage totals', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -91,7 +107,7 @@ describe('village-controllers', () => {
     const stats = getTrapperCageStats(
       database,
       createControllerArgs<'/villages/:villageId/trapper-cages'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
@@ -104,12 +120,13 @@ describe('village-controllers', () => {
 
   describe(rearrangeBuildingFields, () => {
     test('should swap two occupied building fields and update events', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
         schema: z.number(),
       })!;
+
       const fieldId1 = 19;
       const fieldId2 = 20;
 
@@ -118,6 +135,7 @@ describe('village-controllers', () => {
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 1)",
         bind: { $v: villageId, $f: fieldId1 },
       });
+
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 2)",
         bind: { $v: villageId, $f: fieldId2 },
@@ -171,16 +189,17 @@ describe('village-controllers', () => {
       expect(bf1).toBe('BARRACKS');
       expect(bf2).toBe('MAIN_BUILDING');
 
-      const event = database.selectValue({
-        sql: 'SELECT meta FROM events WHERE village_id = $v',
+      const event = database.selectObject({
+        sql: 'SELECT * FROM events WHERE village_id = $v',
         bind: { $v: villageId },
-        schema: z.string(),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       });
-      expect(JSON.parse(event!).buildingFieldId).toBe(fieldId2);
+
+      expect(event).toMatchObject({ buildingFieldId: fieldId2 });
     });
 
     test('should move building effects when rearranging occupied building fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -202,7 +221,7 @@ describe('village-controllers', () => {
           DELETE
           FROM effects
           WHERE
-            village_id = $v
+            tile_id = (SELECT tile_id FROM villages WHERE id = $v)
             AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier IN (19, 20);
         `,
@@ -211,10 +230,10 @@ describe('village-controllers', () => {
 
       database.exec({
         sql: `
-          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
           VALUES
-            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 1500, 1, 2, 1, $v, 19),
-            ((SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration'), 0.9091, 2, 2, 1, $v, 20);
+            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 1500, 1, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 19),
+            ((SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration'), 0.9091, 2, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 20);
         `,
         bind: { $v: villageId },
       });
@@ -244,7 +263,7 @@ describe('village-controllers', () => {
           FROM effects e
           JOIN effect_ids ei ON ei.id = e.effect_id
           WHERE
-            e.village_id = $v
+            e.tile_id = (SELECT tile_id FROM villages WHERE id = $v)
             AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND e.source_specifier IN (19, 20)
             AND ei.effect IN ('warehouseCapacity', 'barracksTrainingDuration')
@@ -257,7 +276,7 @@ describe('village-controllers', () => {
         }),
       });
 
-      expect(effects).toEqual([
+      expect(effects).toStrictEqual([
         {
           effect: 'barracksTrainingDuration',
           source_specifier: 19,
@@ -270,12 +289,13 @@ describe('village-controllers', () => {
     });
 
     test('should update active events and scheduled upgrades when rearranging fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
         schema: z.number(),
       })!;
+
       const eventStartsAt = 123_456_789;
       const buildingEventTypes = [
         'buildingConstruction',
@@ -304,6 +324,7 @@ describe('village-controllers', () => {
           },
         });
       }
+
       database.exec({
         sql: `
           INSERT INTO scheduled_building_upgrades
@@ -338,24 +359,23 @@ describe('village-controllers', () => {
       );
 
       const events = database.selectObjects({
-        sql: 'SELECT type, meta FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY type',
+        sql: 'SELECT * FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY type',
         bind: {
           $starts_at: eventStartsAt,
           $ends_at: eventStartsAt + buildingEventTypes.length - 1,
         },
-        schema: z.strictObject({
-          type: z.string(),
-          meta: z.string(),
-        }),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       });
 
       expect(events).toHaveLength(buildingEventTypes.length);
+
       for (const event of events) {
-        expect(JSON.parse(event.meta)).toMatchObject({
+        expect(event).toMatchObject({
           buildingFieldId: 25,
           buildingId: 'MAIN_BUILDING',
         });
       }
+
       expect(
         database.selectValue({
           sql: `
@@ -370,20 +390,21 @@ describe('village-controllers', () => {
     });
 
     test('should not update events for other event types, other villages, null targets, or unmatched buildings', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageIds = database.selectValues({
         sql: 'SELECT id FROM villages ORDER BY id LIMIT 2',
         schema: z.number(),
       });
-      const villageId = villageIds[0];
-      const otherVillageId = villageIds[1];
+
+      const [villageId, otherVillageId] = villageIds;
       const eventStartsAt = 223_456_789;
 
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 19, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 7)",
         bind: { $v: villageId },
       });
+
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 20, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 3)",
         bind: { $v: villageId },
@@ -465,33 +486,30 @@ describe('village-controllers', () => {
       );
 
       const events = database.selectObjects({
-        sql: 'SELECT type, meta, village_id AS villageId FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY starts_at',
+        sql: 'SELECT * FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY starts_at',
         bind: {
           $starts_at: eventStartsAt,
           $ends_at: eventStartsAt + eventsToInsert.length - 1,
         },
-        schema: z.strictObject({
-          type: z.string(),
-          meta: z.string(),
-          villageId: z.number(),
-        }),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       });
 
       expect(events).toHaveLength(eventsToInsert.length);
-      expect(JSON.parse(events[0].meta).buildingFieldId).toBe(19);
-      expect(JSON.parse(events[1].meta).buildingFieldId).toBe(19);
+      expect(events[0]).toMatchObject({ buildingFieldId: 19 });
+      expect(events[1]).toMatchObject({ buildingFieldId: 19 });
       expect(events[1].villageId).toBe(otherVillageId);
-      expect(JSON.parse(events[2].meta).buildingFieldId).toBe(20);
-      expect(JSON.parse(events[3].meta).buildingFieldId).toBe(21);
+      expect(events[2]).toMatchObject({ buildingFieldId: 20 });
+      expect(events[3]).toMatchObject({ buildingFieldId: 21 });
     });
 
     test('should move building to empty field', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
         schema: z.number(),
       })!;
+
       const fieldId1 = 19;
       const fieldId2 = 21;
 
@@ -536,7 +554,7 @@ describe('village-controllers', () => {
     });
 
     test('should not modify non-swappable fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -581,7 +599,7 @@ describe('village-controllers', () => {
     });
 
     test('should keep unaffected swappable fields when updates include null', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -592,6 +610,7 @@ describe('village-controllers', () => {
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 19, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 10)",
         bind: { $v: villageId },
       });
+
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 20, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 7)",
         bind: { $v: villageId },
@@ -648,7 +667,7 @@ describe('village-controllers', () => {
     });
 
     test('should ignore updates outside range 19-38 for both fields and events', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -659,6 +678,7 @@ describe('village-controllers', () => {
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 18, (SELECT id FROM building_ids WHERE building = 'WOODCUTTER'), 9)",
         bind: { $v: villageId },
       });
+
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 39, (SELECT id FROM building_ids WHERE building = 'RALLY_POINT'), 3)",
         bind: { $v: villageId },
@@ -719,21 +739,21 @@ describe('village-controllers', () => {
         }),
       })!;
 
-      const event = database.selectValue({
-        sql: 'SELECT meta FROM events WHERE village_id = $v',
+      const event = database.selectObject({
+        sql: 'SELECT * FROM events WHERE village_id = $v',
         bind: { $v: villageId },
-        schema: z.string(),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       })!;
 
       expect(field18.building_id).toBe('WOODCUTTER');
       expect(field18.level).toBe(9);
       expect(field39.building_id).toBe('RALLY_POINT');
       expect(field39.level).toBe(3);
-      expect(JSON.parse(event).buildingFieldId).toBe(18);
+      expect(event).toMatchObject({ buildingFieldId: 18 });
     });
 
     test('should preserve level when moving building between swappable boundary fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -785,12 +805,13 @@ describe('village-controllers', () => {
     });
 
     test('should preserve levels when rearranging multiple buildings of the same type', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
         schema: z.number(),
       })!;
+
       const eventStartsAt = 345_678_901;
 
       database.exec({
@@ -863,7 +884,7 @@ describe('village-controllers', () => {
         }),
       });
 
-      expect(fields).toEqual([
+      expect(fields).toStrictEqual([
         {
           field_id: 20,
           building_id: 'WAREHOUSE',
@@ -881,20 +902,20 @@ describe('village-controllers', () => {
         },
       ]);
 
-      const event = database.selectValue({
-        sql: 'SELECT meta FROM events WHERE village_id = $v AND starts_at = $starts_at',
+      const event = database.selectObject({
+        sql: 'SELECT * FROM events WHERE village_id = $v AND starts_at = $starts_at',
         bind: { $v: villageId, $starts_at: eventStartsAt },
-        schema: z.string(),
+        schema: baseEventRowSchema.transform(mapEventRowToTypedEvent),
       })!;
 
-      expect(JSON.parse(event)).toMatchObject({
+      expect(event).toMatchObject({
         buildingFieldId: 21,
         buildingId: 'GRANARY',
       });
     });
 
     test('should preserve effects when rearranging multiple buildings of the same type', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -917,7 +938,7 @@ describe('village-controllers', () => {
           DELETE
           FROM effects
           WHERE
-            village_id = $v
+            tile_id = (SELECT tile_id FROM villages WHERE id = $v)
             AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier IN (19, 20, 21, 22);
         `,
@@ -926,11 +947,11 @@ describe('village-controllers', () => {
 
       database.exec({
         sql: `
-          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
           VALUES
-            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 4000, 1, 2, 1, $v, 19),
-            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 11000, 1, 2, 1, $v, 20),
-            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 6000, 1, 2, 1, $v, 21);
+            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 4000, 1, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 19),
+            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 11000, 1, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 20),
+            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 6000, 1, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 21);
         `,
         bind: { $v: villageId },
       });
@@ -970,7 +991,7 @@ describe('village-controllers', () => {
           FROM effects e
           JOIN effect_ids ei ON ei.id = e.effect_id
           WHERE
-            e.village_id = $v
+            e.tile_id = (SELECT tile_id FROM villages WHERE id = $v)
             AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND e.source_specifier IN (20, 21, 22)
             AND e.value IN (4000, 6000, 11000)
@@ -984,7 +1005,7 @@ describe('village-controllers', () => {
         }),
       });
 
-      expect(effects).toEqual([
+      expect(effects).toStrictEqual([
         {
           effect: 'granaryCapacity',
           value: 4000,
@@ -997,14 +1018,14 @@ describe('village-controllers', () => {
         },
         {
           effect: 'granaryCapacity',
-          value: 11000,
+          value: 11_000,
           source_specifier: 21,
         },
       ]);
     });
 
     test('should reject source field that does not match the target building', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -1046,7 +1067,7 @@ describe('village-controllers', () => {
     });
 
     test('should reject duplicate source fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',

@@ -1,21 +1,23 @@
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   calculateHeroLevel,
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
 } from '@pillage-first/game-assets/utils/hero';
+import { useReviveHero } from 'app/(game)/(village-slug)/(hero)/hooks/use-revive-hero';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { useReviveHero } from 'app/(game)/(village-slug)/hooks/use-revive-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -29,6 +31,7 @@ export const HeroRevival = () => {
   const { reviveHero } = useReviveHero();
   const { server } = useServer();
   const { currentVillage } = useCurrentVillage();
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { eventsByType: heroRevivalEvents } = useEventsByType('heroRevival');
 
   const { isInstantHeroReviveEnabled, isFreeHeroReviveEnabled } =
@@ -47,7 +50,7 @@ export const HeroRevival = () => {
     : calculateHeroRevivalTime(level) / server.configuration.speed;
 
   const { errorBag: hasEnoughResourcesErrorBag } =
-    useHasEnoughResources(revivalCost);
+    useResourceAvailability(revivalCost);
   const { errorBag: hasEnoughWarehouseCapacityErrorBag } =
     useHasEnoughStorageCapacity('warehouseCapacity', revivalCost);
   const { errorBag: hasEnoughGranaryCapacityErrorBag } =
@@ -84,13 +87,15 @@ export const HeroRevival = () => {
       {!isReviving && (
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
-            <Resources resources={revivalCost} />
+            <Resources
+              availableResources={currentResources}
+              resources={revivalCost}
+            />
           </div>
           <div className="flex items-center gap-1">
             <Icon type="heroRevivalDuration" />
             <Text>{formatTime(revivalTime)}</Text>
           </div>
-          <ErrorBag errorBag={errorBag} />
           <Button
             size="fit"
             onClick={() => reviveHero()}
@@ -98,6 +103,7 @@ export const HeroRevival = () => {
           >
             {t('Revive')}
           </Button>
+          <ErrorBag errorBag={errorBag} />
         </div>
       )}
     </SectionContent>

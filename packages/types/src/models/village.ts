@@ -3,6 +3,7 @@ import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { buildingFieldSchema } from './building-field';
 import { resourcesSchema } from './resource';
 import { resourceFieldCompositionSchema } from './resource-field-composition';
+import { tileIdSchema } from './tile';
 
 // Used mostly in seeders
 export type VillageSize =
@@ -19,7 +20,7 @@ export type VillageSize =
 export const villageSchema = z
   .strictObject({
     id: z.number(),
-    tileId: z.number(),
+    tileId: tileIdSchema,
     playerId: z.number(),
     name: z.string(),
     slug: z.string(),

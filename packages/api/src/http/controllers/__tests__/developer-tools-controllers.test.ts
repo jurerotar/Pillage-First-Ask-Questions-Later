@@ -1,17 +1,22 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  createAnimalCageProductionEventMock,
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
-  createGameEventMock,
+  createGatherersHutGatheringTripEventMock,
+  createHuntersLodgeHuntEventMock,
+  createTrapperCageProductionEventMock,
   createTroopMovementAdventureEventMock,
   createTroopTrainingEventMock,
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
+import { calculatePlayerCulturePointsProduction } from '../../../utils/culture-points';
 import { insertEvents } from '../../../utils/events';
 import {
   cancelScheduling,
@@ -20,6 +25,7 @@ import {
 } from '../../events/scheduler/scheduler';
 import { createSchedulerDataSource } from '../../events/scheduler/scheduler-data-source';
 import {
+  adjustCulturePoints,
   adjustVillageLoyalty,
   incrementHeroAdventurePoints,
   levelUpHero,
@@ -32,16 +38,53 @@ import { createControllerArgs } from './utils/controller-args';
 describe('developer-tools-controllers', () => {
   const playerId = PLAYER_ID;
 
+  test('culture-point adjustments settle accrued points and apply each signed amount', async () => {
+    using database = await prepareTestDatabase();
+
+    const start = database.selectValue({
+      sql: 'SELECT culture_points_updated_at FROM culture_points WHERE player_id = $player_id;',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    const now = start + 86_400_000;
+    using _clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+
+    let expected = 500 + calculatePlayerCulturePointsProduction(database);
+
+    for (const amount of [1_000, 10_000, -1_000, -10_000]) {
+      adjustCulturePoints(
+        database,
+        createControllerArgs<'/developer/me/culture-points', 'patch'>({
+          body: { amount },
+        }),
+      );
+
+      expected += amount;
+
+      expect(
+        database.selectObject({
+          sql: 'SELECT culture_points AS points, culture_points_updated_at AS updatedAt FROM culture_points WHERE player_id = $player_id;',
+          bind: { $player_id: playerId },
+          schema: z.strictObject({
+            points: z.number(),
+            updatedAt: z.number(),
+          }),
+        }),
+      ).toStrictEqual({ points: expected, updatedAt: now });
+    }
+  });
+
   describe(adjustVillageLoyalty, () => {
     test('should create the first loyaltyIncrease event when loyalty is adjusted', async () => {
       vi.useFakeTimers();
       vi.setSystemTime(1_000_000);
 
       try {
-        const database = await prepareTestDatabase();
+        using database = await prepareTestDatabase();
         const tileId = database.selectValue({
           sql: 'SELECT tile_id FROM villages WHERE id = 1',
-          schema: z.number(),
+          schema: tileIdSchema,
         })!;
 
         const eventCountBefore = database.selectValue({
@@ -53,10 +96,7 @@ describe('developer-tools-controllers', () => {
 
         adjustVillageLoyalty(
           database,
-          createControllerArgs<
-            '/developer-settings/:tileId/adjustLoyalty',
-            'patch'
-          >({
+          createControllerArgs<'/developer/tiles/:tileId/loyalty', 'patch'>({
             path: { tileId },
             body: { amount: -10 },
           }),
@@ -82,7 +122,7 @@ describe('developer-tools-controllers', () => {
 
   describe(updateDeveloperSettings, () => {
     test('should update setting in database', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       updateDeveloperSettings(
         database,
@@ -106,7 +146,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish building events when isInstantBuildingConstructionEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -170,7 +210,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish unit production events when isInstantUnitTrainingEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -179,13 +219,13 @@ describe('developer-tools-controllers', () => {
           duration: 5000,
           villageId: 1,
         }),
-        createGameEventMock('animalCageProduction', {
+        createAnimalCageProductionEventMock({
           startsAt: now + 2000,
           duration: 6000,
           villageId: 1,
           cageAmount: 3,
         }),
-        createGameEventMock('trapperCageProduction', {
+        createTrapperCageProductionEventMock({
           startsAt: now + 3000,
           duration: 7000,
           villageId: 1,
@@ -227,7 +267,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish improvement events when isInstantUnitImprovementEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -258,7 +298,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish research events when isInstantUnitResearchEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -289,7 +329,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish travel and hunting party events when isInstantUnitTravelEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -298,13 +338,13 @@ describe('developer-tools-controllers', () => {
           duration: 5000,
           villageId: 1,
         }),
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           startsAt: now + 2000,
           duration: 6000,
           villageId: 1,
           huntingPartyLevel: 1,
         }),
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           startsAt: now + 3000,
           duration: 7000,
           villageId: 1,
@@ -349,7 +389,7 @@ describe('developer-tools-controllers', () => {
       resetSchedulerForTesting();
 
       try {
-        const database = await prepareTestDatabase();
+        using database = await prepareTestDatabase();
 
         const homeVillage = database.selectObject({
           sql: `
@@ -363,7 +403,7 @@ describe('developer-tools-controllers', () => {
           bind: { $player_id: playerId },
           schema: z.strictObject({
             id: z.number(),
-            tileId: z.number(),
+            tileId: tileIdSchema,
           }),
         })!;
 
@@ -382,8 +422,8 @@ describe('developer-tools-controllers', () => {
 
         startHeroAdventure(
           database,
-          createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
-            path: { playerId },
+          createControllerArgs<'/me/hero/adventures', 'post'>({
+            context: { playerId },
           }),
         );
 
@@ -437,8 +477,8 @@ describe('developer-tools-controllers', () => {
           `,
           schema: z.strictObject({
             amount: z.number(),
-            tileId: z.number(),
-            sourceTileId: z.number(),
+            tileId: tileIdSchema,
+            sourceTileId: tileIdSchema,
           }),
         });
 
@@ -459,7 +499,7 @@ describe('developer-tools-controllers', () => {
 
   describe(spawnHeroItem, () => {
     test('should add item to hero inventory', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -469,12 +509,10 @@ describe('developer-tools-controllers', () => {
 
       spawnHeroItem(
         database,
-        createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
-          {
-            path: { heroId },
-            body: { itemId: 1, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/developer/heroes/:heroId/spawn-item', 'patch'>({
+          path: { heroId },
+          body: { itemId: 1, amount: 1 },
+        }),
       );
 
       const inventory = database.selectObjects({
@@ -488,12 +526,10 @@ describe('developer-tools-controllers', () => {
       // Spawn again
       spawnHeroItem(
         database,
-        createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
-          {
-            path: { heroId },
-            body: { itemId: 1, amount: 1 },
-          },
-        ),
+        createControllerArgs<'/developer/heroes/:heroId/spawn-item', 'patch'>({
+          path: { heroId },
+          body: { itemId: 1, amount: 1 },
+        }),
       );
 
       const inventoryUpdated = database.selectObjects({
@@ -511,7 +547,7 @@ describe('developer-tools-controllers', () => {
 
   describe(incrementHeroAdventurePoints, () => {
     test('should increment hero adventure points', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = 9 * 60 * 60 * 1000;
 
       vi.useFakeTimers();
@@ -542,7 +578,7 @@ describe('developer-tools-controllers', () => {
       incrementHeroAdventurePoints(
         database,
         createControllerArgs<
-          '/developer-settings/:heroId/increment-adventure-points',
+          '/developer/heroes/:heroId/increment-adventure-points',
           'patch'
         >({
           path: { heroId },
@@ -567,18 +603,19 @@ describe('developer-tools-controllers', () => {
 
   describe(levelUpHero, () => {
     test('should level up hero by increasing experience to next level', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const hero = database.selectObject({
         sql: 'SELECT id, experience FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number(), experience: z.number() }),
       })!;
+
       const heroId = hero.id;
 
       levelUpHero(
         database,
-        createControllerArgs<'/developer-settings/:heroId/level-up', 'patch'>({
+        createControllerArgs<'/developer/heroes/:heroId/level-up', 'patch'>({
           path: { heroId },
         }),
       );
@@ -595,7 +632,7 @@ describe('developer-tools-controllers', () => {
       // Level up again
       levelUpHero(
         database,
-        createControllerArgs<'/developer-settings/:heroId/level-up', 'patch'>({
+        createControllerArgs<'/developer/heroes/:heroId/level-up', 'patch'>({
           path: { heroId },
         }),
       );

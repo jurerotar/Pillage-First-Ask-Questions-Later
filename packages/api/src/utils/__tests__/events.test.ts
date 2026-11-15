@@ -1,6 +1,11 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import {
+  prepareTestDatabase,
+  setTestBuildingLevel,
+  setTestDeveloperSetting,
+  setTestWoundedTroopAmount,
+} from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   calculateBuildingDestructionDuration,
@@ -20,12 +25,15 @@ import {
   TRAPPER_CAGE_COST,
 } from '@pillage-first/game-assets/utils/trapper';
 import {
+  createAnimalCageProductionEventMock,
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
   createGameEventMock,
   createHeroHealthRegenerationEventMock,
   createHeroRevivalEventMock,
+  createHuntersLodgeHuntEventMock,
+  createTrapperCageProductionEventMock,
   createTroopMovementAdventureEventMock,
   createTroopMovementAttackEventMock,
   createTroopMovementFindNewVillageEventMock,
@@ -37,9 +45,11 @@ import {
 } from '@pillage-first/mocks/event';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { selectResourceSiteResourcesRelevantEffectsByTileIdQuery } from '../../queries/effect-queries';
 import { createEvents } from '../create-event';
 import {
   getEventCost,
@@ -50,6 +60,7 @@ import {
   runEventCreationSideEffects,
   validateEventCreationPrerequisites,
 } from '../events';
+import { calculateResourceSiteResourcesAt } from '../village';
 
 const getAnyVillageId = (database: DbFacade): number => {
   return database.selectValue({
@@ -66,116 +77,33 @@ const getTileIdByCoordinates = (
   return database.selectValue({
     sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
     bind: { $x: coordinates.x, $y: coordinates.y },
-    schema: z.number(),
+    schema: tileIdSchema,
   })!;
 };
 
-const setDevFlag = (database: DbFacade, column: string, value: number) => {
-  database.exec({
-    sql: `UPDATE developer_settings SET ${column} = $value`,
-    bind: { $value: value },
-  });
-};
-
-const setHuntersLodgeLevel = (
+const getAnyVillageWithTile = (
   database: DbFacade,
-  villageId: number,
-  level: number,
-) => {
-  database.exec({
+): { id: number; tileId: number } => {
+  return database.selectObject({
     sql: `
-      INSERT INTO
-        building_fields (village_id, field_id, building_id, level)
-      SELECT
-        $village_id, 20, id, $level
-      FROM
-        building_ids
-      WHERE
-        building = 'HUNTERS_LODGE'
-      ON CONFLICT(village_id, field_id) DO UPDATE SET
-        building_id = EXCLUDED.building_id,
-        level = EXCLUDED.level;
+      SELECT id, tile_id AS tileId
+      FROM villages
+      WHERE player_id = $player_id
+      ORDER BY id
+      LIMIT 1;
     `,
-    bind: {
-      $village_id: villageId,
-      $level: level,
-    },
-  });
-};
-
-const setVillageBuildingLevel = (
-  database: DbFacade,
-  villageId: number,
-  buildingId: string,
-  level: number,
-  fieldId = 20,
-) => {
-  database.exec({
-    sql: `
-      INSERT INTO
-        building_fields (village_id, field_id, building_id, level)
-      SELECT
-        $village_id, $field_id, id, $level
-      FROM
-        building_ids
-      WHERE
-        building = $building_id
-      ON CONFLICT(village_id, field_id) DO UPDATE SET
-        building_id = EXCLUDED.building_id,
-        level = EXCLUDED.level;
-    `,
-    bind: {
-      $village_id: villageId,
-      $field_id: fieldId,
-      $building_id: buildingId,
-      $level: level,
-    },
-  });
-};
-
-const setWoundedTroopAmount = (
-  database: DbFacade,
-  villageId: number,
-  unitId: Unit['id'],
-  amount: number,
-  updatedAt = Date.now() + 60_000,
-) => {
-  database.exec({
-    sql: `
-      DELETE FROM wounded_troops
-      WHERE
-        village_id = $village_id
-        AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);
-    `,
-    bind: {
-      $village_id: villageId,
-      $unit_id: unitId,
-    },
-  });
-
-  database.exec({
-    sql: `
-      INSERT INTO wounded_troops (village_id, unit_id, amount, updated_at)
-      VALUES (
-        $village_id,
-        (SELECT id FROM unit_ids WHERE unit = $unit_id),
-        $amount,
-        $updated_at
-      );
-    `,
-    bind: {
-      $village_id: villageId,
-      $unit_id: unitId,
-      $amount: amount,
-      $updated_at: updatedAt,
-    },
-  });
+    bind: { $player_id: PLAYER_ID },
+    schema: z.strictObject({
+      id: z.number(),
+      tileId: tileIdSchema,
+    }),
+  })!;
 };
 
 describe('events utils', () => {
   describe(validateEventCreationPrerequisites, () => {
     test('unitImprovement - should throw if smithy is busy', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -198,6 +126,7 @@ describe('events utils', () => {
 
       const startsAt = 1000;
       const duration = 500;
+
       insertEvents(database, [
         createUnitImprovementEventMock({
           id: 99_001,
@@ -218,7 +147,7 @@ describe('events utils', () => {
     });
 
     test('unitImprovement - should return true if smithy is idle', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -250,7 +179,7 @@ describe('events utils', () => {
     });
 
     test('unitImprovement - should throw if target level exceeds 20', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       expect(() =>
@@ -265,7 +194,7 @@ describe('events utils', () => {
     });
 
     test('unitImprovement - should throw if smithy level is lower than requested upgrade level', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -298,11 +227,12 @@ describe('events utils', () => {
     });
 
     test('unitResearch - should throw if academy is busy', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       const startsAt = 2000;
       const duration = 500;
+
       insertEvents(database, [
         createUnitResearchEventMock({
           id: 99_101,
@@ -325,12 +255,15 @@ describe('events utils', () => {
     });
 
     test('unitResearch - should throw if unit is already researched', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
-        sql: `INSERT INTO unit_research (village_id, unit_id)
-              VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))`,
+        sql: `
+          INSERT INTO unit_research (village_id, unit_id)
+          VALUES
+            ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))
+        `,
         bind: { $village_id: villageId, $unit: 'PHALANX' },
       });
 
@@ -346,11 +279,16 @@ describe('events utils', () => {
     });
 
     test('unitResearch - should not throw if academy idle and unit not researched', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
+
       database.exec({
-        sql: `DELETE FROM unit_research
-              WHERE village_id = $village_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
+        sql: `
+          DELETE FROM unit_research
+          WHERE
+            village_id = $village_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)
+        `,
         bind: { $village_id: villageId, $unit: 'PHALANX' },
       });
 
@@ -366,7 +304,7 @@ describe('events utils', () => {
     });
 
     test('unitResearch - should throw if unit does not belong to village tribe', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       expect(() =>
@@ -381,10 +319,10 @@ describe('events utils', () => {
     });
 
     test('unitResearch - should throw if research building requirements are missing', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      setVillageBuildingLevel(database, villageId, 'ACADEMY', 2);
+      setTestBuildingLevel(database, villageId, 'ACADEMY', 2);
 
       expect(() =>
         validateEventCreationPrerequisites(
@@ -398,10 +336,10 @@ describe('events utils', () => {
     });
 
     test('unitResearch - should not throw if research building requirements are met', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      setVillageBuildingLevel(database, villageId, 'ACADEMY', 3);
+      setTestBuildingLevel(database, villageId, 'ACADEMY', 3);
 
       expect(() =>
         validateEventCreationPrerequisites(
@@ -415,7 +353,7 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should throw if unit does not belong to village tribe', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       const event = createTroopTrainingEventMock({
@@ -429,7 +367,7 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should throw if unit is not researched', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       const event = createTroopTrainingEventMock({
@@ -443,10 +381,10 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should throw if training building does not match unit category', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      setVillageBuildingLevel(database, villageId, 'STABLE', 1);
+      setTestBuildingLevel(database, villageId, 'STABLE', 1);
 
       const event = createTroopTrainingEventMock({
         villageId,
@@ -461,10 +399,10 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should throw if duration effect does not match training building', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      setVillageBuildingLevel(database, villageId, 'BARRACKS', 1);
+      setTestBuildingLevel(database, villageId, 'BARRACKS', 1);
 
       const event = createTroopTrainingEventMock({
         villageId,
@@ -479,10 +417,10 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should throw if recruitment building requirements are missing', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      setVillageBuildingLevel(database, villageId, 'RESIDENCE', 9);
+      setTestBuildingLevel(database, villageId, 'RESIDENCE', 9);
 
       const event = createTroopTrainingEventMock({
         villageId,
@@ -497,11 +435,17 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should throw if healing unit is not researched', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      setVillageBuildingLevel(database, villageId, 'HOSPITAL', 10);
-      setWoundedTroopAmount(database, villageId, 'SWORDSMAN', 5);
+      setTestBuildingLevel(database, villageId, 'HOSPITAL', 10);
+      setTestWoundedTroopAmount(
+        database,
+        villageId,
+        'SWORDSMAN',
+        5,
+        Date.now() + 60_000,
+      );
 
       const event = createTroopTrainingEventMock({
         villageId,
@@ -517,11 +461,17 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should throw if healing more troops than are wounded', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      setVillageBuildingLevel(database, villageId, 'HOSPITAL', 10);
-      setWoundedTroopAmount(database, villageId, 'PHALANX', 4);
+      setTestBuildingLevel(database, villageId, 'HOSPITAL', 10);
+      setTestWoundedTroopAmount(
+        database,
+        villageId,
+        'PHALANX',
+        4,
+        Date.now() + 60_000,
+      );
 
       const event = createTroopTrainingEventMock({
         villageId,
@@ -537,7 +487,7 @@ describe('events utils', () => {
     });
 
     test('buildingLevelChange - should throw if target level exceeds max level', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const { maxLevel } = getBuildingDefinition('MAIN_BUILDING');
 
@@ -554,7 +504,7 @@ describe('events utils', () => {
     });
 
     test('buildingConstruction - should throw if target level exceeds max level', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const { maxLevel } = getBuildingDefinition('MAIN_BUILDING');
 
@@ -571,7 +521,7 @@ describe('events utils', () => {
     });
 
     test('buildingConstruction - should throw if building field is already occupied', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const occupiedBuildingFieldId = database.selectValue({
         sql: `
@@ -599,7 +549,7 @@ describe('events utils', () => {
     });
 
     test('buildingConstruction - should not throw if building field is not occupied', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const buildingFieldId = database.selectValue({
         sql: `
@@ -640,16 +590,20 @@ describe('events utils', () => {
     });
 
     test('buildingConstruction - should throw if building requirements are missing', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const buildingFieldId = 25;
 
-      database.exec({
+      database.execMulti({
         sql: `
           DELETE FROM effects
-          WHERE village_id = $village_id AND source_specifier = $field_id;
+          WHERE
+            tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+            AND source_specifier = $field_id;
           DELETE FROM building_fields
-          WHERE village_id = $village_id AND field_id = $field_id;
+          WHERE
+            village_id = $village_id
+            AND field_id = $field_id;
         `,
         bind: {
           $village_id: villageId,
@@ -670,7 +624,7 @@ describe('events utils', () => {
     });
 
     test('buildingLevelChange - should not check construction requirements for level ups', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const buildingFieldId = 25;
 
@@ -709,8 +663,63 @@ describe('events utils', () => {
       ).not.toThrow();
     });
 
+    test('buildingLevelChange - does not require positive wheat production', async () => {
+      using database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const buildingFieldId = database.selectValue({
+        sql: `
+          SELECT bf.field_id
+          FROM
+            building_fields bf
+              JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE
+            bf.village_id = $village_id
+            AND bi.building = 'WHEAT_FIELD'
+          LIMIT 1;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      })!;
+
+      database.exec({
+        sql: `
+          UPDATE effects
+          SET value = -100000
+          WHERE
+            tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+            AND effect_id = (
+              SELECT id FROM effect_ids WHERE effect = 'wheatProduction'
+            )
+            AND source_id = (
+              SELECT id FROM effect_source_ids WHERE source = 'building'
+            )
+            AND source_specifier = 0;
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId,
+            buildingId: 'WHEAT_FIELD',
+            previousLevel: 5,
+            level: 6,
+          }),
+        ),
+      ).not.toThrow();
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({ villageId }),
+        ),
+      ).not.toThrow();
+    });
+
     test('troopMovementAdventure - should throw if no adventure points are available', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -735,14 +744,15 @@ describe('events utils', () => {
     });
 
     test("huntersLodgeHunt - should throw if party level exceeds Hunter's Lodge level", async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      setHuntersLodgeLevel(database, villageId, 2);
+
+      setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 2);
 
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createGameEventMock('huntersLodgeHunt', {
+          createHuntersLodgeHuntEventMock({
             villageId,
             huntingPartyLevel: 3,
           }),
@@ -751,11 +761,13 @@ describe('events utils', () => {
     });
 
     test("huntersLodgeHunt - should throw if Hunter's Lodge is already hunting", async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      setHuntersLodgeLevel(database, villageId, 2);
+
+      setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 2);
+
       insertEvents(database, [
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           villageId,
           huntingPartyLevel: 1,
         }),
@@ -764,7 +776,7 @@ describe('events utils', () => {
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createGameEventMock('huntersLodgeHunt', {
+          createHuntersLodgeHuntEventMock({
             villageId,
             huntingPartyLevel: 1,
           }),
@@ -773,7 +785,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingEvent - non-Romans should throw if building queue is full', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       // Set tribe to Teutons (not Romans)
@@ -807,7 +819,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingEvent - Romans should not throw if one resource and one village building are in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       // Set tribe to Romans
@@ -841,7 +853,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingEvent - Romans should throw if two resource field events are in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       // Set tribe to Romans
@@ -875,7 +887,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingEvent - Romans should throw if two village building events are in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       // Set tribe to Romans
@@ -908,7 +920,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingEvent - should not throw if only downgrade event is in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       // Set tribe to Teutons (not Romans) so queue is shared
@@ -942,7 +954,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingEvent - should not throw if only buildingDestruction event is in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       insertEvents(database, [
@@ -963,7 +975,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingDowngradeEvent - should throw if main building level is lower than 10', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -989,7 +1001,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingDowngradeEvent - should not throw if main building level is at least 10', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1015,7 +1027,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingDowngradeEvent - should throw if another downgrade event is already in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1049,7 +1061,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingDowngradeEvent - should throw if a building destruction event is already in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1083,7 +1095,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingDestructionEvent - should throw if a building downgrade event is already in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1114,7 +1126,7 @@ describe('events utils', () => {
     });
 
     test('isBuildingDestructionEvent - should throw if building destruction is already in progress', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1147,7 +1159,7 @@ describe('events utils', () => {
     });
 
     test('troopMovementAdventure - should not throw if adventure points are available', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1172,7 +1184,7 @@ describe('events utils', () => {
     });
 
     test('troopMovementAdventure - should throw if hero is reinforcing another village', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const homeVillage = database.selectObject({
         sql: `
@@ -1183,7 +1195,7 @@ describe('events utils', () => {
           LIMIT 1;
         `,
         bind: { $player_id: PLAYER_ID },
-        schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+        schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
       })!;
 
       const reinforcedVillage = database.selectObject({
@@ -1209,7 +1221,7 @@ describe('events utils', () => {
           $home_tile_id: homeVillage.tile_id,
           $player_id: PLAYER_ID,
         },
-        schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+        schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
       })!;
 
       database.exec({
@@ -1266,7 +1278,7 @@ describe('events utils', () => {
     });
 
     test('troopMovementOasisOccupation - should throw if no free oasis occupation slots', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1280,14 +1292,14 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('No free oasis occupation slots available');
     });
 
     test('troopMovementOasisOccupation - should not throw if free oasis occupation slot exists', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1317,14 +1329,14 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).not.toThrow();
     });
 
     test('troopMovementOasisOccupation - should throw if all slots are already used', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1363,18 +1375,19 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('No free oasis occupation slots available');
     });
 
     test('troopMovementAttack - should throw if target is not village or oasis', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       database.exec({
         sql: 'DELETE FROM villages WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
       });
+
       database.exec({
         sql: 'DELETE FROM oasis WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
       });
@@ -1390,12 +1403,12 @@ describe('events utils', () => {
     });
 
     test('troopMovementAttack - should not throw if target is village', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const targetTileId = database.selectValue({
         sql: 'SELECT tile_id FROM villages WHERE id = $id',
         bind: { $id: villageId },
-        schema: z.number(),
+        schema: tileIdSchema,
       })!;
 
       expect(() =>
@@ -1407,7 +1420,7 @@ describe('events utils', () => {
     });
 
     test('troopMovementAttack - should not throw if target is oasis', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const targetTileId = database.selectValue({
         sql: 'SELECT tile_id FROM oasis LIMIT 1',
         schema: z.number(),
@@ -1422,11 +1435,12 @@ describe('events utils', () => {
     });
 
     test('troopMovementRaid - should throw if target is not village or oasis', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       database.exec({
         sql: 'DELETE FROM villages WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
       });
+
       database.exec({
         sql: 'DELETE FROM oasis WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
       });
@@ -1442,7 +1456,7 @@ describe('events utils', () => {
     });
 
     test('troopMovementRaid - should not throw if target is oasis', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const targetTileId = database.selectValue({
         sql: 'SELECT tile_id FROM oasis LIMIT 1',
         schema: z.number(),
@@ -1457,12 +1471,12 @@ describe('events utils', () => {
     });
 
     test('troopMovementFindNewVillage - should throw if target is occupied', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const targetTileId = database.selectValue({
         sql: 'SELECT tile_id FROM villages WHERE id = $id',
         bind: { $id: villageId },
-        schema: z.number(),
+        schema: tileIdSchema,
       })!;
 
       expect(() =>
@@ -1470,13 +1484,21 @@ describe('events utils', () => {
           database,
           createTroopMovementFindNewVillageEventMock({
             targetTileId,
+            troops: [
+              {
+                unitId: 'ROMAN_SETTLER',
+                amount: 3,
+                tileId: 1,
+                sourceTileId: 1,
+              },
+            ],
           }),
         ),
       ).toThrow('Target tile must be unoccupied');
     });
 
     test('troopMovementOasisOccupation - should throw if target is not oasis', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       // Give some levels to hero's mansion so we don't get "No free oasis occupation slots available" error first
@@ -1506,14 +1528,14 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('Target must be an oasis');
     });
 
     test('troopMovementOasisOccupation - should throw if already occupied by you', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const { targetTileId, x, y } = database.selectObject({
         sql: `
@@ -1523,14 +1545,20 @@ describe('events utils', () => {
           LIMIT 1
         `,
         schema: z.strictObject({
-          targetTileId: z.number(),
+          targetTileId: tileIdSchema,
           x: z.number(),
           y: z.number(),
         }),
       })!;
 
       database.exec({
-        sql: 'UPDATE oasis SET village_id = $villageId WHERE tile_id = (SELECT id FROM tiles WHERE x = $x AND y = $y)',
+        sql: `
+          UPDATE oasis
+          SET
+            village_id = $villageId
+          WHERE
+            tile_id = (SELECT id FROM tiles WHERE x = $x AND y = $y)
+        `,
         bind: { $villageId: villageId, $x: x, $y: y },
       });
 
@@ -1540,13 +1568,14 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId,
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('Oasis is already occupied by you');
     });
 
     test('troopMovementRelocation - should throw if target tile does not exist', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       expect(() =>
         validateEventCreationPrerequisites(
@@ -1559,7 +1588,7 @@ describe('events utils', () => {
     });
 
     test('troopMovementRelocation - should throw if target tile is an occupied oasis', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const targetTileId = database.selectValue({
         sql: `
@@ -1594,7 +1623,8 @@ describe('events utils', () => {
     });
 
     test('return troop movements - should not throw by default', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
+
       expect(() =>
         validateEventCreationPrerequisites(
           database,
@@ -1602,7 +1632,7 @@ describe('events utils', () => {
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             originalMovementType: 'troopMovementReturnReinforcements',
             troops: [
-              { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 },
+              { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, sourceTileId: 1 },
             ],
           }),
         ),
@@ -1610,7 +1640,7 @@ describe('events utils', () => {
     });
 
     test('heroRevival - should throw if hero is already alive', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1629,7 +1659,7 @@ describe('events utils', () => {
     });
 
     test('heroRevival - should not throw if hero is dead', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -1650,7 +1680,7 @@ describe('events utils', () => {
 
   describe(runEventCreationSideEffects, () => {
     test('troopMovementAdventure - should materialize accrued points before spending one', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -1698,23 +1728,32 @@ describe('events utils', () => {
     });
 
     test('troopMovement - should remove troops for movements', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       const villageTileId = database.selectValue({
         sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
         bind: { $village_id: villageId },
-        schema: z.number(),
+        schema: tileIdSchema,
       })!;
 
       // Seed some troops
       database.exec({
-        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        sql: `
+          DELETE FROM troops
+          WHERE
+            unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')
+            AND tile_id = $tile_id
+        `,
         bind: { $tile_id: villageTileId },
       });
+
       database.exec({
-        sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
+        sql: `
+          INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+          VALUES
+            ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)
+        `,
         bind: { $tile_id: villageTileId },
       });
 
@@ -1725,7 +1764,7 @@ describe('events utils', () => {
             unitId: 'LEGIONNAIRE',
             amount: 40,
             tileId: villageTileId,
-            source: villageTileId,
+            sourceTileId: villageTileId,
           },
         ],
       });
@@ -1733,7 +1772,15 @@ describe('events utils', () => {
       runEventCreationSideEffects(database, [event]);
 
       const amount = database.selectValue({
-        sql: "SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')
+            AND tile_id = $tile_id
+        `,
         bind: { $tile_id: villageTileId },
         schema: z.number(),
       });
@@ -1742,31 +1789,50 @@ describe('events utils', () => {
     });
 
     test('troopMovement - should remove troops for multiple movements', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const villageTileId = database.selectValue({
         sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
         bind: { $village_id: villageId },
-        schema: z.number(),
+        schema: tileIdSchema,
       })!;
 
       // Seed some troops
       database.exec({
-        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        sql: `
+          DELETE FROM troops
+          WHERE
+            unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')
+            AND tile_id = $tile_id
+        `,
         bind: { $tile_id: villageTileId },
       });
+
       database.exec({
-        sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
+        sql: `
+          INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+          VALUES
+            ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)
+        `,
         bind: { $tile_id: villageTileId },
       });
+
       database.exec({
-        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN') AND tile_id = $tile_id",
+        sql: `
+          DELETE FROM troops
+          WHERE
+            unit_id = (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN')
+            AND tile_id = $tile_id
+        `,
         bind: { $tile_id: villageTileId },
       });
+
       database.exec({
-        sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, $tile_id, $tile_id)`,
+        sql: `
+          INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+          VALUES
+            ((SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, $tile_id, $tile_id)
+        `,
         bind: { $tile_id: villageTileId },
       });
 
@@ -1778,7 +1844,7 @@ describe('events utils', () => {
               unitId: 'LEGIONNAIRE',
               amount: 40,
               tileId: villageTileId,
-              source: villageTileId,
+              sourceTileId: villageTileId,
             },
           ],
         }),
@@ -1789,7 +1855,7 @@ describe('events utils', () => {
               unitId: 'PRAETORIAN',
               amount: 60,
               tileId: villageTileId,
-              source: villageTileId,
+              sourceTileId: villageTileId,
             },
           ],
         }),
@@ -1799,7 +1865,15 @@ describe('events utils', () => {
 
       const getAmount = (unit: Unit['id']) =>
         database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit) AND tile_id = $tile_id',
+          sql: `
+            SELECT
+              amount
+            FROM
+              troops
+            WHERE
+              unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)
+              AND tile_id = $tile_id
+          `,
           bind: { $unit: unit, $tile_id: villageTileId },
           schema: z.number(),
         });
@@ -1809,10 +1883,16 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should remove wounded troops when healing is queued', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      setWoundedTroopAmount(database, villageId, 'LEGIONNAIRE', 10);
+      setTestWoundedTroopAmount(
+        database,
+        villageId,
+        'LEGIONNAIRE',
+        10,
+        Date.now() + 60_000,
+      );
 
       runEventCreationSideEffects(database, [
         createTroopTrainingEventMock({
@@ -1842,52 +1922,76 @@ describe('events utils', () => {
 
   describe(getEventCost, () => {
     test('buildingLevelUp - should return zero cost if free building construction enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_building_construction_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(
+        database,
+        'is_free_building_construction_enabled',
+        1,
+      );
+
       const event = createBuildingLevelChangeEventMock();
 
       const result = getEventCost(database, event);
+
       expect(result).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('buildingLevelUp - should return non-zero cost if free building construction disabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_building_construction_enabled', 0);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(
+        database,
+        'is_free_building_construction_enabled',
+        0,
+      );
+
       const event = createBuildingLevelChangeEventMock();
 
       const result = getEventCost(database, event);
+
       expect(result).toHaveLength(4);
       expect(result.some((v) => v > 0)).toBe(true);
     });
 
     test('unitResearch - should return zero cost if free unit research enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_unit_research_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_free_unit_research_enabled', 1);
+
       const event = createUnitResearchEventMock();
+
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('unitImprovement - should return zero cost if free unit improvement enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_unit_improvement_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_free_unit_improvement_enabled', 1);
+
       const event = createUnitImprovementEventMock();
+
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('troopTraining - should return zero cost if free unit training enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_unit_training_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 1);
+
       const event = createTroopTrainingEventMock({
         amount: 10,
       });
+
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('animalCageProduction - should return zero cost if free unit training enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_unit_training_enabled', 1);
+      using database = await prepareTestDatabase();
 
-      const event = createGameEventMock('animalCageProduction', {
+      setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 1);
+
+      const event = createAnimalCageProductionEventMock({
         cageAmount: 2,
       });
 
@@ -1895,10 +1999,11 @@ describe('events utils', () => {
     });
 
     test('trapperCageProduction - should return zero cost if free unit training enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_unit_training_enabled', 1);
+      using database = await prepareTestDatabase();
 
-      const event = createGameEventMock('trapperCageProduction', {
+      setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 1);
+
+      const event = createTrapperCageProductionEventMock({
         cageAmount: 2,
       });
 
@@ -1906,9 +2011,9 @@ describe('events utils', () => {
     });
 
     test('animalCageProduction - should return cost for the full cage batch', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
-      const event = createGameEventMock('animalCageProduction', {
+      const event = createAnimalCageProductionEventMock({
         cageAmount: 2,
       });
 
@@ -1918,9 +2023,9 @@ describe('events utils', () => {
     });
 
     test('trapperCageProduction - should return cost for the full cage batch', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
-      const event = createGameEventMock('trapperCageProduction', {
+      const event = createTrapperCageProductionEventMock({
         cageAmount: 2,
       });
 
@@ -1929,29 +2034,39 @@ describe('events utils', () => {
       );
     });
 
-    test('troopTraining - should return tripled cost for Great Barracks vs Barracks', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_unit_training_enabled', 0);
-      const baseEvent = createTroopTrainingEventMock({
-        amount: 10,
-      });
-      const greatEvent = {
-        ...baseEvent,
-        buildingId: 'GREAT_BARRACKS',
-      } as GameEvent<'troopTraining'>;
+    test.each([
+      ['BARRACKS', 'GREAT_BARRACKS'],
+      ['STABLE', 'GREAT_STABLE'],
+    ] as const)(
+      'troopTraining - should return tripled cost for %s vs %s',
+      async (buildingId, greatBuildingId) => {
+        using database = await prepareTestDatabase();
 
-      const baseCost = getEventCost(database, baseEvent);
-      const greatCost = getEventCost(database, greatEvent);
+        setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 0);
 
-      expect(greatCost).toStrictEqual(baseCost.map((v) => v * 3));
-    });
+        const baseEvent = createTroopTrainingEventMock({
+          buildingId,
+          amount: 10,
+        });
+
+        const greatEvent = {
+          ...baseEvent,
+          buildingId: greatBuildingId,
+        } as GameEvent<'troopTraining'>;
+
+        const baseCost = getEventCost(database, baseEvent);
+        const greatCost = getEventCost(database, greatEvent);
+
+        expect(greatCost).toStrictEqual(baseCost.map((v) => v * 3));
+      },
+    );
 
     test('huntersLodgeHunt - should return wheat cost based on party level', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const cost = getEventCost(
         database,
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 3,
         }),
       );
@@ -1960,12 +2075,13 @@ describe('events utils', () => {
     });
 
     test('huntersLodgeHunt - should return zero cost if free hunting parties enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_hunting_parties_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_free_hunting_parties_enabled', 1);
 
       const cost = getEventCost(
         database,
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 3,
         }),
       );
@@ -1974,7 +2090,7 @@ describe('events utils', () => {
     });
 
     test('heroRevival - should return correct cost', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       const { experience, tribe } = database.selectObject({
@@ -2008,9 +2124,10 @@ describe('events utils', () => {
     });
 
     test('heroRevival - should return zero cost if free hero revival enabled', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      setDevFlag(database, 'is_free_hero_revive_enabled', 1);
+
+      setTestDeveloperSetting(database, 'is_free_hero_revive_enabled', 1);
 
       const result = getEventCost(
         database,
@@ -2023,15 +2140,80 @@ describe('events utils', () => {
     });
   });
 
+  test('small celebration developer flags independently control cost and duration', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = getAnyVillageId(database);
+
+    const event = {
+      ...createGameEventMock('culturePointsCelebration'),
+      villageId,
+      celebrationType: 'small' as const,
+    };
+
+    const cost = getEventCost(database, event);
+    const duration = getEventDuration(database, event);
+
+    expect(cost.some((value) => value > 0)).toBe(true);
+    expect(duration).toBeGreaterThan(0);
+
+    setTestDeveloperSetting(database, 'is_free_celebrations_enabled', 1);
+
+    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+    expect(getEventDuration(database, event)).toBe(duration);
+
+    setTestDeveloperSetting(database, 'is_instant_celebrations_enabled', 1);
+
+    expect(getEventDuration(database, event)).toBe(0);
+    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+
+    setTestDeveloperSetting(database, 'is_free_celebrations_enabled', 0);
+
+    expect(getEventCost(database, event)).toStrictEqual(cost);
+    expect(getEventDuration(database, event)).toBe(0);
+  });
+
+  test('large celebration developer flags independently control cost and duration', async () => {
+    using database = await prepareTestDatabase();
+    const villageId = getAnyVillageId(database);
+
+    const event = {
+      ...createGameEventMock('culturePointsCelebration'),
+      villageId,
+      celebrationType: 'large' as const,
+    };
+
+    const cost = getEventCost(database, event);
+    const duration = getEventDuration(database, event);
+
+    expect(cost.some((value) => value > 0)).toBe(true);
+    expect(duration).toBeGreaterThan(0);
+
+    setTestDeveloperSetting(database, 'is_free_celebrations_enabled', 1);
+
+    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+    expect(getEventDuration(database, event)).toBe(duration);
+
+    setTestDeveloperSetting(database, 'is_instant_celebrations_enabled', 1);
+
+    expect(getEventDuration(database, event)).toBe(0);
+    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+
+    setTestDeveloperSetting(database, 'is_free_celebrations_enabled', 0);
+
+    expect(getEventCost(database, event)).toStrictEqual(cost);
+    expect(getEventDuration(database, event)).toBe(0);
+  });
+
   describe(getEventDuration, () => {
     test('buildingConstruction - should return 0', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const event = createGameEventMock('buildingConstruction');
+
       expect(getEventDuration(database, event)).toBe(0);
     });
 
     test('buildingDestruction - should return duration based on level and server speed', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       database.exec({
@@ -2045,51 +2227,73 @@ describe('events utils', () => {
       });
 
       const expectedDuration = calculateBuildingDestructionDuration(6, 2);
+
       expect(getEventDuration(database, event)).toBe(expectedDuration);
     });
 
     test('buildingLevelUp - should return 0 if instant construction enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_building_construction_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(
+        database,
+        'is_instant_building_construction_enabled',
+        1,
+      );
+
       const event = createBuildingLevelChangeEventMock({
         villageId: getAnyVillageId(database),
       });
+
       expect(getEventDuration(database, event)).toBe(0);
     });
 
     test('unitResearch - should return 0 if instant research enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_research_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_instant_unit_research_enabled', 1);
+
       const event = createUnitResearchEventMock({
         villageId: getAnyVillageId(database),
       });
+
       expect(getEventDuration(database, event)).toBe(0);
     });
 
     test('unitImprovement - should return 0 if instant improvement enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_improvement_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(
+        database,
+        'is_instant_unit_improvement_enabled',
+        1,
+      );
+
       const event = createUnitImprovementEventMock({
         villageId: getAnyVillageId(database),
       });
+
       expect(getEventDuration(database, event)).toBe(0);
     });
 
     test('troopTraining - should return 0 if instant training enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_training_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 1);
+
       const event = createTroopTrainingEventMock({
         villageId: getAnyVillageId(database),
         amount: 10,
       });
+
       expect(getEventDuration(database, event)).toBe(0);
     });
 
     test('animalCageProduction - should return 0 if instant unit training enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_training_enabled', 1);
+      using database = await prepareTestDatabase();
 
-      const event = createGameEventMock('animalCageProduction', {
+      setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 1);
+
+      const event = createAnimalCageProductionEventMock({
         cageAmount: 3,
       });
 
@@ -2097,10 +2301,11 @@ describe('events utils', () => {
     });
 
     test('trapperCageProduction - should return 0 if instant unit training enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_training_enabled', 1);
+      using database = await prepareTestDatabase();
 
-      const event = createGameEventMock('trapperCageProduction', {
+      setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 1);
+
+      const event = createTrapperCageProductionEventMock({
         cageAmount: 3,
       });
 
@@ -2108,49 +2313,213 @@ describe('events utils', () => {
     });
 
     test('buildingLevelUp - should apply effects and return a positive duration', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_building_construction_enabled', 0);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(
+        database,
+        'is_instant_building_construction_enabled',
+        0,
+      );
+
       const event = createBuildingLevelChangeEventMock({
         villageId: getAnyVillageId(database),
       });
+
       const result = getEventDuration(database, event);
-      expect(result).toBeGreaterThanOrEqual(0);
+
+      expect(result).toBeGreaterThan(0);
     });
 
     test('unitResearch - should apply effects and return a positive duration', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_research_enabled', 0);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_instant_unit_research_enabled', 0);
+
       const event = createUnitResearchEventMock({
         villageId: getAnyVillageId(database),
       });
+
       const result = getEventDuration(database, event);
+
       expect(result).toBeGreaterThan(0);
     });
 
     test('unitImprovement - should apply effects and return a positive duration', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_improvement_enabled', 0);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(
+        database,
+        'is_instant_unit_improvement_enabled',
+        0,
+      );
+
       const event = createUnitImprovementEventMock({
         villageId: getAnyVillageId(database),
       });
+
       const result = getEventDuration(database, event);
+
       expect(result).toBeGreaterThan(0);
     });
 
     test('troopTraining - should apply effects and return a positive duration', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_training_enabled', 0);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 0);
+
       const event = createTroopTrainingEventMock({
         villageId: getAnyVillageId(database),
         amount: 10,
       });
+
       const result = getEventDuration(database, event);
+
       expect(result).toBeGreaterThan(0);
     });
 
+    test('troopMovementAttack - should apply local speed effects by origin tile id', async () => {
+      using database = await prepareTestDatabase();
+      const village = getAnyVillageWithTile(database);
+
+      expect(village.id).not.toBe(village.tileId);
+
+      const targetTileId = database.selectValue({
+        sql: `
+          SELECT id
+          FROM tiles
+          WHERE id != $origin_tile_id
+          ORDER BY
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) *
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) +
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id)) *
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id))
+          LIMIT 1;
+        `,
+        bind: { $origin_tile_id: village.tileId },
+        schema: tileIdSchema,
+      })!;
+
+      const event = createTroopMovementAttackEventMock({
+        villageId: village.id,
+        originTileId: village.tileId,
+        targetTileId,
+        troops: [
+          {
+            unitId: 'LEGIONNAIRE',
+            amount: 10,
+            tileId: village.tileId,
+            sourceTileId: village.tileId,
+          },
+        ],
+      });
+
+      database.exec({
+        sql: `
+          DELETE FROM effects
+          WHERE effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields')
+          );
+        `,
+      });
+
+      const durationWithoutBonus = getEventDuration(database, event);
+
+      database.exec({
+        sql: `
+          INSERT INTO effects (
+            effect_id,
+            value,
+            type_id,
+            scope_id,
+            source_id,
+            tile_id,
+            source_specifier
+          )
+          VALUES (
+            (SELECT id FROM effect_ids WHERE effect = 'unitSpeed'),
+            2,
+            (SELECT id FROM effect_type_ids WHERE type = 'bonus'),
+            (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+            (SELECT id FROM effect_source_ids WHERE source = 'hero'),
+            $tile_id,
+            NULL
+          );
+        `,
+        bind: { $tile_id: village.tileId },
+      });
+
+      expect(getEventDuration(database, event)).toBe(durationWithoutBonus / 2);
+    });
+
+    test('troopMovementAttack - should use current hero speed for hero movements', async () => {
+      using database = await prepareTestDatabase();
+      const village = getAnyVillageWithTile(database);
+
+      const targetTileId = database.selectValue({
+        sql: `
+          SELECT id
+          FROM tiles
+          WHERE id != $origin_tile_id
+          ORDER BY
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) *
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) +
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id)) *
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id))
+          LIMIT 1;
+        `,
+        bind: { $origin_tile_id: village.tileId },
+        schema: tileIdSchema,
+      })!;
+
+      const event = createTroopMovementAttackEventMock({
+        villageId: village.id,
+        originTileId: village.tileId,
+        targetTileId,
+        troops: [
+          {
+            unitId: 'HERO',
+            amount: 1,
+            tileId: village.tileId,
+            sourceTileId: village.tileId,
+          },
+        ],
+      });
+
+      database.exec({
+        sql: `
+          DELETE FROM effects
+          WHERE effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields')
+          );
+        `,
+      });
+
+      database.exec({
+        sql: 'UPDATE heroes SET speed = 5 WHERE player_id = $player_id;',
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      const durationWithSpeedFive = getEventDuration(database, event);
+
+      database.exec({
+        sql: 'UPDATE heroes SET speed = 10 WHERE player_id = $player_id;',
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      expect(getEventDuration(database, event)).toBeCloseTo(
+        durationWithSpeedFive / 2,
+      );
+    });
+
     test('troopTraining - should heal troops in half the normal training duration', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_training_enabled', 0);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 0);
+
       const villageId = getAnyVillageId(database);
 
       const normalDuration = getEventDuration(
@@ -2177,13 +2546,14 @@ describe('events utils', () => {
     });
 
     test('animalCageProduction - should return batch duration based on server speed', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
+
       database.exec({
         sql: 'UPDATE servers SET speed = $speed',
         bind: { $speed: 2 },
       });
 
-      const event = createGameEventMock('animalCageProduction', {
+      const event = createAnimalCageProductionEventMock({
         cageAmount: 3,
       });
 
@@ -2193,13 +2563,14 @@ describe('events utils', () => {
     });
 
     test('trapperCageProduction - should return batch duration based on server speed', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
+
       database.exec({
         sql: 'UPDATE servers SET speed = $speed',
         bind: { $speed: 2 },
       });
 
-      const event = createGameEventMock('trapperCageProduction', {
+      const event = createTrapperCageProductionEventMock({
         cageAmount: 3,
       });
 
@@ -2209,7 +2580,8 @@ describe('events utils', () => {
     });
 
     test('huntersLodgeHunt - should return duration based on party level and server speed', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
+
       database.exec({
         sql: 'UPDATE servers SET speed = $speed',
         bind: { $speed: 2 },
@@ -2217,7 +2589,7 @@ describe('events utils', () => {
 
       const result = getEventDuration(
         database,
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 4,
         }),
       );
@@ -2226,12 +2598,13 @@ describe('events utils', () => {
     });
 
     test('huntersLodgeHunt - should return zero duration if instant unit travel enabled', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_instant_unit_travel_enabled', 1);
+      using database = await prepareTestDatabase();
+
+      setTestDeveloperSetting(database, 'is_instant_unit_travel_enabled', 1);
 
       const result = getEventDuration(
         database,
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 4,
         }),
       );
@@ -2240,7 +2613,7 @@ describe('events utils', () => {
     });
 
     test('heroRevival - should apply server speed and return correct duration', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       const { experience, speed } = database.selectObject({
@@ -2273,9 +2646,10 @@ describe('events utils', () => {
     });
 
     test('heroRevival - should return zero duration if instant hero revival enabled', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      setDevFlag(database, 'is_instant_hero_revive_enabled', 1);
+
+      setTestDeveloperSetting(database, 'is_instant_hero_revive_enabled', 1);
 
       const result = getEventDuration(
         database,
@@ -2288,7 +2662,7 @@ describe('events utils', () => {
     });
 
     test('heroHealthRegeneration - should return correct duration', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       database.exec({
         sql: 'UPDATE heroes SET health_regeneration = 25 WHERE player_id = $player_id',
@@ -2301,19 +2675,204 @@ describe('events utils', () => {
       );
 
       const dayInMs = 24 * 60 * 60 * 1000;
+
       expect(result).toBe(dayInMs / 25);
     });
   });
 
   describe(createEvents, () => {
+    test.each(['wood', 'clay', 'iron', 'wheat'] as const)(
+      'rejects insufficient %s before changing resources or inserting an event',
+      async (resource) => {
+        using database = await prepareTestDatabase();
+        const { id: villageId, tileId } = getAnyVillageWithTile(database);
+        const now = Date.now();
+        const event = createBuildingLevelChangeEventMock({
+          villageId,
+          buildingId: 'WHEAT_FIELD',
+          buildingFieldId: 1,
+          previousLevel: 1,
+          level: 2,
+          startsAt: now,
+        });
+
+        setTestDeveloperSetting(
+          database,
+          'is_free_building_construction_enabled',
+          0,
+        );
+
+        const [wood, clay, iron, wheat] = getEventCost(database, event);
+        const resources = { wood, clay, iron, wheat };
+
+        expect(resources[resource]).toBeGreaterThan(0);
+
+        resources[resource] -= 1;
+        database.exec({
+          sql: `
+            UPDATE resource_sites
+            SET
+              wood = $wood,
+              clay = $clay,
+              iron = $iron,
+              wheat = $wheat,
+              updated_at = $now
+            WHERE
+              tile_id = $tile_id;
+          `,
+          bind: {
+            $wood: resources.wood,
+            $clay: resources.clay,
+            $iron: resources.iron,
+            $wheat: resources.wheat,
+            $now: now,
+            $tile_id: tileId,
+          },
+        });
+
+        const eventCount = database.selectValue({
+          sql: 'SELECT COUNT(*) FROM events;',
+          schema: z.number(),
+        });
+
+        expect(() =>
+          createEvents<'buildingLevelChange'>(database, {
+            type: event.type,
+            villageId,
+            buildingId: event.buildingId,
+            buildingFieldId: event.buildingFieldId,
+            previousLevel: event.previousLevel,
+            level: event.level,
+            startsAt: now,
+            duration: 1000,
+          }),
+        ).toThrow('Not enough resources');
+        expect(
+          database.selectObject({
+            sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
+            bind: { $tile_id: tileId },
+            schema: resourcesSchema.extend({ updated_at: z.number() }),
+          }),
+        ).toStrictEqual({ ...resources, updated_at: now });
+        expect(
+          database.selectValue({
+            sql: 'SELECT COUNT(*) FROM events;',
+            schema: z.number(),
+          }),
+        ).toBe(eventCount);
+      },
+    );
+
+    test.each([
+      {
+        name: 'rejects spending future production',
+        offset: 3_600_000,
+        reject: true,
+      },
+      {
+        name: 'allows spending production accrued since a past start time',
+        offset: -3_600_000,
+        reject: false,
+      },
+    ])('huntersLodgeHunt - $name', async ({ offset, reject }) => {
+      using database = await prepareTestDatabase();
+      const { id: villageId, tileId } = getAnyVillageWithTile(database);
+      const now = 10_000_000;
+
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+
+      try {
+        setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 3);
+
+        const updatedAt = Math.min(now, now + offset);
+
+        database.exec({
+          sql: `
+            UPDATE resource_sites
+            SET
+              wood = 700,
+              clay = 700,
+              iron = 700,
+              wheat = 0,
+              updated_at = $updated_at
+            WHERE
+              tile_id = $tile_id;
+          `,
+          bind: { $tile_id: tileId, $updated_at: updatedAt },
+        });
+
+        database.exec({
+          sql: `
+            UPDATE effects
+            SET
+              value = 3600
+            WHERE
+              tile_id = $tile_id
+              AND source_specifier = 0
+              AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
+              AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building');
+          `,
+          bind: { $tile_id: tileId },
+        });
+
+        const args = {
+          type: 'huntersLodgeHunt' as const,
+          villageId,
+          huntingPartyLevel: 2,
+          startsAt: now + offset,
+        };
+
+        const expected = calculateResourceSiteResourcesAt(
+          database,
+          tileId,
+          now,
+        );
+
+        if (reject) {
+          expect(() => createEvents(database, args)).toThrow(
+            'Not enough resources',
+          );
+        } else {
+          expect(expected.currentWheat).toBeGreaterThanOrEqual(200);
+
+          createEvents(database, args);
+        }
+
+        expect(
+          database.selectObject({
+            sql: 'SELECT wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
+            bind: { $tile_id: tileId },
+            schema: z.strictObject({
+              wheat: resourcesSchema.shape.wheat,
+              updated_at: z.number(),
+            }),
+          }),
+        ).toStrictEqual(
+          reject
+            ? { wheat: 0, updated_at: updatedAt }
+            : { wheat: expected.currentWheat - 200, updated_at: now },
+        );
+        expect(
+          database.selectValue({
+            sql: "SELECT COUNT(*) FROM events WHERE village_id = $village_id AND type = 'huntersLodgeHunt';",
+            bind: { $village_id: villageId },
+            schema: z.number(),
+          }),
+        ).toBe(reject ? 0 : 1);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
     test('should reject incomplete event payloads before persistence', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       expect(() =>
         createEvents(database, {
           type: 'gatherersHutGatheringTrip',
           villageId: 1,
-          troops: [{ unitId: 'PHALANX', amount: 1, source: 1 }],
+          troops: [{ unitId: 'PHALANX', amount: 1, sourceTileId: 1 }],
         } as never),
       ).toThrow();
 
@@ -2330,33 +2889,17 @@ describe('events utils', () => {
     });
 
     test('troopTraining - should complete queued troop count quests when units are queued', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const now = 1_234_000;
 
       vi.useFakeTimers();
       vi.setSystemTime(now);
 
-      setDevFlag(database, 'is_free_unit_training_enabled', 1);
-      setDevFlag(database, 'is_instant_unit_training_enabled', 1);
+      setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 1);
+      setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 1);
 
-      database.exec({
-        sql: `
-          INSERT INTO building_fields (village_id, field_id, building_id, level)
-          VALUES (
-            $village_id,
-            19,
-            (SELECT id FROM building_ids WHERE building = 'BARRACKS'),
-            1
-          )
-          ON CONFLICT(village_id, field_id) DO UPDATE SET
-            building_id = excluded.building_id,
-            level = excluded.level;
-        `,
-        bind: {
-          $village_id: villageId,
-        },
-      });
+      setTestBuildingLevel(database, villageId, 'BARRACKS', 1, 19);
 
       const initialQuest = database.selectValue({
         sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCount-10';",
@@ -2407,12 +2950,13 @@ describe('events utils', () => {
     });
 
     test('huntersLodgeHunt - should subtract resources and persist calculated duration', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const now = 1_000_000;
+
       vi.useFakeTimers();
       vi.setSystemTime(now);
-      setHuntersLodgeLevel(database, villageId, 3);
+      setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 3);
 
       database.exec({
         sql: `
@@ -2438,11 +2982,21 @@ describe('events utils', () => {
         },
       });
 
+      using selectValue = vi.spyOn(database, 'selectValue');
+
       createEvents<'huntersLodgeHunt'>(database, {
         type: 'huntersLodgeHunt',
         villageId,
         huntingPartyLevel: 2,
       });
+
+      expect(
+        selectValue.mock.calls.filter(
+          ([args]) =>
+            args.sql ===
+            selectResourceSiteResourcesRelevantEffectsByTileIdQuery,
+        ),
+      ).toHaveLength(1);
 
       const event = database.selectObject({
         sql: `
@@ -2492,7 +3046,6 @@ describe('events utils', () => {
         duration: 60 * 60 * 1000,
         huntingPartyLevel: 2,
       });
-
       expect(resources).toStrictEqual({
         wood: 700,
         clay: 700,
@@ -2506,11 +3059,13 @@ describe('events utils', () => {
 
   describe(getEventStartTime, () => {
     test('troopTraining - should return now if no previous events', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       vi.useFakeTimers();
+
       const now = 1_234_567_890;
+
       vi.setSystemTime(new Date(now));
 
       const event = createTroopTrainingEventMock({
@@ -2518,15 +3073,17 @@ describe('events utils', () => {
       });
 
       expect(getEventStartTime(database, event)).toBe(now);
+
       vi.useRealTimers();
     });
 
     test('troopTraining - should return end of last event in queue', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       const startsAt = 1000;
       const duration = 500;
+
       insertEvents(database, [
         createTroopTrainingEventMock({
           id: 77_001,
@@ -2545,11 +3102,12 @@ describe('events utils', () => {
     });
 
     test('unitImprovement - should return last resolves_at or now', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       const startsAt = 2000;
       const duration = 500;
+
       insertEvents(database, [
         createUnitImprovementEventMock({
           id: 88_001,
@@ -2568,10 +3126,12 @@ describe('events utils', () => {
     });
 
     test('returnTroopMovement - should return now for manually triggered return', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       vi.useFakeTimers();
-      const now = 5_000;
+
+      const now = 5000;
+
       vi.setSystemTime(new Date(now));
 
       const event = createGameEventMock('troopMovementReturn', {
@@ -2586,7 +3146,7 @@ describe('events utils', () => {
     });
 
     test('returnTroopMovement - should return resolvesAt for movement-triggered return', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const event = createGameEventMock('troopMovementReturn', {
         startsAt: 2000,
@@ -2599,26 +3159,34 @@ describe('events utils', () => {
     });
 
     test('buildingConstruction - should return now', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
+
       vi.useFakeTimers();
+
       const now = 9_999_999;
+
       vi.setSystemTime(new Date(now));
+
       const result = getEventStartTime(
         database,
         createBuildingConstructionEventMock(),
       );
+
       expect(result).toBe(now);
+
       vi.useRealTimers();
     });
   });
 
   describe(getEventResourceSubtractionTimestamp, () => {
     test('should return now even if the event starts in the future (repro for incorrect resource subtraction)', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
       vi.useFakeTimers();
+
       const now = 1_000_000;
+
       vi.setSystemTime(new Date(now));
 
       // 1. Setup village with enough resources
@@ -2633,6 +3201,7 @@ describe('events utils', () => {
 
       // 2. Mock a training event that starts far in the future
       const unitId = 'LEGIONNAIRE';
+
       // We need a Barracks
       database.exec({
         sql: `
@@ -2642,9 +3211,13 @@ describe('events utils', () => {
         `,
         bind: { $village_id: villageId },
       });
+
       database.exec({
-        sql: `INSERT OR IGNORE INTO unit_research (village_id, unit_id)
-              VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))`,
+        sql: `
+          INSERT OR IGNORE INTO unit_research (village_id, unit_id)
+          VALUES
+            ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))
+        `,
         bind: { $village_id: villageId, $unit: unitId },
       });
 

@@ -1,5 +1,6 @@
 import { faro } from '@grafana/faro-web-sdk';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { clsx } from 'clsx';
 import { memo, Suspense, use, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -15,10 +16,12 @@ import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
-import { ApiProvider } from 'app/(game)/providers/api-provider';
+import {
+  ApiProvider,
+  ApiProviderFallback,
+} from 'app/(game)/providers/api-provider';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { HeadLinks } from 'app/components/head-links';
-import { Spinner } from 'app/components/ui/spinner';
 import { Toaster } from 'app/components/ui/toaster';
 import { pushGameWorldOpened } from 'app/instrumentation/product-events';
 import { loadAppTranslations } from 'app/localization/loaders/app';
@@ -91,27 +94,20 @@ export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
   serverExistAndLockMiddleware,
 ];
 
-const LayoutFallback = () => {
-  return (
-    <div className="h-dvh w-full flex items-center justify-center bg-background!">
-      <Spinner size="large" />
-    </div>
-  );
-};
-
 const LayoutContent = memo<Route.ComponentProps>(
   ({ params, loaderData }) => {
     const { serverSlug } = params;
     const { sessionId } = loaderData;
 
     const { i18n } = useTranslation();
-    const { uiColorScheme } = use(CookieContext);
+    const { uiColorScheme, skinVariant, timeOfDay } = use(CookieContext);
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
     const [queryClient] = useState<QueryClient>(() => {
       return new QueryClient({
         defaultOptions: {
           queries: {
+            gcTime: Number.POSITIVE_INFINITY,
             networkMode: 'always',
             retry: false,
           },
@@ -146,19 +142,25 @@ const LayoutContent = memo<Route.ComponentProps>(
     return (
       <html
         lang={i18n.language}
-        className={uiColorScheme === 'dark' ? 'dark' : ''}
+        className={clsx(
+          uiColorScheme,
+          `skin-variant-${skinVariant}`,
+          `time-of-day-${timeOfDay}`,
+        )}
       >
         <head>
           <HeadLinks />
           <Links />
         </head>
-        <body className="bg-background text-foreground transition-colors duration-300">
+        <body className="bg-background text-foreground transition-colors">
           <QueryClientProvider client={queryClient}>
-            <Suspense fallback={<LayoutFallback />}>
-              <ApiProvider serverSlug={serverSlug}>
-                <Outlet />
-                <Notifier serverSlug={serverSlug} />
-              </ApiProvider>
+            <Suspense fallback={<ApiProviderFallback />}>
+              <div className="api-provider-splash-content">
+                <ApiProvider serverSlug={serverSlug}>
+                  <Outlet />
+                  <Notifier serverSlug={serverSlug} />
+                </ApiProvider>
+              </div>
             </Suspense>
             <Toaster
               position={toasterPosition}

@@ -1,9 +1,8 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
-  SkinVariant,
-  TimeOfDay,
   UIColorScheme,
+  VillageSort,
 } from '@pillage-first/types/models/preferences';
 import {
   Section,
@@ -11,7 +10,6 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
-import { Button } from 'app/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -25,62 +23,29 @@ import type { AvailableLocale } from 'app/localization/i18n';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 import { CookieContext } from 'app/providers/cookie-context';
 import {
-  GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
-  GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
   LOCALE_COOKIE_NAME,
   setCookie,
   UI_COLOR_SCHEME_COOKIE_NAME,
 } from 'app/utils/device';
+import { NavigationSettings } from './navigation-settings';
+import { ReportGenerationSettings } from './report-generation-settings';
 
 export const GeneralPreferences = () => {
   const { t, i18n } = useTranslation();
   const { updatePreference, preferences } = usePreferences();
-  const { locale, skinVariant, uiColorScheme, timeOfDay } = use(CookieContext);
+  const { locale, uiColorScheme } = use(CookieContext);
 
   return (
     <Section>
       <SectionContent>
-        <Text as="h2">{t('Gameplay')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Appearance')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Offline attacks (in development)')}
-            </span>
-            <span>
-              {t(
-                "Select whether enemies can trigger attacks against you while you're offline.",
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              disabled
-              checked
-            />
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Vacation mode (in development)')}
-            </span>
-            <span>
-              {t(
-                'While in vacation mode, game pauses completely. You may enable vacation mode or resume gameplay at any time.',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Button disabled>{t('Enable vacation mode')}</Button>
-          </div>
-        </div>
-      </SectionContent>
-      <Separator orientation="horizontal" />
-      <SectionContent>
-        <Text as="h2">{t('Appearance')}</Text>
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">{t('UI color scheme')}</span>
             <span>
               {t('Select a light or dark theme for the interface appearance.')}
@@ -103,72 +68,23 @@ export const GeneralPreferences = () => {
             </Select>
           </div>
         </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">{t('Graphics color scheme')}</span>
-            <span>
-              {t(
-                'Select a daytime or nighttime setting to adjust the overall visual atmosphere.',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Select
-              value={timeOfDay}
-              onValueChange={async (value: TimeOfDay) => {
-                await setCookie<TimeOfDay>(
-                  GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
-                  value,
-                );
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="day">{t('Day')}</SelectItem>
-                <SelectItem value="night">{t('Night')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">{t('Graphic set')}</span>
-            <span>{t('Select your preferred graphic set')}</span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Select
-              value={skinVariant}
-              onValueChange={async (value: SkinVariant) => {
-                await setCookie<SkinVariant>(
-                  GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
-                  value,
-                );
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">{t('Default')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>
-        <Text as="h2">{t('Localization')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Localization')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">{t('Locale')}</span>
             <span>{t('Select your preferred language.')}</span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
             <Select
+              disabled
               value={locale}
               onValueChange={async (value: AvailableLocale) => {
                 await setCookie(LOCALE_COOKIE_NAME, value);
@@ -188,60 +104,14 @@ export const GeneralPreferences = () => {
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>
-        <Text as="h2">{t('Accessibility')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Display')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Additional accessibility features (in development)')}
-            </span>
-            <span>
-              {t('Enables accessibility enhancements for better usability.')}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              disabled
-              onCheckedChange={() =>
-                updatePreference({
-                  preferenceName: 'isAccessibilityModeEnabled',
-                  value: !preferences.isAccessibilityModeEnabled,
-                })
-              }
-              checked={preferences.isAccessibilityModeEnabled}
-            />
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Reduced motion (in development)')}
-            </span>
-            <span>
-              {t(
-                'Disables certain animations and effects for a smoother experience.',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              disabled
-              onCheckedChange={() =>
-                updatePreference({
-                  preferenceName: 'isReducedMotionModeEnabled',
-                  value: !preferences.isReducedMotionModeEnabled,
-                })
-              }
-              checked={preferences.isReducedMotionModeEnabled}
-            />
-          </div>
-        </div>
-      </SectionContent>
-      <Separator orientation="horizontal" />
-      <SectionContent>
-        <Text as="h2">{t('Display')}</Text>
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">{t('Building names display')}</span>
             <span>
               {t(
@@ -261,122 +131,82 @@ export const GeneralPreferences = () => {
             />
           </div>
         </div>
-      </SectionContent>
-      <Separator orientation="horizontal" />
-      <SectionContent>
-        <Text as="h2">{t('Functionality')}</Text>
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Navigation after building upgrade')}
-            </span>
-            <span>
-              {t(
-                'Enable automatic navigation to resources or village views after starting a building upgrade or downgrade',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              onCheckedChange={() =>
-                updatePreference({
-                  preferenceName:
-                    'isAutomaticNavigationAfterBuildingLevelChangeEnabled',
-                  value:
-                    !preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled,
-                })
-              }
-              checked={
-                preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled
-              }
-            />
-          </div>
-        </div>
         <Separator orientation="horizontal" />
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Navigation after unit research')}
-            </span>
-            <span>
-              {t(
-                'Enable automatic navigation to village view after starting a unit research',
-              )}
-            </span>
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
+            <span className="font-medium">{t('Sort villages by')}</span>
+            <span>{t('Choose the order used in the village select.')}</span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
-            <Switch
-              onCheckedChange={() =>
+            <Select
+              value={preferences.villageSort}
+              onValueChange={(value: VillageSort) => {
                 updatePreference({
-                  preferenceName:
-                    'isAutomaticNavigationAfterUnitResearchEnabled',
-                  value:
-                    !preferences.isAutomaticNavigationAfterUnitResearchEnabled,
-                })
-              }
-              checked={
-                preferences.isAutomaticNavigationAfterUnitResearchEnabled
-              }
-            />
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Navigation after unit improvement')}
-            </span>
-            <span>
-              {t(
-                'Enable automatic navigation to village view after starting a unit improvement',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              onCheckedChange={() =>
-                updatePreference({
-                  preferenceName:
-                    'isAutomaticNavigationAfterUnitUpgradeEnabled',
-                  value:
-                    !preferences.isAutomaticNavigationAfterUnitUpgradeEnabled,
-                })
-              }
-              checked={preferences.isAutomaticNavigationAfterUnitUpgradeEnabled}
-            />
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Navigation after send units')}
-            </span>
-            <span>
-              {t(
-                'Enable automatic navigation to village view after sending units',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              onCheckedChange={() =>
-                updatePreference({
-                  preferenceName: 'isAutomaticNavigationAfterSendUnitsEnabled',
-                  value:
-                    !preferences.isAutomaticNavigationAfterSendUnitsEnabled,
-                })
-              }
-              checked={preferences.isAutomaticNavigationAfterSendUnitsEnabled}
-            />
+                  preferenceName: 'villageSort',
+                  value,
+                });
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="alphabetic">{t('Alphabetic')}</SelectItem>
+                <SelectItem value="populationAsc">
+                  {t('Population - ascending')}
+                </SelectItem>
+                <SelectItem value="populationDesc">
+                  {t('Population - descending')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>
-        <Text as="h2">{t('Development tooling')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Functionality')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
+            <span className="font-medium">{t('Report generation')}</span>
+            <span>
+              {t('Choose which reports to generate across all your villages.')}
+            </span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <ReportGenerationSettings />
+          </div>
+        </div>
+        <Separator orientation="horizontal" />
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
+            <span className="font-medium">{t('Navigation settings')}</span>
+            <span>
+              {t(
+                'Configure automatic navigation after building upgrades, unit research, unit improvements and sending units.',
+              )}
+            </span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <NavigationSettings />
+          </div>
+        </div>
+      </SectionContent>
+      <Separator orientation="horizontal" />
+      <SectionContent>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Development tooling')}
+        </Text>
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">{t('Developer console')}</span>
             <span>{t('Enables the developer console button.')}</span>
           </Text>

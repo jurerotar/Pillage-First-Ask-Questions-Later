@@ -10,6 +10,7 @@ import { defineConfig as defineVitestConfig } from 'vitest/config';
 import { reactRouter } from '@react-router/dev/vite';
 import repoPackageJson from '../../package.json' with { type: 'json' };
 import { apiRouteTypesPlugin } from '../../plugins/vite/vite-plugin-api-route-types.ts';
+import { buildMetadataPlugin } from '../../plugins/vite/vite-plugin-build-metadata.ts';
 import packageJson from './package.json' with { type: 'json' };
 
 const graphicsVersion =
@@ -27,7 +28,6 @@ const manifest: Partial<ManifestOptions> = {
   display: 'standalone',
   background_color: '#111111',
   theme_color: '#ffffff',
-  orientation: 'portrait',
   icons: [
     {
       src: `/favicon/web-app-manifest-192x192.png?v=${graphicsVersion}`,
@@ -49,6 +49,7 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
+    buildMetadataPlugin(repoPackageJson.version),
     !isInTestMode && apiRouteTypesPlugin(),
     reactIconsSprite(),
     // !isInTestMode &&
@@ -63,7 +64,7 @@ const viteConfig = defineViteConfig({
       mdx({
         providerImportSource: '@mdx-js/react',
         development: false,
-        include: /\.mdx$/,
+        include: /\.mdx$/u,
       }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
@@ -73,10 +74,13 @@ const viteConfig = defineViteConfig({
         registerType: 'autoUpdate',
         manifest,
         outDir: 'build/client',
+        workbox: {
+          globIgnores: ['**/build.json'],
+        },
         injectManifest: {
           swSrc: 'app/sw.ts',
           swDest: 'sw.js',
-          globIgnores: ['**/*.html'],
+          globIgnores: ['**/*.html', '**/build.json'],
         },
       }),
     isDeployingToMaster &&
@@ -103,7 +107,7 @@ const viteConfig = defineViteConfig({
     sourcemap: true,
     rolldownOptions: {
       // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
-      external: [/^\/graphic-packs/],
+      external: [/^\/graphic-packs/u],
     },
   },
   optimizeDeps: {
@@ -150,7 +154,7 @@ const vitestConfig = defineVitestConfig({
     root: './',
     watch: false,
     setupFiles: './app/tests/vitest-setup.ts',
-    reporters: ['default'],
+    fsModuleCache: true,
     coverage: {
       include: ['app/**/*.{ts,tsx}'],
     },

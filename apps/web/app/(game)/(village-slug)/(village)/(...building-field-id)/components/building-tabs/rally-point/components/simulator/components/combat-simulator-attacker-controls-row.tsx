@@ -1,0 +1,189 @@
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LuArrowDownUp, LuBeer, LuEraser } from 'react-icons/lu';
+import type { CombatSimulatorMode } from '@pillage-first/types/models/combat-simulator';
+import {
+  PLAYABLE_TRIBES,
+  type PlayableTribe,
+} from '@pillage-first/types/models/tribe';
+import { UnitTable } from 'app/(game)/components/unit-table';
+import { Button } from 'app/components/ui/button';
+import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from 'app/components/ui/select';
+import { CombatSimulatorContext } from '../providers/combat-simulator-context';
+import { CombatSimulatorHeroStatsControlsRow } from './combat-simulator-hero-controls';
+import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
+import { CombatSimulatorTroopControlsRows } from './combat-simulator-troop-controls-rows';
+import { SimulatorLevelInput } from './simulator-level-input';
+
+type CombatSimulatorAttackerControlsRowProps = {
+  title: string;
+};
+
+export const CombatSimulatorAttackerControlsRow = ({
+  title,
+}: CombatSimulatorAttackerControlsRowProps) => {
+  const { t } = useTranslation();
+  const {
+    state,
+    clearAttackerData,
+    setAttackerBreweryLevel,
+    setAttackerTribe,
+    setAttackerTroops,
+    setAttackerHeroStats,
+    setAttackerSmithyImprovementLevel,
+    setCombatMode,
+    swapPlayerRole,
+  } = use(CombatSimulatorContext)!;
+  const canSetHero = state.playerRole === 'attacker';
+  const canSwapPlayerRole = canSetHero && state.defender.tribe !== 'nature';
+
+  const breweryLevelLabel = t('Brewery level');
+
+  return (
+    <div className="flex flex-col">
+      <CombatSimulatorParticipantControlsTable>
+        <thead>
+          <tr className="bg-red-800/80 text-white dark:bg-red-950/60 dark:text-red-50">
+            <th
+              className="p-2 text-left font-semibold"
+              colSpan={12}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{title}</span>
+                  {canSwapPlayerRole && (
+                    <Button
+                      aria-label={t('Swap roles')}
+                      data-tooltip-content={t('Swap roles')}
+                      data-tooltip-id="general-tooltip"
+                      size="icon"
+                      variant="outline"
+                      onClick={swapPlayerRole}
+                    >
+                      <LuArrowDownUp />
+                    </Button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroup
+                    className="flex items-center gap-2 mr-2 text-sm font-normal"
+                    value={state.combatMode}
+                    onValueChange={(value) => {
+                      setCombatMode(value as CombatSimulatorMode);
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem
+                        aria-label={t('Attack')}
+                        className="border-white text-white"
+                        id="combat-simulator-mode-attack"
+                        value="attack"
+                      />
+                      <label
+                        className="cursor-pointer"
+                        htmlFor="combat-simulator-mode-attack"
+                      >
+                        {t('Attack')}
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem
+                        aria-label={t('Raid')}
+                        className="border-white text-white"
+                        id="combat-simulator-mode-raid"
+                        value="raid"
+                      />
+                      <label
+                        className="cursor-pointer"
+                        htmlFor="combat-simulator-mode-raid"
+                      >
+                        {t('Raid')}
+                      </label>
+                    </div>
+                  </RadioGroup>
+                  <Button
+                    aria-label={t('Clear')}
+                    className="text-foreground"
+                    data-tooltip-content={t('Clear')}
+                    data-tooltip-id="general-tooltip"
+                    size="icon"
+                    variant="outline"
+                    onClick={clearAttackerData}
+                  >
+                    <LuEraser />
+                  </Button>
+                </div>
+              </div>
+            </th>
+          </tr>
+          <tr>
+            <th
+              className="p-2 text-left font-medium"
+              colSpan={12}
+            >
+              <div className="flex items-center justify-between">
+                <Select
+                  value={state.attacker.tribe}
+                  onValueChange={(value) => {
+                    setAttackerTribe(value as PlayableTribe);
+                  }}
+                >
+                  <SelectTrigger aria-label={t('Tribe')}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PLAYABLE_TRIBES.map((tribeOption) => (
+                      <SelectItem
+                        key={tribeOption}
+                        value={tribeOption}
+                      >
+                        {t(`TRIBES.${tribeOption.toUpperCase()}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {state.attacker.tribe === 'teutons' && (
+                  <SimulatorLevelInput
+                    icon={<LuBeer className="size-4 md:size-5" />}
+                    id="combat-simulator-attacker-brewery-level"
+                    label={breweryLevelLabel}
+                    value={state.attacker.village.breweryLevel}
+                    onValueChange={setAttackerBreweryLevel}
+                  />
+                )}
+              </div>
+            </th>
+          </tr>
+        </thead>
+      </CombatSimulatorParticipantControlsTable>
+      <UnitTable
+        includeHero={canSetHero}
+        tribe={state.attacker.tribe}
+      >
+        <CombatSimulatorTroopControlsRows
+          id="attacker"
+          tribe={state.attacker.tribe}
+          includeHero={canSetHero}
+          troops={state.attacker.troops}
+          onTroopsChange={setAttackerTroops}
+          onSmithyImprovementLevelChange={setAttackerSmithyImprovementLevel}
+        />
+      </UnitTable>
+      {canSetHero && (
+        <CombatSimulatorHeroStatsControlsRow
+          participantRole="attacker"
+          troops={state.attacker.troops}
+          heroStats={state.attacker.heroStats}
+          onHeroStatsChange={setAttackerHeroStats}
+        />
+      )}
+    </div>
+  );
+};

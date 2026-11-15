@@ -7,4 +7,9 @@ export const coordinatesSchema = z
   })
   .meta({ id: 'Coordinates' });
 
+export const jsonCoordinatesSchema = z
+  .string()
+  .transform((value) => JSON.parse(value))
+  .pipe(coordinatesSchema);
+
 export type Coordinates = z.infer<typeof coordinatesSchema>;

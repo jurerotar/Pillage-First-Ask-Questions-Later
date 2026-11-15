@@ -13,10 +13,10 @@ import type { Village } from '@pillage-first/types/models/village';
 import { coordinatesToTileId } from '../../map';
 import { calculateTravelDuration } from '../troop-movement-duration';
 
-const originVillageId: Village['id'] = 0;
 const origin: Village['coordinates'] = { x: 0, y: 0 };
 const mapSize = 100;
 const originTileId = coordinatesToTileId(origin, mapSize);
+const heroSpeed = 7;
 
 describe(calculateTravelDuration, () => {
   test('uses the slowest unit speed when multiple troops are sent (<= 20 tiles, no effects)', () => {
@@ -43,8 +43,8 @@ describe(calculateTravelDuration, () => {
     }
 
     const troops: Troop[] = [
-      { unitId: fastest.id, amount: 1, tileId: 0, source: 0 },
-      { unitId: slowest.id, amount: 1, tileId: 0, source: 0 },
+      { unitId: fastest.id, amount: 1, tileId: 0, sourceTileId: 0 },
+      { unitId: slowest.id, amount: 1, tileId: 0, sourceTileId: 0 },
     ];
 
     const effects: Effect[] = [];
@@ -52,12 +52,12 @@ describe(calculateTravelDuration, () => {
     const expectedMs = (10 / slowest.unitSpeed) * 3_600_000;
 
     const ms = calculateTravelDuration({
-      originVillageId,
       originTileId,
       targetTileId: coordinatesToTileId(target, mapSize),
       mapSize,
       troops,
       effects,
+      heroSpeed,
     });
 
     expect(ms).toBeCloseTo(expectedMs, 6);
@@ -74,22 +74,24 @@ describe(calculateTravelDuration, () => {
         unitId: unit.id,
         amount: 1,
         tileId: 0,
-        source: 0,
+        sourceTileId: 0,
       },
     ];
-    const effects: Effect[] = [unitSpeedHeroBonusEffectMock];
+    const effects: Effect[] = [
+      { ...unitSpeedHeroBonusEffectMock, tileId: originTileId },
+    ];
 
     const { unitSpeed } = getUnitDefinition(unit.id);
     const expectedMs =
       (20 / (unitSpeed * unitSpeedHeroBonusEffectMock.value)) * 3_600_000;
 
     const ms = calculateTravelDuration({
-      originVillageId,
       originTileId,
       targetTileId: coordinatesToTileId(target, mapSize),
       mapSize,
       troops,
       effects,
+      heroSpeed,
     });
 
     expect(ms).toBeCloseTo(expectedMs, 6);
@@ -106,30 +108,89 @@ describe(calculateTravelDuration, () => {
         unitId: unit.id,
         amount: 1,
         tileId: 0,
-        source: 0,
+        sourceTileId: 0,
       },
     ];
     const effects: Effect[] = [
-      unitSpeedHeroBonusEffectMock,
-      unitSpeedAfter20FieldsHeroBonusEffectMock,
+      { ...unitSpeedHeroBonusEffectMock, tileId: originTileId },
+      {
+        ...unitSpeedAfter20FieldsHeroBonusEffectMock,
+        tileId: originTileId,
+      },
     ];
 
     const { unitSpeed } = getUnitDefinition(unit.id);
-    const speedFirst = unitSpeed * unitSpeedHeroBonusEffectMock.value;
-    const timeFirst = 20 / speedFirst;
-    const speedAfter =
-      speedFirst * unitSpeedAfter20FieldsHeroBonusEffectMock.value;
-    const remaining = 50 - 20;
-    const timeRemaining = remaining / speedAfter;
-    const expectedMs = (timeFirst + timeRemaining) * 3_600_000;
+    const speedFirst20Fields = unitSpeed * unitSpeedHeroBonusEffectMock.value;
+    const speedAfter20Fields =
+      speedFirst20Fields * unitSpeedAfter20FieldsHeroBonusEffectMock.value;
+    const expectedMs =
+      (20 / speedFirst20Fields + 30 / speedAfter20Fields) * 3_600_000;
 
     const ms = calculateTravelDuration({
-      originVillageId,
       originTileId,
       targetTileId: coordinatesToTileId(target, mapSize),
       mapSize,
       troops,
       effects,
+      heroSpeed,
+    });
+
+    expect(ms).toBeCloseTo(expectedMs, 6);
+  });
+
+  test('matches local speed effects by origin tile id, not village id', () => {
+    const target: Village['coordinates'] = { x: 20, y: 0 };
+    const [unit] = getUnitsByTribe('romans');
+    const effect: Effect = {
+      ...unitSpeedHeroBonusEffectMock,
+      tileId: originTileId,
+    };
+
+    const ms = calculateTravelDuration({
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
+      troops: [{ unitId: unit.id, amount: 1, tileId: 0, sourceTileId: 0 }],
+      effects: [effect],
+      heroSpeed,
+    });
+
+    const { unitSpeed } = getUnitDefinition(unit.id);
+    const expectedMs = (20 / (unitSpeed * effect.value)) * 3_600_000;
+
+    expect(ms).toBeCloseTo(expectedMs, 6);
+  });
+
+  test('uses hero speed for hero movements', () => {
+    const target: Village['coordinates'] = { x: 10, y: 0 };
+    const expectedMs = (10 / 10) * 3_600_000;
+
+    const ms = calculateTravelDuration({
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
+      troops: [{ unitId: 'HERO', amount: 1, tileId: 0, sourceTileId: 0 }],
+      effects: [],
+      heroSpeed: 10,
+    });
+
+    expect(ms).toBeCloseTo(expectedMs, 6);
+  });
+
+  test('includes hero speed when selecting the slowest moving unit', () => {
+    const target: Village['coordinates'] = { x: 10, y: 0 };
+    const expectedMs = (10 / 4) * 3_600_000;
+
+    const ms = calculateTravelDuration({
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
+      troops: [
+        { unitId: 'LEGIONNAIRE', amount: 1, tileId: 0, sourceTileId: 0 },
+        { unitId: 'HERO', amount: 1, tileId: 0, sourceTileId: 0 },
+      ],
+      effects: [],
+      heroSpeed: 4,
     });
 
     expect(ms).toBeCloseTo(expectedMs, 6);

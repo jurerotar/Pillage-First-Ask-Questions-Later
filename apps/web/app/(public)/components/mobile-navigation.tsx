@@ -44,7 +44,7 @@ export const MobileNavigation = () => {
           <HiOutlineMenu className="text-xl text-foreground" />
         </button>
         <Activity mode={isOpen ? 'visible' : 'hidden'}>
-          <div className="fixed inset-0 z-50 bg-background/50 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 bg-background/50 p-safe backdrop-blur-xs">
             <div className="m-2 bg-card rounded-lg h-[calc(100%-1rem)] p-4 overflow-y-auto scrollbar-hidden border border-border shadow-2xl">
               <div className="relative flex flex-col gap-2 w-full h-full">
                 <button

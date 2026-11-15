@@ -13,6 +13,8 @@ export const getDeveloperSettingsRowSchema = z
     is_free_unit_research_enabled: z.number(),
     is_free_hunting_parties_enabled: z.number(),
     is_instant_hero_revive_enabled: z.number(),
+    is_free_celebrations_enabled: z.number(),
+    is_instant_celebrations_enabled: z.number(),
     is_free_hero_revive_enabled: z.number(),
   })
   .meta({ id: 'GetDeveloperSettingsRow' });

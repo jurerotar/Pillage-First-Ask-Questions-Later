@@ -23,15 +23,12 @@ import { oasisAnimalFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import {
+  getOasisBonusIconType,
+  getOasisBonusLabel,
+} from 'app/components/icons/utils/icons';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
 import {
   Form,
@@ -112,7 +109,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
     queryKey: [oasisAnimalFinderCacheKey, x, y],
     queryFn: async () => {
       const values = form.getValues();
-      const { data } = await apiClient.post('/search/oases/by-animals', {
+      const { data } = await apiClient.query('/search/oases/by-animals', {
         body: {
           x,
           y,
@@ -135,17 +132,6 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
   return (
     <PageContents>
       <title>{title}</title>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to={`../map?x=${coordinates.x}&y=${coordinates.y}`}>
-              {t('Map')}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{t('Oasis animal finder')}</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('Oasis animal finder')}
         className="top-2 right-2"
@@ -273,10 +259,14 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
                               type="number"
                               min={1}
                               {...amountField}
-                              value={amountField.value}
+                              value={
+                                Number.isNaN(amountField.value)
+                                  ? ''
+                                  : amountField.value
+                              }
                               onChange={(event) => {
                                 amountField.onChange(
-                                  Number.parseInt(event.target.value, 10) || 1,
+                                  event.target.valueAsNumber,
                                 );
                               }}
                             />
@@ -368,7 +358,14 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
                 {isFetched &&
                   currentPageItems.map(
                     (
-                      { tileId, coordinates, distance, bonuses, animals },
+                      {
+                        tileId,
+                        coordinates,
+                        distance,
+                        resource,
+                        bonusType,
+                        animals,
+                      },
                       index,
                     ) => (
                       <TableRow key={tileId}>
@@ -391,18 +388,16 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
                         </TableCell>
                         <TableCell>
                           <Text className="inline-flex gap-2">
-                            {bonuses.map(({ resource, bonus }) => (
-                              <span
-                                key={resource}
-                                className="flex gap-1 items-center"
-                              >
-                                <Icon
-                                  className="size-4"
-                                  type={resource}
-                                />
-                                {bonus}%
-                              </span>
-                            ))}
+                            <span className="flex gap-1 items-center">
+                              <Icon
+                                className="size-4"
+                                type={getOasisBonusIconType(
+                                  resource,
+                                  bonusType,
+                                )}
+                              />
+                              {getOasisBonusLabel(bonusType)}
+                            </span>
                           </Text>
                         </TableCell>
                         <TableCell>

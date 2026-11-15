@@ -54,6 +54,40 @@ type NotificationInfo = {
   body?: string;
 };
 
+const showBrowserNotification = async (
+  title: string,
+  options?: NotificationOptions,
+): Promise<void> => {
+  if (
+    !('Notification' in window) ||
+    window.Notification.permission !== 'granted'
+  ) {
+    return;
+  }
+
+  const registration =
+    'serviceWorker' in navigator && navigator.serviceWorker.controller
+      ? await navigator.serviceWorker.getRegistration()
+      : undefined;
+
+  if (registration) {
+    await registration.showNotification(title, options);
+    return;
+  }
+
+  try {
+    new window.Notification(title, options);
+  } catch (error) {
+    const isIllegalConstructorError =
+      error instanceof TypeError &&
+      error.message.includes('Illegal constructor');
+
+    if (!isIllegalConstructorError) {
+      throw error;
+    }
+  }
+};
+
 const getTileCoordinates = (
   tileId: number,
   mapSize: Server['configuration']['mapSize'],
@@ -432,7 +466,26 @@ const getScheduledBuildingConstructionCancelledInfo = (
 ): NotificationInfo => {
   const villageName = playerVillagesMap.get(event.villageId)!;
   const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
-  const { level, reason } = event;
+  const { level } = event;
+  const body =
+    event.reasonDetail.type === 'missing-resources'
+      ? t(
+          'Queued construction was cancelled because resources were missing: {{wood}} wood, {{clay}} clay, {{iron}} iron, {{wheat}} wheat.',
+          {
+            wood: formatNumber(event.reasonDetail.missingResources[0]),
+            clay: formatNumber(event.reasonDetail.missingResources[1]),
+            iron: formatNumber(event.reasonDetail.missingResources[2]),
+            wheat: formatNumber(event.reasonDetail.missingResources[3]),
+          },
+        )
+      : t(
+          event.reasonDetail.unmetRequirements.length === 1
+            ? 'Queued construction was cancelled because 1 requirement was missing.'
+            : 'Queued construction was cancelled because {{count}} requirements were missing.',
+          {
+            count: event.reasonDetail.unmetRequirements.length,
+          },
+        );
 
   return {
     toastTitle: t(
@@ -445,11 +498,7 @@ const getScheduledBuildingConstructionCancelledInfo = (
         villageName,
       },
     ),
-    body: t(
-      reason === 'missing-resources'
-        ? 'Queued construction was cancelled because resources were missing when it tried to start.'
-        : 'Queued construction was cancelled because requirements were missing when it tried to start.',
-    ),
+    body,
   };
 };
 
@@ -555,9 +604,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
           preferences.shouldShowNotificationsOnAcademyResearchCompletion);
 
       if (shouldShowNotification && notificationTitle) {
-        const registration = await navigator.serviceWorker.ready;
-
-        await registration.showNotification(notificationTitle, { body });
+        await showBrowserNotification(notificationTitle, { body });
       }
     };
 

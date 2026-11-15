@@ -96,18 +96,20 @@ export const areVillageBuildingRequirementsMet = (
     sql: `
       WITH required_buildings AS (
         SELECT value AS building
-        FROM json_each($building_ids)
+        FROM
+          json_each($building_ids)
       )
 
       SELECT
         rb.building AS buildingId,
         COALESCE(MAX(bf.level), 0) AS level
-      FROM required_buildings rb
-      LEFT JOIN building_ids bi ON bi.building = rb.building
-      LEFT JOIN building_fields bf
-        ON bf.building_id = bi.id
-        AND bf.village_id = $village_id
-        AND bf.level > 0
+      FROM
+        required_buildings rb
+        LEFT JOIN building_ids bi ON bi.building = rb.building
+        LEFT JOIN building_fields bf
+          ON bf.building_id = bi.id
+          AND bf.village_id = $village_id
+          AND bf.level > 0
       GROUP BY rb.building;
     `,
     bind: {

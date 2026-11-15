@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
+import { calculateGridLayout } from '@pillage-first/utils/map';
 import {
   insertEffectQuery,
   selectWheatProductionEffectIdQuery,
@@ -11,19 +13,108 @@ import {
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
-  getTileWorldItem,
   removeMapMarker,
 } from '../map-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('map-controllers', () => {
+  test('getTiles preserves escaped names and shares the owner population with occupied oases', async () => {
+    using database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, tile_id, player_id FROM villages ORDER BY id LIMIT 1;',
+      schema: z.strictObject({
+        id: z.number(),
+        tile_id: tileIdSchema,
+        player_id: z.number(),
+      }),
+    })!;
+
+    const oasisId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis LIMIT 1;',
+      schema: z.number(),
+    })!;
+
+    const name = 'Village "雪🧭"\n\\end';
+
+    database.exec({
+      sql: 'UPDATE villages SET name = $name, slug = NULL WHERE id = $id;',
+      bind: { $name: name, $id: village.id },
+    });
+
+    database.exec({
+      sql: 'UPDATE players SET name = $name WHERE id = $id;',
+      bind: { $name: name, $id: village.player_id },
+    });
+
+    database.exec({
+      sql: 'UPDATE oasis SET village_id = $village_id WHERE tile_id = $tile_id;',
+      bind: { $village_id: village.id, $tile_id: oasisId },
+    });
+
+    database.exec({
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id;',
+      bind: { $tile_id: village.tile_id },
+    });
+
+    database.exec({
+      sql: insertEffectQuery,
+      bind: {
+        $effect_id: 1,
+        $value: -250.5,
+        $type: 'base',
+        $scope: 'local',
+        $source: 'building',
+        $tile_id: village.tile_id,
+        $source_specifier: 0,
+      },
+    });
+
+    const tiles = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    for (const id of [village.tile_id, oasisId]) {
+      expect(tiles[id - 1]?.ownerVillage).toStrictEqual({
+        id: village.id,
+        name,
+        slug: '',
+        population: 250.5,
+      });
+      expect(tiles[id - 1]?.owner?.name).toBe(name);
+    }
+
+    database.exec({
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id;',
+      bind: { $tile_id: village.tile_id },
+    });
+
+    const withoutPopulation = getTiles(
+      database,
+      createControllerArgs<'/tiles'>({}),
+    );
+
+    expect(
+      withoutPopulation[village.tile_id - 1]?.ownerVillage?.population,
+    ).toBe(0);
+    expect(withoutPopulation[oasisId - 1]?.ownerVillage?.population).toBe(0);
+
+    database.exec({
+      sql: 'UPDATE oasis SET village_id = NULL WHERE tile_id = $tile_id;',
+      bind: { $tile_id: oasisId },
+    });
+
+    const unowned = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    expect(unowned[oasisId - 1]?.owner).toBeNull();
+    expect(unowned[oasisId - 1]?.ownerVillage).toBeNull();
+  });
+
   test('getTiles should return correct population (only counting building base effects)', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // 1. Create a test village
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: tileIdSchema }),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -33,8 +124,8 @@ describe('map-controllers', () => {
 
     // 2. Clear existing effects for this village to have a clean state
     database.exec({
-      sql: 'DELETE FROM effects WHERE village_id = $village_id',
-      bind: { $village_id: village.id },
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id',
+      bind: { $tile_id: village.tile_id },
     });
 
     // 3. Seed various effects
@@ -98,13 +189,29 @@ describe('map-controllers', () => {
           $type: effect.type,
           $scope: effect.scope,
           $source: effect.source,
-          $village_id: village.id,
+          $tile_id: village.tile_id,
           $source_specifier: effect.source_specifier,
         },
       });
     }
 
     const result = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    const mapSize = database.selectValue({
+      sql: 'SELECT map_size FROM servers;',
+      schema: z.number(),
+    })!;
+
+    expect(result).toHaveLength(calculateGridLayout(mapSize).totalTiles);
+    expect(
+      result.every((tile, index) => tile === null || tile.id === index + 1),
+    ).toBe(true);
+    expect(result.filter((tile) => tile !== null)).toHaveLength(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM tiles;',
+        schema: z.int(),
+      })!,
+    );
 
     const testTile = result.find((t) => t?.ownerVillage?.id === village.id)!;
 
@@ -114,7 +221,7 @@ describe('map-controllers', () => {
   });
 
   test('getTileTroops should return troops for a tile with animals', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Find a tile with nature troops (animals).
     // Nature troops have IDs from WILD_BOAR to CROCODILE etc.
@@ -134,18 +241,27 @@ describe('map-controllers', () => {
       schema: z.number(),
     })!;
 
-    getTileTroops(
+    const troops = getTileTroops(
       database,
       createControllerArgs<'/tiles/:tileId/troops'>({
         path: { tileId: tileWithAnimalsTileId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(troops.length).toBeGreaterThan(0);
+    expect(troops).toStrictEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tileId: tileWithAnimalsTileId,
+          unitId: expect.any(String),
+          amount: expect.any(Number),
+        }),
+      ]),
+    );
   });
 
   test('getTileOasisBonuses should return bonuses for an oasis tile', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Find a tile with bonuses
     const tileWithBonusesTileId = database.selectValue({
@@ -153,79 +269,79 @@ describe('map-controllers', () => {
       schema: z.number(),
     })!;
 
-    getTileOasisBonuses(
+    const bonuses = getTileOasisBonuses(
       database,
       createControllerArgs<'/tiles/:tileId/bonuses'>({
         path: { tileId: tileWithBonusesTileId },
       }),
     );
 
-    expect(true).toBe(true);
-  });
-
-  test('getTileWorldItem should return world item for a tile with world items', async () => {
-    const database = await prepareTestDatabase();
-
-    // Find a tile with world items
-    const tileWithItemTileId = database.selectValue({
-      sql: 'SELECT tile_id FROM world_items LIMIT 1',
-      schema: z.number(),
-    })!;
-
-    getTileWorldItem(
-      database,
-      createControllerArgs<'/tiles/:tileId/world-item'>({
-        path: { tileId: tileWithItemTileId },
-      }),
+    expect(bonuses.length).toBeGreaterThan(0);
+    expect(bonuses).toStrictEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          resource: expect.any(String),
+          bonus: expect.any(Number),
+        }),
+      ]),
     );
-
-    expect(true).toBe(true);
   });
 
-  test('MapMarker controllers should add, get and remove markers', async () => {
-    const database = await prepareTestDatabase();
+  test('map marker controllers should add, get and remove markers', async () => {
+    using database = await prepareTestDatabase();
 
     const playerId = 1;
-    const tileId = 123;
+
+    const tileId = database.selectValue({
+      sql: 'SELECT id FROM tiles ORDER BY id LIMIT 1;',
+      schema: tileIdSchema,
+    })!;
+
     const description = 'Forward village target';
     const color = '#2563eb';
 
     // 1. Add marker
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
-        body: { tileId, description, color },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
+        body: { tileId, description, color, icon: 'mapMarkerAttack' },
       }),
     );
 
     // 2. Get markers
     const markers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
     expect(markers).toHaveLength(1);
-    expect(markers[0]).toStrictEqual({ tileId, description, color });
+    expect(markers[0]).toStrictEqual({
+      tileId,
+      description,
+      color,
+      icon: 'mapMarkerAttack',
+    });
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
           tileId,
           description: 'Updated target',
           color: '#16a34a',
+          icon: 'mapMarkerScout',
         },
       }),
     );
 
     const updatedMarkers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
@@ -234,21 +350,23 @@ describe('map-controllers', () => {
       tileId,
       description: 'Updated target',
       color: '#16a34a',
+      icon: 'mapMarkerScout',
     });
 
     // 3. Remove marker
     removeMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers/:tileId', 'delete'>({
-        path: { playerId, tileId },
+      createControllerArgs<'/me/map-markers/:tileId', 'delete'>({
+        context: { playerId },
+        path: { tileId },
       }),
     );
 
     // 4. Get markers again
     const markersAfterRemoval = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
@@ -256,62 +374,72 @@ describe('map-controllers', () => {
   });
 
   test('getMapMarkers should add a generic description when marker description is missing', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const playerId = 1;
 
+    const [firstTileId, secondTileId, thirdTileId] = database.selectValues({
+      sql: 'SELECT id FROM tiles ORDER BY id LIMIT 3;',
+      schema: tileIdSchema,
+    });
+
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
-          tileId: 123,
+          tileId: firstTileId,
           description: 'Forward village target',
           color: '#2563eb',
+          icon: 'mapMarker',
         },
       }),
     );
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
-          tileId: 124,
+          tileId: secondTileId,
           description: '',
           color: '#dc2626',
+          icon: 'mapMarker',
         },
       }),
     );
 
     addMapMarker(
       database,
-      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers', 'post'>({
+        context: { playerId },
         body: {
-          tileId: 125,
+          tileId: thirdTileId,
           description: '   ',
           color: '#16a34a',
+          icon: 'mapMarker',
         },
       }),
     );
 
     const markers = getMapMarkers(
       database,
-      createControllerArgs<'/players/:playerId/map-markers'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-markers'>({
+        context: { playerId },
       }),
     );
 
     expect(markers).toContainEqual({
-      tileId: 124,
+      tileId: secondTileId,
       description: 'Map marker 2',
       color: '#dc2626',
+      icon: 'mapMarker',
     });
     expect(markers).toContainEqual({
-      tileId: 125,
+      tileId: thirdTileId,
       description: 'Map marker 3',
       color: '#16a34a',
+      icon: 'mapMarker',
     });
   });
 });

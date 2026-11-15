@@ -10,6 +10,7 @@ import {
 } from '@pillage-first/game-assets/utils/hero';
 import type { HeroResourceToProduce } from '@pillage-first/types/models/hero';
 import { HeroRevival } from 'app/(game)/(village-slug)/(hero)/components/hero-revival';
+import { allocateHeroAttributePoints } from 'app/(game)/(village-slug)/(hero)/components/utils/hero-attribute-points';
 import {
   Section,
   SectionContent,
@@ -33,6 +34,11 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { Slider } from 'app/components/ui/slider';
+
+// t('attackPower')
+// t('resourceProduction')
+// t('attackBonus')
+// t('defenceBonus')
 
 export const HeroAttributes = () => {
   const { t } = useTranslation();
@@ -105,25 +111,17 @@ export const HeroAttributes = () => {
 
   const handleAttributeChange = (
     key: keyof typeof selectableAttributes,
-    delta: number,
+    value: number | ((current: number) => number),
   ) => {
-    setAttributes((prev) => {
-      const newValue = prev[key] + delta;
-      if (newValue < selectableAttributes[key] || newValue > 100) {
-        return prev;
-      }
-      if (delta > 0 && !isLevelUpAvailable) {
-        return prev;
-      }
-      return { ...prev, [key]: newValue };
-    });
-  };
-
-  const attributeLabels = {
-    attackPower: t('Attack power'),
-    resourceProduction: t('Resource production'),
-    attackBonus: t('Attack bonus'),
-    defenceBonus: t('Defence bonus'),
+    setAttributes((prev) =>
+      allocateHeroAttributePoints(
+        prev,
+        selectableAttributes,
+        availableAttributePoints,
+        key,
+        typeof value === 'function' ? value(prev[key]) : value,
+      ),
+    );
   };
 
   return (
@@ -151,19 +149,18 @@ export const HeroAttributes = () => {
                 "Your hero's home village is set to the current village. Should your hero die, it can only be revived from here.",
               )}
             {!isHeroHomeVillageCurrent && (
-              <Trans>
-                Your hero's home village is set to{' '}
-                <Text
-                  as="span"
-                  variant="link"
-                >
-                  <Link to={getNewVillageUrl(heroHomeVillage.slug)}>
-                    {heroHomeVillage.name}
-                  </Link>
-                </Text>
-                . Should your hero die, it can only be revived from its home
-                village.
-              </Trans>
+              <Trans
+                i18nKey="Your hero's home village is set to <villageLink>{{name}}</villageLink>. Should your hero die, it can only be revived from its home village."
+                values={{ name: heroHomeVillage.name }}
+                components={{
+                  villageLink: (
+                    <Link
+                      className="text-link font-medium"
+                      to={getNewVillageUrl(heroHomeVillage.slug)}
+                    />
+                  ),
+                }}
+              />
             )}
           </span>
         </div>
@@ -177,7 +174,7 @@ export const HeroAttributes = () => {
             </div>
             <Progress
               value={health}
-              className="border border-[#506d00] [&>div]:bg-[linear-gradient(#c7e94f,#c7e94f_40%,#506d00)] h-2.5"
+              className="border border-[#506d00] bg-background [&_[data-slot=progress-indicator]]:bg-[linear-gradient(#c7e94f,#c7e94f_40%,#506d00)] h-2.5"
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -189,7 +186,7 @@ export const HeroAttributes = () => {
             </div>
             <Progress
               value={percentToNextLevel}
-              className="border border-[#0d648e] [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)] h-2.5"
+              className="border border-[#0d648e] bg-background [&_[data-slot=progress-indicator]]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)] h-2.5"
             />
           </div>
           <div className="flex flex-col">
@@ -254,7 +251,14 @@ export const HeroAttributes = () => {
       {isHeroAlive && (
         <>
           <SectionContent>
-            <div className="flex justify-between items-center">
+            <InformationPopover ariaLabel={t('Ability points')}>
+              <Text>
+                {t(
+                  'Ability points can be used to improve your hero. Hero starts their journey with 4 ability points. Each time a hero gains a level they earn 4 additional ability points that can be used to increase any of the four abilities. Each ability can only be increased a hundred times.',
+                )}
+              </Text>
+            </InformationPopover>
+            <div className="flex flex-wrap justify-between items-center gap-x-4 gap-y-2 pr-12">
               <Text as="h2">{t('Ability points')}</Text>
               {isLevelUpAvailable && (
                 <Text className="text-primary font-bold">
@@ -262,11 +266,6 @@ export const HeroAttributes = () => {
                 </Text>
               )}
             </div>
-            <Text>
-              {t(
-                'Ability points can be used to improve your hero. Hero starts their journey with 4 ability points. Each time a hero gains a level they earn 4 additional ability points that can be used to increase any of the four abilities. Each ability can only be increased a hundred times.',
-              )}
-            </Text>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-2">
               {(
@@ -280,7 +279,7 @@ export const HeroAttributes = () => {
                 >
                   <div className="flex justify-between items-center">
                     <Text className="text-xs font-medium text-muted-foreground uppercase">
-                      {attributeLabels[key]}
+                      {t(key)}
                     </Text>
                     <Text className="font-bold text-sm">
                       {attributes[key]} / 100
@@ -291,7 +290,9 @@ export const HeroAttributes = () => {
                       variant="outline"
                       size="icon"
                       className="size-8 shrink-0"
-                      onClick={() => handleAttributeChange(key, -1)}
+                      onClick={() =>
+                        handleAttributeChange(key, (current) => current - 1)
+                      }
                       disabled={attributes[key] <= selectableAttributes[key]}
                     >
                       <LuMinus />
@@ -303,20 +304,15 @@ export const HeroAttributes = () => {
                         !isLevelUpAvailable &&
                         attributes[key] === selectableAttributes[key]
                       }
-                      onValueChange={([val]) => {
-                        const delta = val - attributes[key];
-                        if (delta > 0 && freePoints < delta) {
-                          handleAttributeChange(key, freePoints);
-                        } else {
-                          handleAttributeChange(key, delta);
-                        }
-                      }}
+                      onValueChange={([val]) => handleAttributeChange(key, val)}
                     />
                     <Button
                       variant="outline"
                       size="icon"
                       className="size-8 shrink-0"
-                      onClick={() => handleAttributeChange(key, 1)}
+                      onClick={() =>
+                        handleAttributeChange(key, (current) => current + 1)
+                      }
                       disabled={!isLevelUpAvailable || attributes[key] >= 100}
                     >
                       <LuPlus />

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
-import { tileTypeSchema } from '@pillage-first/types/models/tile';
+import { tileIdSchema, tileTypeSchema } from '@pillage-first/types/models/tile';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -15,6 +15,11 @@ import {
   isRelocationTroopMovementEvent,
   isReturnTroopMovementEvent,
 } from '@pillage-first/utils/guards/event';
+import {
+  getPlayerCulturePointsRequirementContext,
+  updatePlayerCulturePointsAt,
+} from './culture-points';
+import { getVillagePlayerId } from './village';
 
 const WOUNDED_TROOP_DECAY_RATE_PER_DAY = 0.1;
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
@@ -27,10 +32,16 @@ type WoundedTroopUpdate = {
 
 export const addTroops = (database: DbFacade, troops: Troop[]) => {
   if (troops.length === 1) {
-    const troop = troops[0]!;
+    const [troop] = troops;
+
     database.exec({
       sql: `
-        INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+        INSERT INTO troops (
+          unit_id,
+          amount,
+          tile_id,
+          source_tile_id
+        )
         VALUES (
           (SELECT id FROM unit_ids WHERE unit = $unit_id),
           $amount,
@@ -44,29 +55,35 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         $unit_id: troop.unitId,
         $amount: troop.amount,
         $tile_id: troop.tileId,
-        $source_tile_id: troop.source,
+        $source_tile_id: troop.sourceTileId,
       },
     });
+
     return;
   }
 
   database.exec({
     sql: `
-      INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+      INSERT INTO troops (
+        unit_id,
+        amount,
+        tile_id,
+        source_tile_id
+      )
       SELECT
         unit_ids.id,
         SUM(json_extract(troop.value, '$.amount')),
         json_extract(troop.value, '$.tileId'),
-        json_extract(troop.value, '$.source')
+        json_extract(troop.value, '$.sourceTileId')
       FROM
-        json_each($troops) AS troop
-        JOIN unit_ids
-          ON unit_ids.unit = json_extract(troop.value, '$.unitId')
-      WHERE TRUE
+        jsonb_each($troops) AS troop
+        CROSS JOIN unit_ids
+      WHERE
+        unit_ids.unit = json_extract(troop.value, '$.unitId')
       GROUP BY
         unit_ids.id,
         json_extract(troop.value, '$.tileId'),
-        json_extract(troop.value, '$.source')
+        json_extract(troop.value, '$.sourceTileId')
       ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
         amount = troops.amount + EXCLUDED.amount;
     `,
@@ -75,14 +92,19 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
 };
 
 export const removeTroops = (database: DbFacade, troops: Troop[]) => {
+  if (troops.length === 0) {
+    return;
+  }
+
   if (troops.length === 1) {
-    const troop = troops[0]!;
+    const [troop] = troops;
     const bind = {
       $unit_id: troop.unitId,
       $amount: troop.amount,
       $tile_id: troop.tileId,
-      $source_tile_id: troop.source,
+      $source_tile_id: troop.sourceTileId,
     };
+
     database.exec({
       sql: `
         DELETE FROM troops
@@ -94,10 +116,12 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
       `,
       bind,
     });
+
     database.exec({
       sql: `
         UPDATE troops
-        SET amount = amount - $amount
+        SET
+          amount = amount - $amount
         WHERE
           unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
           AND tile_id = $tile_id
@@ -115,24 +139,29 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
         SELECT
           unit_ids.id AS unit_id,
           json_extract(troop.value, '$.tileId') AS tile_id,
-          json_extract(troop.value, '$.source') AS source_tile_id,
+          json_extract(troop.value, '$.sourceTileId') AS source_tile_id,
           SUM(json_extract(troop.value, '$.amount')) AS amount
         FROM
-          json_each($troops) AS troop
+          jsonb_each($troops) AS troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(troop.value, '$.unitId')
-        GROUP BY unit_ids.id, tile_id, source_tile_id
+        GROUP BY
+          unit_ids.id,
+          tile_id,
+          source_tile_id
       )
       DELETE FROM troops
-      WHERE EXISTS (
-        SELECT 1
-        FROM requested_troops
+      WHERE
+        id IN (
+        SELECT t.id
+        FROM
+          requested_troops requested
+          JOIN troops t ON t.unit_id = requested.unit_id
+            AND t.tile_id = requested.tile_id
+            AND t.source_tile_id = requested.source_tile_id
         WHERE
-          requested_troops.unit_id = troops.unit_id
-          AND requested_troops.tile_id = troops.tile_id
-          AND requested_troops.source_tile_id = troops.source_tile_id
-          AND troops.amount <= requested_troops.amount
-      );
+          t.amount <= requested.amount
+        );
     `,
     bind: { $troops: JSON.stringify(troops) },
   });
@@ -143,31 +172,26 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
         SELECT
           unit_ids.id AS unit_id,
           json_extract(troop.value, '$.tileId') AS tile_id,
-          json_extract(troop.value, '$.source') AS source_tile_id,
+          json_extract(troop.value, '$.sourceTileId') AS source_tile_id,
           SUM(json_extract(troop.value, '$.amount')) AS amount
         FROM
-          json_each($troops) AS troop
+          jsonb_each($troops) AS troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(troop.value, '$.unitId')
-        GROUP BY unit_ids.id, tile_id, source_tile_id
+        GROUP BY
+          unit_ids.id,
+          tile_id,
+          source_tile_id
       )
       UPDATE troops
-      SET amount = amount - (
-        SELECT requested_troops.amount
-        FROM requested_troops
-        WHERE
-          requested_troops.unit_id = troops.unit_id
-          AND requested_troops.tile_id = troops.tile_id
-          AND requested_troops.source_tile_id = troops.source_tile_id
-      )
-      WHERE EXISTS (
-        SELECT 1
-        FROM requested_troops
-        WHERE
-          requested_troops.unit_id = troops.unit_id
-          AND requested_troops.tile_id = troops.tile_id
-          AND requested_troops.source_tile_id = troops.source_tile_id
-      );
+      SET
+        amount = troops.amount - requested_troops.amount
+      FROM
+        requested_troops
+      WHERE
+        requested_troops.unit_id = troops.unit_id
+        AND requested_troops.tile_id = troops.tile_id
+        AND requested_troops.source_tile_id = troops.source_tile_id;
     `,
     bind: { $troops: JSON.stringify(troops) },
   });
@@ -186,7 +210,7 @@ export const materializeWoundedTroopsAt = (
         wt.updated_at
       FROM
         wounded_troops wt
-          JOIN unit_ids ui ON ui.id = wt.unit_id
+        JOIN unit_ids ui ON ui.id = wt.unit_id
       WHERE
         wt.village_id = $village_id;
     `,
@@ -221,8 +245,10 @@ export const materializeWoundedTroopsAt = (
             village_id = $village_id
             AND unit_id = (
               SELECT id
-              FROM unit_ids
-              WHERE unit = $unit_id
+              FROM
+                unit_ids
+              WHERE
+                unit = $unit_id
             );
         `,
         bind: {
@@ -245,8 +271,10 @@ export const materializeWoundedTroopsAt = (
             village_id = $village_id
             AND unit_id = (
               SELECT id
-              FROM unit_ids
-              WHERE unit = $unit_id
+              FROM
+                unit_ids
+              WHERE
+                unit = $unit_id
             );
         `,
         bind: {
@@ -269,13 +297,16 @@ export const selectWoundedTroopAmount = (
     database.selectValue({
       sql: `
         SELECT amount
-        FROM wounded_troops
+        FROM
+          wounded_troops
         WHERE
           village_id = $village_id
           AND unit_id = (
             SELECT id
-            FROM unit_ids
-            WHERE unit = $unit_id
+            FROM
+              unit_ids
+            WHERE
+              unit = $unit_id
           );
       `,
       bind: {
@@ -296,7 +327,7 @@ export const removeWoundedTroops = (
   }
 
   if (woundedTroops.length === 1) {
-    const woundedTroop = woundedTroops[0]!;
+    const [woundedTroop] = woundedTroops;
     const bind = {
       $village_id: woundedTroop.villageId,
       $unit_id: woundedTroop.unitId,
@@ -317,7 +348,8 @@ export const removeWoundedTroops = (
     database.exec({
       sql: `
         UPDATE wounded_troops
-        SET amount = amount - $amount
+        SET
+          amount = amount - $amount
         WHERE
           village_id = $village_id
           AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
@@ -337,19 +369,25 @@ export const removeWoundedTroops = (
           unit_ids.id AS unit_id,
           SUM(json_extract(wounded_troop.value, '$.amount')) AS amount
         FROM
-          json_each($wounded_troops) AS wounded_troop
+          jsonb_each($wounded_troops) AS wounded_troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(wounded_troop.value, '$.unitId')
-        GROUP BY village_id, unit_ids.id
+        GROUP BY
+          village_id,
+          unit_ids.id
       )
       DELETE FROM wounded_troops
-      WHERE EXISTS (
-        SELECT 1
-        FROM requested_wounded_troops
+      WHERE (village_id, unit_id) IN (
+        SELECT
+          wounded.village_id,
+          wounded.unit_id
+        FROM
+          requested_wounded_troops requested
+          JOIN wounded_troops wounded
+            ON wounded.village_id = requested.village_id
+            AND wounded.unit_id = requested.unit_id
         WHERE
-          requested_wounded_troops.village_id = wounded_troops.village_id
-          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
-          AND wounded_troops.amount <= requested_wounded_troops.amount
+          wounded.amount <= requested.amount
       );
     `,
     bind: { $wounded_troops: JSON.stringify(woundedTroops) },
@@ -363,26 +401,21 @@ export const removeWoundedTroops = (
           unit_ids.id AS unit_id,
           SUM(json_extract(wounded_troop.value, '$.amount')) AS amount
         FROM
-          json_each($wounded_troops) AS wounded_troop
+          jsonb_each($wounded_troops) AS wounded_troop
           JOIN unit_ids
             ON unit_ids.unit = json_extract(wounded_troop.value, '$.unitId')
-        GROUP BY village_id, unit_ids.id
+        GROUP BY
+          village_id,
+          unit_ids.id
       )
       UPDATE wounded_troops
-      SET amount = amount - (
-        SELECT requested_wounded_troops.amount
-        FROM requested_wounded_troops
-        WHERE
-          requested_wounded_troops.village_id = wounded_troops.village_id
-          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
-      )
-      WHERE EXISTS (
-        SELECT 1
-        FROM requested_wounded_troops
-        WHERE
-          requested_wounded_troops.village_id = wounded_troops.village_id
-          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
-      );
+      SET
+        amount = wounded_troops.amount - requested_wounded_troops.amount
+      FROM
+        requested_wounded_troops
+      WHERE
+        requested_wounded_troops.village_id = wounded_troops.village_id
+        AND requested_wounded_troops.unit_id = wounded_troops.unit_id;
     `,
     bind: { $wounded_troops: JSON.stringify(woundedTroops) },
   });
@@ -398,6 +431,10 @@ export const validateTroopMovement = (
 
   if (isReturnTroopMovementEvent(troopMovementEvent)) {
     return [];
+  }
+
+  if (!troopMovementEvent.troops?.some(({ amount }) => amount > 0)) {
+    errors.push('At least 1 troop must be selected');
   }
 
   if (isAdventureTroopMovementEvent(troopMovementEvent)) {
@@ -421,15 +458,13 @@ export const validateTroopMovement = (
 
   const tileExists = database.selectValue({
     sql: `
-      SELECT
-        EXISTS
-        (
-          SELECT 1
-          FROM
-            tiles
-          WHERE
-            id = $target_tile_id
-        ) AS tile_exists;
+      SELECT EXISTS (
+        SELECT 1
+        FROM
+          tiles
+        WHERE
+          id = $target_tile_id
+      ) AS tile_exists;
     `,
     bind: { $target_tile_id: targetTileId },
     schema: z.coerce.boolean(),
@@ -445,18 +480,16 @@ export const validateTroopMovement = (
   ) {
     const isVillageOrOasis = database.selectValue({
       sql: `
-        SELECT
-          EXISTS
-          (
-            SELECT 1
-            FROM
-              tiles t
-                LEFT JOIN villages v ON v.tile_id = t.id
-                LEFT JOIN oasis o ON o.tile_id = t.id
-            WHERE
-              t.id = $target_tile_id
-              AND (v.id IS NOT NULL OR o.id IS NOT NULL)
-            ) AS is_village_or_oasis;
+        SELECT EXISTS (
+          SELECT 1
+          FROM
+            tiles t
+            LEFT JOIN villages v ON v.tile_id = t.id
+            LEFT JOIN oasis o ON o.tile_id = t.id
+          WHERE
+            t.id = $target_tile_id
+            AND (v.id IS NOT NULL OR o.id IS NOT NULL)
+        ) AS is_village_or_oasis;
       `,
       bind: { $target_tile_id: targetTileId },
       schema: z.coerce.boolean(),
@@ -468,23 +501,21 @@ export const validateTroopMovement = (
   }
 
   if (isFindNewVillageTroopMovementEvent(troopMovementEvent)) {
-    const { troops } = troopMovementEvent;
+    const { troops, villageId } = troopMovementEvent;
 
     const isUnoccupied = database.selectValue({
       sql: `
-        SELECT
-          EXISTS
-          (
-            SELECT 1
-            FROM
-              tiles t
-                LEFT JOIN villages v ON v.tile_id = t.id
-                LEFT JOIN oasis o ON o.tile_id = t.id
-            WHERE
-              t.id = $target_tile_id
-              AND v.id IS NULL
-              AND o.id IS NULL
-            ) AS is_unoccupied;
+        SELECT EXISTS (
+          SELECT 1
+          FROM
+            tiles t
+            LEFT JOIN villages v ON v.tile_id = t.id
+            LEFT JOIN oasis o ON o.tile_id = t.id
+          WHERE
+            t.id = $target_tile_id
+            AND v.id IS NULL
+            AND o.id IS NULL
+        ) AS is_unoccupied;
       `,
       bind: { $target_tile_id: targetTileId },
       schema: z.coerce.boolean(),
@@ -496,16 +527,14 @@ export const validateTroopMovement = (
 
     const isSettlersAlreadyOnTheWay = database.selectValue({
       sql: `
-        SELECT
-          EXISTS
-          (
-            SELECT 1
-            FROM
-              events
-            WHERE
-              type = 'troopMovementFindNewVillage'
-              AND JSON_EXTRACT(meta, '$.targetTileId') = $target_tile_id
-            ) AS is_already_on_the_way;
+        SELECT EXISTS (
+          SELECT 1
+          FROM
+            events
+          WHERE
+            type = 'troopMovementFindNewVillage'
+            AND JSON_EXTRACT(meta, '$.targetTileId') = $target_tile_id
+        ) AS is_already_on_the_way;
       `,
       bind: { $target_tile_id: targetTileId },
       schema: z.coerce.boolean(),
@@ -520,6 +549,25 @@ export const validateTroopMovement = (
 
     if (settlersAmount !== 3) {
       errors.push('Exactly 3 settlers must be selected');
+    }
+
+    if (villageId !== undefined) {
+      const playerId = getVillagePlayerId(database, villageId);
+
+      const culturePoints = updatePlayerCulturePointsAt(
+        database,
+        Date.now(),
+        playerId,
+      )!;
+
+      const { nextVillageCulturePointsRequirement } =
+        getPlayerCulturePointsRequirementContext(database, playerId);
+
+      if (culturePoints < nextVillageCulturePointsRequirement) {
+        errors.push(
+          `Not enough culture points. ${nextVillageCulturePointsRequirement} culture points are required to found the next village.`,
+        );
+      }
     }
   }
 
@@ -571,7 +619,7 @@ export const validateTroopMovement = (
                 oasis
               WHERE
                 village_id = $village_id
-              ) AS occupiedOases,
+            ) AS occupiedOases,
             (
               SELECT
                 CASE
@@ -579,15 +627,15 @@ export const validateTroopMovement = (
                   WHEN bf.level >= 15 THEN 2
                   WHEN bf.level >= 10 THEN 1
                   ELSE 0
-                  END
+                END
               FROM
                 building_fields bf
-                  JOIN building_ids bi ON bi.id = bf.building_id
+                JOIN building_ids bi ON bi.id = bf.building_id
               WHERE
                 bf.village_id = $village_id
                 AND bi.building = 'HEROS_MANSION'
               LIMIT 1
-              ) AS occupiedOasisSlots;
+            ) AS occupiedOasisSlots;
         `,
         bind: {
           $village_id: villageId,
@@ -632,16 +680,16 @@ export const validateTroopMovement = (
           END = $player_id AS is_player_target
         FROM
           tiles t
-            JOIN tile_type_ids tt ON tt.id = t.type_id
-            JOIN villages cv ON cv.id = $village_id
-            LEFT JOIN villages v ON v.tile_id = t.id
-            LEFT JOIN villages ov ON ov.id = (
+          JOIN tile_type_ids tt ON tt.id = t.type_id
+          JOIN villages cv ON cv.id = $village_id
+          LEFT JOIN villages v ON v.tile_id = t.id
+          LEFT JOIN villages ov ON ov.id = (
               SELECT MAX(o.village_id)
               FROM
                 oasis o
               WHERE
                 o.tile_id = t.id
-            )
+          )
         WHERE
           t.id = $target_tile_id;
       `,
@@ -651,9 +699,9 @@ export const validateTroopMovement = (
         $player_id: PLAYER_ID,
       },
       schema: z.strictObject({
-        tile_id: z.number(),
+        tile_id: tileIdSchema,
         tile_type: tileTypeSchema,
-        current_village_tile_id: z.number(),
+        current_village_tile_id: tileIdSchema,
         owning_village_id: z.number().nullable(),
         is_player_target: z.coerce.boolean().nullable(),
       }),

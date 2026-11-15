@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getMapFilters, updateMapFilter } from '../map-filters-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -8,32 +8,43 @@ describe('map-filters-controllers', () => {
   const playerId = PLAYER_ID;
 
   test('getMapFilters should return map filters', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
-    getMapFilters(
+    const filters = getMapFilters(
       database,
-      createControllerArgs<'/players/:playerId/map-filters'>({
-        path: { playerId },
+      createControllerArgs<'/me/map-filters'>({
+        context: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(filters).toStrictEqual({
+      shouldShowFactionReputation: expect.any(Boolean),
+      shouldShowOasisIcons: expect.any(Boolean),
+      shouldShowTileTooltips: expect.any(Boolean),
+      shouldShowTroopMovements: expect.any(Boolean),
+      shouldShowWheatFields: expect.any(Boolean),
+    });
   });
 
   test('updateMapFilter should update a map filter', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     updateMapFilter(
       database,
-      createControllerArgs<
-        '/players/:playerId/map-filters/:filterName',
-        'patch'
-      >({
-        path: { playerId, filterName: 'shouldShowOasisIcons' },
+      createControllerArgs<'/me/map-filters/:filterName', 'patch'>({
+        context: { playerId },
+        path: { filterName: 'shouldShowOasisIcons' },
         body: { value: true },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(
+      getMapFilters(
+        database,
+        createControllerArgs<'/me/map-filters'>({
+          context: { playerId },
+        }),
+      ).shouldShowOasisIcons,
+    ).toBe(true);
   });
 });

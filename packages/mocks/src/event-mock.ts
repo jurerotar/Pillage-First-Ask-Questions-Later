@@ -56,7 +56,7 @@ export const createTroopMovementAdventureEventMock = (
   return createGameEventMock('troopMovementAdventure', {
     originTileId: 1,
     targetTileId: 1,
-    troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+    troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };
@@ -67,7 +67,7 @@ export const createTroopMovementRelocationEventMock = (
   return createGameEventMock('troopMovementRelocation', {
     originTileId: 1,
     targetTileId: 1,
-    troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+    troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };
@@ -89,7 +89,7 @@ export const createTroopMovementAttackEventMock = (
   return createGameEventMock('troopMovementAttack', {
     originTileId: 1,
     targetTileId: 1,
-    troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
+    troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };
@@ -100,7 +100,7 @@ export const createTroopMovementRaidEventMock = (
   return createGameEventMock('troopMovementRaid', {
     originTileId: 1,
     targetTileId: 1,
-    troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
+    troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };
@@ -119,6 +119,13 @@ export const createResourceTransferEventMock = (
       wheat: 10,
     },
     merchantAmount: 1,
+    repeatRemaining: 0,
+    repeatResources: {
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+    },
     ...overrides,
   });
 };
@@ -127,16 +134,7 @@ export const createTradeRouteEventMock = (
   overrides: Partial<GameEvent<'tradeRoute'>> = {},
 ): GameEvent<'tradeRoute'> => {
   return createGameEventMock('tradeRoute', {
-    originTileId: 1,
-    targetTileId: 2,
-    targetVillageId: 2,
-    resources: {
-      wood: 100,
-      clay: 50,
-      iron: 25,
-      wheat: 10,
-    },
-    interval: 6 * 60 * 60 * 1000,
+    tradeRouteId: 1,
     ...overrides,
   });
 };
@@ -195,6 +193,53 @@ export const createTroopTrainingEventMock = (
     buildingId: 'BARRACKS',
     batchId: globalThis.crypto.randomUUID(),
     durationEffectId: 'barracksTrainingDuration',
+    ...overrides,
+  });
+};
+
+export const createTrapperCageProductionEventMock = (
+  overrides: Partial<GameEvent<'trapperCageProduction'>> = {},
+): GameEvent<'trapperCageProduction'> => {
+  return createGameEventMock('trapperCageProduction', {
+    cageAmount: 1,
+    ...overrides,
+  });
+};
+
+export const createAnimalCageProductionEventMock = (
+  overrides: Partial<GameEvent<'animalCageProduction'>> = {},
+): GameEvent<'animalCageProduction'> => {
+  return createGameEventMock('animalCageProduction', {
+    cageAmount: 1,
+    ...overrides,
+  });
+};
+
+export const createHuntersLodgeHuntEventMock = (
+  overrides: Partial<GameEvent<'huntersLodgeHunt'>> = {},
+): GameEvent<'huntersLodgeHunt'> => {
+  return createGameEventMock('huntersLodgeHunt', {
+    huntingPartyLevel: 1,
+    ...overrides,
+  });
+};
+
+export const createGatherersHutGatheringTripEventMock = (
+  overrides: Partial<GameEvent<'gatherersHutGatheringTrip'>> = {},
+): GameEvent<'gatherersHutGatheringTrip'> => {
+  return createGameEventMock('gatherersHutGatheringTrip', {
+    troops: [],
+    ...overrides,
+  });
+};
+
+export const createTroopMovementReinforcementsEventMock = (
+  overrides: Partial<GameEvent<'troopMovementReinforcements'>> = {},
+): GameEvent<'troopMovementReinforcements'> => {
+  return createGameEventMock('troopMovementReinforcements', {
+    originTileId: 1,
+    targetTileId: 1,
+    troops: [{ unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };

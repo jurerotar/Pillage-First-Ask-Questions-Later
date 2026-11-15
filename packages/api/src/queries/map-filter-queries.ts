@@ -4,14 +4,15 @@ export const selectMapFiltersQuery = `
     should_show_oasis_icons,
     should_show_troop_movements,
     should_show_wheat_fields,
-    should_show_tile_tooltips,
-    should_show_treasure_icons
+    should_show_tile_tooltips
   FROM
-    map_filters;
+    map_filters
+  WHERE player_id = $player_id;
 `;
 
 export const createUpdateMapFilterQuery = (column: string) => `
   UPDATE map_filters
   SET
-    ${column} = $value;
+    ${column} = $value
+  WHERE player_id = $player_id;
 `;

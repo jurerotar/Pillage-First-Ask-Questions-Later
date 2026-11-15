@@ -1,6 +1,14 @@
 import { z } from 'zod';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import {
+  resourceSchema,
+  resourcesSchema,
+} from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import {
+  oasisBonusTypeSchema,
+  tileIdSchema,
+} from '@pillage-first/types/models/tile';
 
 export const buildingFieldRowSchema = z.strictObject({
   field_id: z.number(),
@@ -14,7 +22,7 @@ export const buildingFieldRowSchema = z.strictObject({
 export const getVillageBySlugSchema = z
   .strictObject({
     id: z.number(),
-    tile_id: z.number(),
+    tile_id: tileIdSchema,
     player_id: z.number(),
     coordinates_x: z.number(),
     coordinates_y: z.number(),
@@ -22,10 +30,7 @@ export const getVillageBySlugSchema = z
     slug: z.string(),
     resource_field_composition: resourceFieldCompositionSchema,
     last_updated_at: z.number(),
-    wood: z.number(),
-    clay: z.number(),
-    iron: z.number(),
-    wheat: z.number(),
+    ...resourcesSchema.shape,
     // JSON string aggregated in SQL, mapping is handled in controller mapper
     building_fields: z.string(),
   })
@@ -33,11 +38,11 @@ export const getVillageBySlugSchema = z
 
 export const getOccupiableOasisInRangeRowSchema = z
   .strictObject({
-    tile_id: z.number(),
+    tile_id: tileIdSchema,
     tile_coordinates_x: z.number(),
     tile_coordinates_y: z.number(),
-    bonuses_json: z.string(),
-    oasis_graphics: z.number(),
+    resource: resourceSchema,
+    bonus_type: oasisBonusTypeSchema,
     occupying_village_id: z.number().nullable(),
     occupying_village_coordinates_x: z.number().nullable(),
     occupying_village_coordinates_y: z.number().nullable(),

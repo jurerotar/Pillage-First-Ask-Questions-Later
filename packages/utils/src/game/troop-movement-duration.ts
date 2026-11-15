@@ -2,29 +2,22 @@ import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { Effect } from '@pillage-first/types/models/effect';
 import type { Tile } from '@pillage-first/types/models/tile';
 import type { Troop } from '@pillage-first/types/models/troop';
-import type { Village } from '@pillage-first/types/models/village';
 import { tileIdToCoordinates } from '../map';
 import { calculateDistanceBetweenPoints } from '../math';
 import { calculateComputedEffect } from './calculate-computed-effect';
 
 type CalculateTravelDurationArgs = {
-  originVillageId: Village['id'];
   originTileId: Tile['id'];
   targetTileId: Tile['id'];
   mapSize: number;
   troops: Troop[];
   effects: Effect[];
+  heroSpeed: number;
 };
 
 export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
-  const {
-    originVillageId,
-    originTileId,
-    targetTileId,
-    mapSize,
-    troops,
-    effects,
-  } = args;
+  const { originTileId, targetTileId, mapSize, troops, effects, heroSpeed } =
+    args;
 
   const distance = calculateDistanceBetweenPoints(
     tileIdToCoordinates(originTileId, mapSize),
@@ -32,6 +25,10 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   );
 
   const unitSpeeds = troops.map(({ unitId }) => {
+    if (unitId === 'HERO') {
+      return heroSpeed;
+    }
+
     const { unitSpeed } = getUnitDefinition(unitId);
     return unitSpeed;
   });
@@ -42,7 +39,7 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   const { total: unitSpeedBonus } = calculateComputedEffect(
     'unitSpeed',
     effects,
-    originVillageId,
+    originTileId,
   );
 
   const computedSpeed = speedOfSlowestUnit * unitSpeedBonus;
@@ -58,7 +55,7 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   const { total: unitSpeedAfter20FieldsBonus } = calculateComputedEffect(
     'unitSpeedAfter20Fields',
     effects,
-    originVillageId,
+    originTileId,
   );
 
   const timeToCrossRemainingFields =

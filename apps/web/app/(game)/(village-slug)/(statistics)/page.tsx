@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
 import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
@@ -7,18 +7,12 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { lazyWithRetry } from 'app/utils/imports';
 
 const tabs = ['population', 'villages', 'overview'];
 
-const GameWorldOverview = lazy(async () => ({
+const GameWorldOverview = lazyWithRetry(async () => ({
   default: (await import('./components/game-world-overview')).GameWorldOverview,
 }));
 
@@ -34,15 +28,6 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
   return (
     <PageContents>
       <title>{title}</title>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{t('Statistics')}</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('Statistics')}
         className="top-2 right-2"

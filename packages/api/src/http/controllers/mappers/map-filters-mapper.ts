@@ -9,7 +9,6 @@ export const mapMapFiltersRowToDto = (
     shouldShowFactionReputation: Boolean(row.should_show_faction_reputation),
     shouldShowOasisIcons: Boolean(row.should_show_oasis_icons),
     shouldShowTileTooltips: Boolean(row.should_show_tile_tooltips),
-    shouldShowTreasureIcons: Boolean(row.should_show_treasure_icons),
     shouldShowTroopMovements: Boolean(row.should_show_troop_movements),
     shouldShowWheatFields: Boolean(row.should_show_wheat_fields),
   });

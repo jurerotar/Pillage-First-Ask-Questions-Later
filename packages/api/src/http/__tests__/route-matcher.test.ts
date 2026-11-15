@@ -1,12 +1,32 @@
 import { describe, expect, test } from 'vitest';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { matchRoute } from '../route-matcher';
 
 describe(matchRoute, () => {
+  test('creates independent current-player context for each request', () => {
+    const first = matchRoute('/tiles/123/stationed-troops?playerId=999', 'GET');
+    const second = matchRoute('/tiles/123/stationed-troops', 'GET');
+
+    expect(first.context.playerId).toBe(PLAYER_ID);
+    expect(second.context.playerId).toBe(PLAYER_ID);
+    expect(first.context).not.toBe(second.context);
+  });
+
+  test('keeps supplied identity in context without adding it to route parameters', () => {
+    const context = { playerId: 42 };
+    const result = matchRoute('/me/villages', 'GET', undefined, context);
+    const next = matchRoute('/me/villages', 'GET');
+
+    expect(result.context).toBe(context);
+    expect(Object.keys(result.path)).toHaveLength(0);
+    expect(next.context.playerId).toBe(PLAYER_ID);
+  });
+
   test('casts path params using real schema (/tiles/:tileId/stationed-troops)', () => {
-    // This route exists in http/api-routes.ts and has a schema in the OpenAPI contract.
+    // This route exists in http/api-routes.ts and has a request parameter schema.
     const result = matchRoute('/tiles/123/stationed-troops', 'GET');
 
-    expect(typeof result.path.tileId).toBe('number');
+    expect(result.path.tileId).toBeTypeOf('number');
     expect(result.path.tileId).toBe(123);
   });
 
@@ -29,6 +49,20 @@ describe(matchRoute, () => {
       '/villages/:villageId/bookmarks/:buildingId',
     );
     expect(result.controller.method).toBe('patch');
+  });
+
+  test('matches QUERY routes with request bodies', () => {
+    const body = {
+      x: 0,
+      y: 0,
+      animalFilters: [{ animal: 'RAT', amount: 1 }],
+    };
+
+    const result = matchRoute('/search/oases/by-animals', 'QUERY', body);
+
+    expect(result.controller.path).toBe('/search/oases/by-animals');
+    expect(result.controller.method).toBe('query');
+    expect(result.body).toStrictEqual(body);
   });
 
   test('parses request bodies using real schema', () => {
@@ -60,7 +94,7 @@ describe(matchRoute, () => {
           unitId: 'LEGIONNAIRE',
           amount: 1,
           tileId: 1,
-          source: 1,
+          sourceTileId: 1,
         },
       ],
     });
@@ -75,7 +109,7 @@ describe(matchRoute, () => {
           unitId: 'LEGIONNAIRE',
           amount: 1,
           tileId: 1,
-          source: 1,
+          sourceTileId: 1,
         },
       ],
     });
@@ -92,21 +126,18 @@ describe(matchRoute, () => {
           {
             unitId: 'LEGIONNAIRE',
             amount: 1,
-            source: 1,
+            sourceTileId: 1,
           },
         ],
       }),
     ).toThrow();
   });
 
-  test('handles /me alias', () => {
-    // /me is aliased to /players/${PLAYER_ID}, which is /players/1
+  test('matches /me as a real current-player endpoint', () => {
     const result = matchRoute('/me', 'GET');
 
-    // In http/api-routes.ts, /players/:playerSlug is defined BEFORE /players/me
-    // and /players/1 matches :playerSlug. This is expected current behavior.
-    expect(result.controller.path).toBe('/players/:playerSlug');
-    expect(result.path.playerSlug).toBe('1');
+    expect(result.controller.path).toBe('/me');
+    expect(Object.keys(result.path)).toHaveLength(0);
   });
 
   test('throws on validation error', () => {
@@ -125,11 +156,10 @@ describe(matchRoute, () => {
 
   test('preserves repeated query params as arrays', () => {
     const result = matchRoute(
-      '/reports?scope=village&villageId=2&filters=adventure&filters=movement&filters=trade',
+      '/tiles/123/stationed-troops?filters=adventure&filters=movement&filters=trade',
       'GET',
     );
 
-    expect(result.query.villageId).toBe(2);
     expect(result.query.filters).toStrictEqual([
       'adventure',
       'movement',

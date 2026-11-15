@@ -21,6 +21,7 @@ describe('useCountdown', () => {
     });
 
     const after1s = result.current;
+
     expect(after1s).toBeGreaterThan(initial);
     expect(after1s - initial).toBeGreaterThanOrEqual(1000);
 
@@ -29,6 +30,7 @@ describe('useCountdown', () => {
     });
 
     const after4s = result.current;
+
     expect(after4s - initial).toBeGreaterThanOrEqual(4000);
   });
 });

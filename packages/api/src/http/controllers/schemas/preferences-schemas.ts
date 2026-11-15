@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { villageSortSchema } from '@pillage-first/types/models/preferences';
 
 export const getPreferencesSchema = z
   .strictObject({
@@ -10,6 +11,7 @@ export const getPreferencesSchema = z
     is_automatic_navigation_after_unit_upgrade_enabled: z.number(),
     is_automatic_navigation_after_send_units_enabled: z.number(),
     is_developer_tools_console_enabled: z.number(),
+    village_sort: villageSortSchema,
     should_show_notifications_on_building_upgrade_completion: z.number(),
     should_show_notifications_on_unit_upgrade_completion: z.number(),
     should_show_notifications_on_academy_research_completion: z.number(),

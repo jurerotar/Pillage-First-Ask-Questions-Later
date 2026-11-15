@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { battleSchema } from './battle';
+import { battleReportBattleDtoSchema } from '../dtos/battle-report';
 import { buildingIdSchema } from './building';
 import { coordinatesSchema } from './coordinates';
 import { resourceBundleSchema } from './resource';
+import { tileIdSchema } from './tile';
 import { tribeSchema } from './tribe';
 import { unitIdSchema } from './unit';
 
@@ -14,6 +15,10 @@ export const reportTypeSchema = z.enum([
   'huntingParty',
   'gatheringExpedition',
   'scouting',
+  'unitResearch',
+  'unitImprovement',
+  'villageFounded',
+  'scheduledConstructionCancellation',
 ]);
 
 export const battleResultIdSchema = z.enum([
@@ -39,6 +44,10 @@ export const reportOutcomeSchema = z.enum([
   'troopMovement',
   'huntingParty',
   'gatheringExpedition',
+  'unitResearched',
+  'unitImproved',
+  'villageFounded',
+  'scheduledConstructionCancelled',
 ]);
 
 export const reportTagSchema = z.enum(['read', 'archived']);
@@ -65,7 +74,7 @@ export const battleReportSummarySchema = z.strictObject({
 export const battleReportSchema = baseReportSchema.extend({
   type: z.literal('battle'),
   summary: battleReportSummarySchema,
-  battle: battleSchema,
+  battle: battleReportBattleDtoSchema,
 });
 
 export const adventureReportSchema = baseReportSchema.extend({
@@ -98,8 +107,8 @@ export const tradeReportSchema = baseReportSchema.extend({
   }),
   trade: z.strictObject({
     id: z.int(),
-    originTileId: z.int(),
-    targetTileId: z.int(),
+    originTileId: tileIdSchema,
+    targetTileId: tileIdSchema,
     resources: resourceBundleSchema,
   }),
 });
@@ -127,8 +136,8 @@ export const movementReportSchema = baseReportSchema.extend({
   movement: z.strictObject({
     id: z.int(),
     tribe: tribeSchema,
-    originTileId: z.int(),
-    targetTileId: z.int(),
+    originTileId: tileIdSchema,
+    targetTileId: tileIdSchema,
     movementType: z.enum(['reinforcement', 'relocation']),
     units: z.array(movementReportUnitSchema),
   }),
@@ -194,24 +203,123 @@ const scoutingReinforcementSchema = scoutingTroopsSchema.extend({
 export const scoutingReportSchema = baseReportSchema.extend({
   type: z.literal('scouting'),
   summary: scoutingReportSummarySchema,
-  scouting: z.strictObject({
-    id: z.int(),
-    perspective: reportSideSchema,
-    successful: z.boolean(),
-    target: z.enum(['resources', 'defensiveStructures']),
-    attacker: scoutingAttackerTroopsSchema,
-    defender: scoutingTroopsSchema.extend({
-      reinforcements: z.array(scoutingReinforcementSchema),
-    }),
-    resources: resourceBundleSchema.nullable(),
-    defensiveStructures: z.array(
-      z.strictObject({
-        buildingId: buildingIdSchema,
-        level: z.int().nonnegative(),
+  scouting: z
+    .strictObject({
+      id: z.int(),
+      perspective: reportSideSchema,
+      successful: z.boolean(),
+      target: z.enum(['resources', 'defensiveStructures']),
+      attacker: scoutingAttackerTroopsSchema,
+      defender: scoutingTroopsSchema.extend({
+        reinforcements: z.array(scoutingReinforcementSchema),
       }),
+      resources: resourceBundleSchema.nullable(),
+      itemId: z.int().nullable(),
+      itemAmount: z.int().positive().nullable(),
+      defensiveStructures: z.array(
+        z.strictObject({
+          buildingId: buildingIdSchema,
+          level: z.int().nonnegative(),
+        }),
+      ),
+    })
+    .refine(
+      ({ itemId, itemAmount }) => (itemId === null) === (itemAmount === null),
+      {
+        message: 'Item id and amount must either both be set or both be null',
+        path: ['itemAmount'],
+      },
     ),
-  }),
 });
+
+const unitReportSummarySchema = z.strictObject({
+  villageId: z.int(),
+  villageName: z.string(),
+  villageCoordinates: coordinatesSchema,
+});
+
+export const unitResearchReportSchema = baseReportSchema.extend({
+  type: z.literal('unitResearch'),
+  summary: unitReportSummarySchema,
+  unitId: unitIdSchema,
+});
+
+export const unitImprovementReportSchema = baseReportSchema.extend({
+  type: z.literal('unitImprovement'),
+  summary: unitReportSummarySchema,
+  unitId: unitIdSchema,
+  level: z.int().positive(),
+});
+
+export const villageFoundedReportSchema = baseReportSchema.extend({
+  type: z.literal('villageFounded'),
+  summary: z.strictObject({
+    originName: z.string(),
+    originCoordinates: coordinatesSchema,
+    targetName: z.string(),
+    targetCoordinates: coordinatesSchema,
+  }),
+  originTileId: tileIdSchema,
+  targetTileId: tileIdSchema,
+});
+
+export const scheduledConstructionCancellationReasonSchema = z.enum([
+  'missing-resources',
+  'missing-requirements',
+]);
+
+const scheduledConstructionCancellationReasonDetailSchema =
+  z.discriminatedUnion('type', [
+    z.strictObject({
+      type: z.literal('missing-resources'),
+      missingResources: resourceBundleSchema,
+    }),
+    z.strictObject({
+      type: z.literal('missing-requirements'),
+      unmetRequirements: z.array(
+        z.discriminatedUnion('type', [
+          z.strictObject({
+            type: z.literal('or'),
+            requirements: z
+              .array(
+                z.strictObject({
+                  buildingId: buildingIdSchema,
+                  requiredLevel: z.int().positive(),
+                  currentLevel: z.int().nonnegative().nullable(),
+                }),
+              )
+              .min(1),
+          }),
+          z.strictObject({
+            type: z.literal('building'),
+            buildingId: buildingIdSchema,
+            requiredLevel: z.int().positive(),
+            currentLevel: z.int().nonnegative().nullable(),
+          }),
+          z.strictObject({
+            type: z.literal('tribe'),
+            tribe: tribeSchema,
+          }),
+          z.strictObject({
+            type: z.literal('amount'),
+            // null represents an unlimited allowance (Infinity is not JSON-safe).
+            amount: z.int().positive().nullable(),
+          }),
+        ]),
+      ),
+    }),
+  ]);
+
+export const scheduledConstructionCancellationReportSchema =
+  baseReportSchema.extend({
+    type: z.literal('scheduledConstructionCancellation'),
+    summary: unitReportSummarySchema,
+    buildingId: buildingIdSchema,
+    buildingFieldId: z.int(),
+    level: z.int().positive(),
+    reason: scheduledConstructionCancellationReasonSchema,
+    reasonDetail: scheduledConstructionCancellationReasonDetailSchema,
+  });
 
 export const reportSchema = z
   .discriminatedUnion('type', [
@@ -222,6 +330,10 @@ export const reportSchema = z
     huntingPartyReportSchema,
     gatheringExpeditionReportSchema,
     scoutingReportSchema,
+    unitResearchReportSchema,
+    unitImprovementReportSchema,
+    villageFoundedReportSchema,
+    scheduledConstructionCancellationReportSchema,
   ])
   .meta({ id: 'Report' });
 
@@ -242,3 +354,15 @@ export type GatheringExpeditionReport = z.infer<
   typeof gatheringExpeditionReportSchema
 >;
 export type ScoutingReport = z.infer<typeof scoutingReportSchema>;
+export type UnitResearchReport = z.infer<typeof unitResearchReportSchema>;
+export type UnitImprovementReport = z.infer<typeof unitImprovementReportSchema>;
+export type VillageFoundedReport = z.infer<typeof villageFoundedReportSchema>;
+export type ScheduledConstructionCancellationReason = z.infer<
+  typeof scheduledConstructionCancellationReasonSchema
+>;
+export type ScheduledConstructionCancellationReasonDetail = z.infer<
+  typeof scheduledConstructionCancellationReasonDetailSchema
+>;
+export type ScheduledConstructionCancellationReport = z.infer<
+  typeof scheduledConstructionCancellationReportSchema
+>;

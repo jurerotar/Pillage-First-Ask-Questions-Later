@@ -1,20 +1,27 @@
 import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Suspense, use, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ImHammer } from 'react-icons/im';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import {
-  LuChevronLeft,
-  LuChevronRight,
+  LuChevronDown,
+  LuChevronUp,
+  LuClock,
   LuConstruction,
   LuGripVertical,
 } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
+import {
+  calculateBuildingCostForLevel,
+  calculateBuildingDurationForLevel,
+} from '@pillage-first/game-assets/utils/buildings';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import {
   type ConstructionQueueDragHandlers,
   useConstructionQueueDrag,
@@ -29,11 +36,53 @@ import {
   CurrentVillageBuildingQueueContext,
   getBuildingUpgradeQueueEntryKey,
 } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
+import { Icon } from 'app/components/icon';
+import { formatTime } from 'app/utils/time';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-muted-foreground px-2 py-2.5 box-content border border-border rounded-xs transition-colors';
 
 type DropTargetStatus = 'valid' | 'invalid';
+
+const getBuildingUpgradeCost = ({
+  buildingId,
+  level,
+}: Pick<BuildingUpgradeQueueEntry, 'buildingId' | 'level'>): number[] =>
+  calculateBuildingCostForLevel(buildingId, level);
+
+const getTotalBuildingUpgradeCost = (
+  events: Pick<BuildingUpgradeQueueEntry, 'buildingId' | 'level'>[],
+): number[] => {
+  const totalCost = [0, 0, 0, 0];
+
+  for (const event of events) {
+    const eventCost = getBuildingUpgradeCost(event);
+
+    for (const [index, cost] of eventCost.entries()) {
+      totalCost[index] += cost;
+    }
+  }
+
+  return totalCost;
+};
+
+type ConstructionQueueCostProps = {
+  resources: number[];
+  label?: string;
+};
+
+const ConstructionQueueCost = ({
+  label,
+  resources,
+}: ConstructionQueueCostProps) => (
+  <span className="flex max-w-full flex-wrap items-center gap-1 text-xs text-foreground [&>span]:whitespace-nowrap">
+    {label && <span className="text-muted-foreground">{label}:</span>}
+    <Resources
+      iconClassName="size-4"
+      resources={resources}
+    />
+  </span>
+);
 
 type ConstructionQueueBuildingProps = {
   buildingEvent: BuildingUpgradeQueueEntry;
@@ -51,12 +100,17 @@ const ConstructionQueueBuilding = ({
   onCancel,
 }: ConstructionQueueBuildingProps) => {
   const { t } = useTranslation();
+  const { total: buildingDurationModifier } =
+    useComputedEffect('buildingDuration');
   const isScheduledEvent = buildingEvent.type === 'scheduledBuildingUpgrade';
+  const scheduledEventCost = isScheduledEvent
+    ? getBuildingUpgradeCost(buildingEvent)
+    : null;
 
   return (
     <div
       className={clsx(
-        'relative flex items-center gap-2 overflow-hidden rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity non-selectable',
+        'relative flex items-center gap-2 overflow-hidden rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-[background-color,border-color,color,opacity] non-selectable',
         isDragging && 'opacity-60',
         dropTargetStatus === 'valid' &&
           "before:pointer-events-none before:absolute before:inset-0 before:bg-emerald-400/20 before:content-['']",
@@ -85,25 +139,51 @@ const ConstructionQueueBuilding = ({
         />
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col border-x border-border px-2">
-        <span className="inline-flex items-center gap-1 whitespace-nowrap">
-          <b className="truncate">
-            {t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
-          </b>
-          <span className="inline-flex items-center text-sm">
-            ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
-            {buildingEvent.level})
+      <div className="flex min-w-0 flex-1 flex-col border-x border-border px-2 transition-colors">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex min-w-0 items-center gap-1 whitespace-nowrap">
+            {isScheduledEvent && (
+              <LuClock
+                aria-label={t('Scheduled construction')}
+                className="shrink-0 text-sm text-muted-foreground"
+              />
+            )}
+            <b className="truncate">
+              {t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
+            </b>
+            <span className="inline-flex shrink-0 items-center text-sm">
+              ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
+              {buildingEvent.level})
+            </span>
           </span>
-        </span>
-        <span className="text-sm">
-          {isScheduledEvent ? (
-            t('In queue')
-          ) : (
+          {isScheduledEvent && (
+            <span
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-muted-foreground"
+              title={t('Upgrade duration')}
+            >
+              <Icon
+                type="buildingDuration"
+                className="size-4"
+              />
+              {formatTime(
+                calculateBuildingDurationForLevel(
+                  buildingEvent.buildingId,
+                  buildingEvent.level,
+                ) * buildingDurationModifier,
+              )}
+            </span>
+          )}
+        </div>
+        {!isScheduledEvent && (
+          <span className="text-sm">
             <Countdown
               endsAt={buildingEvent.startsAt + buildingEvent.duration}
             />
-          )}
-        </span>
+          </span>
+        )}
+        {scheduledEventCost && (
+          <ConstructionQueueCost resources={scheduledEventCost} />
+        )}
       </div>
 
       <button
@@ -142,7 +222,7 @@ const CompactConstructionQueueBuilding = ({
       aria-label={t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
       aria-pressed={isSelected}
       className={clsx(
-        'relative flex flex-col overflow-hidden rounded-xs border bg-background non-selectable',
+        'relative flex flex-col overflow-hidden rounded-xs border bg-background transition-[background-color,border-color,color,opacity] non-selectable',
         isSelected ? 'border-foreground' : 'border-border',
         isDragging && 'opacity-60',
         dropTargetStatus === 'valid' &&
@@ -173,7 +253,7 @@ const CompactConstructionQueueBuilding = ({
         <>
           <LuConstruction className="box-content px-2.5 pb-4 pt-1 text-2xl text-muted-foreground" />
           <Countdown
-            className="absolute bottom-0 left-0 w-full border-t border-border bg-background text-center text-2xs leading-none"
+            className="absolute bottom-0 left-0 w-full border-t border-border bg-background text-center text-2xs leading-none transition-colors"
             endsAt={buildingEvent.startsAt + buildingEvent.duration}
           />
         </>
@@ -184,7 +264,7 @@ const CompactConstructionQueueBuilding = ({
 
 type ConstructionQueueEventSlotProps = {
   event: BuildingUpgradeQueueEntry;
-  isDesktop: boolean;
+  showDetails: boolean;
   draggedId: number | null;
   dropSourceId: number | null;
   selectedEventKey: string | null;
@@ -196,7 +276,7 @@ type ConstructionQueueEventSlotProps = {
 
 const ConstructionQueueEventSlot = ({
   event,
-  isDesktop,
+  showDetails,
   draggedId,
   dropSourceId,
   selectedEventKey,
@@ -217,7 +297,7 @@ const ConstructionQueueEventSlot = ({
 
   return (
     <li data-scheduled-upgrade-id={isScheduledEvent ? event.id : undefined}>
-      {isDesktop ? (
+      {showDetails ? (
         <ConstructionQueueBuilding
           buildingEvent={event}
           dropTargetStatus={dropTargetStatus}
@@ -239,14 +319,23 @@ const ConstructionQueueEventSlot = ({
   );
 };
 
-const ConstructionQueueContent = () => {
+type ConstructionQueueContentProps = {
+  isExtended: boolean;
+  onClose: () => void;
+  onToggle: () => void;
+};
+
+const ConstructionQueueContent = ({
+  isExtended,
+  onClose,
+  onToggle,
+}: ConstructionQueueContentProps) => {
   const { t } = useTranslation();
   const { mutate: cancelConstruction } = useCancelConstruction();
   const { cancelScheduledBuildingUpgrade, reorderScheduledBuildingUpgrades } =
     useScheduledBuildingUpgrades();
   const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const [isExtended, setIsExtended] = useState<boolean>(false);
   const [selectedEventKey, setSelectedEventKey] = useState<string | null>(null);
 
   const activeEvents = useMemo(
@@ -276,6 +365,11 @@ const ConstructionQueueContent = () => {
     reorderScheduledBuildingUpgrades,
   );
 
+  const totalScheduledConstructionCost = useMemo(
+    () => getTotalBuildingUpgradeCost(orderedScheduledEvents),
+    [orderedScheduledEvents],
+  );
+
   const cancelBuildingUpgradeQueueEntry = useCallback(
     (buildingEvent: BuildingUpgradeQueueEntry) => {
       if (buildingEvent.type === 'scheduledBuildingUpgrade') {
@@ -297,7 +391,11 @@ const ConstructionQueueContent = () => {
   const dropSourceId = draggedId;
 
   const containerRef = useClickOutside<HTMLElement>(() => {
-    setIsExtended(false);
+    if (isWiderThanLg) {
+      return;
+    }
+
+    onClose();
     setSelectedEventKey(null);
   });
 
@@ -308,8 +406,9 @@ const ConstructionQueueContent = () => {
   if (totalSlotsCount - orderedEvents.length < 0) {
     faro.api.pushError(
       new Error(
-        'Invalid array length at ConstructionQueue' +
-          JSON.stringify({ buildingUpgradeEvents }),
+        `Invalid array length at ConstructionQueue${JSON.stringify({
+          buildingUpgradeEvents,
+        })}`,
       ),
     );
   }
@@ -329,63 +428,85 @@ const ConstructionQueueContent = () => {
     }),
   ];
 
-  const visibleSlots = isWiderThanLg || isExtended ? slots : slots.slice(0, 1);
+  const visibleSlots = slots.slice(0, 1);
+
+  const totalCost = orderedScheduledEvents.length > 0 && (
+    <div className="min-w-0 self-stretch rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 ml-1 shadow-xs transition-[background-color,border-color,color]">
+      <ConstructionQueueCost
+        label={t('Scheduled cost')}
+        resources={totalScheduledConstructionCost}
+      />
+    </div>
+  );
+
+  const renderSlot = (slot: (typeof slots)[number], showDetails: boolean) =>
+    slot.type === 'building' ? (
+      <ConstructionQueueEventSlot
+        dragHandlers={dragHandlers}
+        dropSourceId={dropSourceId}
+        draggedId={draggedId}
+        event={slot.event}
+        key={getBuildingUpgradeQueueEntryKey(slot.event)}
+        onCancel={cancelBuildingUpgradeQueueEntry}
+        onSelect={(event) => {
+          const key = getBuildingUpgradeQueueEntryKey(event);
+          setSelectedEventKey((current) => (current === key ? null : key));
+        }}
+        selectedEventKey={selectedEventKey}
+        showDetails={showDetails}
+        validDropTargetIds={validDropTargetIds}
+      />
+    ) : (
+      <li key={slot.id}>
+        <ImHammer className={iconClassName} />
+      </li>
+    );
 
   return (
     <aside
-      className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-0 z-10 flex max-w-[calc(100vw-1rem)] flex-col items-start gap-1 transition-all lg:bottom-14"
+      className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-safe z-30 flex max-w-[calc(100vw-var(--twsa-safe-area-inset-left)-var(--twsa-safe-area-inset-right)-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color,left] lg:bottom-14 lg:z-10"
       ref={containerRef}
     >
-      {!isWiderThanLg && selectedEvent && (
+      {!isExtended && selectedEvent && (
         <ConstructionQueueBuilding
           buildingEvent={selectedEvent}
           isDragging={false}
           onCancel={cancelBuildingUpgradeQueueEntry}
         />
       )}
-      <ul className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-all lg:flex-col lg:items-stretch lg:overflow-visible">
-        {visibleSlots.map((slot) =>
-          slot.type === 'building' ? (
-            <ConstructionQueueEventSlot
-              dragHandlers={dragHandlers}
-              dropSourceId={dropSourceId}
-              draggedId={draggedId}
-              event={slot.event}
-              isDesktop={isWiderThanLg}
-              key={getBuildingUpgradeQueueEntryKey(slot.event)}
-              onCancel={cancelBuildingUpgradeQueueEntry}
-              onSelect={(event) => {
-                const key = getBuildingUpgradeQueueEntryKey(event);
-                setSelectedEventKey((current) =>
-                  current === key ? null : key,
-                );
-              }}
-              selectedEventKey={selectedEventKey}
-              validDropTargetIds={validDropTargetIds}
-            />
-          ) : (
-            <li key={slot.id}>
-              <ImHammer className={iconClassName} />
-            </li>
-          ),
-        )}
+      {isExtended && (
+        <>
+          {totalCost}
+          <ul className="flex max-w-full flex-col items-stretch gap-1 overflow-visible rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color]">
+            {slots.map((slot) => renderSlot(slot, true))}
+          </ul>
+        </>
+      )}
+      <ul className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color]">
+        {visibleSlots.map((slot) => renderSlot(slot, false))}
 
-        {!isWiderThanLg && (
-          <li className="shrink-0">
-            <button
-              aria-label={
-                isExtended
-                  ? t('Close construction queue')
-                  : t('Expand construction queue')
-              }
-              className="box-content rounded-xs border border-border bg-muted py-2.5 text-2xl text-muted-foreground transition-colors"
-              onClick={() => setIsExtended(!isExtended)}
-              type="button"
-            >
-              {isExtended ? <LuChevronLeft /> : <LuChevronRight />}
-            </button>
-          </li>
-        )}
+        <li className="shrink-0">
+          <button
+            aria-expanded={isExtended}
+            aria-label={
+              isExtended
+                ? t('Close construction queue')
+                : t('Expand construction queue')
+            }
+            className="inline-flex flex-col items-center gap-0.5 rounded-xs border border-border bg-muted px-0.5 py-1 text-muted-foreground transition-colors"
+            onClick={onToggle}
+            type="button"
+          >
+            {isExtended ? (
+              <LuChevronDown className="text-2xl" />
+            ) : (
+              <LuChevronUp className="text-2xl" />
+            )}
+            <span className="min-w-7 text-center text-xs font-semibold tabular-nums leading-none">
+              {orderedEvents.length}/{totalSlotsCount}
+            </span>
+          </button>
+        </li>
       </ul>
     </aside>
   );
@@ -393,6 +514,7 @@ const ConstructionQueueContent = () => {
 
 export const ConstructionQueue = () => {
   const { shouldShowSidebars } = useGameLayoutState();
+  const [isExtended, setIsExtended] = useState<boolean>(false);
 
   if (!shouldShowSidebars) {
     return null;
@@ -400,7 +522,11 @@ export const ConstructionQueue = () => {
 
   return (
     <Suspense fallback={null}>
-      <ConstructionQueueContent />
+      <ConstructionQueueContent
+        isExtended={isExtended}
+        onClose={() => setIsExtended(false)}
+        onToggle={() => setIsExtended((current) => !current)}
+      />
     </Suspense>
   );
 };

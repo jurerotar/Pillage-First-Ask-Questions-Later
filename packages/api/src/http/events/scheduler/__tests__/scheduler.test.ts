@@ -1,4 +1,4 @@
-import { describe, expect, type Mocked, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import {
   cancelScheduling,
   initScheduler,
@@ -12,17 +12,27 @@ import { triggerKick } from '../scheduler-signal';
 const setupSchedulerTest = () => {
   vi.useFakeTimers();
   vi.setSystemTime(1000);
-
   resetSchedulerForTesting();
 
-  const mockDataSource = {
-    getPastEventIds: vi.fn(),
-    getNextEvent: vi.fn(),
-    resolveEvent: vi.fn(),
-  } satisfies Mocked<SchedulerDataSource>;
+  const processed = vi.fn<(id: number) => void>();
+  const source = {
+    getPastEventIds: vi
+      .fn<SchedulerDataSource['getPastEventIds']>()
+      .mockReturnValue([]),
+    getNextEvent: vi
+      .fn<SchedulerDataSource['getNextEvent']>()
+      .mockReturnValue(null),
+    resolveEvent: vi.fn<SchedulerDataSource['resolveEvent']>(),
+    resolveEvents: vi.fn<SchedulerDataSource['resolveEvents']>((ids) => {
+      for (const id of ids) {
+        processed(id);
+      }
+    }),
+  };
 
   return {
-    mockDataSource,
+    source,
+    processed,
     [Symbol.dispose]: () => {
       cancelScheduling();
       vi.useRealTimers();
@@ -31,259 +41,303 @@ const setupSchedulerTest = () => {
 };
 
 describe('scheduler', () => {
-  test('initScheduler registers the kick callback', () => {
+  test('passes due events to the batch resolver in order', () => {
     using context = setupSchedulerTest();
-    const { mockDataSource } = context;
+    const { source, processed } = context;
 
-    mockDataSource.getPastEventIds.mockReturnValue([]);
-    mockDataSource.getNextEvent.mockReturnValue(null);
-    initScheduler(mockDataSource);
+    source.getPastEventIds.mockReturnValueOnce([2, 1]);
 
-    vi.clearAllMocks();
+    scheduleNextEvent(source);
 
-    triggerKick();
-
-    // triggerKick calls kickCallback which is () => kickSchedulerNow(dataSource)
-    // kickSchedulerNow calls globalThis.setTimeout(..., 0)
-    vi.advanceTimersByTime(0);
-
-    // scheduleNextEvent should have been called, which calls getPastEventIds
-    expect(mockDataSource.getPastEventIds).toHaveBeenCalled();
+    expect(source.resolveEvents).toHaveBeenCalledTimes(1);
+    expect(processed.mock.calls).toStrictEqual([[2], [1]]);
+    expect(source.resolveEvent).not.toHaveBeenCalled();
   });
 
-  test('scheduleNextEvent processes past events immediately', () => {
+  test('rescans for events created during resolution', () => {
     using context = setupSchedulerTest();
-    const { mockDataSource } = context;
+    const { source, processed } = context;
 
-    mockDataSource.getPastEventIds
+    source.getPastEventIds.mockReturnValueOnce([1]).mockReturnValueOnce([2]);
+
+    scheduleNextEvent(source);
+
+    expect(processed.mock.calls).toStrictEqual([[1], [2]]);
+  });
+
+  test('does not open a batch when no events are due', () => {
+    using context = setupSchedulerTest();
+
+    scheduleNextEvent(context.source);
+
+    expect(context.source.resolveEvents).not.toHaveBeenCalled();
+  });
+
+  test('checks cancellation between events in a batch', () => {
+    using context = setupSchedulerTest();
+    const { source, processed } = context;
+
+    source.getPastEventIds.mockReturnValue([1, 2, 3]);
+    processed.mockImplementation(() => cancelScheduling());
+
+    scheduleNextEvent(source);
+
+    expect(processed.mock.calls).toStrictEqual([[1]]);
+  });
+
+  test('a rescan interrupts the batch and uses the new event order', () => {
+    using context = setupSchedulerTest();
+    const { source, processed } = context;
+
+    source.getPastEventIds
       .mockReturnValueOnce([1, 2])
-      .mockReturnValue([]); // second call returns empty to break loop
-    mockDataSource.getNextEvent.mockReturnValue(null); // No future events
+      .mockReturnValueOnce([3, 2]);
 
-    scheduleNextEvent(mockDataSource);
+    processed.mockImplementation((id) => {
+      if (id === 1) {
+        triggerKick();
+      }
+    });
 
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledTimes(2);
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(1);
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(2);
+    scheduleNextEvent(source);
+
+    expect(processed.mock.calls).toStrictEqual([[1], [3], [2]]);
   });
 
-  test('scheduleNextEvent schedules future events', () => {
+  test('initScheduler connects event kicks to scheduling', () => {
     using context = setupSchedulerTest();
-    const { mockDataSource } = context;
 
-    vi.clearAllMocks();
-    mockDataSource.getPastEventIds.mockReturnValue([]); // No past events
-    mockDataSource.getNextEvent.mockReturnValue({ id: 3, resolvesAt: 2000 });
-
-    scheduleNextEvent(mockDataSource);
-
-    expect(mockDataSource.resolveEvent).not.toHaveBeenCalled();
-
-    // Wait for the scheduled time (2000 - 1000 = 1000ms)
-    vi.advanceTimersByTime(1000);
-
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(3);
-    // It should also call scheduleNextEvent again (which will query for more events)
-    expect(mockDataSource.getPastEventIds).toHaveBeenCalledTimes(2);
-  });
-
-  test('kickSchedulerNow clears existing timeout and rescans', () => {
-    using context = setupSchedulerTest();
-    const { mockDataSource } = context;
-
-    vi.clearAllMocks();
-    mockDataSource.getPastEventIds.mockReturnValue([]);
-    mockDataSource.getNextEvent
-      .mockReturnValueOnce({ id: 4, resolvesAt: 5000 })
-      .mockReturnValue(null);
-
-    scheduleNextEvent(mockDataSource);
-
-    // Now an event is scheduled for t=5000.
-    // If we kick at t=2000:
-    vi.advanceTimersByTime(1000); // Now t=2000
-
-    mockDataSource.getPastEventIds.mockReturnValueOnce([5]).mockReturnValue([]);
-    mockDataSource.getNextEvent.mockReturnValue(null);
-    kickSchedulerNow(mockDataSource);
-
-    // kickSchedulerNow uses setTimeout 0
-    vi.advanceTimersByTime(0);
-
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(5);
-
-    // The old timeout for 'future-event' should have been cleared.
-    vi.advanceTimersByTime(3000); // Advance to t=5000
-    // resolveEvent should NOT have been called again for future-event (yet, unless it was re-scheduled)
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledTimes(1);
-  });
-
-  test('cancelScheduling stops everything', () => {
-    using context = setupSchedulerTest();
-    const { mockDataSource } = context;
-
-    vi.clearAllMocks();
-    mockDataSource.getPastEventIds.mockReturnValue([]);
-    mockDataSource.getNextEvent.mockReturnValue({ id: 6, resolvesAt: 2000 });
-
-    scheduleNextEvent(mockDataSource);
-    cancelScheduling();
-
-    vi.advanceTimersByTime(1000);
-    expect(mockDataSource.resolveEvent).not.toHaveBeenCalled();
-  });
-
-  test('cancelScheduling clears registered kick callback', () => {
-    using context = setupSchedulerTest();
-    const { mockDataSource } = context;
-
-    mockDataSource.getPastEventIds.mockReturnValue([]);
-    mockDataSource.getNextEvent.mockReturnValue(null);
-
-    initScheduler(mockDataSource);
-    cancelScheduling();
-    vi.clearAllMocks();
+    initScheduler(context.source);
 
     triggerKick();
     vi.advanceTimersByTime(0);
 
-    expect(mockDataSource.getPastEventIds).not.toHaveBeenCalled();
-    expect(mockDataSource.getNextEvent).not.toHaveBeenCalled();
-    expect(mockDataSource.resolveEvent).not.toHaveBeenCalled();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
-  test('handles re-entrancy via schedulingInProgress', () => {
+  test('does not resolve a future event before its deadline', () => {
     using context = setupSchedulerTest();
-    const { mockDataSource } = context;
 
-    vi.clearAllMocks();
-    let callCount = 0;
-    mockDataSource.getPastEventIds.mockImplementation(() => {
-      callCount += 1;
-      if (callCount === 1) {
-        // While processing first "batch", trigger a rescan
-        triggerKick();
-        return [7];
-      }
-      if (callCount === 2) {
-        return [8];
-      }
-      return [];
-    });
-    mockDataSource.getNextEvent.mockReturnValue(null);
-
-    scheduleNextEvent(mockDataSource);
-
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledTimes(2);
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(7);
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(8);
-  });
-
-  test('stops processing when cancelled during loop', () => {
-    using context = setupSchedulerTest();
-    const { mockDataSource } = context;
-
-    mockDataSource.getPastEventIds.mockReturnValue([1, 2, 3]);
-    mockDataSource.resolveEvent.mockImplementation((id) => {
-      if (id === 1) {
-        cancelScheduling();
-      }
+    context.source.getNextEvent.mockReturnValueOnce({
+      id: 1,
+      resolvesAt: 2000,
     });
 
-    scheduleNextEvent(mockDataSource);
+    scheduleNextEvent(context.source);
 
-    // Should process the first one then see the abort signal and stop
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledTimes(1);
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(1);
-    expect(mockDataSource.resolveEvent).not.toHaveBeenCalledWith(2);
+    vi.advanceTimersByTime(999);
+
+    expect(context.source.resolveEvent).not.toHaveBeenCalled();
   });
 
-  test('kickSchedulerNow is a no-op if cancelled', () => {
+  test('resolves a future event at its deadline', () => {
     using context = setupSchedulerTest();
-    const { mockDataSource } = context;
 
-    cancelScheduling();
-    kickSchedulerNow(mockDataSource);
+    context.source.getNextEvent.mockReturnValueOnce({
+      id: 1,
+      resolvesAt: 2000,
+    });
+
+    scheduleNextEvent(context.source);
+
+    vi.advanceTimersByTime(1000);
+
+    expect(context.source.resolveEvent.mock.calls).toStrictEqual([[1]]);
+  });
+
+  test('rescans after a timer-fired event resolves', () => {
+    using context = setupSchedulerTest();
+
+    context.source.getNextEvent.mockReturnValueOnce({
+      id: 1,
+      resolvesAt: 2000,
+    });
+
+    scheduleNextEvent(context.source);
+    context.source.getPastEventIds.mockClear();
+
+    vi.advanceTimersByTime(1000);
+
+    expect(context.source.getPastEventIds).toHaveBeenCalledWith(2000);
+  });
+
+  test('a kick rescans asynchronously', () => {
+    using context = setupSchedulerTest();
+
+    kickSchedulerNow(context.source);
+
+    expect(context.source.getPastEventIds).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(0);
 
-    expect(mockDataSource.getPastEventIds).not.toHaveBeenCalled();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
-  test('handles error in resolveEvent and continues scheduling', () => {
+  test('a kick clears the previous event timer', () => {
     using context = setupSchedulerTest();
-    const { mockDataSource } = context;
 
-    mockDataSource.getPastEventIds.mockReturnValueOnce([1]).mockReturnValue([]);
-    mockDataSource.resolveEvent.mockImplementation(() => {
+    context.source.getNextEvent.mockReturnValueOnce({
+      id: 1,
+      resolvesAt: 2000,
+    });
+
+    scheduleNextEvent(context.source);
+
+    kickSchedulerNow(context.source);
+    vi.advanceTimersByTime(1000);
+
+    expect(context.source.resolveEvent).not.toHaveBeenCalled();
+  });
+
+  test('consecutive kicks consolidate into one rescan', () => {
+    using context = setupSchedulerTest();
+
+    kickSchedulerNow(context.source);
+    kickSchedulerNow(context.source);
+    kickSchedulerNow(context.source);
+
+    vi.advanceTimersByTime(0);
+
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
+  });
+
+  test('cancellation clears the event timer', () => {
+    using context = setupSchedulerTest();
+
+    context.source.getNextEvent.mockReturnValueOnce({
+      id: 1,
+      resolvesAt: 2000,
+    });
+
+    scheduleNextEvent(context.source);
+
+    cancelScheduling();
+    vi.advanceTimersByTime(1000);
+
+    expect(context.source.resolveEvent).not.toHaveBeenCalled();
+  });
+
+  test('cancellation clears a pending kick', () => {
+    using context = setupSchedulerTest();
+
+    kickSchedulerNow(context.source);
+
+    cancelScheduling();
+    vi.advanceTimersByTime(0);
+
+    expect(context.source.getPastEventIds).not.toHaveBeenCalled();
+  });
+
+  test('does not schedule after cancellation', () => {
+    using context = setupSchedulerTest();
+
+    cancelScheduling();
+
+    scheduleNextEvent(context.source);
+
+    expect(context.source.getPastEventIds).not.toHaveBeenCalled();
+  });
+
+  test('ignores kicks after cancellation', () => {
+    using context = setupSchedulerTest();
+
+    cancelScheduling();
+
+    kickSchedulerNow(context.source);
+    vi.advanceTimersByTime(0);
+
+    expect(context.source.getPastEventIds).not.toHaveBeenCalled();
+  });
+
+  test('defers a reentrant schedule call until the current batch finishes', () => {
+    using context = setupSchedulerTest();
+    const { source, processed } = context;
+
+    source.getPastEventIds
+      .mockReturnValueOnce([1, 2])
+      .mockReturnValueOnce([3, 2]);
+
+    processed.mockImplementation((id) => {
+      if (id !== 1) {
+        return;
+      }
+
+      scheduleNextEvent(source);
+
+      expect(source.getPastEventIds).toHaveBeenCalledTimes(1);
+    });
+
+    scheduleNextEvent(source);
+
+    expect(processed.mock.calls).toStrictEqual([[1], [3], [2]]);
+  });
+
+  test('propagates batch resolution errors', () => {
+    using context = setupSchedulerTest();
+    const error = new Error('Database error');
+
+    context.source.getPastEventIds.mockReturnValueOnce([1]);
+    context.source.resolveEvents.mockImplementationOnce(() => {
+      throw error;
+    });
+
+    expect(() => scheduleNextEvent(context.source)).toThrow(error);
+  });
+
+  test('allows another scheduling run after a batch error', () => {
+    using context = setupSchedulerTest();
+
+    context.source.getPastEventIds.mockReturnValueOnce([1]);
+    context.source.resolveEvents.mockImplementationOnce(() => {
       throw new Error('Database error');
     });
-    mockDataSource.getNextEvent.mockReturnValue({ id: 2, resolvesAt: 2000 });
 
-    // scheduleNextEvent has a try-finally block.
-    // If resolveEvent throws, it should hit 'finally' and still schedule the next event
-    // though the current loop might break depending on implementation.
-    // Actually looking at scheduler.ts, the loop is inside the try.
-    // So it will break the while loop and go to finally.
+    expect(() => scheduleNextEvent(context.source)).toThrow();
 
-    expect(() => scheduleNextEvent(mockDataSource)).toThrow('Database error');
+    context.source.getPastEventIds.mockClear();
 
-    // Even if it throws, the finally block should have set schedulingInProgress = false,
-    // and we can verify if it attempted to getNextEvent or if it just died.
-    // In current implementation, getNextEvent is AFTER the loop inside the same try.
-    // So if the loop throws, getNextEvent is skipped.
+    scheduleNextEvent(context.source);
+
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
-  test('consecutive kicks consolidate rescans', () => {
+  test('logs a timer-fired resolution error', () => {
     using context = setupSchedulerTest();
-    const { mockDataSource } = context;
+    using log = vi.spyOn(console, 'error').mockReturnValue(undefined);
+    const error = new Error('Database error');
 
-    mockDataSource.getPastEventIds.mockReturnValue([]);
-    mockDataSource.getNextEvent.mockReturnValue(null);
+    context.source.getNextEvent.mockReturnValueOnce({
+      id: 1,
+      resolvesAt: 2000,
+    });
 
-    kickSchedulerNow(mockDataSource);
-    kickSchedulerNow(mockDataSource);
-    kickSchedulerNow(mockDataSource);
+    context.source.resolveEvent.mockImplementationOnce(() => {
+      throw error;
+    });
 
-    vi.advanceTimersByTime(0);
+    scheduleNextEvent(context.source);
 
-    // Should only run one scheduleNextEvent cycle because of schedulingInProgress guard
-    // and takeNeedsRescan consolidation.
-    // Actually, each kick schedules a setTimeout(..., 0).
-    // When the first one runs, it sets schedulingInProgress = true.
-    // When the second one runs, it sees schedulingInProgress = true, calls markNeedsRescan() and returns.
-    // When the first one finishes, it checks takeNeedsRescan() in finally and runs again if needed.
+    vi.advanceTimersByTime(1000);
 
-    expect(mockDataSource.getPastEventIds).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledExactlyOnceWith(error);
   });
 
-  test('continues scheduling after a timer-fired event throws', () => {
+  test('continues scheduling after a timer-fired resolution error', () => {
     using context = setupSchedulerTest();
-    const { mockDataSource } = context;
-    using consoleError = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
+    using _log = vi.spyOn(console, 'error').mockReturnValue(undefined);
 
-    mockDataSource.getPastEventIds.mockReturnValue([]);
-    mockDataSource.getNextEvent
+    context.source.getNextEvent
       .mockReturnValueOnce({ id: 1, resolvesAt: 2000 })
-      .mockReturnValueOnce({ id: 2, resolvesAt: 3000 })
-      .mockReturnValue(null);
-    mockDataSource.resolveEvent
-      .mockImplementationOnce(() => {
-        throw new Error('Database error');
-      })
-      .mockImplementation(() => {});
+      .mockReturnValueOnce({ id: 2, resolvesAt: 3000 });
 
-    scheduleNextEvent(mockDataSource);
+    context.source.resolveEvent.mockImplementationOnce(() => {
+      throw new Error('Database error');
+    });
 
-    vi.advanceTimersByTime(1000);
+    scheduleNextEvent(context.source);
 
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(1);
-    expect(consoleError).toHaveBeenCalled();
+    vi.advanceTimersByTime(2000);
 
-    vi.advanceTimersByTime(1000);
-
-    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(2);
+    expect(context.source.resolveEvent.mock.calls).toStrictEqual([[1], [2]]);
   });
 });

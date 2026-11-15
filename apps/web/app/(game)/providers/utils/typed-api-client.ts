@@ -2,7 +2,7 @@ import type { z } from 'zod';
 import type { ApiRouteController } from '@pillage-first/api/api-route-types';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
-type HttpMethod = 'get' | 'post' | 'patch' | 'delete';
+type HttpMethod = 'get' | 'post' | 'patch' | 'delete' | 'query';
 
 type RoutesByMethod = {
   [TMethod in HttpMethod]: {
@@ -136,6 +136,7 @@ export type ApiClient = {
   post: ApiClientMethod<'post'>;
   patch: ApiClientMethod<'patch'>;
   delete: ApiClientMethod<'delete'>;
+  query: ApiClientMethod<'query'>;
 };
 
 type RuntimeRequestOptions = {
@@ -158,14 +159,14 @@ const buildPath = (pathTemplate: string, options?: RuntimeRequestOptions) => {
   const searchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(options.query)) {
-    if (value == null) {
+    if (value === null || value === undefined) {
       continue;
     }
 
     // Properly serialize arrays as repeated query params (e.g., ?types=a&types=b)
     if (Array.isArray(value)) {
       for (const v of value) {
-        if (v == null) {
+        if (v === null || v === undefined) {
           continue;
         }
         searchParams.append(key, String(v));
@@ -189,7 +190,7 @@ export const createTypedApiClient = (fetcher: Fetcher): ApiClient => {
   ): Promise<{ data: unknown }> => {
     const url = buildPath(pathTemplate, options);
 
-    const { data } = await fetcher<unknown, unknown>(url, {
+    const { data } = await fetcher(url, {
       method: method.toUpperCase(),
       body: options?.body,
     });
@@ -204,5 +205,6 @@ export const createTypedApiClient = (fetcher: Fetcher): ApiClient => {
     post: request.bind(null, 'post') as ApiClientMethod<'post'>,
     patch: request.bind(null, 'patch') as ApiClientMethod<'patch'>,
     delete: request.bind(null, 'delete') as ApiClientMethod<'delete'>,
+    query: request.bind(null, 'query') as ApiClientMethod<'query'>,
   };
 };

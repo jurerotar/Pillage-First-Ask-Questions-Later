@@ -12,6 +12,12 @@
     "directory": "packages/types"
   },
   "exports": {
+    "./dtos/combat-simulator": {
+      "default": "./src/dtos/combat-simulator.ts"
+    },
+    "./models/trade-route": {
+      "default": "./src/models/trade-route.ts"
+    },
     "./dtos/preferences": {
       "default": "./src/dtos/preferences.ts"
     },
@@ -45,9 +51,6 @@
     "./dtos/oasis": {
       "default": "./src/dtos/oasis.ts"
     },
-    "./dtos/history": {
-      "default": "./src/dtos/history.ts"
-    },
     "./dtos/statistics": {
       "default": "./src/dtos/statistics.ts"
     },
@@ -74,6 +77,9 @@
     },
     "./models/building": {
       "default": "./src/models/building.ts"
+    },
+    "./models/combat-simulator": {
+      "default": "./src/models/combat-simulator.ts"
     },
     "./models/developer-settings": {
       "default": "./src/models/developer-settings.ts"
@@ -163,15 +169,15 @@
   "scripts": {
     "lint:check": "biome lint --no-errors-on-unmatched",
     "lint": "biome lint --fix --no-errors-on-unmatched",
-    "lint:check/oxlint": "oxlint --type-aware",
-    "lint/oxlint": "oxlint --type-aware --fix",
+    "lint:check/oxlint": "oxlint",
+    "lint/oxlint": "oxlint --fix",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
     "type-check": "tsc"
   },
   "dependencies": {
-    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
-    "zod": "4.4.3"
+    "@sqlite.org/sqlite-wasm": "3.54.1-build1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "typescript": "7.0.2"

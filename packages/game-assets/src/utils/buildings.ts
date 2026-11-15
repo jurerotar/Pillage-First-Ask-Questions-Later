@@ -71,6 +71,27 @@ export const calculateTotalCulturePointsForLevel = (
   return Math.round(culturePointsCoefficient * 1.2 ** level);
 };
 
+export const calculateBuildingDurationForLevel = (
+  buildingId: Building['id'],
+  level: number,
+): number => {
+  const {
+    buildingDurationBase,
+    buildingDurationModifier,
+    buildingDurationReduction,
+  } = getBuildingDefinition(buildingId);
+
+  return (
+    Math.ceil(
+      (buildingDurationModifier * buildingDurationBase ** (level - 1) -
+        buildingDurationReduction) /
+        5,
+    ) *
+    5 *
+    1000
+  );
+};
+
 type GetBuildingDataForLevelReturn = {
   building: Building;
   isMaxLevel: boolean;
@@ -216,27 +237,6 @@ export const calculateBuildingCancellationRefundForLevel = (
 //
 //   return Math.round((5 * populationCoefficient + level - 1) / 10);
 // };
-
-export const calculateBuildingDurationForLevel = (
-  buildingId: Building['id'],
-  level: number,
-): number => {
-  const {
-    buildingDurationBase,
-    buildingDurationModifier,
-    buildingDurationReduction,
-  } = getBuildingDefinition(buildingId);
-
-  return (
-    Math.ceil(
-      (buildingDurationModifier * buildingDurationBase ** (level - 1) -
-        buildingDurationReduction) /
-        5,
-    ) *
-    5 *
-    1000
-  );
-};
 
 export const calculateBuildingDestructionDuration = (
   levelDifference: number,

@@ -107,13 +107,14 @@ const VillagePage = (props: Route.ComponentProps) => {
       <title>{title}</title>
       <Tooltip
         anchorSelect="[data-building-field-id]"
+        className="text-xs!"
         closeEvents={{
           mouseleave: true,
         }}
         hidden={!isWiderThanLg}
         render={renderTooltip}
       />
-      <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
+      <main className="flex flex-col items-center justify-center mx-auto px-safe lg:px-0 lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
         <VillageMapContext value={villageMapContextValue}>
           <div className="relative aspect-16/10 scrollbar-hidden min-w-[460px] max-w-5xl w-full">
             {buildingFieldIds.map((buildingFieldId) => (

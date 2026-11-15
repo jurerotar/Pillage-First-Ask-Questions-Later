@@ -5,8 +5,10 @@ import {
   baseEventDtoSchema,
   createEventDtoSchema,
 } from '@pillage-first/types/dtos/event';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
+import {
+  type GameEvent,
+  gameEventTypeSchema,
+} from '@pillage-first/types/models/game-event';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   deleteNextDemolitionEventQuery,
@@ -22,7 +24,10 @@ import { deleteScheduledBuildingUpgradesByVillageAndFieldQuery } from '../../que
 import { removeBuildingPlaceholder } from '../../utils/building-placeholder';
 import { createEvents } from '../../utils/create-event';
 import { promoteNextScheduledBuildingUpgrade } from '../../utils/scheduled-building-upgrades';
-import { addVillageResourcesAt } from '../../utils/village';
+import {
+  addResourceSiteResourcesAt,
+  getVillageTileId,
+} from '../../utils/village';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
@@ -179,7 +184,12 @@ export const cancelConstructionEvent = createController(
       completionPercentage,
     );
 
-    addVillageResourcesAt(db, villageId, now, resourcesToRefund);
+    addResourceSiteResourcesAt(
+      db,
+      getVillageTileId(db, villageId),
+      now,
+      resourcesToRefund,
+    );
 
     promoteNextScheduledBuildingUpgrade(db, villageId, now, buildingFieldId);
   });
@@ -232,9 +242,9 @@ export const cancelUnitImprovementEvent = createController(
         cancelledEvent.level,
       );
 
-      addVillageResourcesAt(
+      addResourceSiteResourcesAt(
         db,
-        cancelledEvent.villageId,
+        getVillageTileId(db, cancelledEvent.villageId),
         Date.now(),
         resourcesToRefund,
       );

@@ -1,8 +1,10 @@
+import 'zod/compile';
 import type {
   ApiNotificationEvent,
   ControllerErrorEvent,
   DatabaseInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
+import { serializeError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   cancelScheduling,
@@ -68,7 +70,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         postWorkerMessage(
           {
             eventKey: 'event:database-initialization-error',
-            error: error as Error,
+            error: serializeError(error),
           } satisfies DatabaseInitializationErrorEvent,
           { force: true },
         );
@@ -93,28 +95,41 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         const database = getInitializedDatabase();
         const {
           controller,
+          context,
           path,
           query,
           body: parsedBody,
           url: rawUrl,
         } = matchRoute(url, method, body);
+
         const result = controller(database, {
+          context,
           path,
           query,
           body: parsedBody as never,
           url: rawUrl,
         });
 
-        port.postMessage({
-          data: result,
-        });
+        const transfer =
+          result instanceof Uint8Array
+            ? [result.buffer]
+            : result instanceof ArrayBuffer
+              ? [result]
+              : [];
+
+        port.postMessage(
+          {
+            data: result,
+          },
+          transfer,
+        );
 
         break;
       } catch (error) {
         console.error(error);
         const errorEvent = {
           eventKey: 'event:error',
-          error: error as Error,
+          error: serializeError(error),
         } satisfies ControllerErrorEvent;
 
         port.postMessage(errorEvent);

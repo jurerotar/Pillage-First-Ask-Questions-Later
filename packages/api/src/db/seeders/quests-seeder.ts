@@ -1,0 +1,91 @@
+import { z } from 'zod';
+import {
+  createQueuedTroopCountByIdQuests,
+  globalQuests,
+  newVillageQuestsFactory,
+} from '@pillage-first/game-assets/quests';
+import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { batchInsert } from '../utils/batch-insert';
+
+export const questsSeeder = (database: DbFacade, playerId: number): void => {
+  const playerStartingVillageId = database.selectValue({
+    sql: `
+      SELECT id
+      FROM
+        villages
+      WHERE
+        player_id = $player_id;
+    `,
+    bind: { $player_id: playerId },
+    schema: z.number(),
+  })!;
+
+  const { playerTribe, playerResourceFieldComposition } = database.selectObject(
+    {
+      sql: `
+      SELECT
+        ti.tribe AS playerTribe,
+        rfc.resource_field_composition AS playerResourceFieldComposition
+      FROM
+        players p
+        JOIN tribe_ids ti ON ti.id = p.tribe_id
+        JOIN villages v ON v.player_id = p.id
+        JOIN tiles t ON t.id = v.tile_id
+        JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
+      WHERE
+        p.id = $player_id;
+    `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({
+        playerTribe: playableTribeSchema,
+        playerResourceFieldComposition: resourceFieldCompositionSchema,
+      }),
+    },
+  )!;
+
+  const questsToSeed = [];
+
+  const villageQuests = newVillageQuestsFactory(
+    playerStartingVillageId,
+    playerTribe,
+    playerResourceFieldComposition,
+  );
+
+  const queuedTroopCountByIdQuests =
+    createQueuedTroopCountByIdQuests(playerTribe);
+
+  for (const { id } of villageQuests) {
+    questsToSeed.push([id, playerId, null, null, playerStartingVillageId]);
+  }
+
+  const seedableGlobalQuests = [...globalQuests, ...queuedTroopCountByIdQuests];
+
+  for (const { id } of seedableGlobalQuests) {
+    questsToSeed.push([id, playerId, null, null, null]);
+  }
+
+  batchInsert(
+    database,
+    'quests',
+    ['quest_id', 'player_id', 'completed_at', 'collected_at', 'village_id'],
+    questsToSeed,
+  );
+
+  database.exec({
+    sql: `
+        UPDATE quests
+        SET
+          completed_at = $completed_at
+        WHERE
+          quest_id = $quest_id
+          AND village_id = $village_id;
+      `,
+    bind: {
+      $quest_id: 'oneOf-MAIN_BUILDING-1',
+      $village_id: playerStartingVillageId,
+      $completed_at: Date.now(),
+    },
+  });
+};

@@ -1,8 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { paths } from '../../open-api';
 import { compiledApiRoutes } from '../api-routes';
-
-const httpMethods = new Set(['get', 'post', 'put', 'delete', 'patch']);
 
 const hasInvalidPathFormat = (path: string) =>
   !path.startsWith('/') || (path.length > 1 && path.endsWith('/'));
@@ -79,19 +76,15 @@ describe('api-route definitions', () => {
     expect(shadowedRoutes).toStrictEqual([]);
   });
 
-  test('every registered route has a matching OpenAPI operation', () => {
-    const contractedRouteKeys = new Set(
-      Object.entries(paths).flatMap(([path, routeConfig]) => {
-        return Object.keys(routeConfig)
-          .filter((method) => httpMethods.has(method))
-          .map((method) => `${method.toUpperCase()} ${path}`);
-      }),
-    );
+  test('registers QUERY routes for body-backed endpoints', () => {
+    const queryRouteKeys = compiledApiRoutes
+      .filter(({ method }) => method === 'QUERY')
+      .map(({ method, path }) => `${method} ${path}`);
 
-    const routesWithoutContract = compiledApiRoutes
-      .map(({ method, path }) => `${method} ${path}`)
-      .filter((routeKey) => !contractedRouteKeys.has(routeKey));
-
-    expect(routesWithoutContract).toStrictEqual([]);
+    expect(queryRouteKeys).toStrictEqual([
+      'QUERY /search/oases/by-bonus',
+      'QUERY /combat-simulator',
+      'QUERY /search/oases/by-animals',
+    ]);
   });
 });

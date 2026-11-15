@@ -1,13 +1,11 @@
 import { match } from 'path-to-regexp';
-import type {
-  ZodOpenApiOperationObject,
-  ZodOpenApiPathsObject,
-} from 'zod-openapi';
 import {
   getBookmarks,
   updateBookmark,
 } from './controllers/bookmark-controllers';
+import { simulateCombat } from './controllers/combat-simulator-controllers';
 import {
+  adjustCulturePoints,
   adjustVillageLoyalty,
   getDeveloperSettings,
   incrementHeroAdventurePoints,
@@ -17,7 +15,7 @@ import {
   updateDeveloperSettings,
   updateVillageResources,
 } from './controllers/developer-tools-controllers';
-import { getVillageEffects } from './controllers/effect-controllers';
+import { getTileEffects } from './controllers/effect-controllers';
 import {
   cancelConstructionEvent,
   cancelDemolitionEvent,
@@ -38,6 +36,14 @@ import {
   removeTileFromFarmList,
   updateFarmList,
 } from './controllers/farm-list-controllers';
+import { getFilters, updateFilters } from './controllers/filter-controllers';
+import {
+  buyHeroAuctionListing,
+  getHeroAuctionBuyListings,
+  getHeroAuctionHistory,
+  getHeroAuctionSellListings,
+  sellHeroAuctionItem,
+} from './controllers/hero-auction-controllers';
 import {
   changeHeroAttributes,
   changeHeroResourceToProduce,
@@ -50,11 +56,6 @@ import {
   unequipHeroItem,
   useHeroItem,
 } from './controllers/hero-controllers';
-import {
-  getBuildingLevelChangeHistory,
-  getEventsHistory,
-  getUnitTrainingHistory,
-} from './controllers/history-controllers';
 import { getTileLoyalty } from './controllers/loyalty-controllers';
 import {
   addMapMarker,
@@ -62,7 +63,6 @@ import {
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
-  getTileWorldItem,
   removeMapMarker,
 } from './controllers/map-controllers';
 import {
@@ -72,6 +72,8 @@ import {
 import {
   createTradeRoute,
   deleteTradeRoute,
+  listTradeRoutes,
+  setTradeRoutePaused,
   transferResources,
   updateTradeRoute,
 } from './controllers/marketplace-controllers';
@@ -85,6 +87,7 @@ import {
   getPlayerVillagesWithPopulation,
   getSentReinforcementsByTile,
   getStationedTroopsByTile,
+  getVillageUnitCount,
   getWoundedTroopsByVillage,
   relocateReinforcements,
   relocateSentReinforcements,
@@ -105,8 +108,13 @@ import {
   deleteReports,
   getReport,
   getReports,
+  getTileReports,
   updateReports,
 } from './controllers/report-controllers';
+import {
+  getReportGenerationSettings,
+  updateReportGenerationSettings,
+} from './controllers/report-generation-controllers';
 import { getReputations } from './controllers/reputation-controllers';
 import {
   cancelScheduledBuildingUpgrade,
@@ -114,15 +122,20 @@ import {
   reorderScheduledBuildingUpgrades,
   scheduleBuildingUpgrade,
 } from './controllers/scheduled-building-upgrades-controllers';
-import { getServer } from './controllers/server-controllers';
+import {
+  getSerializedServerDatabase,
+  getServer,
+} from './controllers/server-controllers';
 import {
   getGameWorldOverview,
   getPlayerRankings,
   getVillageRankings,
 } from './controllers/statistics-controllers';
+import { getVillageStorage } from './controllers/storage-controllers';
 import { getTrapperCageStats } from './controllers/trapper-controllers';
 import {
   cancelTroopMovement,
+  getTileTroopMovements,
   getVillageTroopMovementStats,
   getVillageTroopMovements,
   validateTroopMovement,
@@ -133,21 +146,22 @@ import {
   getGatherersHutExpeditions,
   getOccupiableOasisInRange,
   getVillageBySlug,
+  getVillageCulturePoints,
   rearrangeBuildingFields,
 } from './controllers/village-controllers';
 import { getArtifactsAroundVillage } from './controllers/world-items-controllers';
 import { createRoute, type Route } from './route';
 
-// NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
-
 export const apiRoutes = [
   // Server
   createRoute(getServer),
+  createRoute(getSerializedServerDatabase),
 
   // Developer Tools
   createRoute(getDeveloperSettings),
   createRoute(updateDeveloperSettings),
   createRoute(updateVillageResources),
+  createRoute(adjustCulturePoints),
   createRoute(spawnHeroItem),
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
@@ -155,7 +169,11 @@ export const apiRoutes = [
   createRoute(adjustVillageLoyalty),
 
   // Auctions
-  // createRoute(getAuctions),
+  createRoute(getHeroAuctionBuyListings),
+  createRoute(buyHeroAuctionListing),
+  createRoute(getHeroAuctionSellListings),
+  createRoute(sellHeroAuctionItem),
+  createRoute(getHeroAuctionHistory),
 
   // Hero
   createRoute(getHero),
@@ -181,7 +199,6 @@ export const apiRoutes = [
   createRoute(getTiles),
   createRoute(getTileTroops),
   createRoute(getTileOasisBonuses),
-  createRoute(getTileWorldItem),
   createRoute(getMapMarkers),
   createRoute(addMapMarker),
   createRoute(removeMapMarker),
@@ -216,11 +233,14 @@ export const apiRoutes = [
 
   // Villages
   createRoute(getVillageBySlug),
+  createRoute(getVillageCulturePoints),
+  createRoute(getVillageStorage),
   createRoute(getGatherersHutExpeditions),
   createRoute(getStationedTroopsByTile),
+  createRoute(getVillageUnitCount),
   createRoute(getWoundedTroopsByVillage),
   createRoute(getSentReinforcementsByTile),
-  createRoute(getVillageEffects),
+  createRoute(getTileEffects),
   createRoute(getVillageEvents),
   createRoute(getVillageEventsByType),
   createRoute(renameVillage),
@@ -240,6 +260,8 @@ export const apiRoutes = [
   createRoute(transferResources),
   createRoute(createTradeRoute),
   createRoute(updateTradeRoute),
+  createRoute(listTradeRoutes),
+  createRoute(setTradeRoutePaused),
   createRoute(deleteTradeRoute),
 
   // Map Filters
@@ -253,14 +275,24 @@ export const apiRoutes = [
   createRoute(getBookmarks),
   createRoute(updateBookmark),
 
+  // Filters
+  createRoute(getFilters),
+  createRoute(updateFilters),
+
   // Reports
+  createRoute(getReportGenerationSettings),
+  createRoute(updateReportGenerationSettings),
   createRoute(getReports),
+  createRoute(getTileReports),
   createRoute(getReport),
   createRoute(updateReports),
   createRoute(deleteReports),
 
   // Bonus Finder
   createRoute(getTilesWithBonuses),
+
+  // Combat Simulator
+  createRoute(simulateCombat),
 
   // Animal Finder
   createRoute(getOasesWithAnimals),
@@ -276,12 +308,8 @@ export const apiRoutes = [
   // Loyalty
   createRoute(getTileLoyalty),
 
-  // History
-  createRoute(getBuildingLevelChangeHistory),
-  createRoute(getEventsHistory),
-  createRoute(getUnitTrainingHistory),
-
   // Troop Movements
+  createRoute(getTileTroopMovements),
   createRoute(getVillageTroopMovements),
   createRoute(getVillageTroopMovementStats),
   createRoute(validateTroopMovement),
@@ -290,16 +318,6 @@ export const apiRoutes = [
   // Trapper
   createRoute(getTrapperCageStats),
 ] as const;
-
-const openApiPaths: ZodOpenApiPathsObject = {};
-
-for (const route of apiRoutes) {
-  openApiPaths[route.path] ??= {};
-  openApiPaths[route.path][route.controller.method] = route.controller
-    .operation as ZodOpenApiOperationObject;
-}
-
-export const paths: ZodOpenApiPathsObject = openApiPaths;
 
 type CompiledRoute = Route & { matcher: ReturnType<typeof match> };
 

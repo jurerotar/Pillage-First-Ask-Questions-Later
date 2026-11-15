@@ -17,9 +17,8 @@ import {
   insertEvents,
   runEventCreationSideEffects,
   validateEventCreationPrerequisites,
-  validateEventCreationResources,
 } from './events';
-import { subtractVillageResourcesAt } from './village';
+import { getVillageTileId, subtractResourceSiteResourcesAt } from './village';
 
 type CreateNewEventsArgs<T extends GameEventType> = Omit<
   GameEvent<T>,
@@ -42,7 +41,7 @@ export const createEvents = <T extends GameEventType>(
   createEventDtoSchema.parse(args);
 
   const sampleEvent = args as GameEvent<T>;
-  let { startsAt = null, duration = null } = sampleEvent;
+  let { startsAt, duration } = args;
   const amount = args?.amount ?? 1;
 
   validateEventCreationPrerequisites(database, sampleEvent);
@@ -50,33 +49,35 @@ export const createEvents = <T extends GameEventType>(
   const eventCost = getEventCost(database, sampleEvent);
 
   if (eventCost.some((cost) => cost > 0)) {
-    const hasEnoughResources = validateEventCreationResources(
-      database,
-      sampleEvent,
-      eventCost,
-    );
-
-    if (!hasEnoughResources) {
-      throw new Error('Not enough resources');
-    }
-
     startsAt ??= getEventStartTime(database, sampleEvent);
     const eventResourceSubtractionTimestamp =
       getEventResourceSubtractionTimestamp(database, sampleEvent, startsAt);
 
     const { villageId } = sampleEvent;
+    const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
 
-    subtractVillageResourcesAt(
+    subtractResourceSiteResourcesAt(
       database,
-      villageId!,
+      getVillageTileId(database, villageId!),
       eventResourceSubtractionTimestamp,
-      () => eventCost,
+      ({ currentWood, currentClay, currentIron, currentWheat }) => {
+        if (
+          woodCost > currentWood ||
+          clayCost > currentClay ||
+          ironCost > currentIron ||
+          wheatCost > currentWheat
+        ) {
+          throw new Error('Not enough resources');
+        }
+
+        return eventCost;
+      },
     );
   }
 
   startsAt ??= getEventStartTime(database, sampleEvent);
 
-  duration ??= Math.ceil(getEventDuration(database, sampleEvent));
+  duration ??= Math.ceil(getEventDuration(database, sampleEvent, startsAt));
 
   const events: GameEvent<T>[] = Array.from({ length: amount });
 
@@ -110,6 +111,7 @@ export const createEvents = <T extends GameEventType>(
     ...events[0],
     // Creating events doesn't require this, because cache invalidation is already done by the frontend
     affectedVillageIds: [],
+    affectedTileIds: [],
   } satisfies EventApiNotificationEvent);
 
   // Determine if any created events should already be resolved

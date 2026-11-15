@@ -20,7 +20,7 @@ const useTiles = () => {
     queryKey: [tilesCacheKey],
     queryFn: async () => {
       // TODO: This query is *really* heavy.
-      // What we should do is remove all the non-static parts (world items, troop movements,...) so that this query can be permanently cached.
+      // What we should do is remove all the non-static parts so that this query can be permanently cached.
       const { data } = await apiClient.get('/tiles');
 
       return data;
@@ -31,6 +31,14 @@ const useTiles = () => {
     tiles,
   };
 };
+
+export const BORDER_TILES_OASIS_VARIANTS = new Set([1, 2, 3, 4]);
+
+const BORDER_TILES_OASIS_GRAPHICS = Array.from([
+  ...BORDER_TILES_OASIS_VARIANTS,
+]).map((variant) => {
+  return encodeGraphicsProperty('wood', 0, 0, 0, variant);
+});
 
 const useBorderTiles = () => {
   const { tiles } = useTiles();
@@ -53,7 +61,7 @@ const useBorderTiles = () => {
           type: 'oasis',
           attributes: {
             oasisGraphics: BORDER_TILES_OASIS_GRAPHICS[index % 4],
-            isOccupiable: false,
+            bonusType: null,
           },
           owner: null,
           ownerVillage: null,
@@ -72,14 +80,6 @@ const useBorderTiles = () => {
     borderTiles,
   };
 };
-
-export const BORDER_TILES_OASIS_VARIANTS = new Set([1, 2, 3, 4]);
-
-const BORDER_TILES_OASIS_GRAPHICS = Array.from([
-  ...BORDER_TILES_OASIS_VARIANTS,
-]).map((variant) => {
-  return encodeGraphicsProperty('wood', 0, 0, 0, variant);
-});
 
 export const useMap = () => {
   const { tiles } = useTiles();

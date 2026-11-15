@@ -1,6 +1,6 @@
 import ApiWorker from '@pillage-first/api?worker&url';
 import type { Server } from '@pillage-first/types/models/server';
-import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
+import { deserializeError } from '@pillage-first/utils/errors';
 import {
   isDatabaseInitializationErrorNotificationMessageEvent,
   isDatabaseInitializationSuccessNotificationMessageEvent,
@@ -108,12 +108,7 @@ const createWorkerWithReadySignal = (
         port1.close();
         worker.terminate();
 
-        if (error.name === OutdatedDatabaseSchemaError.name) {
-          reject(new OutdatedDatabaseSchemaError());
-          return;
-        }
-
-        reject(error);
+        reject(deserializeError(error));
       }
     };
 
@@ -128,12 +123,13 @@ const createWorkerWithReadySignal = (
   });
 };
 
-export const getApiWorkerHandle = (
+export const getApiWorkerHandle = async (
   serverSlug: Server['slug'],
 ): Promise<ApiWorkerHandle> => {
   const existingHandle = apiWorkerHandles.get(serverSlug);
 
-  if (existingHandle) {
+  // Just check whether the handle exists, parent will await it
+  if (existingHandle !== undefined) {
     return existingHandle;
   }
 

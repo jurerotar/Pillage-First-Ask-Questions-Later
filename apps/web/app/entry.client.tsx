@@ -7,8 +7,8 @@ import type {
   TimeOfDay,
   UIColorScheme,
 } from '@pillage-first/types/models/preferences';
-import type { AvailableLocale } from 'app/localization/i18n';
-import { i18n } from 'app/localization/i18n';
+import { reportError } from 'app/instrumentation/report-error';
+import { type AvailableLocale, i18n } from 'app/localization/i18n';
 import { CookieProvider } from 'app/providers/cookie-provider';
 import {
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
@@ -18,6 +18,26 @@ import {
   setCookie,
   UI_COLOR_SCHEME_COOKIE_NAME,
 } from 'app/utils/device';
+
+const createReactRootErrorHandler =
+  (errorPhase: string) =>
+  (error: unknown, { componentStack }: { componentStack?: string }) => {
+    let reportedError = error;
+
+    if (
+      errorPhase === 'recoverable' &&
+      error instanceof Error &&
+      error.cause instanceof Error
+    ) {
+      reportedError = error.cause;
+    }
+
+    reportError(reportedError, 'React root render error', {
+      componentStack: componentStack?.trim(),
+      errorPhase,
+      path: location.pathname,
+    });
+  };
 
 const createCookies = async () => {
   const [locale, skinVariant, colorScheme, timeOfDay] = await Promise.all([
@@ -30,23 +50,30 @@ const createCookies = async () => {
   const setters: Promise<void>[] = [];
 
   if (locale === null) {
-    setters.push(setCookie<AvailableLocale>(LOCALE_COOKIE_NAME, 'en-US'));
+    setters.push(
+      setCookie(LOCALE_COOKIE_NAME, 'en-US' satisfies AvailableLocale),
+    );
   }
 
   if (skinVariant === null) {
     setters.push(
-      setCookie<SkinVariant>(GRAPHICS_SKIN_VARIANT_COOKIE_NAME, 'default'),
+      setCookie(
+        GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
+        'default' satisfies SkinVariant,
+      ),
     );
   }
 
   if (colorScheme === null) {
     setters.push(
-      setCookie<UIColorScheme>(UI_COLOR_SCHEME_COOKIE_NAME, 'light'),
+      setCookie(UI_COLOR_SCHEME_COOKIE_NAME, 'light' satisfies UIColorScheme),
     );
   }
 
   if (timeOfDay === null) {
-    setters.push(setCookie<TimeOfDay>(GRAPHICS_TIME_OF_DAY_COOKIE_NAME, 'day'));
+    setters.push(
+      setCookie(GRAPHICS_TIME_OF_DAY_COOKIE_NAME, 'day' satisfies TimeOfDay),
+    );
   }
 
   if (setters.length > 0) {
@@ -68,5 +95,10 @@ startTransition(() => {
         </I18nextProvider>
       </CookieProvider>
     </StrictMode>,
+    {
+      onCaughtError: createReactRootErrorHandler('caught'),
+      onRecoverableError: createReactRootErrorHandler('recoverable'),
+      onUncaughtError: createReactRootErrorHandler('uncaught'),
+    },
   );
 });

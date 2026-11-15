@@ -29,6 +29,7 @@ describe(calculateCurrentAmount, () => {
     });
 
     expect(result.currentAmount).toBe(810); // 750 + 60
+
     expect(result.timeSinceLastUpdateInSeconds).toBe(3600);
     expect(result.secondsForResourceGeneration).toBe(60);
   });
@@ -95,6 +96,7 @@ describe(calculateCurrentAmount, () => {
     });
 
     expect(result.currentAmount).toBe(750); // unchanged
+
     expect(result.secondsForResourceGeneration).toBe(Number.POSITIVE_INFINITY);
   });
 
@@ -127,6 +129,7 @@ describe(calculateCurrentAmount, () => {
 
     expect(result.currentAmount).toBe(752); // 2 units added
     const expectedLastEffectiveUpdate = baseTime + 120 * 1000;
+
     expect(result.lastEffectiveUpdate).toBe(expectedLastEffectiveUpdate);
   });
 });

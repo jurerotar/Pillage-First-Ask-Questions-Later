@@ -3,6 +3,8 @@ import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 
+export const tileIdSchema = z.int().positive().meta({ id: 'TileId' });
+
 const tileVillageSchema = z
   .strictObject({
     id: z.number(),
@@ -17,9 +19,15 @@ export const tileTypeSchema = z
   .enum(['free', 'oasis'])
   .meta({ id: 'TileType' });
 
+// 1 = 25%, 2 = 25% + 25%, 3 = 50%, null = no oasis bonus.
+export const oasisBonusTypeSchema = z
+  .union([z.literal(1), z.literal(2), z.literal(3)])
+  .nullable()
+  .meta({ id: 'OasisBonusType' });
+
 export const baseTileSchema = z
   .strictObject({
-    id: z.number(),
+    id: tileIdSchema,
     coordinates: coordinatesSchema,
     type: tileTypeSchema,
     owner: playerSchema.nullable(),
@@ -33,11 +41,6 @@ const baseOccupiableTileSchema = baseTileSchema
     attributes: z.strictObject({
       resourceFieldComposition: resourceFieldCompositionSchema,
     }),
-    item: z
-      .strictObject({
-        id: z.number(),
-      })
-      .nullable(),
   })
   .meta({ id: 'BaseOccupiableTile' });
 
@@ -60,7 +63,7 @@ const baseOasisTileSchema = baseTileSchema
     type: z.literal('oasis'),
     attributes: z.strictObject({
       oasisGraphics: z.number(),
-      isOccupiable: z.boolean(),
+      bonusType: oasisBonusTypeSchema,
     }),
   })
   .meta({ id: 'BaseOasisTile' });
@@ -99,5 +102,6 @@ export type OccupiableTile = z.infer<typeof occupiableTileSchema>;
 export type OccupiedOasisTile = z.infer<typeof occupiedOasisTileSchema>;
 export type UnoccupiedOasisTile = z.infer<typeof unoccupiedOasisTileSchema>;
 export type OasisTile = z.infer<typeof oasisTileSchema>;
+export type OasisBonusType = z.infer<typeof oasisBonusTypeSchema>;
 
 export type Tile = z.infer<typeof tileSchema>;

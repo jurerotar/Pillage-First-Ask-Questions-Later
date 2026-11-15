@@ -1,104 +1,54 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import {
+  prepareTestDatabase,
+  setTestBuildingLevel,
+  setTestDeveloperSetting,
+  setTestIdleTroops,
+  setTestVillageResources,
+} from '@pillage-first/api/testing';
 import {
   reportOutcomeSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { createEvents } from '../../../../utils/create-event';
 import { resolveEvent } from '../../resolve-event';
 
-const setGatherersHutLevel = (
-  database: Awaited<ReturnType<typeof prepareTestDatabase>>,
-  villageId: number,
-  level: number,
-) => {
-  database.exec({
-    sql: `
-      INSERT INTO
-        building_fields (village_id, field_id, building_id, level)
-      SELECT
-        $village_id, 20, id, $level
-      FROM
-        building_ids
-      WHERE
-        building = 'GATHERERS_HUT'
-      ON CONFLICT(village_id, field_id) DO UPDATE SET
-        building_id = EXCLUDED.building_id,
-        level = EXCLUDED.level;
-    `,
-    bind: {
-      $village_id: villageId,
-      $level: level,
-    },
-  });
-};
-
 describe('gatherers hut resolvers', () => {
   test('gatherersHutGatheringTrip should return troops and add gathered resources', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const now = 1_000_000;
 
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    setGatherersHutLevel(database, villageId, 1);
-    database.exec({
-      sql: 'UPDATE developer_settings SET is_instant_unit_travel_enabled = 1;',
-    });
+    setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
+    setTestDeveloperSetting(database, 'is_instant_unit_travel_enabled', 1);
 
     const villageTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: {
         $village_id: villageId,
       },
-      schema: z.number(),
+      schema: tileIdSchema,
     })!;
 
-    database.exec({
-      sql: `
-        DELETE FROM troops
-        WHERE
-          unit_id = (SELECT id FROM unit_ids WHERE unit = 'PHALANX')
-          AND tile_id = $tile_id
-          AND source_tile_id = $tile_id;
-      `,
-      bind: {
-        $tile_id: villageTileId,
+    setTestIdleTroops(database, 'PHALANX', 10, villageTileId);
+    setTestVillageResources(
+      database,
+      villageTileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
       },
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-        SELECT id, 10, $tile_id, $tile_id
-        FROM unit_ids
-        WHERE unit = 'PHALANX';
-      `,
-      bind: {
-        $tile_id: villageTileId,
-      },
-    });
-
-    database.exec({
-      sql: `
-        UPDATE resource_sites
-        SET
-          wood = 100,
-          clay = 100,
-          iron = 100,
-          wheat = 100,
-          updated_at = $now
-        WHERE tile_id = $tile_id;
-      `,
-      bind: {
-        $tile_id: villageTileId,
-        $now: now,
-      },
-    });
+      now,
+    );
 
     createEvents<'gatherersHutGatheringTrip'>(database, {
       type: 'gatherersHutGatheringTrip',
@@ -108,7 +58,7 @@ describe('gatherers hut resolvers', () => {
           unitId: 'PHALANX',
           amount: 5,
           tileId: villageTileId,
-          source: villageTileId,
+          sourceTileId: villageTileId,
         },
       ],
     });
@@ -209,15 +159,16 @@ describe('gatherers hut resolvers', () => {
         village_id: z.int(),
         report_type: reportTypeSchema,
         report_outcome: reportOutcomeSchema,
-        village_tile_id: z.int(),
-        loot_wood: z.int(),
-        loot_clay: z.int(),
-        loot_iron: z.int(),
-        loot_wheat: z.int(),
+        village_tile_id: tileIdSchema,
+        loot_wood: resourcesSchema.shape.wood,
+        loot_clay: resourcesSchema.shape.clay,
+        loot_iron: resourcesSchema.shape.iron,
+        loot_wheat: resourcesSchema.shape.wheat,
         unit_id: unitIdSchema,
         amount: z.int(),
       }),
     })!;
+
     expect(report).toStrictEqual({
       village_id: villageId,
       report_type: 'gatheringExpedition',
@@ -230,6 +181,19 @@ describe('gatherers hut resolvers', () => {
       unit_id: 'PHALANX',
       amount: 5,
     });
+
+    const completedGatheringQuest = database.selectValue({
+      sql: `
+        SELECT completed_at
+        FROM quests
+        WHERE
+          village_id IS NULL
+          AND quest_id = 'gatheredResourceCount-20';
+      `,
+      schema: z.number().nullable(),
+    });
+
+    expect(completedGatheringQuest).toBe(now);
 
     vi.useRealTimers();
   });

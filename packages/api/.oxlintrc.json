@@ -1,7 +1,7 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
   "extends": ["../../.oxlintrc.json"],
-  "ignorePatterns": [".turbo", "node_modules", "open-api.ts"],
+  "ignorePatterns": [".turbo", "node_modules"],
   "overrides": [
     {
       "files": ["scripts/*.ts", "src/facades/database-facade.ts"],
