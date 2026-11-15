@@ -17,8 +17,8 @@ import {
   deleteReportTagsQuery,
   insertReportTagsQuery,
   selectAdventureReportQuery,
-  selectBattleReportDamagedBuildingsQuery,
   selectBattleReportQuery,
+  selectBattleReportSiegeResultsQuery,
   selectGatheringExpeditionReportQuery,
   selectHuntingPartyReportQuery,
   selectMovementReportQuery,
@@ -49,8 +49,8 @@ import {
 } from './mappers/report-mapper';
 import {
   adventureReportRowSchema,
-  battleReportDamagedBuildingRowSchema,
   battleReportRowSchema,
+  battleReportSiegeResultRowSchema,
   gatheringExpeditionReportRowSchema,
   getReportListingsRowSchema,
   getReportTypeRowSchema,
@@ -142,13 +142,13 @@ export const getReport = createController('/reports/:reportId', {
       schema: battleReportRowSchema,
     });
 
-    const damagedBuildings = database.selectObjects({
-      sql: selectBattleReportDamagedBuildingsQuery,
+    const siegeResults = database.selectObjects({
+      sql: selectBattleReportSiegeResultsQuery,
       bind,
-      schema: battleReportDamagedBuildingRowSchema,
+      schema: battleReportSiegeResultRowSchema,
     });
 
-    return mapBattleReportRowToDto(rows, damagedBuildings);
+    return mapBattleReportRowToDto(rows, siegeResults);
   }
 
   if (reportInfo.type === 'adventure') {

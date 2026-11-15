@@ -209,10 +209,14 @@ const getMissingRequirementsCancellationDetail = (
 > => {
   const currentLevels = database.selectObjects({
     sql: `
-      SELECT bi.building AS buildingId, MAX(bf.level) AS level
-      FROM building_fields bf
-      JOIN building_ids bi ON bi.id = bf.building_id
-      WHERE bf.village_id = $village_id
+      SELECT
+        bi.building AS buildingId,
+        MAX(bf.level) AS level
+      FROM
+        building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+      WHERE
+        bf.village_id = $village_id
       GROUP BY bi.building;
     `,
     bind: { $village_id: scheduledUpgrade.villageId },
@@ -246,6 +250,20 @@ const getMissingRequirementsCancellationDetail = (
       continue;
     }
 
+    if (requirement.type === 'or') {
+      unmetRequirements.push({
+        type: 'or',
+        requirements: requirement.requirements.map((alternative) => ({
+          buildingId: alternative.buildingId,
+          requiredLevel: alternative.level,
+          currentLevel:
+            currentLevelByBuildingId.get(alternative.buildingId) ?? null,
+        })),
+      });
+
+      continue;
+    }
+
     if (requirement.type === 'building') {
       unmetRequirements.push({
         type: 'building',
@@ -254,6 +272,7 @@ const getMissingRequirementsCancellationDetail = (
         currentLevel:
           currentLevelByBuildingId.get(requirement.buildingId) ?? null,
       });
+
       continue;
     }
 
@@ -262,6 +281,7 @@ const getMissingRequirementsCancellationDetail = (
         type: 'tribe',
         tribe: requirement.tribe,
       });
+
       continue;
     }
 

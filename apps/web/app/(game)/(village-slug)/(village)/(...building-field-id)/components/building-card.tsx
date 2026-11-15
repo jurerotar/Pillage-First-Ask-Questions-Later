@@ -497,7 +497,7 @@ export const BuildingRequirements = () => {
       return instanceAlreadyExists;
     }
 
-    return ['building', 'amount'].includes(type);
+    return ['building', 'amount', 'or'].includes(type);
   });
 
   return (
@@ -507,8 +507,35 @@ export const BuildingRequirements = () => {
         {requirementsToDisplay.map(
           (assessedRequirement: AssessedBuildingRequirement, index) => (
             <Fragment key={assessedRequirement.id}>
-              <li className="whitespace-nowrap">
+              <li
+                className={clsx(
+                  assessedRequirement.type !== 'or' && 'whitespace-nowrap',
+                )}
+              >
                 <Text>
+                  {assessedRequirement.type === 'or' &&
+                    assessedRequirement.requirements.map(
+                      (alternative, index) => (
+                        <Fragment key={alternative.id}>
+                          {index > 0 && <> {t('or')} </>}
+                          <span className="inline-block whitespace-nowrap">
+                            <VillageBuildingLink
+                              buildingId={alternative.buildingId}
+                            />{' '}
+                            <span
+                              className={clsx(
+                                !assessedRequirement.fulfilled &&
+                                  'text-destructive',
+                              )}
+                            >
+                              {t('level {{level}}', {
+                                level: alternative.level,
+                              })}
+                            </span>
+                          </span>
+                        </Fragment>
+                      ),
+                    )}
                   {assessedRequirement.type === 'amount' &&
                     instanceAlreadyExists && (
                       <>

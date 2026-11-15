@@ -9,7 +9,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
-import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units';
+import {
+  getUnitsByTribe,
+  getUnitsByTribeWithHero,
+} from '@pillage-first/game-assets/utils/units';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
@@ -25,6 +28,7 @@ import { Resources } from '../(village-slug)/components/resources';
 
 type UnitTableContextValue = {
   tribe: Tribe;
+  includeHero: boolean;
 };
 
 const UnitTableContext = createContext<UnitTableContextValue>(
@@ -34,14 +38,20 @@ const UnitTableContext = createContext<UnitTableContextValue>(
 type UnitTableProps = {
   tribe: Tribe;
   children: ReactNode;
+  includeHero?: boolean;
 };
 
-export const UnitTable = ({ tribe, children }: UnitTableProps) => {
+export const UnitTable = ({
+  tribe,
+  children,
+  includeHero = true,
+}: UnitTableProps) => {
   const value = useMemo(() => {
     return {
       tribe,
+      includeHero,
     };
-  }, [tribe]);
+  }, [tribe, includeHero]);
 
   return (
     <UnitTableContext.Provider value={value}>
@@ -121,20 +131,20 @@ export const UnitTablePlayer = ({
 };
 
 export const UnitTableUnitIcons = () => {
-  const { tribe } = use(UnitTableContext);
-  const tribeUnits = getUnitsByTribeWithHero(tribe);
+  const { tribe, includeHero } = use(UnitTableContext);
+
+  const tribeUnits = includeHero
+    ? getUnitsByTribeWithHero(tribe)
+    : getUnitsByTribe(tribe);
 
   return (
     <thead className="border-b dark:border-border">
       <tr>
         <th className="border-r dark:border-border w-16" />
-        {tribeUnits.map((unitDef, index) => (
+        {tribeUnits.map((unitDef) => (
           <th
             key={unitDef.id}
-            className={clsx(
-              'p-2 text-center',
-              index !== tribeUnits.length - 1 && 'border-r dark:border-border',
-            )}
+            className="p-2 text-center border-r last:border-r-0 dark:border-border"
           >
             <div className="flex justify-center">
               <Icon
@@ -166,13 +176,10 @@ export const UnitTableRow = ({
         <td className="px-2 py-1 border-r dark:border-border">
           <Text className="text-sm font-medium">{label}</Text>
         </td>
-        {troops.map(({ unitId, amount }, index) => (
+        {troops.map(({ unitId, amount }) => (
           <td
             key={unitId}
-            className={clsx(
-              'h-7 text-center',
-              index !== troops.length - 1 && 'border-r dark:border-border',
-            )}
+            className="h-7 text-center border-r last:border-r-0 dark:border-border"
           >
             <Text className={clsx('text-sm', textColor)}>
               {formatNumber(amount)}
@@ -276,13 +283,10 @@ export const UnitTableHiddenRow = ({
         <td className="px-2 py-1 border-r dark:border-border">
           <Text className="text-sm font-medium">{label}</Text>
         </td>
-        {troops.map(({ unitId }, index) => (
+        {troops.map(({ unitId }) => (
           <td
             key={unitId}
-            className={clsx(
-              'h-7 text-center',
-              index !== troops.length - 1 && 'border-r dark:border-border',
-            )}
+            className="h-7 text-center border-r last:border-r-0 dark:border-border"
           >
             <Text className="text-sm text-gray-700">?</Text>
           </td>

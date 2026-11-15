@@ -7,4 +7,4 @@ CREATE TABLE report_tags
 
   FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,
   FOREIGN KEY (report_tag_id) REFERENCES report_tag_ids (id) ON DELETE CASCADE
-) STRICT;
+) STRICT, WITHOUT ROWID;

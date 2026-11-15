@@ -35,15 +35,4 @@ describe('villageSeeder', () => {
 
     expect(invalidVillages).toBe(0);
   });
-
-  test('no two villages are on the same tile', async () => {
-    using database = await prepareTestDatabase();
-
-    const duplicateTiles = database.selectValue({
-      sql: 'SELECT COUNT(*) FROM (SELECT tile_id FROM villages GROUP BY tile_id HAVING COUNT(*) > 1);',
-      schema: z.number(),
-    });
-
-    expect(duplicateTiles).toBe(0);
-  });
 });

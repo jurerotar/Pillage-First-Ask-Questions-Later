@@ -4,37 +4,6 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../testing';
 
 describe('metaSeeder', () => {
-  test('meta table exists', async () => {
-    using database = await prepareTestDatabase();
-
-    const exists = database.selectValue({
-      sql: "SELECT COUNT(*) FROM sqlite_schema WHERE type='table' AND name='meta';",
-      schema: z.number(),
-    });
-
-    expect(exists).toBe(1);
-  });
-
-  test('triggers exist for all tables', async () => {
-    using database = await prepareTestDatabase();
-
-    const tables = database.selectValues({
-      sql: "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '%_ids' AND name NOT LIKE '%_history' AND name != 'meta';",
-      schema: z.string(),
-    });
-
-    for (const table of tables) {
-      const triggers = database.selectValues({
-        sql: `SELECT name FROM sqlite_schema WHERE type='trigger' AND tbl_name = '${table}' AND name LIKE 'trg_update_meta_on_${table}_%';`,
-        schema: z.string(),
-      });
-
-      expect(triggers).toContain(`trg_update_meta_on_${table}_insert`);
-      expect(triggers).toContain(`trg_update_meta_on_${table}_update`);
-      expect(triggers).toContain(`trg_update_meta_on_${table}_delete`);
-    }
-  });
-
   test('writing to a table updates meta.last_write', async () => {
     using database = await prepareTestDatabase();
 

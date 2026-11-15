@@ -10,14 +10,11 @@ CREATE TABLE battle_reports
   loot_clay INTEGER NOT NULL CHECK (loot_clay >= 0),
   loot_iron INTEGER NOT NULL CHECK (loot_iron >= 0),
   loot_wheat INTEGER NOT NULL CHECK (loot_wheat >= 0),
-  item_id INTEGER,
-  item_amount INTEGER CHECK (item_amount > 0),
-  -- boolean
-  can_attacker_see_full_report INTEGER NOT NULL CHECK (can_attacker_see_full_report IN (0, 1)),
   attacker_points INTEGER NOT NULL CHECK (attacker_points >= 0),
   defender_points INTEGER NOT NULL CHECK (defender_points >= 0),
 
-  CHECK ((item_id IS NULL) = (item_amount IS NULL)),
+  village_destroyed INTEGER NOT NULL CHECK (village_destroyed IN (0, 1)),
+  CHECK (origin_tile_id != target_tile_id),
 
   FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,
   FOREIGN KEY (origin_tile_id) REFERENCES tiles (id),

@@ -32,8 +32,19 @@ test('celebrations complete global milestones on start and preserve completion t
 
     const completed = database.selectValue({
       sql: `
-        SELECT json_group_array(json_array(quest_id, completed_at))
-        FROM (SELECT quest_id, completed_at FROM quests WHERE quest_id GLOB 'celebrationCount-*' ORDER BY quest_id);
+        SELECT
+          json_group_array(json_array(quest_id, completed_at))
+        FROM (
+          SELECT
+            quest_id,
+            completed_at
+          FROM
+            quests
+          WHERE
+            quest_id GLOB 'celebrationCount-*'
+          ORDER BY
+            quest_id
+        );
       `,
       schema: z.string(),
     });

@@ -48,11 +48,16 @@ test('building changes preserve fractional accrual and settle at the event times
 
     const field = database.selectObject({
       sql: `
-        SELECT bf.village_id AS villageId, bf.field_id AS buildingFieldId
-        FROM building_fields bf
+        SELECT
+          bf.village_id AS villageId,
+          bf.field_id AS buildingFieldId
+        FROM
+          building_fields bf
           JOIN villages v ON v.id = bf.village_id
           JOIN building_ids bi ON bi.id = bf.building_id
-        WHERE v.player_id = $player_id AND bi.building = $building_id
+        WHERE
+          v.player_id = $player_id
+          AND bi.building = $building_id
         LIMIT 1;
       `,
       bind: { $player_id: PLAYER_ID, $building_id: buildingId },
@@ -63,7 +68,14 @@ test('building changes preserve fractional accrual and settle at the event times
     })!;
 
     database.exec({
-      sql: 'UPDATE building_fields SET level = $level WHERE village_id = $village_id AND field_id = $field_id;',
+      sql: `
+        UPDATE building_fields
+        SET
+          level = $level
+        WHERE
+          village_id = $village_id
+          AND field_id = $field_id;
+      `,
       bind: {
         $level: level,
         $village_id: field.villageId,
@@ -114,7 +126,13 @@ test('building changes preserve fractional accrual and settle at the event times
     expect(after).not.toBe(before);
     expect(
       database.selectObject({
-        sql: 'SELECT culture_points AS points, culture_points_updated_at AS updatedAt FROM culture_points;',
+        sql: `
+          SELECT
+            culture_points AS points,
+            culture_points_updated_at AS updatedAt
+          FROM
+            culture_points;
+        `,
         schema: z.strictObject({ points: z.number(), updatedAt: z.number() }),
       }),
     ).toStrictEqual({ points: 500 + before / 2, updatedAt: start + DAY / 2 });
@@ -128,7 +146,16 @@ test('new village production starts at founding, without changing earlier accrua
   using database = await prepareTestDatabase();
 
   const { villageId, originTileId } = database.selectObject({
-    sql: 'SELECT id AS villageId, tile_id AS originTileId FROM villages WHERE player_id = $player_id LIMIT 1;',
+    sql: `
+      SELECT
+        id AS villageId,
+        tile_id AS originTileId
+      FROM
+        villages
+      WHERE
+        player_id = $player_id
+      LIMIT 1;
+    `,
     bind: { $player_id: PLAYER_ID },
     schema: z.strictObject({
       villageId: z.number(),
@@ -138,8 +165,12 @@ test('new village production starts at founding, without changing earlier accrua
 
   const targetTileId = database.selectValue({
     sql: `
-      SELECT t.id FROM tiles t
-      WHERE t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
+      SELECT
+        t.id
+      FROM
+        tiles t
+      WHERE
+        t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
         AND NOT EXISTS (SELECT 1 FROM villages v WHERE v.tile_id = t.id)
         AND NOT EXISTS (SELECT 1 FROM oasis o WHERE o.tile_id = t.id)
       LIMIT 1;

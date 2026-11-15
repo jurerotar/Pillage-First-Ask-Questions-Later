@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  prepareTestDatabase,
+  setTestBuildingLevel,
+} from '@pillage-first/api/testing';
 import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -76,34 +79,6 @@ describe('oasis-controllers', () => {
         $source_tile_id: sourceTileId,
         $unit_id: unitId,
         $amount: amount,
-      },
-    });
-  };
-
-  const upsertWaterworks = (
-    database: DbFacade,
-    villageId: number,
-    buildingFieldId: number,
-    level: number,
-  ) => {
-    database.exec({
-      sql: `
-        INSERT INTO building_fields (village_id, field_id, building_id, level)
-        VALUES (
-          $village_id,
-          $field_id,
-          (SELECT id FROM building_ids WHERE building = 'WATERWORKS'),
-          $level
-        )
-        ON CONFLICT(village_id, field_id)
-        DO UPDATE SET
-          building_id = excluded.building_id,
-          level = excluded.level;
-      `,
-      bind: {
-        $village_id: villageId,
-        $field_id: buildingFieldId,
-        $level: level,
       },
     });
   };
@@ -245,7 +220,7 @@ describe('oasis-controllers', () => {
       schema: villageRowSchema,
     })!;
 
-    upsertWaterworks(database, village.id, 19, 20);
+    setTestBuildingLevel(database, village.id, 'WATERWORKS', 20, 19);
 
     const oasisTileId = database.selectValue({
       sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
@@ -292,7 +267,7 @@ describe('oasis-controllers', () => {
       }),
     );
 
-    upsertWaterworks(database, village.id, 19, 1);
+    setTestBuildingLevel(database, village.id, 'WATERWORKS', 1, 19);
 
     buildingLevelChangeResolver(
       database,

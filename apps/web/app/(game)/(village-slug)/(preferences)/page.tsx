@@ -28,7 +28,7 @@ const PreferencesPage = ({ params }: Route.ComponentProps) => {
       >
         <Text>
           {t(
-            'Adjust gameplay, appearance, localization, accessibility, display, notification and navigation preferences.',
+            'Adjust gameplay, appearance, localization, accessibility, display, notification, report generation and navigation preferences.',
           )}
         </Text>
       </InformationPopover>

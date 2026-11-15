@@ -1,5 +1,12 @@
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
+import { CombatSimulatorAttackerControlsRow } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-attacker-controls-row';
+import { CombatSimulatorDefenderControlsRow } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-defender-controls-row';
+import { CombatSimulatorReinforcementsControlsRows } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-reinforcements-controls-rows';
+import { CombatSimulatorReport } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-report';
+import { CombatSimulatorContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/providers/combat-simulator-context';
+import { CombatSimulatorProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/providers/combat-simulator-provider';
 import {
   Section,
   SectionContent,
@@ -8,8 +15,18 @@ import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 
-export const RallyPointSimulator = () => {
+const IS_SIMULATOR_DISABLED = true;
+
+const RallyPointSimulatorContent = () => {
   const { t } = useTranslation();
+  const { state } = use(CombatSimulatorContext)!;
+  const playerIsAttacker = state.playerRole === 'attacker';
+  const isOasis = state.defender.tribe === 'nature';
+  const defenderTitle = isOasis
+    ? t('Oasis')
+    : playerIsAttacker
+      ? t('Defender')
+      : t('You (Defender)');
 
   return (
     <Section>
@@ -25,10 +42,30 @@ export const RallyPointSimulator = () => {
         <Text as="h2">{t('Simulator')}</Text>
       </SectionContent>
       <SectionContent>
-        <Alert variant="warning">
-          {t('This page is still under development')}
-        </Alert>
+        {IS_SIMULATOR_DISABLED && (
+          <Alert variant="warning">
+            {t('This page is still under development')}
+          </Alert>
+        )}
+        {!IS_SIMULATOR_DISABLED && (
+          <div className="flex flex-col gap-4">
+            <CombatSimulatorAttackerControlsRow
+              title={playerIsAttacker ? t('You (Attacker)') : t('Attacker')}
+            />
+            <CombatSimulatorDefenderControlsRow title={defenderTitle} />
+            <CombatSimulatorReinforcementsControlsRows />
+            <CombatSimulatorReport />
+          </div>
+        )}
       </SectionContent>
     </Section>
+  );
+};
+
+export const RallyPointSimulator = () => {
+  return (
+    <CombatSimulatorProvider>
+      <RallyPointSimulatorContent />
+    </CombatSimulatorProvider>
   );
 };

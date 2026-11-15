@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import type {
   Building,
   BuildingRequirement,
@@ -82,6 +83,72 @@ const getAssessedRequirementsByType = (
 };
 
 describe('building-requirements', () => {
+  describe.each([
+    ['GREAT_WAREHOUSE', 'WAREHOUSE'],
+    ['GREAT_GRANARY', 'GRANARY'],
+  ] as const)(
+    '%s storage alternatives',
+    (greatBuildingId, regularBuildingId) => {
+      const assessStorage = (
+        regularLevel?: number,
+        greatLevel?: number,
+        mainBuildingLevel = 10,
+        queued = false,
+      ) => {
+        const levels = new Map<Building['id'], number>([
+          ['MAIN_BUILDING', mainBuildingLevel],
+        ]);
+        if (regularLevel !== undefined) {
+          levels.set(regularBuildingId, regularLevel);
+        }
+        if (greatLevel !== undefined) {
+          levels.set(greatBuildingId, greatLevel);
+        }
+
+        return assessBuildingRequirements({
+          ...defaultArgs,
+          building: getBuildingDefinition(greatBuildingId),
+          maxLevelByBuildingId: levels,
+          buildingIdsInQueue: new Set(queued ? [greatBuildingId] : []),
+        });
+      };
+
+      test('allows the first instance with regular storage at level 20', () => {
+        expect(assessStorage(20).canBuild).toBe(true);
+      });
+
+      test('allows another instance after regular storage is demolished', () => {
+        const result = assessStorage(undefined, 20);
+        expect(result.canBuild).toBe(true);
+        expect(getAssessedRequirementByType('or', result).fulfilled).toBe(true);
+      });
+
+      test('allows both alternatives to be met', () => {
+        expect(assessStorage(20, 20).canBuild).toBe(true);
+      });
+
+      test('rejects missing or insufficient storage levels', () => {
+        expect(assessStorage().canBuild).toBe(false);
+        expect(assessStorage(19).canBuild).toBe(false);
+        expect(assessStorage(undefined, 19).canBuild).toBe(false);
+        expect(assessStorage(19, 19).canBuild).toBe(false);
+      });
+
+      test('still requires the main building and a max-level existing instance', () => {
+        expect(assessStorage(undefined, 20, 9).canBuild).toBe(false);
+        expect(assessStorage(20, 19).canBuild).toBe(false);
+      });
+
+      test('queued construction does not satisfy prerequisites', () => {
+        expect(assessStorage(undefined, undefined, 10, true).canBuild).toBe(
+          false,
+        );
+        expect(assessStorage(20, undefined, 10, true).canBuild).toBe(false);
+        expect(assessStorage(undefined, 20, 10, true).canBuild).toBe(true);
+      });
+    },
+  );
+
   describe('tribe requirement', () => {
     const trapper = createBuilding('TRAPPER', [
       { id: 1, type: 'tribe', tribe: 'gauls' },

@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  prepareTestDatabase,
+  setTestBuildingLevel,
+} from '@pillage-first/api/testing';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import {
   reportOutcomeSchema,
@@ -20,24 +23,7 @@ describe('hunters lodge resolvers', () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    database.exec({
-      sql: `
-        INSERT INTO
-          building_fields (village_id, field_id, building_id, level)
-        SELECT
-          $village_id, 20, id, 1
-        FROM
-          building_ids
-        WHERE
-          building = 'HUNTERS_LODGE'
-        ON CONFLICT(village_id, field_id) DO UPDATE SET
-          building_id = EXCLUDED.building_id,
-          level = EXCLUDED.level;
-      `,
-      bind: {
-        $village_id: villageId,
-      },
-    });
+    setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 1, 20);
 
     database.exec({
       sql: `
@@ -108,24 +94,7 @@ describe('hunters lodge resolvers', () => {
     using database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
-      sql: `
-        INSERT INTO
-          building_fields (village_id, field_id, building_id, level)
-        SELECT
-          $village_id, 20, id, 1
-        FROM
-          building_ids
-        WHERE
-          building = 'HUNTERS_LODGE'
-        ON CONFLICT(village_id, field_id) DO UPDATE SET
-          building_id = EXCLUDED.building_id,
-          level = EXCLUDED.level;
-      `,
-      bind: {
-        $village_id: villageId,
-      },
-    });
+    setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 1, 20);
 
     createEvents<'huntersLodgeHunt'>(database, {
       type: 'huntersLodgeHunt',

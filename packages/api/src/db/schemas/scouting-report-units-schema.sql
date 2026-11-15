@@ -11,4 +11,4 @@ CREATE TABLE scouting_report_units
   FOREIGN KEY (scouting_report_id) REFERENCES scouting_reports (id) ON DELETE CASCADE,
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id),
   FOREIGN KEY (tile_id) REFERENCES tiles (id)
-) STRICT;
+) STRICT, WITHOUT ROWID;

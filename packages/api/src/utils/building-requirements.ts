@@ -32,10 +32,14 @@ export const assessBuildingConstructionRequirements = (
 
   const buildingLevels = database.selectObjects({
     sql: `
-      SELECT bi.building AS buildingId, MAX(bf.level) AS level
-      FROM building_fields bf
-      JOIN building_ids bi ON bi.id = bf.building_id
-      WHERE bf.village_id = $village_id
+      SELECT
+        bi.building AS buildingId,
+        MAX(bf.level) AS level
+      FROM
+        building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+      WHERE
+        bf.village_id = $village_id
         AND NOT (
           bf.field_id = $building_field_id
           AND bf.level = 0
@@ -54,8 +58,10 @@ export const assessBuildingConstructionRequirements = (
       SELECT buildingId
       FROM (
         SELECT JSON_EXTRACT(e.meta, '$.buildingId') AS buildingId
-        FROM events e
-        WHERE e.village_id = $village_id
+        FROM
+          events e
+        WHERE
+          e.village_id = $village_id
           AND e.type IN ('buildingConstruction', 'buildingLevelChange')
           AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) = 0
           AND CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) > 0
@@ -63,9 +69,11 @@ export const assessBuildingConstructionRequirements = (
         UNION
 
         SELECT bi.building AS buildingId
-        FROM scheduled_building_upgrades sbu
-        JOIN building_ids bi ON bi.id = sbu.building_id
-        WHERE sbu.village_id = $village_id
+        FROM
+          scheduled_building_upgrades sbu
+          JOIN building_ids bi ON bi.id = sbu.building_id
+        WHERE
+          sbu.village_id = $village_id
           AND sbu.level = 1
           AND sbu.id IS NOT $excluded_scheduled_building_upgrade_id
       );

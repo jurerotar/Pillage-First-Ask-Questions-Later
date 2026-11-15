@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { battleSchema } from './battle';
+import { battleReportBattleDtoSchema } from '../dtos/battle-report';
 import { buildingIdSchema } from './building';
 import { coordinatesSchema } from './coordinates';
 import { resourceBundleSchema } from './resource';
@@ -74,7 +74,7 @@ export const battleReportSummarySchema = z.strictObject({
 export const battleReportSchema = baseReportSchema.extend({
   type: z.literal('battle'),
   summary: battleReportSummarySchema,
-  battle: battleSchema,
+  battle: battleReportBattleDtoSchema,
 });
 
 export const adventureReportSchema = baseReportSchema.extend({
@@ -278,6 +278,18 @@ const scheduledConstructionCancellationReasonDetailSchema =
       type: z.literal('missing-requirements'),
       unmetRequirements: z.array(
         z.discriminatedUnion('type', [
+          z.strictObject({
+            type: z.literal('or'),
+            requirements: z
+              .array(
+                z.strictObject({
+                  buildingId: buildingIdSchema,
+                  requiredLevel: z.int().positive(),
+                  currentLevel: z.int().nonnegative().nullable(),
+                }),
+              )
+              .min(1),
+          }),
           z.strictObject({
             type: z.literal('building'),
             buildingId: buildingIdSchema,

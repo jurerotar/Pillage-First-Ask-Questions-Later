@@ -10,8 +10,12 @@ describe('troop-queries', () => {
     test('should insert new troops', async () => {
       using database = await prepareTestDatabase();
 
-      const tileId = 1;
-      const sourceTileId = 1;
+      const tileId = database.selectValue({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 1;',
+        schema: z.number(),
+      })!;
+
+      const sourceTileId = tileId;
       const troops: Troop[] = [
         {
           unitId: 'LEGIONNAIRE',
@@ -24,7 +28,16 @@ describe('troop-queries', () => {
       addTroops(database, troops);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -39,8 +52,12 @@ describe('troop-queries', () => {
     test('should update existing troops on conflict', async () => {
       using database = await prepareTestDatabase();
 
-      const tileId = 1;
-      const sourceTileId = 1;
+      const tileId = database.selectValue({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 1;',
+        schema: z.number(),
+      })!;
+
+      const sourceTileId = tileId;
       const unitId: Unit['id'] = 'LEGIONNAIRE';
 
       // First add
@@ -50,7 +67,16 @@ describe('troop-queries', () => {
       addTroops(database, [{ unitId, amount: 5, tileId, sourceTileId }]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -65,8 +91,12 @@ describe('troop-queries', () => {
     test('should handle multiple unit types in a single call', async () => {
       using database = await prepareTestDatabase();
 
-      const tileId = 1;
-      const sourceTileId = 1;
+      const tileId = database.selectValue({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 1;',
+        schema: z.number(),
+      })!;
+
+      const sourceTileId = tileId;
 
       const troopsToAdd: Troop[] = [
         {
@@ -93,7 +123,16 @@ describe('troop-queries', () => {
 
       const checkTroops = (unitId: Unit['id'], expectedAmount: number) => {
         const result = database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+          sql: `
+            SELECT
+              amount
+            FROM
+              troops
+            WHERE
+              tile_id = $tile_id
+              AND source_tile_id = $source_tile_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          `,
           bind: {
             $tile_id: tileId,
             $source_tile_id: sourceTileId,
@@ -113,10 +152,25 @@ describe('troop-queries', () => {
     test('should handle troops from different sources and targets', async () => {
       using database = await prepareTestDatabase();
 
+      const [tileId, otherTileId] = database.selectValues({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 2;',
+        schema: z.number(),
+      });
+
       const troopsToAdd: Troop[] = [
-        { unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, sourceTileId: 1 },
-        { unitId: 'LEGIONNAIRE', amount: 20, tileId: 2, sourceTileId: 1 },
-        { unitId: 'LEGIONNAIRE', amount: 30, tileId: 1, sourceTileId: 2 },
+        { unitId: 'LEGIONNAIRE', amount: 10, tileId, sourceTileId: tileId },
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 20,
+          tileId: otherTileId,
+          sourceTileId: tileId,
+        },
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 30,
+          tileId,
+          sourceTileId: otherTileId,
+        },
       ];
 
       addTroops(database, troopsToAdd);
@@ -128,7 +182,16 @@ describe('troop-queries', () => {
         expectedAmount: number,
       ) => {
         const result = database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+          sql: `
+            SELECT
+              amount
+            FROM
+              troops
+            WHERE
+              tile_id = $tile_id
+              AND source_tile_id = $source_tile_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          `,
           bind: {
             $tile_id: tileId,
             $source_tile_id: sourceTileId,
@@ -140,9 +203,9 @@ describe('troop-queries', () => {
         expect(result).toBe(expectedAmount);
       };
 
-      checkTroops('LEGIONNAIRE', 1, 1, 10);
-      checkTroops('LEGIONNAIRE', 2, 1, 20);
-      checkTroops('LEGIONNAIRE', 1, 2, 30);
+      checkTroops('LEGIONNAIRE', tileId, tileId, 10);
+      checkTroops('LEGIONNAIRE', otherTileId, tileId, 20);
+      checkTroops('LEGIONNAIRE', tileId, otherTileId, 30);
     });
   });
 
@@ -150,8 +213,12 @@ describe('troop-queries', () => {
     test('should subtract troops', async () => {
       using database = await prepareTestDatabase();
 
-      const tileId = 1;
-      const sourceTileId = 1;
+      const tileId = database.selectValue({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 1;',
+        schema: z.number(),
+      })!;
+
+      const sourceTileId = tileId;
       const unitId: Unit['id'] = 'LEGIONNAIRE';
 
       // Setup
@@ -161,7 +228,16 @@ describe('troop-queries', () => {
       removeTroops(database, [{ unitId, amount: 4, tileId, sourceTileId }]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -176,8 +252,12 @@ describe('troop-queries', () => {
     test('should delete troops if amount reaches 0', async () => {
       using database = await prepareTestDatabase();
 
-      const tileId = 1;
-      const sourceTileId = 1;
+      const tileId = database.selectValue({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 1;',
+        schema: z.number(),
+      })!;
+
+      const sourceTileId = tileId;
       const unitId: Unit['id'] = 'LEGIONNAIRE';
 
       // Setup
@@ -187,7 +267,16 @@ describe('troop-queries', () => {
       removeTroops(database, [{ unitId, amount: 10, tileId, sourceTileId }]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -202,8 +291,12 @@ describe('troop-queries', () => {
     test('should delete troops if amount reaches negative (though should not happen)', async () => {
       using database = await prepareTestDatabase();
 
-      const tileId = 1;
-      const sourceTileId = 1;
+      const tileId = database.selectValue({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 1;',
+        schema: z.number(),
+      })!;
+
+      const sourceTileId = tileId;
       const unitId: Unit['id'] = 'LEGIONNAIRE';
 
       // Setup
@@ -213,7 +306,16 @@ describe('troop-queries', () => {
       removeTroops(database, [{ unitId, amount: 15, tileId, sourceTileId }]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,
@@ -228,8 +330,12 @@ describe('troop-queries', () => {
     test('should handle multiple unit types in a single remove call', async () => {
       using database = await prepareTestDatabase();
 
-      const tileId = 1;
-      const sourceTileId = 1;
+      const tileId = database.selectValue({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 1;',
+        schema: z.number(),
+      })!;
+
+      const sourceTileId = tileId;
 
       // Setup
       addTroops(database, [
@@ -249,7 +355,16 @@ describe('troop-queries', () => {
 
       const check = (unitId: Unit['id']) => {
         return database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+          sql: `
+            SELECT
+              amount
+            FROM
+              troops
+            WHERE
+              tile_id = $tile_id
+              AND source_tile_id = $source_tile_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          `,
           bind: {
             $tile_id: tileId,
             $source_tile_id: sourceTileId,
@@ -285,8 +400,12 @@ describe('troop-queries', () => {
     test('should be a no-op if removing troops that do not exist', async () => {
       using database = await prepareTestDatabase();
 
-      const tileId = 1;
-      const sourceTileId = 1;
+      const tileId = database.selectValue({
+        sql: 'SELECT id FROM tiles WHERE id NOT IN (SELECT tile_id FROM troops) ORDER BY id LIMIT 1;',
+        schema: z.number(),
+      })!;
+
+      const sourceTileId = tileId;
 
       // Attempt to remove non-existent troops
       removeTroops(database, [
@@ -299,7 +418,16 @@ describe('troop-queries', () => {
       ]);
 
       const result = database.selectValue({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        sql: `
+          SELECT
+            amount
+          FROM
+            troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+        `,
         bind: {
           $tile_id: tileId,
           $source_tile_id: sourceTileId,

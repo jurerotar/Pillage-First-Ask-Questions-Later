@@ -68,6 +68,76 @@ const expectAtMostOneActiveConstructionPerLane = (
 };
 
 describe('scheduled building upgrades', () => {
+  test.each([
+    ['GREAT_WAREHOUSE', 'WAREHOUSE'],
+    ['GREAT_GRANARY', 'GRANARY'],
+  ] as const)(
+    'reports unmet %s alternatives as one OR group',
+    async (buildingId, regularBuildingId) => {
+      using database = await prepareTestDatabase();
+      using postWorkerMessage = vi.spyOn(notificationPort, 'postWorkerMessage');
+      const villageId = 1;
+      const buildingFieldId = 37;
+
+      database.exec({
+        sql: `
+        UPDATE building_fields SET level = 10
+        WHERE village_id = $village_id
+          AND building_id = (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING');
+      `,
+        bind: { $village_id: villageId },
+      });
+      createBuildingPlaceholder(
+        database,
+        villageId,
+        buildingFieldId,
+        buildingId,
+      );
+      insertScheduledBuildingUpgrade(database, {
+        villageId,
+        buildingId,
+        buildingFieldId,
+        level: 1,
+      });
+
+      promoteNextScheduledBuildingUpgrade(database, villageId);
+
+      const reasonDetail = {
+        type: 'missing-requirements',
+        unmetRequirements: [
+          {
+            type: 'or',
+            requirements: [
+              {
+                buildingId: regularBuildingId,
+                requiredLevel: 20,
+                currentLevel: null,
+              },
+              { buildingId, requiredLevel: 20, currentLevel: null },
+            ],
+          },
+        ],
+      };
+      const persistedDetail = database.selectValue({
+        sql: `
+        SELECT reason_detail_json
+        FROM scheduled_construction_cancellation_reports
+        WHERE village_id = $village_id AND field_id = $field_id;
+      `,
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
+        schema: z.string(),
+      });
+
+      expect(JSON.parse(persistedDetail!)).toStrictEqual(reasonDetail);
+      expect(postWorkerMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eventKey: 'scheduled-building-construction:cancelled',
+          reasonDetail,
+        }),
+      );
+    },
+  );
+
   test('uses a JSON-safe unlimited amount in cancellation reports and notifications', async () => {
     using database = await prepareTestDatabase();
     using postWorkerMessage = vi.spyOn(notificationPort, 'postWorkerMessage');
@@ -158,9 +228,12 @@ describe('scheduled building upgrades', () => {
     });
 
     database.execMulti({
-      sql: `UPDATE players
-        SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
-        WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
+      sql: `
+        UPDATE players
+        SET
+          tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
+        WHERE
+          id = (SELECT player_id FROM villages WHERE id = $village_id);
       `,
       bind: { $village_id: villageId },
     });
@@ -858,11 +931,14 @@ describe('scheduled building upgrades', () => {
     );
 
     database.execMulti({
-      sql: `DELETE FROM effects
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $placeholder_field_id;
         DELETE FROM building_fields
-        WHERE village_id = $village_id
+        WHERE
+          village_id = $village_id
           AND field_id = $placeholder_field_id;
       `,
       bind: {
@@ -956,11 +1032,14 @@ describe('scheduled building upgrades', () => {
     const buildingFieldId = 25;
 
     database.execMulti({
-      sql: `DELETE FROM effects
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
-        WHERE village_id = $village_id
+        WHERE
+          village_id = $village_id
           AND field_id = $field_id;
       `,
       bind: {
@@ -1018,14 +1097,18 @@ describe('scheduled building upgrades', () => {
     const buildingFieldId = 25;
 
     database.execMulti({
-      sql: `DELETE FROM effects
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+      sql: `
+        DELETE FROM effects
+        WHERE
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
-        WHERE village_id = $village_id
+        WHERE
+          village_id = $village_id
           AND field_id = $field_id;
         UPDATE developer_settings
-        SET is_free_building_construction_enabled = 1;
+        SET
+          is_free_building_construction_enabled = 1;
       `,
       bind: {
         $village_id: villageId,

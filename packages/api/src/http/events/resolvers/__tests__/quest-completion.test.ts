@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  prepareTestDatabase,
+  seedTestAdventureReports,
+} from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import {
@@ -285,15 +288,7 @@ describe('quest completion on building level up', () => {
 
     expect(completion()).toBeNull();
 
-    for (let count = 0; count < 999; count += 1) {
-      insertReport(database, {
-        villageId: 1,
-        timestamp: 2,
-        type: 'adventure',
-        outcome: 'heroAdventure',
-        tags: [],
-      });
-    }
+    seedTestAdventureReports(database, 1, 999, 2, 0);
 
     expect(
       database.selectValue({

@@ -26,22 +26,22 @@ export const calculateAdventureDuration = (
           FROM
             servers
           LIMIT 1
-          ) AS seed,
+        ) AS seed,
         (
           SELECT
             speed
           FROM
             servers
           LIMIT 1
-          ) AS speed,
+        ) AS speed,
         (
           SELECT ha.completed - $completed_adventure_count_modifier
           FROM
             hero_adventures ha
-              JOIN heroes h ON ha.hero_id = h.id
+            JOIN heroes h ON ha.hero_id = h.id
           WHERE
             h.player_id = $player_id
-          ) AS completed
+        ) AS completed
     `,
     bind: {
       $player_id: PLAYER_ID,
@@ -85,7 +85,7 @@ const getHeroAdventureStateAt = (
         s.speed
       FROM
         hero_adventures ha
-          CROSS JOIN servers s
+        CROSS JOIN servers s
       WHERE
         ha.hero_id = $hero_id
     `,

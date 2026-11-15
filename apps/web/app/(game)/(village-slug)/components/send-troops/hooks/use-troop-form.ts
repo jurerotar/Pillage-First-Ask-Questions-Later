@@ -1,6 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { type DefaultValues, type FieldValues, useForm } from 'react-hook-form';
+import {
+  type DefaultValues,
+  type FieldValues,
+  type Path,
+  type PathValue,
+  useForm,
+} from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import { z } from 'zod';
 import type { TroopMovementEventType } from '@pillage-first/types/models/game-event';
@@ -85,19 +91,32 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     form.reset(initialValues);
   }, [form, initialValues]);
 
-  const lastResetValuesRef = useRef<string | null>(null);
-
-  if (lastResetValuesRef.current === null) {
-    lastResetValuesRef.current = JSON.stringify(initialValues);
-  }
+  const previousVillageIdRef = useRef(currentVillage.id);
 
   useEffect(() => {
-    const currentValuesJson = JSON.stringify(initialValues);
-    if (lastResetValuesRef.current !== currentValuesJson) {
+    if (previousVillageIdRef.current !== currentVillage.id) {
+      previousVillageIdRef.current = currentVillage.id;
       resetForm();
-      lastResetValuesRef.current = currentValuesJson;
     }
-  }, [initialValues, resetForm]);
+  }, [currentVillage.id, resetForm]);
+
+  useEffect(() => {
+    const availableByUnitId = new Map(
+      deployableTroops.map(({ unitId, amount }) => [unitId, amount]),
+    );
+
+    const units = form.getValues().units.map((unit) => {
+      const available = availableByUnitId.get(unit.unitId) ?? 0;
+
+      return {
+        ...unit,
+        available,
+        selected: Math.min(unit.selected, available),
+      };
+    });
+
+    form.setValue('units' as Path<T>, units as PathValue<T, Path<T>>);
+  }, [form, deployableTroops]);
 
   const formatTroopsForSubmission = (units: UnitSelection[]) => {
     const formattedUnits: Troop[] = [];

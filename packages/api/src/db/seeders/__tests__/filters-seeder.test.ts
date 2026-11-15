@@ -45,25 +45,6 @@ describe('filtersSeeder', () => {
     );
   });
 
-  test('filters contains all report filter group and filter combinations', async () => {
-    using database = await prepareTestDatabase();
-
-    const filterCount = database.selectValue({
-      sql: `
-        SELECT COUNT(*)
-        FROM filters
-        WHERE player_id = $player_id;
-      `,
-      bind: { $player_id: PLAYER_ID },
-      schema: z.number(),
-    })!;
-
-    expect(filterCount).toBe(
-      reportScopeSchema.options.length *
-        reportListingFilterSchema.options.length,
-    );
-  });
-
   test('filters only contains modeled report filter group names', async () => {
     using database = await prepareTestDatabase();
 

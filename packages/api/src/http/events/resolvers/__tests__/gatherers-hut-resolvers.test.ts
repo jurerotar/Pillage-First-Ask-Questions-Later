@@ -1,6 +1,12 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  prepareTestDatabase,
+  setTestBuildingLevel,
+  setTestDeveloperSetting,
+  setTestIdleTroops,
+  setTestVillageResources,
+} from '@pillage-first/api/testing';
 import {
   reportOutcomeSchema,
   reportTypeSchema,
@@ -11,32 +17,6 @@ import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { createEvents } from '../../../../utils/create-event';
 import { resolveEvent } from '../../resolve-event';
 
-const setGatherersHutLevel = (
-  database: Awaited<ReturnType<typeof prepareTestDatabase>>,
-  villageId: number,
-  level: number,
-) => {
-  database.exec({
-    sql: `
-      INSERT INTO
-        building_fields (village_id, field_id, building_id, level)
-      SELECT
-        $village_id, 20, id, $level
-      FROM
-        building_ids
-      WHERE
-        building = 'GATHERERS_HUT'
-      ON CONFLICT(village_id, field_id) DO UPDATE SET
-        building_id = EXCLUDED.building_id,
-        level = EXCLUDED.level;
-    `,
-    bind: {
-      $village_id: villageId,
-      $level: level,
-    },
-  });
-};
-
 describe('gatherers hut resolvers', () => {
   test('gatherersHutGatheringTrip should return troops and add gathered resources', async () => {
     using database = await prepareTestDatabase();
@@ -46,10 +26,8 @@ describe('gatherers hut resolvers', () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    setGatherersHutLevel(database, villageId, 1);
-    database.exec({
-      sql: 'UPDATE developer_settings SET is_instant_unit_travel_enabled = 1;',
-    });
+    setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
+    setTestDeveloperSetting(database, 'is_instant_unit_travel_enabled', 1);
 
     const villageTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
@@ -59,47 +37,18 @@ describe('gatherers hut resolvers', () => {
       schema: tileIdSchema,
     })!;
 
-    database.exec({
-      sql: `
-        DELETE FROM troops
-        WHERE
-          unit_id = (SELECT id FROM unit_ids WHERE unit = 'PHALANX')
-          AND tile_id = $tile_id
-          AND source_tile_id = $tile_id;
-      `,
-      bind: {
-        $tile_id: villageTileId,
+    setTestIdleTroops(database, 'PHALANX', 10, villageTileId);
+    setTestVillageResources(
+      database,
+      villageTileId,
+      {
+        wood: 100,
+        clay: 100,
+        iron: 100,
+        wheat: 100,
       },
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-        SELECT id, 10, $tile_id, $tile_id
-        FROM unit_ids
-        WHERE unit = 'PHALANX';
-      `,
-      bind: {
-        $tile_id: villageTileId,
-      },
-    });
-
-    database.exec({
-      sql: `
-        UPDATE resource_sites
-        SET
-          wood = 100,
-          clay = 100,
-          iron = 100,
-          wheat = 100,
-          updated_at = $now
-        WHERE tile_id = $tile_id;
-      `,
-      bind: {
-        $tile_id: villageTileId,
-        $now: now,
-      },
-    });
+      now,
+    );
 
     createEvents<'gatherersHutGatheringTrip'>(database, {
       type: 'gatherersHutGatheringTrip',

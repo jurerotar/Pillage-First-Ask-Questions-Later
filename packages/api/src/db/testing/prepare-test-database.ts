@@ -55,6 +55,8 @@ export const prepareTestDatabase = async (
     ),
   );
 
+  oo1Db.exec('PRAGMA foreign_keys = ON;');
+
   const facade = createDbFacade(oo1Db, () =>
     sqlite3.capi.sqlite3_js_db_export(oo1Db.pointer!, 'main'),
   );

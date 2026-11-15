@@ -1391,7 +1391,6 @@ describe(attackMovementResolver, () => {
           br.loot_clay,
           br.loot_iron,
           br.loot_wheat,
-          br.can_attacker_see_full_report,
           ui.unit AS attacker_unit_id,
           bru.amount_before,
           bru.amount_after
@@ -1421,7 +1420,6 @@ describe(attackMovementResolver, () => {
         loot_clay: resourcesSchema.shape.clay,
         loot_iron: resourcesSchema.shape.iron,
         loot_wheat: resourcesSchema.shape.wheat,
-        can_attacker_see_full_report: z.number(),
         attacker_unit_id: unitIdSchema,
         amount_before: z.number(),
         amount_after: z.number(),
@@ -1441,7 +1439,6 @@ describe(attackMovementResolver, () => {
       loot_clay: 100,
       loot_iron: 100,
       loot_wheat: 100,
-      can_attacker_see_full_report: 1,
       attacker_unit_id: 'LEGIONNAIRE',
       amount_before: 10,
       amount_after: 10,
@@ -1465,6 +1462,8 @@ describe(attackMovementResolver, () => {
       amountAfter: 10,
       amountHospitalized: 0,
       amountImprisoned: 0,
+      amountBandaged: 0,
+      amountConsumed: 0,
     });
     expect(fullReport.battle.defender.village.tileId).toBe(target.tile_id);
 

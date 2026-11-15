@@ -3,6 +3,7 @@ import {
   getBookmarks,
   updateBookmark,
 } from './controllers/bookmark-controllers';
+import { simulateCombat } from './controllers/combat-simulator-controllers';
 import {
   adjustCulturePoints,
   adjustVillageLoyalty,
@@ -110,6 +111,10 @@ import {
   getTileReports,
   updateReports,
 } from './controllers/report-controllers';
+import {
+  getReportGenerationSettings,
+  updateReportGenerationSettings,
+} from './controllers/report-generation-controllers';
 import { getReputations } from './controllers/reputation-controllers';
 import {
   cancelScheduledBuildingUpgrade,
@@ -275,6 +280,8 @@ export const apiRoutes = [
   createRoute(updateFilters),
 
   // Reports
+  createRoute(getReportGenerationSettings),
+  createRoute(updateReportGenerationSettings),
   createRoute(getReports),
   createRoute(getTileReports),
   createRoute(getReport),
@@ -283,6 +290,9 @@ export const apiRoutes = [
 
   // Bonus Finder
   createRoute(getTilesWithBonuses),
+
+  // Combat Simulator
+  createRoute(simulateCombat),
 
   // Animal Finder
   createRoute(getOasesWithAnimals),

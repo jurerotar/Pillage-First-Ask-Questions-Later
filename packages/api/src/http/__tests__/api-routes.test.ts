@@ -76,13 +76,14 @@ describe('api-route definitions', () => {
     expect(shadowedRoutes).toStrictEqual([]);
   });
 
-  test('registers QUERY routes for body-backed search endpoints', () => {
+  test('registers QUERY routes for body-backed endpoints', () => {
     const queryRouteKeys = compiledApiRoutes
       .filter(({ method }) => method === 'QUERY')
       .map(({ method, path }) => `${method} ${path}`);
 
     expect(queryRouteKeys).toStrictEqual([
       'QUERY /search/oases/by-bonus',
+      'QUERY /combat-simulator',
       'QUERY /search/oases/by-animals',
     ]);
   });

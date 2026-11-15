@@ -8,4 +8,4 @@ CREATE TABLE scouting_report_structures
 
   FOREIGN KEY (scouting_report_id) REFERENCES scouting_reports (id) ON DELETE CASCADE,
   FOREIGN KEY (building_id) REFERENCES building_ids (id)
-) STRICT;
+) STRICT, WITHOUT ROWID;

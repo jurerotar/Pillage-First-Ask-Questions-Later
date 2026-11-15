@@ -54,6 +54,9 @@
     "./types": {
       "default": "./src/types.ts"
     },
+    "./game/combat": {
+      "default": "./src/game/combat.ts"
+    },
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },

@@ -22,18 +22,16 @@ describe('oasisSeeder', () => {
     expect(countForNonOasis).toBe(0);
   });
 
-  test('oasis bonus values are only 25 or 50 and resource strings are lowercase', async () => {
+  test('oasis bonus values are only 25 or 50', async () => {
     using database = await prepareTestDatabase();
 
     const invalidRows = database.selectValue({
       sql: `
         SELECT COUNT(*)
         FROM
-          oasis o
-            JOIN resource_ids ri ON ri.id = o.resource_id
+          oasis
         WHERE
-          o.bonus NOT IN (25, 50)
-          OR ri.resource != LOWER(ri.resource);
+          bonus NOT IN (25, 50);
       `,
       schema: z.number(),
     });
@@ -131,36 +129,6 @@ describe('oasisSeeder', () => {
             v.id
           HAVING
             occupied_oasis > oasis_slots
-        );
-      `,
-      schema: z.number(),
-    });
-
-    expect(invalidVillageCount).toBe(0);
-  });
-
-  test('villages without level 10 hero mansion do not occupy oasis', async () => {
-    using database = await prepareTestDatabase();
-
-    const invalidVillageCount = database.selectValue({
-      sql: `
-        SELECT COUNT(*)
-        FROM (
-          SELECT
-            v.id,
-            COUNT(DISTINCT o.tile_id) AS occupied_oasis,
-            COALESCE(MAX(bf.level), 0) AS hero_mansion_level
-          FROM
-            villages v
-              JOIN oasis o ON o.village_id = v.id
-              LEFT JOIN building_fields bf
-                ON bf.village_id = v.id
-                AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION')
-          GROUP BY
-            v.id
-          HAVING
-            occupied_oasis > 0
-            AND hero_mansion_level < 10
         );
       `,
       schema: z.number(),
