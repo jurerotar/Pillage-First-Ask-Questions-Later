@@ -3,7 +3,7 @@
 #### Nov 15, 2026
 
 - [Feature] Added report generation settings to references, allowing you to choose which report types to generate across
-  all your villages
+  all your villages.
 - [UIUXImprovement] Expanded battle reports with hero health and experience, detailed siege results, loyalty changes,
   conquest outcomes, rescued troops, captured animals and stolen items.
 - [UIUXImprovement] Grouped automatic navigation preferences into a dedicated settings popover.
