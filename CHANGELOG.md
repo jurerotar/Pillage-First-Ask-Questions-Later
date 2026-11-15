@@ -1,3 +1,22 @@
+## Version 0.4.83
+
+#### Nov 15, 2026
+
+- [Feature] Added report generation settings to references, allowing you to choose which report types to generate across
+  all your villages
+- [UIUXImprovement] Expanded battle reports with hero health and experience, detailed siege results, loyalty changes,
+  conquest outcomes, rescued troops, captured animals and stolen items.
+- [UIUXImprovement] Grouped automatic navigation preferences into a dedicated settings popover.
+- [BugFix] Fixed battle reports revealing information that should be hidden, including defending troops, reinforcement
+  details and other participants' hero and recovery information.
+- [BugFix] Fixed battle report supply and resource loss statistics incorrectly accounting for troop wheat consumption,
+  prisoners and recovered troops.
+- [BugFix] Fixed troop selections resetting when available troop counts change. Selections are now preserved and
+  reduced only when fewer troops are available.
+- [BugFix] Fixed being able to confirm a reinforcement movement with no troops selected.
+- [BugFix] Fixed some village selectors ignoring the preferred village sort order.
+- [BugFix] Fixed popover controls inside horizontally scrollable containers not responding to clicks.
+
 ## Version 0.4.82
 
 #### Nov 11, 2026
