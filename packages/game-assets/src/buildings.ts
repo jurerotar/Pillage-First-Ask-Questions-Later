@@ -1621,9 +1621,11 @@ export const buildings: Building[] = [
       },
       {
         id: 3,
-        type: 'building',
-        buildingId: 'GRANARY',
-        level: 20,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'GRANARY', level: 20 },
+          { id: 2, type: 'building', buildingId: 'GREAT_GRANARY', level: 20 },
+        ],
       },
     ],
     baseBuildingCost: [400, 500, 350, 100],
@@ -1653,9 +1655,11 @@ export const buildings: Building[] = [
       },
       {
         id: 3,
-        type: 'building',
-        buildingId: 'WAREHOUSE',
-        level: 20,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'WAREHOUSE', level: 20 },
+          { id: 2, type: 'building', buildingId: 'GREAT_WAREHOUSE', level: 20 },
+        ],
       },
     ],
     baseBuildingCost: [650, 800, 450, 200],

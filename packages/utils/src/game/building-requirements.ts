@@ -76,6 +76,14 @@ const assessRequirement = (
   buildingIdsInQueue: BuildingRequirementAssessmentContext['buildingIdsInQueue'],
 ): boolean => {
   switch (requirement.type) {
+    case 'or': {
+      return requirement.requirements.some((alternative) => {
+        return assessBuildingLevelRequirement(
+          alternative,
+          maxLevelByBuildingId,
+        );
+      });
+    }
     case 'building': {
       return assessBuildingLevelRequirement(requirement, maxLevelByBuildingId);
     }

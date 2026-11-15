@@ -250,6 +250,20 @@ const getMissingRequirementsCancellationDetail = (
       continue;
     }
 
+    if (requirement.type === 'or') {
+      unmetRequirements.push({
+        type: 'or',
+        requirements: requirement.requirements.map((alternative) => ({
+          buildingId: alternative.buildingId,
+          requiredLevel: alternative.level,
+          currentLevel:
+            currentLevelByBuildingId.get(alternative.buildingId) ?? null,
+        })),
+      });
+
+      continue;
+    }
+
     if (requirement.type === 'building') {
       unmetRequirements.push({
         type: 'building',
@@ -258,6 +272,7 @@ const getMissingRequirementsCancellationDetail = (
         currentLevel:
           currentLevelByBuildingId.get(requirement.buildingId) ?? null,
       });
+
       continue;
     }
 
@@ -266,6 +281,7 @@ const getMissingRequirementsCancellationDetail = (
         type: 'tribe',
         tribe: requirement.tribe,
       });
+
       continue;
     }
 

@@ -29,8 +29,19 @@ export type AmountBuildingRequirement = {
 
 export type BuildingRequirement =
   | BuildingLevelBuildingRequirement
+  | AlternativeBuildingRequirement
   | TribeBuildingRequirement
   | AmountBuildingRequirement;
+
+// Top-level requirements are combined with AND; any option in this group suffices.
+export type AlternativeBuildingRequirement = {
+  id: number;
+  type: 'or';
+  requirements: [
+    BuildingLevelBuildingRequirement,
+    ...BuildingLevelBuildingRequirement[],
+  ];
+};
 
 type BuildingCategory =
   | 'infrastructure'

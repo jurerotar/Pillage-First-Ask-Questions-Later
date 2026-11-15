@@ -1345,6 +1345,29 @@ export const ScheduledConstructionCancellationReportTable = () => {
               <TableCell className="text-left">
                 <ul className="list-disc pl-4">
                   {report.reasonDetail.unmetRequirements.map((requirement) => {
+                    if (requirement.type === 'or') {
+                      return (
+                        <li
+                          key={`or:${requirement.requirements.map(({ buildingId }) => buildingId).join(':')}`}
+                        >
+                          {requirement.requirements
+                            .map((alternative) =>
+                              t(
+                                '{{buildingName}} level {{requiredLevel}} required. Current level: {{currentLevel}}.',
+                                {
+                                  buildingName: t(
+                                    `BUILDINGS.${alternative.buildingId}.NAME`,
+                                  ),
+                                  requiredLevel: alternative.requiredLevel,
+                                  currentLevel: alternative.currentLevel ?? 0,
+                                },
+                              ),
+                            )
+                            .join(` ${t('or')} `)}
+                        </li>
+                      );
+                    }
+
                     if (requirement.type === 'building') {
                       return (
                         <li

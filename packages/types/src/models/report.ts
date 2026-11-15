@@ -279,6 +279,18 @@ const scheduledConstructionCancellationReasonDetailSchema =
       unmetRequirements: z.array(
         z.discriminatedUnion('type', [
           z.strictObject({
+            type: z.literal('or'),
+            requirements: z
+              .array(
+                z.strictObject({
+                  buildingId: buildingIdSchema,
+                  requiredLevel: z.int().positive(),
+                  currentLevel: z.int().nonnegative().nullable(),
+                }),
+              )
+              .min(1),
+          }),
+          z.strictObject({
             type: z.literal('building'),
             buildingId: buildingIdSchema,
             requiredLevel: z.int().positive(),
