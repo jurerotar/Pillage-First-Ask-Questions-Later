@@ -59,8 +59,6 @@ describe('tilesSeeder', () => {
         oasis_graphics: z.null(),
       }),
     });
-
-    expect(true).toBe(true);
   });
 
   test('every oasis tile should have oasis_graphics as not null and resource_field_composition as null', async () => {
@@ -83,8 +81,6 @@ describe('tilesSeeder', () => {
         oasis_graphics: z.number(),
       }),
     });
-
-    expect(true).toBe(true);
   });
 
   test('oasis groups tile counts are multiples of expected shape sizes', async () => {
@@ -183,27 +179,6 @@ describe('tilesSeeder', () => {
     });
 
     expect(bothNonNull).toBe(0);
-  });
-
-  test('all tile coordinates are within expected grid bounds', async () => {
-    using database = await prepareTestDatabase();
-
-    const { halfSize } = calculateGridLayout(serverMock.configuration.mapSize);
-
-    const bounds = database.selectObject({
-      sql: 'SELECT MIN(x) AS minX, MAX(x) AS maxX, MIN(y) AS minY, MAX(y) AS maxY FROM tiles;',
-      schema: z.strictObject({
-        minX: z.number(),
-        minY: z.number(),
-        maxX: z.number(),
-        maxY: z.number(),
-      }),
-    });
-
-    expect(bounds?.minX).toBeGreaterThanOrEqual(-halfSize);
-    expect(bounds?.maxX).toBeLessThanOrEqual(halfSize);
-    expect(bounds?.minY).toBeGreaterThanOrEqual(-halfSize);
-    expect(bounds?.maxY).toBeLessThanOrEqual(halfSize);
   });
 
   test('should have no tiles outside the defined grid', async () => {

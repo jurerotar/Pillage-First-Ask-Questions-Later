@@ -9,17 +9,6 @@ import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../testing';
 
 describe('effectsSeeder', () => {
-  test('effect_ids seeded (>0)', async () => {
-    using database = await prepareTestDatabase();
-
-    const c = database.selectValue({
-      sql: 'SELECT COUNT(*) FROM effect_ids;',
-      schema: z.number(),
-    });
-
-    expect(c).toBeGreaterThan(0);
-  });
-
   test('effects seeded (>0) and reference valid effect_ids', async () => {
     using database = await prepareTestDatabase();
 

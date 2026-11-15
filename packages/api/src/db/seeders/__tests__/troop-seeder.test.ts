@@ -30,7 +30,6 @@ describe('troopSeeder', () => {
     using database = await prepareTestDatabase();
 
     const natureUnitIds = natureUnits.map(({ id }) => id);
-    const placeholders = natureUnitIds.map(() => '?').join(',');
 
     const invalid = database.selectValue({
       sql: `
@@ -45,8 +44,9 @@ describe('troopSeeder', () => {
         JOIN unoccupied_oases u ON u.tile_id = tr.tile_id
         JOIN unit_ids ui ON ui.id = tr.unit_id
         WHERE
-          ui.unit NOT IN (${placeholders});
+          ui.unit NOT IN (SELECT value FROM JSON_EACH($nature_unit_ids));
       `,
+      bind: { $nature_unit_ids: JSON.stringify(natureUnitIds) },
       schema: z.number(),
     });
 

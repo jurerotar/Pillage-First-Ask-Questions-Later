@@ -673,126 +673,45 @@ describe('report-controllers', () => {
     },
   );
 
-  test('should delete the seeded report types and all dependent rows', async () => {
+  test('deletes multiple report types without leaving orphaned details', async () => {
     using database = await prepareReportsTestDatabase();
 
+    createCombatOutcomeReport(database);
+
+    const { input } = createScoutingIntelligenceFixture(database);
+    insertScoutingReport(database, {
+      ...input,
+      target: 'defensiveStructures',
+      resources: undefined,
+      itemId: null,
+      itemAmount: null,
+      defensiveStructures: [{ buildingId: 'RESIDENCE', level: 10 }],
+    });
+
     const reportIds = database.selectValues({
-      sql: `
-        SELECT MIN(r.id) FROM reports r
-        JOIN report_type_ids rti ON rti.id = r.type_id
-        GROUP BY rti.report_type;
-      `,
+      sql: 'SELECT id FROM reports ORDER BY id;',
       schema: z.int(),
     });
 
-    expect(reportIds).toHaveLength(6);
+    expect(reportIds).toHaveLength(8);
 
     deleteReports(
       database,
       createControllerArgs<'/reports', 'delete'>({ body: reportIds }),
     );
 
-    const remaining = database.selectObject({
-      sql: `
-        SELECT
-          (SELECT COUNT(*) FROM reports WHERE id IN (SELECT value FROM json_each($ids))) AS reports,
-          (SELECT COUNT(*) FROM hero_adventure_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS adventures,
-          (SELECT COUNT(*) FROM movement_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS movements,
-          (SELECT COUNT(*) FROM trade_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS trades,
-          (SELECT COUNT(*) FROM battle_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS battles,
-          (SELECT COUNT(*) FROM battle_report_buildings) AS battle_buildings,
-          (SELECT COUNT(*) FROM hunting_party_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS hunting_parties,
-          (SELECT COUNT(*) FROM hunting_party_report_units WHERE hunting_party_report_id NOT IN (SELECT id FROM hunting_party_reports)) AS orphaned_hunting_units,
-          (SELECT COUNT(*) FROM gathering_expedition_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS gathering_expeditions,
-          (SELECT COUNT(*) FROM gathering_expedition_report_units WHERE gathering_expedition_report_id NOT IN (SELECT id FROM gathering_expedition_reports)) AS orphaned_gathering_units,
-          (SELECT COUNT(*) FROM report_tags WHERE report_id IN (SELECT value FROM json_each($ids))) AS tags;
-      `,
-      bind: { $ids: JSON.stringify(reportIds) },
-      schema: z.strictObject({
-        reports: z.int(),
-        adventures: z.int(),
-        movements: z.int(),
-        trades: z.int(),
-        battles: z.int(),
-        battle_buildings: z.int(),
-        hunting_parties: z.int(),
-        orphaned_hunting_units: z.int(),
-        gathering_expeditions: z.int(),
-        orphaned_gathering_units: z.int(),
-        tags: z.int(),
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM reports;',
+        schema: z.int(),
       }),
-    })!;
-
-    expect(remaining).toStrictEqual({
-      reports: 0,
-      adventures: 0,
-      movements: 0,
-      trades: 0,
-      battles: 0,
-      battle_buildings: 0,
-      hunting_parties: 0,
-      orphaned_hunting_units: 0,
-      gathering_expeditions: 0,
-      orphaned_gathering_units: 0,
-      tags: 0,
-    });
-  });
-
-  test('should delete all scouting report data', async () => {
-    using database = await prepareReportsTestDatabase();
-
-    const reportId = 7;
-
-    database.execMulti({
-      sql: `
-        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
-        VALUES (${reportId}, (SELECT id FROM villages ORDER BY id LIMIT 1), 7000,
-          (SELECT id FROM report_type_ids WHERE report_type = 'scouting'),
-          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'scoutAttackerNoLoss'));
-        INSERT INTO scouting_reports (id, report_id, origin_tile_id, target_tile_id, perspective, successful, scouting_target, wood, clay, iron, wheat)
-        VALUES (1, ${reportId},
-          (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
-          (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
-          'attacker', 1, 'defensiveStructures', NULL, NULL, NULL, NULL);
-        INSERT INTO scouting_report_attacker_units (scouting_report_id, unit_id, amount_before, amount_after)
-        VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'ROMAN_SCOUT'), 10, 8);
-        INSERT INTO scouting_report_units (scouting_report_id, role, tile_id, unit_id, amount)
-        VALUES (1, 'defender',
-          (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
-          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 20);
-        INSERT INTO scouting_report_structures (scouting_report_id, building_id, level)
-        VALUES (1, (SELECT id FROM building_ids WHERE building = 'RESIDENCE'), 10);
-      `,
-    });
-
-    deleteReports(
-      database,
-      createControllerArgs<'/reports', 'delete'>({ body: [reportId] }),
-    );
-
-    const remaining = database.selectObject({
-      sql: `SELECT
-        (SELECT COUNT(*) FROM reports WHERE id = ${reportId}) AS reports,
-        (SELECT COUNT(*) FROM scouting_reports WHERE report_id = ${reportId}) AS scouting_reports,
-        (SELECT COUNT(*) FROM scouting_report_attacker_units) AS attacker_units,
-        (SELECT COUNT(*) FROM scouting_report_units) AS scouted_units,
-        (SELECT COUNT(*) FROM scouting_report_structures) AS structures;`,
-      schema: z.strictObject({
-        reports: z.int(),
-        scouting_reports: z.int(),
-        attacker_units: z.int(),
-        scouted_units: z.int(),
-        structures: z.int(),
+    ).toBe(0);
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM pragma_foreign_key_check;',
+        schema: z.int(),
       }),
-    })!;
-
-    expect(remaining).toStrictEqual({
-      reports: 0,
-      scouting_reports: 0,
-      attacker_units: 0,
-      scouted_units: 0,
-      structures: 0,
-    });
+    ).toBe(0);
   });
 });
 
@@ -1893,48 +1812,6 @@ describe('battle combat outcome reports', () => {
         schema: z.int(),
       }),
     ).toBe(0);
-  });
-
-  test('deletes all combat outcome details with their report', async () => {
-    using database = await prepareReportsTestDatabase();
-
-    const buildingsBefore = database.selectValue({
-      sql: 'SELECT COUNT(*) FROM battle_report_buildings;',
-      schema: z.int(),
-    });
-
-    const { reportId } = createCombatOutcomeReport(database);
-
-    deleteReports(
-      database,
-      createControllerArgs<'/reports', 'delete'>({
-        body: [reportId],
-      }),
-    );
-
-    expect(
-      database.selectValue({
-        sql: 'SELECT COUNT(*) FROM battle_report_buildings;',
-        schema: z.int(),
-      }),
-    ).toBe(buildingsBefore);
-
-    for (const table of [
-      'battle_report_conquests',
-      'battle_report_rescues',
-      'battle_report_heroes',
-      'battle_report_consumables',
-      'battle_report_rescued_units',
-      'battle_report_captured_animals',
-      'battle_report_stolen_items',
-    ]) {
-      expect(
-        database.selectValue({
-          sql: `SELECT COUNT(*) FROM ${table};`,
-          schema: z.int(),
-        }),
-      ).toBe(0);
-    }
   });
 
   test('stores unsuccessful oasis conquest outcomes', async () => {
