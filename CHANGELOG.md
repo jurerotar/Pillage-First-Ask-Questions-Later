@@ -16,6 +16,8 @@
 - [BugFix] Fixed being able to confirm a reinforcement movement with no troops selected.
 - [BugFix] Fixed some village selectors ignoring the preferred village sort order.
 - [BugFix] Fixed popover controls inside horizontally scrollable containers not responding to clicks.
+- [BugFix] Fixed constructing additional Great Warehouses and Great Granaries after demolishing regular storage.
+  A level 20 Great Warehouse building now satisfies the storage prerequisite on its own.
 
 ## Version 0.4.82
 
