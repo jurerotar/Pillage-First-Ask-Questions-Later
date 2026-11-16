@@ -171,9 +171,15 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
 
   const { resolvesAt } = event;
 
-  try {
+  if (route.sourcePlayerId === route.targetPlayerId) {
+    const currentResources = calculateResourceSiteResourcesAt(
+      database,
+      originTileId,
+      resolvesAt,
+    );
+
     const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateResourceSiteResourcesAt(database, originTileId, resolvesAt);
+      currentResources;
 
     const resources = {
       wood: Math.min(
@@ -220,10 +226,10 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
         });
       }
     }
-  } catch {
-    // A route miss is expected when resources or free merchants are unavailable.
   }
 
+  // Unexpected failures must reach the scheduler so its transaction/savepoint
+  // restores the resources, the consumed trigger and any newly created events.
   createEvents<'tradeRoute'>(database, {
     type: 'tradeRoute',
     tradeRouteId: route.id,

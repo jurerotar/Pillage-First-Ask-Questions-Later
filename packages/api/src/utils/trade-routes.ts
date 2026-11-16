@@ -31,11 +31,18 @@ export const tradeRouteRowSchema = tradeRouteSchema.extend({
   paused: z.coerce.boolean(),
 });
 
+const tradeRouteExecutionRowSchema = tradeRouteRowSchema
+  .omit({ nextAt: true })
+  .extend({
+    sourcePlayerId: z.number(),
+    targetPlayerId: z.number(),
+  });
+
 export const getTradeRouteById = (database: DbFacade, routeId: number) => {
   return database.selectObject({
     sql: selectTradeRouteByIdQuery,
     bind: { $route_id: routeId },
-    schema: tradeRouteRowSchema,
+    schema: tradeRouteExecutionRowSchema,
   });
 };
 
