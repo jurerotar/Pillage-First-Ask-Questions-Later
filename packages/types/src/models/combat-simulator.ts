@@ -1,24 +1,13 @@
 import { z } from 'zod';
-import type { HeroItem, HeroItemSlot } from './hero-item';
 import { type Player, playerSchema } from './player';
 import { type Tribe, tribeSchema } from './tribe';
 import type { TroopLike } from './troop';
 import { unitIdSchema } from './unit';
 import { type Village, villageSchema } from './village';
 
-export type CombatSimulatorHeroItemSlot = Extract<
-  HeroItemSlot,
-  'right-hand' | 'left-hand' | 'torso'
+export type CombatSimulatorHeroStats = z.infer<
+  typeof combatSimulatorHeroStatsSchema
 >;
-
-export type CombatSimulatorHeroStats = {
-  hp: number;
-  strength: number;
-  attackBonus: number;
-  defenceBonus: number;
-  mounted: boolean;
-  itemIdsBySlot: Partial<Record<CombatSimulatorHeroItemSlot, HeroItem['id']>>;
-};
 
 export type CombatSimulatorTroop = TroopLike & {
   smithyImprovementLevel: number;
@@ -76,16 +65,16 @@ export const combatSimulatorTroopSchema = z
   });
 
 export const combatSimulatorHeroStatsSchema = z.strictObject({
-  hp: z.int().min(1).max(100),
-  strength: z.int().min(0).max(100),
-  attackBonus: z.int().min(0).max(100),
-  defenceBonus: z.int().min(0).max(100),
+  health: z.int().min(1).max(100),
+  // Effective values include equipment bonuses; the engine must not add them again.
+  attackPower: z.int().nonnegative(),
+  damageReduction: z.int().nonnegative(),
+  experienceModifier: z.int().nonnegative(),
+  natarianAttackBonus: z.int().nonnegative(),
+  // Tenths of a percent, matching heroes.attack_bonus / defence_bonus in the DB.
+  attackBonus: z.int().min(0).max(200),
+  defenceBonus: z.int().min(0).max(200),
   mounted: z.boolean(),
-  itemIdsBySlot: z.strictObject({
-    'right-hand': z.number().optional(),
-    'left-hand': z.number().optional(),
-    torso: z.number().optional(),
-  }),
 });
 
 const participantSchema = z.strictObject({

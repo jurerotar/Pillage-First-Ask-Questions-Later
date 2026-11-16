@@ -119,7 +119,8 @@ export const ReportHeader = ({ actions }: ReportHeaderProps) => {
 
 type BattleTableParticipant = {
   troops: Pick<
-    BattleReport['battle']['attacker']['troops'],
+    | BattleReport['battle']['attacker']['troops']
+    | CombatSimulatorReportDto['battle']['attacker'],
     'tribe' | 'units' | 'hero'
   >;
   player?: BattleReport['battle']['attacker']['player'];

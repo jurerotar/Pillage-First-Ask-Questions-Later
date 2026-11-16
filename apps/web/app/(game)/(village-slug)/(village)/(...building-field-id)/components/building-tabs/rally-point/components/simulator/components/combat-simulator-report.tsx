@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { use, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CombatSimulatorState } from '@pillage-first/types/models/combat-simulator';
 import {
   BattleReportTables,
   Report,
@@ -11,6 +10,10 @@ import { ApiContext } from 'app/(game)/providers/api-context';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
+import {
+  type CombatSimulatorFormState,
+  toCombatSimulatorRequest,
+} from '../utils/combat-simulator-form';
 
 export const CombatSimulatorReport = () => {
   const { t } = useTranslation();
@@ -23,7 +26,9 @@ export const CombatSimulatorReport = () => {
     variables,
     isError,
   } = useMutation({
-    mutationFn: async (body: CombatSimulatorState) => {
+    mutationFn: async (state: CombatSimulatorFormState) => {
+      const body = toCombatSimulatorRequest(state);
+
       const { data } = await apiClient.query('/combat-simulator', { body });
       return data;
     },

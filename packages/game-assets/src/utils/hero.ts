@@ -1,10 +1,43 @@
-import type { PlayableTribe } from '@pillage-first/types/models/tribe';
+import type { HeroItem } from '@pillage-first/types/models/hero-item';
+import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import {
   calculateProgressPercentage,
   roundTo5,
 } from '@pillage-first/utils/math';
 
 const MAX_HERO_ATTRIBUTE_LEVEL = 99;
+
+export const getHeroInitialStrength = (tribe: Tribe): number => {
+  return tribe === 'romans' ? 100 : 80;
+};
+
+export const calculateHeroAttackPower = (
+  tribe: Tribe,
+  strengthPoints: number,
+  equipmentPower: number,
+): number => {
+  return getHeroInitialStrength(tribe) * (1 + strengthPoints) + equipmentPower;
+};
+
+export const calculateHeroEquipmentBonuses = (
+  equippedItems: readonly HeroItem[],
+) => {
+  const bonuses = {
+    power: 0,
+    speed: 0,
+    damageReduction: 0,
+    experienceModifier: 0,
+    healthRegeneration: 0,
+  };
+
+  for (const item of equippedItems) {
+    for (const bonus of item.heroBonus ?? []) {
+      bonuses[bonus.attribute] += bonus.value;
+    }
+  }
+
+  return bonuses;
+};
 
 export const calculateHeroAttributePoints = (level: number): number => {
   return (Math.min(level, MAX_HERO_ATTRIBUTE_LEVEL) + 1) * 4;
