@@ -133,6 +133,8 @@ const createParticipant = <TVillage,>(
   village: TVillage,
 ): CombatSimulatorParticipant<TVillage> => {
   return {
+    ownerId: null,
+    homeVillageId: null,
     tribe,
     troops: createEmptyTroops(tribe),
     heroStats: { ...DEFAULT_HERO_STATS },
@@ -146,8 +148,11 @@ const createReinforcement = (
 ): CombatSimulatorReinforcement => {
   return {
     id,
+    ownerId: null,
+    homeVillageId: null,
     tribe,
     troops: createEmptyTroops(tribe, false),
+    heroStats: { ...DEFAULT_HERO_STATS },
     village: undefined,
   };
 };
