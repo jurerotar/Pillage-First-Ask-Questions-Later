@@ -1,3 +1,10 @@
+## Version 0.4.84
+
+#### Nov 16, 2026
+
+- [UIUXImprovement] Added training durations for the full queue.
+- [TechnicalImprovement] Added support for building durability effect for upcoming siege modifiers.
+
 ## Version 0.4.83
 
 #### Nov 15, 2026

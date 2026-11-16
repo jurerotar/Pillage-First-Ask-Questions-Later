@@ -2,7 +2,7 @@ import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import {
   calculateProgressPercentage,
-  roundTo5,
+  roundToN,
 } from '@pillage-first/utils/math';
 
 const MAX_HERO_ATTRIBUTE_LEVEL = 99;
@@ -78,7 +78,7 @@ export const calculateHeroRevivalCost = (
   const baseRevivalCost = tribeToHeroRevivalCostMap.get(tribe)!;
 
   return baseRevivalCost.map((resource) =>
-    roundTo5(resource * (1 + level / 24) * (level + 1)),
+    roundToN(resource * (1 + level / 24) * (level + 1), 5),
   );
 };
 

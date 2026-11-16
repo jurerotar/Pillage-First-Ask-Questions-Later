@@ -22,6 +22,7 @@ import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listi
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
 import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
+import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
 import createOasisCaptureFailureReasonIdsTable from '../schemas/lookup-tables/oasis-capture-failure-reason-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
@@ -139,22 +140,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.64', (db) => {
-    db.exec({
-      sql: `
-        DELETE
-        FROM
-          world_items
-        WHERE
-          item_id IN (1026, 1027, 1028, 1029);
-      `,
-    });
-
-    db.exec({
-      sql: 'ALTER TABLE map_filters DROP COLUMN should_show_treasure_icons;',
-    });
-  });
 
   migrate('0.4.66', (db) => {
     db.exec({
@@ -761,6 +746,39 @@ export const upgradeDb = (
 
       setupGlobalWriteTriggers(tx);
     });
+  });
+
+  migrate('0.4.84', (db) => {
+    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+
+    try {
+      db.transaction((tx) => {
+        tx.execMulti({
+          sql: `
+            CREATE TEMP TABLE building_durability_effect_ids_backup AS SELECT id, effect FROM effect_ids;
+            DROP TABLE effect_ids;
+          `,
+        });
+
+        tx.execMulti({ sql: createEffectIdsTable });
+
+        tx.execMulti({
+          sql: `
+            INSERT INTO effect_ids (id, effect)
+            SELECT id, effect
+            FROM building_durability_effect_ids_backup;
+
+            DROP TABLE building_durability_effect_ids_backup;
+
+            INSERT INTO effect_ids (effect)
+            VALUES ('buildingDurability')
+            ON CONFLICT (effect) DO NOTHING;
+          `,
+        });
+      });
+    } finally {
+      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+    }
   });
 
   // If all migrations passed, bump it to current version
