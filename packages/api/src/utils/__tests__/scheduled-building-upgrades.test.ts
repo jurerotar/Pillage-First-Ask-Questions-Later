@@ -81,10 +81,10 @@ describe('scheduled building upgrades', () => {
 
       database.exec({
         sql: `
-        UPDATE building_fields SET level = 10
-        WHERE village_id = $village_id
-          AND building_id = (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING');
-      `,
+          UPDATE building_fields SET level = 10
+          WHERE village_id = $village_id
+            AND building_id = (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING');
+        `,
         bind: { $village_id: villageId },
       });
       createBuildingPlaceholder(
@@ -120,10 +120,10 @@ describe('scheduled building upgrades', () => {
       };
       const persistedDetail = database.selectValue({
         sql: `
-        SELECT reason_detail_json
-        FROM scheduled_construction_cancellation_reports
-        WHERE village_id = $village_id AND field_id = $field_id;
-      `,
+          SELECT reason_detail_json
+          FROM scheduled_construction_cancellation_reports
+          WHERE village_id = $village_id AND field_id = $field_id;
+        `,
         bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.string(),
       });

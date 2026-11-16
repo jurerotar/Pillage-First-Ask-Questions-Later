@@ -1166,9 +1166,11 @@ export const buildings: Building[] = [
       },
       {
         id: 2,
-        type: 'building',
-        buildingId: 'GRANARY',
-        level: 20,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'GRANARY', level: 20 },
+          { id: 2, type: 'building', buildingId: 'GREAT_GRANARY', level: 20 },
+        ],
       },
       {
         id: 3,
@@ -1320,15 +1322,19 @@ export const buildings: Building[] = [
       },
       {
         id: 2,
-        type: 'building',
-        buildingId: 'WAREHOUSE',
-        level: 1,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'WAREHOUSE', level: 1 },
+          { id: 2, type: 'building', buildingId: 'GREAT_WAREHOUSE', level: 1 },
+        ],
       },
       {
         id: 3,
-        type: 'building',
-        buildingId: 'GRANARY',
-        level: 1,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'GRANARY', level: 1 },
+          { id: 2, type: 'building', buildingId: 'GREAT_GRANARY', level: 1 },
+        ],
       },
       {
         id: 4,
@@ -1551,15 +1557,19 @@ export const buildings: Building[] = [
       },
       {
         id: 3,
-        type: 'building',
-        buildingId: 'WAREHOUSE',
-        level: 3,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'WAREHOUSE', level: 3 },
+          { id: 2, type: 'building', buildingId: 'GREAT_WAREHOUSE', level: 3 },
+        ],
       },
       {
         id: 4,
-        type: 'building',
-        buildingId: 'GRANARY',
-        level: 3,
+        type: 'or',
+        requirements: [
+          { id: 1, type: 'building', buildingId: 'GRANARY', level: 3 },
+          { id: 2, type: 'building', buildingId: 'GREAT_GRANARY', level: 3 },
+        ],
       },
     ],
     baseBuildingCost: [230, 190, 80, 60],
