@@ -1,14 +1,12 @@
 import { z } from 'zod';
 import {
+  reportDtoSchema,
   reportFilterNameByScope,
   reportListingDtoSchema,
   reportScopeSchema,
 } from '@pillage-first/types/dtos/report';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
-import {
-  reportSchema,
-  reportTagSchema,
-} from '@pillage-first/types/models/report';
+import { reportTagSchema } from '@pillage-first/types/models/report';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -113,7 +111,7 @@ export const getReport = createController('/reports/:reportId', {
       reportId: z.coerce.number(),
     }),
   },
-  response: reportSchema.nullable(),
+  response: reportDtoSchema.nullable(),
 })(({ database, path: { reportId } }) => {
   const reportInfo = database.selectObject({
     sql: selectReportTypeQuery,

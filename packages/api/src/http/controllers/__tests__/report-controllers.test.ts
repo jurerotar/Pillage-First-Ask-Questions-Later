@@ -87,8 +87,8 @@ describe('report-controllers', () => {
       { id: 7, type: 'scouting' },
       { id: 1, type: 'battle' },
     ]);
-    expect(reports[1].tags).toContain('read');
-    expect(reports[0].tags).not.toContain('read');
+    expect(reports[1].isRead).toBe(true);
+    expect(reports[0].isRead).toBe(false);
   });
 
   test('limits tile reports to ten, ordered by timestamp then id descending', async () => {
@@ -386,9 +386,7 @@ describe('report-controllers', () => {
     );
 
     expect(unreadReports.length).toBeGreaterThan(0);
-    expect(unreadReports.every(({ tags }) => !tags.includes('read'))).toBe(
-      true,
-    );
+    expect(unreadReports.every(({ isRead }) => !isRead)).toBe(true);
 
     const archivedReports = getReports(
       database,
@@ -398,9 +396,7 @@ describe('report-controllers', () => {
     );
 
     expect(archivedReports.length).toBeGreaterThan(0);
-    expect(archivedReports.every(({ tags }) => tags.includes('archived'))).toBe(
-      true,
-    );
+    expect(archivedReports.every(({ isArchived }) => isArchived)).toBe(true);
 
     const villageReports = getReports(
       database,
@@ -557,7 +553,7 @@ describe('report-controllers', () => {
       }),
     );
 
-    expect(report?.tags).toContain('read');
+    expect(report?.isRead).toBe(true);
 
     const hasReadTag = database.selectValue({
       sql: `
@@ -599,12 +595,8 @@ describe('report-controllers', () => {
     ).filter(({ id }) => reportIds.includes(id));
 
     expect(updatedReports).toHaveLength(2);
-    expect(updatedReports.every(({ tags }) => tags.includes('read'))).toBe(
-      true,
-    );
-    expect(updatedReports.every(({ tags }) => !tags.includes('archived'))).toBe(
-      true,
-    );
+    expect(updatedReports.every(({ isRead }) => isRead)).toBe(true);
+    expect(updatedReports.every(({ isArchived }) => !isArchived)).toBe(true);
 
     updateReports(
       database,
@@ -621,12 +613,8 @@ describe('report-controllers', () => {
       createControllerArgs<'/reports'>({}),
     ).filter(({ id }) => reportIds.includes(id));
 
-    expect(updatedReports.every(({ tags }) => !tags.includes('read'))).toBe(
-      true,
-    );
-    expect(updatedReports.every(({ tags }) => tags.includes('archived'))).toBe(
-      true,
-    );
+    expect(updatedReports.every(({ isRead }) => !isRead)).toBe(true);
+    expect(updatedReports.every(({ isArchived }) => isArchived)).toBe(true);
   });
 
   test.each([
@@ -857,7 +845,8 @@ describe('research, improvement, founding, and construction cancellation reports
       ...commonInput,
       type: reportCase.type,
       outcome: reportCase.outcome,
-      tags: [],
+      isRead: false,
+      isArchived: false,
       ...reportCase.details,
     };
 
@@ -868,7 +857,8 @@ describe('research, improvement, founding, and construction cancellation reports
             ...commonInput,
             type: expected.type,
             outcome: expected.outcome,
-            tags: [],
+            isRead: false,
+            isArchived: false,
             summary: expected.summary,
           }
         : expected;
@@ -886,10 +876,10 @@ describe('research, improvement, founding, and construction cancellation reports
       }),
     );
 
-    expect(report).toStrictEqual({ ...expected, tags: ['read'] });
+    expect(report).toStrictEqual({ ...expected, isRead: true });
     expect(
       getReports(database, createControllerArgs<'/reports'>({})),
-    ).toStrictEqual([{ ...expectedListing, tags: ['read'] }]);
+    ).toStrictEqual([{ ...expectedListing, isRead: true }]);
 
     deleteReports(
       database,
