@@ -775,6 +775,74 @@ export const upgradeDb = (
             ON CONFLICT (effect) DO NOTHING;
           `,
         });
+
+        const batches = tx.selectObjects({
+          sql: `
+            SELECT
+              id,
+              type,
+              village_id,
+              starts_at,
+              duration,
+              meta,
+              JSON_EXTRACT(meta, '$.cageAmount') AS amount
+            FROM
+              events
+            WHERE
+              type IN ('animalCageProduction', 'trapperCageProduction')
+              AND JSON_EXTRACT(meta, '$.cageAmount') IS NOT NULL;
+          `,
+          schema: z.strictObject({
+            id: z.number(),
+            type: z.string(),
+            village_id: z.number().nullable(),
+            starts_at: z.number(),
+            duration: z.number(),
+            meta: z.string(),
+            amount: z.int().positive(),
+          }),
+        });
+
+        for (const batch of batches) {
+          // Divide the saved batch duration rather than recalculating it from
+          // today's speed/settings. The last cage keeps the original deadline.
+          tx.exec({
+            sql: `
+              WITH RECURSIVE cages(i) AS (
+                SELECT 0
+                UNION ALL
+                SELECT i + 1
+                FROM cages
+                WHERE i + 1 < $amount
+              )
+              INSERT INTO events (type, village_id, starts_at, duration, meta)
+              SELECT
+                $type,
+                $village_id,
+                $starts_at + CAST(1.0 * $duration * i / $amount AS INTEGER),
+                CAST(1.0 * $duration * (i + 1) / $amount AS INTEGER)
+                  - CAST(1.0 * $duration * i / $amount AS INTEGER),
+                JSON_SET(JSON_REMOVE($meta, '$.cageAmount'),
+                  '$.amount', $amount, '$.batchId', $batch_id)
+              FROM
+                cages;
+            `,
+            bind: {
+              $type: batch.type,
+              $village_id: batch.village_id,
+              $starts_at: batch.starts_at,
+              $duration: batch.duration,
+              $meta: batch.meta,
+              $amount: batch.amount,
+              $batch_id: `legacy-cages-${batch.id}`,
+            },
+          });
+
+          tx.exec({
+            sql: 'DELETE FROM events WHERE id = $id;',
+            bind: { $id: batch.id },
+          });
+        }
       });
     } finally {
       db.exec({ sql: 'PRAGMA foreign_keys = ON;' });

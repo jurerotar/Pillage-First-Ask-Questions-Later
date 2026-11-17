@@ -1992,7 +1992,7 @@ describe('events utils', () => {
       setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 1);
 
       const event = createAnimalCageProductionEventMock({
-        cageAmount: 2,
+        amount: 2,
       });
 
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
@@ -2004,7 +2004,7 @@ describe('events utils', () => {
       setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 1);
 
       const event = createTrapperCageProductionEventMock({
-        cageAmount: 2,
+        amount: 2,
       });
 
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
@@ -2014,7 +2014,7 @@ describe('events utils', () => {
       using database = await prepareTestDatabase();
 
       const event = createAnimalCageProductionEventMock({
-        cageAmount: 2,
+        amount: 2,
       });
 
       expect(getEventCost(database, event)).toStrictEqual(
@@ -2026,7 +2026,7 @@ describe('events utils', () => {
       using database = await prepareTestDatabase();
 
       const event = createTrapperCageProductionEventMock({
-        cageAmount: 2,
+        amount: 2,
       });
 
       expect(getEventCost(database, event)).toStrictEqual(
@@ -2294,7 +2294,7 @@ describe('events utils', () => {
       setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 1);
 
       const event = createAnimalCageProductionEventMock({
-        cageAmount: 3,
+        amount: 3,
       });
 
       expect(getEventDuration(database, event)).toBe(0);
@@ -2306,7 +2306,7 @@ describe('events utils', () => {
       setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 1);
 
       const event = createTrapperCageProductionEventMock({
-        cageAmount: 3,
+        amount: 3,
       });
 
       expect(getEventDuration(database, event)).toBe(0);
@@ -2545,7 +2545,7 @@ describe('events utils', () => {
       expect(healingDuration).toBe(normalDuration / 2);
     });
 
-    test('animalCageProduction - should return batch duration based on server speed', async () => {
+    test('animalCageProduction - should return per-cage duration based on server speed', async () => {
       using database = await prepareTestDatabase();
 
       database.exec({
@@ -2554,15 +2554,15 @@ describe('events utils', () => {
       });
 
       const event = createAnimalCageProductionEventMock({
-        cageAmount: 3,
+        amount: 3,
       });
 
       expect(getEventDuration(database, event)).toBe(
-        (ANIMAL_CAGE_BASE_DURATION * 3) / 2,
+        ANIMAL_CAGE_BASE_DURATION / 2,
       );
     });
 
-    test('trapperCageProduction - should return batch duration based on server speed', async () => {
+    test('trapperCageProduction - should return per-cage duration based on server speed', async () => {
       using database = await prepareTestDatabase();
 
       database.exec({
@@ -2571,11 +2571,11 @@ describe('events utils', () => {
       });
 
       const event = createTrapperCageProductionEventMock({
-        cageAmount: 3,
+        amount: 3,
       });
 
       expect(getEventDuration(database, event)).toBe(
-        (TRAPPER_CAGE_BASE_DURATION * 3) / 2,
+        TRAPPER_CAGE_BASE_DURATION / 2,
       );
     });
 

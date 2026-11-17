@@ -20,7 +20,7 @@ const setup = (database: DbFacade) => {
     startsAt: 1000,
     duration: 1000,
     villageId: 1,
-    cageAmount: 4,
+    amount: 4,
   });
 
   insertEvents(database, [event]);

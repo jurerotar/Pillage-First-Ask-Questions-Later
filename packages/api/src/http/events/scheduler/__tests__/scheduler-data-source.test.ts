@@ -19,6 +19,7 @@ const message = (
 ): EventApiNotificationEvent => ({
   ...createTrapperCageProductionEventMock({
     id,
+    batchId: `test-batch-${id}`,
     villageId: 1,
     startsAt: 1000,
     duration: 1000,

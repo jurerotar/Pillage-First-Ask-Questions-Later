@@ -133,12 +133,14 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('animalCageProduction'),
       ...villageEventSchema,
-      cageAmount: z.number(),
+      batchId: z.string().min(1),
+      amount: z.int().positive(),
     }),
     z.strictObject({
       type: z.literal('trapperCageProduction'),
       ...villageEventSchema,
-      cageAmount: z.number(),
+      batchId: z.string().min(1),
+      amount: z.int().positive(),
     }),
     z.strictObject({
       type: z.literal('huntersLodgeHunt'),

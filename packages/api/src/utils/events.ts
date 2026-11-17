@@ -443,10 +443,6 @@ export const validateEventCreationPrerequisites = (
       throw new Error("Hunter's Lodge does not exist");
     }
 
-    if (isAnimalCageProductionEvent(event) && event.cageAmount <= 0) {
-      throw new Error('Animal cage amount must be positive');
-    }
-
     if (isHuntersLodgeHuntEvent(event)) {
       if (event.huntingPartyLevel > huntersLodgeLevel) {
         throw new Error("Hunter's Lodge level is too low");
@@ -470,11 +466,7 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTrapperCageProductionEvent(event)) {
-    const { villageId, cageAmount } = event;
-
-    if (cageAmount <= 0) {
-      throw new Error('Trapper cage amount must be positive');
-    }
+    const { villageId, amount } = event;
 
     const trapperLevel =
       database.selectValue({
@@ -507,7 +499,7 @@ export const validateEventCreationPrerequisites = (
     const queuedCageAmount =
       database.selectValue({
         sql: `
-          SELECT COALESCE(SUM(CAST(JSON_EXTRACT(meta, '$.cageAmount') AS INTEGER)), 0)
+          SELECT COUNT(*)
           FROM
             events
           WHERE
@@ -522,7 +514,7 @@ export const validateEventCreationPrerequisites = (
 
     const capacity = calculateTrapperCapacity(trapperLevel);
 
-    if (currentCageAmount + queuedCageAmount + cageAmount > capacity) {
+    if (currentCageAmount + queuedCageAmount + amount > capacity) {
       throw new Error('Trapper cage capacity exceeded');
     }
 
@@ -1210,7 +1202,7 @@ export const getEventCost = (
       return [0, 0, 0, 0];
     }
 
-    return ANIMAL_CAGE_COST.map((cost) => cost * event.cageAmount);
+    return ANIMAL_CAGE_COST.map((cost) => cost * event.amount);
   }
 
   if (isTrapperCageProductionEvent(event)) {
@@ -1223,7 +1215,7 @@ export const getEventCost = (
       return [0, 0, 0, 0];
     }
 
-    return TRAPPER_CAGE_COST.map((cost) => cost * event.cageAmount);
+    return TRAPPER_CAGE_COST.map((cost) => cost * event.amount);
   }
 
   if (isHuntersLodgeHuntEvent(event)) {
@@ -1496,7 +1488,7 @@ export const getEventDuration = (
       schema: speedSchema,
     })!;
 
-    return (ANIMAL_CAGE_BASE_DURATION * event.cageAmount) / speed;
+    return ANIMAL_CAGE_BASE_DURATION / speed;
   }
 
   if (isTrapperCageProductionEvent(event)) {
@@ -1514,7 +1506,7 @@ export const getEventDuration = (
       schema: speedSchema,
     })!;
 
-    return (TRAPPER_CAGE_BASE_DURATION * event.cageAmount) / speed;
+    return TRAPPER_CAGE_BASE_DURATION / speed;
   }
 
   if (isHuntersLodgeHuntEvent(event)) {

@@ -19,14 +19,14 @@ import type { Resolver } from '../resolver';
 export const animalCageProductionResolver: Resolver<
   GameEvent<'animalCageProduction'>
 > = (database, args) => {
-  const { cageAmount, villageId } = args;
+  const { villageId } = args;
 
   database.exec({
     sql: insertHeroItemIntoHeroInventoryQuery,
     bind: {
       $village_id: villageId,
       $item_id: ANIMAL_CAGE_ITEM_ID,
-      $amount: cageAmount,
+      $amount: 1,
     },
   });
 
