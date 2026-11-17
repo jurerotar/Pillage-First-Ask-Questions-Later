@@ -867,10 +867,35 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isResourceTransferEvent(event)) {
-    const { village, merchant, marketplaceLevel, usedMerchantAmount } =
-      getVillageMerchantStats(database, event.villageId);
     const totalResourceAmount = getTotalResourceAmount(event.resources);
     const isReturnTransfer = totalResourceAmount === 0;
+
+    if (isReturnTransfer) {
+      if (event.targetVillageId !== event.villageId) {
+        throw new Error('Merchant return must target the source village');
+      }
+
+      const village = getMarketplaceVillage(database, event.villageId);
+
+      if (!village) {
+        throw new Error(
+          'Target village does not exist or does not belong to player',
+        );
+      }
+
+      if (event.targetTileId !== village.tileId) {
+        throw new Error('Merchant return target tile must be source village');
+      }
+
+      if (event.merchantAmount <= 0) {
+        throw new Error('Merchant return must include merchants');
+      }
+
+      return;
+    }
+
+    const { village, merchant, marketplaceLevel, usedMerchantAmount } =
+      getVillageMerchantStats(database, event.villageId);
 
     const targetVillage = getMarketplaceVillage(
       database,
@@ -885,22 +910,6 @@ export const validateEventCreationPrerequisites = (
 
     if (targetVillage.tileId !== event.targetTileId) {
       throw new Error('Target tile does not belong to target village');
-    }
-
-    if (isReturnTransfer) {
-      if (event.targetVillageId !== event.villageId) {
-        throw new Error('Merchant return must target the source village');
-      }
-
-      if (event.targetTileId !== village.tileId) {
-        throw new Error('Merchant return target tile must be source village');
-      }
-
-      if (event.merchantAmount <= 0) {
-        throw new Error('Merchant return must include merchants');
-      }
-
-      return;
     }
 
     if (event.targetVillageId === event.villageId) {
