@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/api/testing';
+import {
+  createTestVillage,
+  prepareTestDatabase,
+  setTestVillageResources,
+} from '@pillage-first/api/testing';
 import {
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
@@ -22,6 +26,103 @@ import {
 } from '../building-resolvers';
 
 describe('building resolvers', () => {
+  describe.each([
+    'WAREHOUSE',
+    'GRANARY',
+    'GREAT_WAREHOUSE',
+    'GREAT_GRANARY',
+  ] as const)('%s storage loss', (buildingId) => {
+    test.each(['demolition', 'downgrade'] as const)(
+      'persists the reduced resource limit after %s',
+      async (change) => {
+        using database = await prepareTestDatabase();
+
+        const timestamp = 10_000;
+        const { id: villageId, tileId } = createTestVillage(
+          database,
+          'Storage test',
+          {
+            resourceSite: { updatedAt: timestamp },
+          },
+        );
+        const buildingFieldId = 20;
+
+        createBuildingPlaceholder(
+          database,
+          villageId,
+          buildingFieldId,
+          buildingId,
+        );
+
+        const event = createBuildingLevelChangeEventMock({
+          villageId,
+          buildingFieldId,
+          buildingId,
+          previousLevel: 0,
+          level: 10,
+          resolvesAt: timestamp,
+        });
+
+        buildingLevelChangeResolver(database, event);
+
+        const isGranary = buildingId.endsWith('GRANARY');
+
+        setTestVillageResources(
+          database,
+          tileId,
+          {
+            wood: isGranary ? 100 : 5000,
+            clay: isGranary ? 100 : 5000,
+            iron: isGranary ? 100 : 5000,
+            wheat: isGranary ? 5000 : 100,
+          },
+          timestamp,
+        );
+
+        if (change === 'demolition') {
+          buildingDestructionResolver(
+            database,
+            createBuildingDestructionEventMock({
+              villageId,
+              buildingFieldId,
+              buildingId,
+              previousLevel: 10,
+              resolvesAt: timestamp,
+            }),
+          );
+        } else {
+          buildingLevelChangeResolver(database, {
+            ...event,
+            previousLevel: 10,
+            level: 1,
+          });
+        }
+
+        const resources = database.selectObject({
+          sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
+          bind: { $tile_id: tileId },
+          schema: z.strictObject({
+            wood: z.number(),
+            clay: z.number(),
+            iron: z.number(),
+            wheat: z.number(),
+          }),
+        })!;
+        const reducedCapacity =
+          change === 'demolition'
+            ? 800
+            : 800 + (buildingId.startsWith('GREAT_') ? 1200 : 400);
+
+        expect(resources).toEqual({
+          wood: isGranary ? 100 : reducedCapacity,
+          clay: isGranary ? 100 : reducedCapacity,
+          iron: isGranary ? 100 : reducedCapacity,
+          wheat: isGranary ? reducedCapacity : 100,
+        });
+      },
+    );
+  });
+
   test('removing a scheduled new-building placeholder removes its field and effects', async () => {
     using database = await prepareTestDatabase();
     const villageId = 1;
