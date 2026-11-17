@@ -4,6 +4,12 @@
 
 - [UIUXImprovement] Added training durations for the full queue.
 - [TechnicalImprovement] Added support for building durability effect for upcoming siege modifiers.
+- [TechnicalImprovement] You will no longer have to wait for whole batch to finish when producing Gaul Traps and Animal
+  Cages. Instead, each trap and cage will now become available as soon as it completes its individual production.
+- [Performance] Removed some unnecessary SQL queries when resolving trade routes.
+- [BugFix] Fixed an issue where demolishing a Granary while having negative production would not decrease your held
+  resources.
+- [BugFix] Fixed an issue where trade routes could leave players without their resources in certain scenarios.
 
 ## Version 0.4.83
 
