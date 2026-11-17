@@ -27,11 +27,11 @@ export const baseEventDtoSchema = z
 
 const optionalTimingSchema = {
   startsAt: z.number().optional(),
-  duration: z.number().optional(),
+  duration: z.number().nonnegative().optional(),
 };
 
 const villageEventSchema = {
-  villageId: z.number(),
+  villageId: z.int().positive(),
   ...optionalTimingSchema,
 };
 
@@ -42,10 +42,10 @@ const globalEventSchema = {
 
 const buildingEventSchema = {
   ...villageEventSchema,
-  buildingFieldId: z.number(),
+  buildingFieldId: z.int().positive(),
   buildingId: buildingIdSchema,
-  level: z.number(),
-  previousLevel: z.number(),
+  level: z.int().nonnegative(),
+  previousLevel: z.int().nonnegative(),
 };
 
 const troopMovementEventSchema = {
@@ -62,7 +62,7 @@ const merchantMovementEventSchema = {
   ...villageEventSchema,
   originTileId: tileIdSchema,
   targetTileId: tileIdSchema,
-  targetVillageId: z.number(),
+  targetVillageId: z.int().positive(),
   resources: resourcesSchema,
 };
 
@@ -113,7 +113,7 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('troopTraining'),
       ...villageEventSchema,
-      batchId: z.string(),
+      batchId: z.string().min(1),
       amount: z.int().positive(),
       unitId: unitIdSchema,
       durationEffectId: troopTrainingDurationEffectIdSchema,
@@ -128,7 +128,7 @@ export const createEventDtoSchema = z
       type: z.literal('unitImprovement'),
       ...villageEventSchema,
       unitId: unitIdSchema,
-      level: z.number().max(20),
+      level: z.int().positive().max(20),
     }),
     z.strictObject({
       type: z.literal('animalCageProduction'),
@@ -145,7 +145,7 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('huntersLodgeHunt'),
       ...villageEventSchema,
-      huntingPartyLevel: z.number(),
+      huntingPartyLevel: z.int().positive(),
     }),
     z.strictObject({
       type: z.literal('gatherersHutGatheringTrip'),
@@ -195,7 +195,7 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('tradeRoute'),
       ...villageEventSchema,
-      tradeRouteId: z.number(),
+      tradeRouteId: z.int().positive(),
     }),
   ])
   .meta({ id: 'CreateEventDto' });

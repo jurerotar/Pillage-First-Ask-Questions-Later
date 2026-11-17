@@ -9,9 +9,9 @@ import { resourceFieldCompositionSchema } from '../models/resource-field-composi
 export const rearrangeBuildingFieldsDtoSchema = z
   .array(
     z.strictObject({
-      buildingFieldId: z.int(),
+      buildingFieldId: z.int().positive(),
       buildingId: buildingIdSchema.nullable(),
-      sourceBuildingFieldId: z.int().nullable(),
+      sourceBuildingFieldId: z.int().positive().nullable(),
     }),
   )
   .refine(

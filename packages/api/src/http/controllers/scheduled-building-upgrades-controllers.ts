@@ -32,7 +32,7 @@ export const getScheduledBuildingUpgrades = createController(
   {
     summary: 'Get scheduled building upgrades',
     requestParams: {
-      path: z.strictObject({ villageId: z.coerce.number() }),
+      path: z.strictObject({ villageId: z.coerce.number().int().positive() }),
     },
     response: z.array(scheduledBuildingUpgradeSchema),
   },
@@ -46,7 +46,7 @@ export const scheduleBuildingUpgrade = createController(
   {
     summary: 'Schedule a building upgrade',
     requestParams: {
-      path: z.strictObject({ villageId: z.coerce.number() }),
+      path: z.strictObject({ villageId: z.coerce.number().int().positive() }),
     },
     requestBody: scheduleBuildingUpgradeSchema,
   },
@@ -160,7 +160,7 @@ export const reorderScheduledBuildingUpgrades = createController(
   {
     summary: 'Reorder scheduled building upgrades',
     requestParams: {
-      path: z.strictObject({ villageId: z.coerce.number() }),
+      path: z.strictObject({ villageId: z.coerce.number().int().positive() }),
     },
     requestBody: reorderScheduledBuildingUpgradesSchema,
   },
@@ -210,8 +210,8 @@ export const cancelScheduledBuildingUpgrade = createController(
     summary: 'Cancel a scheduled building upgrade',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
-        scheduledUpgradeId: z.coerce.number(),
+        villageId: z.coerce.number().int().positive(),
+        scheduledUpgradeId: z.coerce.number().int().positive(),
       }),
     },
   },

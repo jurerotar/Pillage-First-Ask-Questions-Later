@@ -11,13 +11,13 @@ export const scheduledBuildingUpgradeSchema = z.strictObject({
 
 export const scheduleBuildingUpgradeSchema = z.strictObject({
   buildingId: buildingIdSchema,
-  buildingFieldId: z.number(),
-  level: z.number(),
+  buildingFieldId: z.int().positive(),
+  level: z.int().nonnegative(),
 });
 
 export const reorderScheduledBuildingUpgradesSchema = z.strictObject({
   scheduledUpgradeIds: z
-    .array(z.number())
+    .array(z.int().positive())
     .max(5)
     .refine((ids) => new Set(ids).size === ids.length, {
       message: 'Scheduled upgrade IDs must be unique',
