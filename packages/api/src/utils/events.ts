@@ -209,10 +209,6 @@ export const validateEventCreationPrerequisites = (
   if (isUnitImprovementEvent(event)) {
     const { villageId, level } = event;
 
-    if (level > 20) {
-      throw new Error('Unit upgrade level cannot exceed 20');
-    }
-
     const smithyLevel =
       database.selectValue({
         sql: selectVillageBuildingLevelQuery,
@@ -345,10 +341,6 @@ export const validateEventCreationPrerequisites = (
 
     if (unit.tribe !== 'all' && unit.tribe !== tribe) {
       throw new Error('Unit does not belong to village tribe');
-    }
-
-    if (!Number.isInteger(amount) || amount <= 0) {
-      throw new Error('Unit training amount must be positive');
     }
 
     if (unit.researchRequirements.length > 0) {
@@ -548,10 +540,6 @@ export const validateEventCreationPrerequisites = (
       throw new Error("Gatherer's Hut is busy");
     }
 
-    if (!Array.isArray(troops) || troops.length === 0) {
-      throw new Error('Gathering trip must include troops');
-    }
-
     const { villageTileId, playerTribe } = database.selectObject({
       sql: `
         SELECT
@@ -575,10 +563,6 @@ export const validateEventCreationPrerequisites = (
     const troopAmountsByUnitId = new Map<string, number>();
 
     for (const troop of troops) {
-      if (!Number.isInteger(troop.amount) || troop.amount <= 0) {
-        throw new Error('Gathering trip troop amount must be positive');
-      }
-
       const unit = getUnitDefinition(troop.unitId);
 
       if (unit.id === 'HERO') {

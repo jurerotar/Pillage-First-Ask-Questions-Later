@@ -272,14 +272,13 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       expect(() =>
-        validateEventCreationPrerequisites(
-          database,
-          createUnitImprovementEventMock({
-            villageId,
-            level: 21,
-          }),
-        ),
-      ).toThrow('Unit upgrade level cannot exceed 20');
+        createEvents<'unitImprovement'>(database, {
+          type: 'unitImprovement',
+          villageId,
+          unitId: 'PHALANX',
+          level: 21,
+        }),
+      ).toThrow(z.ZodError);
     });
 
     test('unitImprovement - should throw if smithy level is lower than requested upgrade level', async () => {

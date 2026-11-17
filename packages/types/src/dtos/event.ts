@@ -114,7 +114,7 @@ export const createEventDtoSchema = z
       type: z.literal('troopTraining'),
       ...villageEventSchema,
       batchId: z.string(),
-      amount: z.number(),
+      amount: z.int().positive(),
       unitId: unitIdSchema,
       durationEffectId: troopTrainingDurationEffectIdSchema,
       buildingId: buildingIdSchema,
@@ -128,7 +128,7 @@ export const createEventDtoSchema = z
       type: z.literal('unitImprovement'),
       ...villageEventSchema,
       unitId: unitIdSchema,
-      level: z.number(),
+      level: z.number().max(20),
     }),
     z.strictObject({
       type: z.literal('animalCageProduction'),
@@ -150,7 +150,7 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('gatherersHutGatheringTrip'),
       ...villageEventSchema,
-      troops: z.array(troopSchema),
+      troops: z.array(troopSchema).min(1),
     }),
     z.strictObject({
       type: gameEventTypeSchema.extract([
