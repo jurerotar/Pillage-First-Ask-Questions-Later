@@ -68,7 +68,6 @@ import {
   isBuildingEvent,
   isBuildingLevelChangeEvent,
   isCulturePointsCelebrationEvent,
-  isFindNewVillageTroopMovementEvent,
   isGatherersHutGatheringTripEvent,
   isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
@@ -107,7 +106,6 @@ import {
   addPlayerCulturePoints,
   calculateCulturePointsCelebrationReward,
   calculatePlayerCulturePointsProduction,
-  updatePlayerCulturePointsAt,
 } from './culture-points';
 import {
   getMarketplaceVillage,
@@ -1033,14 +1031,6 @@ export const runEventCreationSideEffects = (
   }
 
   if (isTroopMovementEvent(event) && !isReturnTroopMovementEvent(event)) {
-    if (isFindNewVillageTroopMovementEvent(event)) {
-      updatePlayerCulturePointsAt(
-        database,
-        now,
-        getVillagePlayerId(database, event.villageId),
-      );
-    }
-
     const troopMovementEvents = events as TroopMovementEvent[];
 
     removeTroops(
