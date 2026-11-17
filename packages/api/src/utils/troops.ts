@@ -16,8 +16,8 @@ import {
   isReturnTroopMovementEvent,
 } from '@pillage-first/utils/guards/event';
 import {
+  calculatePlayerCulturePointsAt,
   getPlayerCulturePointsRequirementContext,
-  updatePlayerCulturePointsAt,
 } from './culture-points';
 import { getVillagePlayerId } from './village';
 
@@ -197,6 +197,61 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
   });
 };
 
+const calculateWoundedTroopAmountAt = (
+  amount: number,
+  updatedAt: number,
+  timestamp: number,
+): number => {
+  const elapsed = Math.max(0, timestamp - updatedAt);
+
+  return Math.floor(
+    amount *
+      (1 - WOUNDED_TROOP_DECAY_RATE_PER_DAY) ** (elapsed / DAY_IN_MILLISECONDS),
+  );
+};
+
+export const getWoundedTroopAmountAt = (
+  database: DbFacade,
+  villageId: number,
+  unitId: Unit['id'],
+  timestamp: number,
+): number => {
+  const troop = database.selectObject({
+    sql: `
+      SELECT
+        amount,
+        updated_at
+      FROM
+        wounded_troops
+      WHERE
+        village_id = $village_id
+        AND unit_id = (
+          SELECT id
+          FROM unit_ids
+          WHERE unit = $unit_id
+        );
+    `,
+    bind: {
+      $village_id: villageId,
+      $unit_id: unitId,
+    },
+    schema: z.strictObject({
+      amount: z.number(),
+      updated_at: z.number(),
+    }),
+  });
+
+  if (!troop) {
+    return 0;
+  }
+
+  return calculateWoundedTroopAmountAt(
+    troop.amount,
+    troop.updated_at,
+    timestamp,
+  );
+};
+
 export const materializeWoundedTroopsAt = (
   database: DbFacade,
   villageId: number,
@@ -231,10 +286,10 @@ export const materializeWoundedTroopsAt = (
       continue;
     }
 
-    const elapsedDays = elapsed / DAY_IN_MILLISECONDS;
-    const remainingAmount = Math.floor(
-      woundedTroop.amount *
-        (1 - WOUNDED_TROOP_DECAY_RATE_PER_DAY) ** elapsedDays,
+    const remainingAmount = calculateWoundedTroopAmountAt(
+      woundedTroop.amount,
+      woundedTroop.updated_at,
+      timestamp,
     );
 
     if (remainingAmount <= 0) {
@@ -286,36 +341,6 @@ export const materializeWoundedTroopsAt = (
       });
     }
   }
-};
-
-export const selectWoundedTroopAmount = (
-  database: DbFacade,
-  villageId: number,
-  unitId: Unit['id'],
-) => {
-  return (
-    database.selectValue({
-      sql: `
-        SELECT amount
-        FROM
-          wounded_troops
-        WHERE
-          village_id = $village_id
-          AND unit_id = (
-            SELECT id
-            FROM
-              unit_ids
-            WHERE
-              unit = $unit_id
-          );
-      `,
-      bind: {
-        $village_id: villageId,
-        $unit_id: unitId,
-      },
-      schema: z.number().nullable(),
-    }) ?? 0
-  );
 };
 
 export const removeWoundedTroops = (
@@ -424,6 +449,7 @@ export const removeWoundedTroops = (
 export const validateTroopMovement = (
   database: DbFacade,
   event: Partial<TroopMovementEvent>,
+  timestamp = Date.now(),
 ): string[] => {
   const troopMovementEvent = event as TroopMovementEvent;
 
@@ -554,9 +580,9 @@ export const validateTroopMovement = (
     if (villageId !== undefined) {
       const playerId = getVillagePlayerId(database, villageId);
 
-      const culturePoints = updatePlayerCulturePointsAt(
+      const culturePoints = calculatePlayerCulturePointsAt(
         database,
-        Date.now(),
+        timestamp,
         playerId,
       )!;
 

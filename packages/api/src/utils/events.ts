@@ -68,6 +68,7 @@ import {
   isBuildingEvent,
   isBuildingLevelChangeEvent,
   isCulturePointsCelebrationEvent,
+  isFindNewVillageTroopMovementEvent,
   isGatherersHutGatheringTripEvent,
   isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
@@ -106,6 +107,7 @@ import {
   addPlayerCulturePoints,
   calculateCulturePointsCelebrationReward,
   calculatePlayerCulturePointsProduction,
+  updatePlayerCulturePointsAt,
 } from './culture-points';
 import {
   getMarketplaceVillage,
@@ -120,10 +122,10 @@ import {
 } from './quests';
 import { getTradeRouteById } from './trade-routes';
 import {
+  getWoundedTroopAmountAt,
   materializeWoundedTroopsAt,
   removeTroops,
   removeWoundedTroops,
-  selectWoundedTroopAmount,
   validateTroopMovement,
 } from './troops';
 import {
@@ -204,6 +206,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
 export const validateEventCreationPrerequisites = (
   database: DbFacade,
   event: GameEvent,
+  now = Date.now(),
 ): void => {
   if (isUnitImprovementEvent(event)) {
     const { villageId, level } = event;
@@ -395,12 +398,11 @@ export const validateEventCreationPrerequisites = (
         throw new Error('Only infantry and cavalry can be healed');
       }
 
-      materializeWoundedTroopsAt(database, villageId, Date.now());
-
-      const woundedAmount = selectWoundedTroopAmount(
+      const woundedAmount = getWoundedTroopAmountAt(
         database,
         villageId,
         unitId,
+        now,
       );
 
       if (amount > woundedAmount) {
@@ -836,7 +838,7 @@ export const validateEventCreationPrerequisites = (
   if (isAdventureTroopMovementEvent(event)) {
     const { available: adventurePoints } = getPlayerHeroAdventureStateAt(
       database,
-      Date.now(),
+      now,
       getVillagePlayerId(database, event.villageId),
     );
 
@@ -944,7 +946,7 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTroopMovementEvent(event)) {
-    const errors = validateTroopMovement(database, event);
+    const errors = validateTroopMovement(database, event, now);
 
     if (errors.length > 0) {
       throw new Error(errors[0]);
@@ -990,6 +992,7 @@ export const validateEventCreationPrerequisites = (
 export const runEventCreationSideEffects = (
   database: DbFacade,
   events: GameEvent[],
+  now = Date.now(),
 ) => {
   const [event] = events;
 
@@ -1002,7 +1005,6 @@ export const runEventCreationSideEffects = (
       schema: z.number(),
     })!;
 
-    const now = Date.now();
     const { available } = materializeHeroAdventurePointsAt(
       database,
       heroId,
@@ -1030,6 +1032,14 @@ export const runEventCreationSideEffects = (
   }
 
   if (isTroopMovementEvent(event) && !isReturnTroopMovementEvent(event)) {
+    if (isFindNewVillageTroopMovementEvent(event)) {
+      updatePlayerCulturePointsAt(
+        database,
+        now,
+        getVillagePlayerId(database, event.villageId),
+      );
+    }
+
     const troopMovementEvents = events as TroopMovementEvent[];
 
     removeTroops(
@@ -1043,8 +1053,6 @@ export const runEventCreationSideEffects = (
   }
 
   if (isTroopTrainingEvent(event)) {
-    const now = Date.now();
-
     if (isHealingTroopTrainingBuilding(event.buildingId)) {
       materializeWoundedTroopsAt(database, event.villageId, now);
       removeWoundedTroops(database, [
