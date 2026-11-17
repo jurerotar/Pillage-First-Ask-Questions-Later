@@ -173,7 +173,6 @@ export const reorderScheduledBuildingUpgrades = createController(
 
     if (
       scheduledUpgradeIds.length !== scheduledUpgrades.length ||
-      new Set(scheduledUpgradeIds).size !== scheduledUpgradeIds.length ||
       scheduledUpgradeIds.some((id) => !upgradesById.has(id))
     ) {
       throw new Error('Scheduled upgrade order must include the entire queue');

@@ -1065,46 +1065,5 @@ describe('village-controllers', () => {
         ),
       ).toThrow('Invalid rearranged building source field');
     });
-
-    test('should reject duplicate source fields', async () => {
-      using database = await prepareTestDatabase();
-
-      const villageId = database.selectValue({
-        sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.number(),
-      })!;
-
-      database.exec({
-        sql: `
-          INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
-          VALUES
-            ($v, 19, (SELECT id FROM building_ids WHERE building = 'GRANARY'), 4);
-        `,
-        bind: { $v: villageId },
-      });
-
-      expect(() =>
-        rearrangeBuildingFields(
-          database,
-          createControllerArgs<'/villages/:villageId/building-fields', 'patch'>(
-            {
-              path: { villageId },
-              body: [
-                {
-                  buildingFieldId: 20,
-                  buildingId: 'GRANARY',
-                  sourceBuildingFieldId: 19,
-                },
-                {
-                  buildingFieldId: 21,
-                  buildingId: 'GRANARY',
-                  sourceBuildingFieldId: 19,
-                },
-              ],
-            },
-          ),
-        ),
-      ).toThrow('Duplicate rearranged building source field');
-    });
   });
 });

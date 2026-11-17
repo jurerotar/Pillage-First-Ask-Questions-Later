@@ -16,5 +16,10 @@ export const scheduleBuildingUpgradeSchema = z.strictObject({
 });
 
 export const reorderScheduledBuildingUpgradesSchema = z.strictObject({
-  scheduledUpgradeIds: z.array(z.number()).max(5),
+  scheduledUpgradeIds: z
+    .array(z.number())
+    .max(5)
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: 'Scheduled upgrade IDs must be unique',
+    }),
 });

@@ -1,9 +1,49 @@
 import { z } from 'zod';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
+import { buildingIdSchema } from '../models/building';
 import { buildingFieldSchema } from '../models/building-field';
 import { coordinatesSchema } from '../models/coordinates';
 import { resourceSchema, resourcesSchema } from '../models/resource';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
+
+export const rearrangeBuildingFieldsDtoSchema = z
+  .array(
+    z.strictObject({
+      buildingFieldId: z.int(),
+      buildingId: buildingIdSchema.nullable(),
+      sourceBuildingFieldId: z.int().nullable(),
+    }),
+  )
+  .refine(
+    (updates) => {
+      const sourceFieldIds = new Set<number>();
+
+      for (const {
+        buildingFieldId,
+        buildingId,
+        sourceBuildingFieldId,
+      } of updates) {
+        // Rearrangement ignores resource fields, the rally point, and the wall.
+        if (
+          buildingFieldId < 19 ||
+          buildingFieldId > 38 ||
+          buildingId === null ||
+          sourceBuildingFieldId === null
+        ) {
+          continue;
+        }
+
+        if (sourceFieldIds.has(sourceBuildingFieldId)) {
+          return false;
+        }
+
+        sourceFieldIds.add(sourceBuildingFieldId);
+      }
+
+      return true;
+    },
+    { message: 'Duplicate rearranged building source field' },
+  );
 
 export const villageStorageResourceDtoSchema = z.strictObject({
   resource: resourceSchema,
