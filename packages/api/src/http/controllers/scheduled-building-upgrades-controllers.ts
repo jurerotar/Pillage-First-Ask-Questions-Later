@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import { selectRelevantActiveBuildingConstructionExistsQuery } from '../../queries/event-queries';
@@ -77,12 +76,6 @@ export const scheduleBuildingUpgrade = createController(
 
     if (activeAndScheduledCount >= 5) {
       throw new BuildingConstructionQueueFullError();
-    }
-
-    const { maxLevel } = getBuildingDefinition(buildingId);
-
-    if (level > maxLevel) {
-      throw new Error('Building level cannot exceed max level');
     }
 
     const currentVirtualLevel = db.selectValue({

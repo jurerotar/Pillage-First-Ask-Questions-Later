@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 
 export const scheduledBuildingUpgradeSchema = z.strictObject({
@@ -9,11 +10,17 @@ export const scheduledBuildingUpgradeSchema = z.strictObject({
   level: z.number(),
 });
 
-export const scheduleBuildingUpgradeSchema = z.strictObject({
-  buildingId: buildingIdSchema,
-  buildingFieldId: z.int().positive(),
-  level: z.int().nonnegative(),
-});
+export const scheduleBuildingUpgradeSchema = z
+  .strictObject({
+    buildingId: buildingIdSchema,
+    buildingFieldId: z.int().positive(),
+    level: z.int().nonnegative(),
+  })
+  .refine(
+    ({ buildingId, level }) =>
+      level <= (getBuildingDefinition(buildingId)?.maxLevel ?? -1),
+    { message: 'Building level cannot exceed max level', path: ['level'] },
+  );
 
 export const reorderScheduledBuildingUpgradesSchema = z.strictObject({
   scheduledUpgradeIds: z
