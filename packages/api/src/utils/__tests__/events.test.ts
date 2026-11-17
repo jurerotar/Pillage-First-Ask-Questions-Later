@@ -121,7 +121,9 @@ describe('events utils', () => {
       'resourceTransfer - validates a %s return without merchant stats or writes',
       async (scenario, error) => {
         using database = await prepareTestDatabase();
+
         const source = getAnyVillageWithTile(database);
+
         const event = createResourceTransferEventMock({
           villageId: source.id,
           targetVillageId: source.id,
@@ -147,6 +149,7 @@ describe('events utils', () => {
                   schema: z.number(),
                 })!
               : PLAYER_ID;
+
           const target = createTestVillage(
             database,
             'Return validation target',
@@ -166,6 +169,7 @@ describe('events utils', () => {
         database.exec({ sql: 'PRAGMA query_only = ON;' });
 
         using selectObject = vi.spyOn(database, 'selectObject');
+
         const validate = () =>
           validateEventCreationPrerequisites(database, event);
 
@@ -178,6 +182,7 @@ describe('events utils', () => {
         expect(selectObject).toHaveBeenCalledTimes(
           event.targetVillageId === event.villageId ? 1 : 0,
         );
+
         expect(selectObject).not.toHaveBeenCalledWith(
           expect.objectContaining({
             sql: selectVillageMerchantStatsByVillageIdQuery,
