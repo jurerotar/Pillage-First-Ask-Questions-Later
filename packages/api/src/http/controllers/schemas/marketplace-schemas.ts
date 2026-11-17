@@ -19,6 +19,10 @@ export const transferResourcesBodySchema = resourceTransferPayloadSchema.extend(
 
 export const createTradeRouteBodySchema = tradeRouteScheduleSchema.safeExtend({
   ...resourceTransferPayloadSchema.shape,
+  resources: resourcesSchema.refine(
+    ({ wood, clay, iron, wheat }) => wood + clay + iron + wheat > 0,
+    { message: 'Trade route must include resources' },
+  ),
   minimumMerchants: tradeRouteSchema.shape.minimumMerchants,
   minimumResources: resourcesSchema,
 });

@@ -115,8 +115,6 @@ describe('events utils', () => {
       ['foreign target', 'Merchant return must target the source village'],
       ['wrong tile', 'Merchant return target tile must be source village'],
       ['different source', 'Merchant return must target the source village'],
-      ['zero merchants', 'Merchant return must include merchants'],
-      ['negative merchants', 'Merchant return must include merchants'],
     ] as const)(
       'resourceTransfer - validates a %s return without merchant stats or writes',
       async (scenario, error) => {
@@ -160,10 +158,6 @@ describe('events utils', () => {
           event.targetTileId = target.tileId;
         } else if (scenario === 'wrong tile') {
           event.targetTileId = source.tileId + 1;
-        } else if (scenario === 'zero merchants') {
-          event.merchantAmount = 0;
-        } else if (scenario === 'negative merchants') {
-          event.merchantAmount = -1;
         }
 
         database.exec({ sql: 'PRAGMA query_only = ON;' });

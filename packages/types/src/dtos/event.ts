@@ -68,7 +68,7 @@ const merchantMovementEventSchema = {
 
 const resourceTransferEventSchema = {
   ...merchantMovementEventSchema,
-  merchantAmount: z.number(),
+  merchantAmount: z.int().positive(),
   repeatRemaining: z.number().int().min(0).max(4),
   repeatResources: resourcesSchema,
 };
@@ -163,6 +163,7 @@ export const createEventDtoSchema = z
         'troopMovementAdventure',
       ]),
       ...troopMovementEventSchema,
+      troops: z.array(troopSchema).min(1),
     }),
     z.strictObject({
       type: z.literal('troopMovementReturn'),

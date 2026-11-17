@@ -869,10 +869,6 @@ export const validateEventCreationPrerequisites = (
         throw new Error('Merchant return target tile must be source village');
       }
 
-      if (event.merchantAmount <= 0) {
-        throw new Error('Merchant return must include merchants');
-      }
-
       return;
     }
 

@@ -15,7 +15,6 @@ import {
   getMarketplaceVillage,
   getMarketplaceVillageWithTargetByTileId,
   getMerchantAmount,
-  getTotalResourceAmount,
   getVillageMerchantStats,
 } from './marketplace';
 
@@ -98,14 +97,6 @@ export const validateTradeRoute = (
 
   if (targetVillage.tileId !== route.targetTileId) {
     throw new Error('Target tile does not belong to target village');
-  }
-
-  if (getTotalResourceAmount(route.resources) <= 0) {
-    throw new Error('Trade route must include resources');
-  }
-
-  if (!Number.isFinite(route.interval) || route.interval <= 0) {
-    throw new Error('Trade route interval must be positive');
   }
 
   const merchantAmount = getMerchantAmount(
