@@ -11,12 +11,6 @@ const VillageSelectResultRowSchema = z.strictObject({
   y: z.number(),
 });
 
-const OasisSelectResultRowSchema = z.strictObject({
-  id: z.number(),
-  bonus: z.number(),
-  count_per_tile: z.number(),
-});
-
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
   ['xxs', 6300],
   ['xs', 6300],
@@ -47,21 +41,6 @@ export const resourceSitesSeeder = (
     schema: VillageSelectResultRowSchema,
   });
 
-  const oasis = database.selectObjects({
-    sql: `
-      SELECT
-        tiles.id,
-        COUNT(oasis.tile_id) AS count_per_tile,
-        MAX(oasis.bonus) AS bonus
-      FROM
-        tiles
-          INNER JOIN oasis ON tiles.id = oasis.tile_id
-      GROUP BY
-        tiles.id;
-    `,
-    schema: OasisSelectResultRowSchema,
-  });
-
   for (const { id, x, y } of villages) {
     const isStartingVillage = x === 0 && y === 0;
 
@@ -82,22 +61,26 @@ export const resourceSitesSeeder = (
     results.push([id, wood, clay, iron, wheat, updatedAt]);
   }
 
-  for (const { id, bonus, count_per_tile } of oasis) {
-    // If oasis has a 50% bonus or there's multiple bonuses, it has a higher resource limit
-    const resourceAmount = bonus === 50 || count_per_tile === 2 ? 2000 : 1000;
-    const [wood, clay, iron, wheat] = [
-      resourceAmount,
-      resourceAmount,
-      resourceAmount,
-      resourceAmount,
-    ];
-    results.push([id, wood, clay, iron, wheat, updatedAt]);
-  }
-
   batchInsert(
     database,
     'resource_sites',
     ['tile_id', 'wood', 'clay', 'iron', 'wheat', 'updated_at'],
     results,
   );
+
+  database.exec({
+    sql: `
+      WITH oasis_resources AS (
+        SELECT
+          tile_id,
+          CASE WHEN MAX(bonus) = 50 OR COUNT(*) = 2 THEN 2000 ELSE 1000 END AS amount
+        FROM oasis
+        GROUP BY tile_id
+      )
+      INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
+      SELECT tile_id, amount, amount, amount, amount, $updated_at
+      FROM oasis_resources;
+    `,
+    bind: { $updated_at: updatedAt },
+  });
 };

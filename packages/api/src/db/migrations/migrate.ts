@@ -226,7 +226,7 @@ export const migrateAndSeed = (
 
     // Tiles
     db.execMulti({ sql: createTilesTable });
-    tilesSeeder(db, server);
+    const oasisBonuses = tilesSeeder(db, server);
     db.execMulti({ sql: createTilesIndexes });
 
     // Loyalties
@@ -239,7 +239,7 @@ export const migrateAndSeed = (
 
     // Oasis bonuses
     db.execMulti({ sql: createOasisBonusesTable });
-    oasisSeeder(db, server);
+    oasisSeeder(db, oasisBonuses);
     db.execMulti({ sql: createOasisBonusesIndexes });
 
     onProgress?.();
