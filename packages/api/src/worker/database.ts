@@ -62,21 +62,33 @@ export const openWorkerDatabase = async (
       preserveOnInitFailure: true,
     };
 
-    opfsSahPool = await sqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions);
+    const pool = await sqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions);
+    opfsSahPool = pool;
 
     const databasePath = `/${serverSlug}.sqlite3`;
 
-    fileNames = opfsSahPool.getFileNames();
+    fileNames = pool.getFileNames();
 
     if (!fileNames.includes(databasePath)) {
       throw new MissingGameWorldDatabaseError();
     }
 
-    database = new opfsSahPool.OpfsSAHPoolDb(databasePath);
+    const connection = new pool.OpfsSAHPoolDb(databasePath);
+    database = connection;
 
-    dbFacade = createDbFacade(database, () =>
-      sqlite3!.capi.sqlite3_js_db_export(database!.pointer!, 'main'),
-    );
+    dbFacade = createDbFacade(connection, () => {
+      const checkpointStatus = connection.selectValue(
+        'PRAGMA main.wal_checkpoint(TRUNCATE)',
+      );
+
+      if (checkpointStatus !== 0) {
+        throw new Error(
+          'Could not checkpoint the game world database for export',
+        );
+      }
+
+      return pool.exportFile(databasePath);
+    });
 
     dbFacade.execMulti({
       sql: `
