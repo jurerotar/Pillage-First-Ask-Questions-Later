@@ -5,6 +5,7 @@ import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportCapturedAnimalsTable from '../schemas/battle-report-captured-animals-schema.sql?raw';
 import createBattleReportConquestsTable from '../schemas/battle-report-conquests-schema.sql?raw';
@@ -752,6 +753,18 @@ export const upgradeDb = (
     db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
 
     try {
+      db.transaction((tx) => {
+        tx.execMulti({
+          sql: `
+            DROP INDEX IF EXISTS idx_effects_tile_id;
+            DROP INDEX IF EXISTS idx_effects_tile_effect_scope_spec;
+            DROP INDEX IF EXISTS idx_effects_resource_site_resources;
+          `,
+        });
+
+        tx.execMulti({ sql: createEffectsIndexes });
+      });
+
       db.transaction((tx) => {
         tx.execMulti({
           sql: `

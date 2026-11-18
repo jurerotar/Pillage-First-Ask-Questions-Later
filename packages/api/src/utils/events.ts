@@ -133,7 +133,7 @@ import {
   isUnitInVillageTribe,
 } from './unit-event-validation';
 import { getVillagePlayerId } from './village';
-import { apiEffectSchema } from './zod/effect-schemas';
+import { apiEffectsJsonSchema } from './zod/effect-schemas';
 
 const nonMetaEventProperties = new Set([
   'id',
@@ -1302,14 +1302,14 @@ export const getEventDuration = (
 
     const { villageId, buildingId, level } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'buildingDuration',
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
     const tileId = database.selectValue({
       sql: selectVillageTileIdQuery,
       bind: {
@@ -1344,14 +1344,14 @@ export const getEventDuration = (
 
     const { villageId, unitId } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'unitResearchDuration',
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
     const tileId = database.selectValue({
       sql: selectVillageTileIdQuery,
       bind: {
@@ -1381,14 +1381,14 @@ export const getEventDuration = (
 
     const { villageId, unitId, level } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'unitImprovementDuration',
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
     const tileId = database.selectValue({
       sql: selectVillageTileIdQuery,
       bind: {
@@ -1421,14 +1421,14 @@ export const getEventDuration = (
 
     const { unitId, villageId, durationEffectId, buildingId } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: durationEffectId,
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
     const tileId = database.selectValue({
       sql: selectVillageTileIdQuery,
       bind: {
@@ -1581,13 +1581,13 @@ export const getEventDuration = (
 
     const { villageId, targetTileId, originTileId, troops } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectUnitSpeedRelevantEffectsQuery,
       bind: {
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
 
     const mapSize = database.selectValue({
       sql: selectServerMapSizeQuery,
