@@ -347,8 +347,10 @@ export const migrateAndSeed = (
     // Building fields
     db.execMulti({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
-    occupiedOasisSeeder(db, server);
     db.execMulti({ sql: createBuildingFieldsIndexes });
+
+    // Occupied oasis
+    occupiedOasisSeeder(db, server);
 
     // Trapper cages
     db.execMulti({ sql: createTrapperCagesTable });
