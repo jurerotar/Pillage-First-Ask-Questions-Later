@@ -59,16 +59,18 @@ globalThis.addEventListener(
 
       dbFacade = createDbFacade(database);
 
-      dbFacade.exec({
+      dbFacade.execMulti({
         sql: `
-        PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};
-        PRAGMA locking_mode=EXCLUSIVE;
-        PRAGMA foreign_keys=OFF;
-        PRAGMA journal_mode=OFF;
-        PRAGMA synchronous=OFF;
-        PRAGMA temp_store=MEMORY;
-        PRAGMA cache_size=-20000;
-      `,
+          -- Set the page size before the first write to the new database.
+          PRAGMA page_size = 16384;
+          PRAGMA locking_mode = EXCLUSIVE;
+          PRAGMA foreign_keys = OFF;
+          PRAGMA journal_mode = DELETE;
+          PRAGMA synchronous = FULL;
+          PRAGMA temp_store = MEMORY;
+          PRAGMA cache_size = -16384;
+          PRAGMA user_version = ${encodeAppVersionToDatabaseUserVersion(env.VERSION)};
+        `,
       });
 
       migrateAndSeed(dbFacade, server, () => {
