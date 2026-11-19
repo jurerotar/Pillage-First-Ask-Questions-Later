@@ -7,6 +7,10 @@
 - [TechnicalImprovement] You will no longer have to wait for whole batch to finish when producing Gaul Traps and Animal
   Cages. Instead, each trap and cage will now become available as soon as it completes its individual production.
 - [Performance] Removed some unnecessary SQL queries when resolving trade routes.
+- [Performance] New game worlds generate faster and use less memory.
+- [Performance] Reduced browser memory usage when exporting a game world.
+- [Performance] Improved database queries for gameplay effects, including resource production and troop movement speed.
+- [BugFix] Fixed training screens showing Academy requirements for troops that were already researched.
 - [BugFix] Fixed an issue where demolishing a Granary while having negative production would not decrease your held
   resources.
 - [BugFix] Fixed an issue where trade routes could leave players without their resources in certain scenarios.
