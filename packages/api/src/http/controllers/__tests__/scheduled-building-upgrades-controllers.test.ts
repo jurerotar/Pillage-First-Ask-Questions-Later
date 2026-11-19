@@ -5,7 +5,7 @@ import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
-import { insertEvents } from '../../../utils/events';
+import { insertEvents } from '../../../utils/insert-events';
 import { insertScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
   cancelScheduledBuildingUpgrade,

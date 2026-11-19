@@ -236,3 +236,6 @@ type TypedGameEvent<T extends GameEventType> = Omit<
 
 export type GameEvent<T extends GameEventType | undefined = undefined> =
   T extends GameEventType ? TypedGameEvent<T> : BaseGameEvent;
+
+export type NewGameEvent<T extends GameEventType | undefined = undefined> =
+  T extends GameEventType ? Omit<GameEvent<T>, 'id'> : Omit<GameEvent, 'id'>;

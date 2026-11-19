@@ -15,6 +15,7 @@ import type {
 import type { Village } from '@pillage-first/types/models/village';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import type { CreateEvents } from '../http/events/resolver';
 import {
   deleteScheduledBuildingUpgradeByIdQuery,
   deleteScheduledBuildingUpgradeChainQuery,
@@ -24,13 +25,12 @@ import {
   selectScheduledBuildingUpgradesQuery,
 } from '../queries/scheduled-building-upgrades-queries';
 import { postWorkerMessage } from '../worker/notification-port';
+import { getBuildingLevelChangeCost } from './building-level-change-cost';
 import { removeBuildingPlaceholder } from './building-placeholder';
 import {
   assertBuildingConstructionRequirementsAreMet,
   assessBuildingConstructionRequirements,
 } from './building-requirements';
-import { createEvents } from './create-event';
-import { getEventCost } from './events';
 import { insertScheduledConstructionCancellationReport } from './report';
 import { calculateResourceSiteResourcesAt, getVillageTileId } from './village';
 
@@ -172,15 +172,14 @@ const getMissingResourcesCancellationDetail = (
   ScheduledConstructionCancellationReasonDetail,
   { type: 'missing-resources' }
 > => {
-  const [woodCost, clayCost, ironCost, wheatCost] = getEventCost(database, {
-    type: 'buildingLevelChange',
-    villageId: scheduledUpgrade.villageId,
-    buildingId: scheduledUpgrade.buildingId,
-    buildingFieldId: scheduledUpgrade.buildingFieldId,
-    previousLevel: scheduledUpgrade.level - 1,
-    level: scheduledUpgrade.level,
-    startsAt: timestamp,
-  } as unknown as Parameters<typeof getEventCost>[1]);
+  const [woodCost, clayCost, ironCost, wheatCost] = getBuildingLevelChangeCost(
+    database,
+    {
+      buildingId: scheduledUpgrade.buildingId,
+      previousLevel: scheduledUpgrade.level - 1,
+      level: scheduledUpgrade.level,
+    },
+  );
 
   const { currentWood, currentClay, currentIron, currentWheat } =
     calculateResourceSiteResourcesAt(
@@ -318,6 +317,7 @@ const getScheduledConstructionCancellationReasonDetail = (
 };
 
 export const promoteNextScheduledBuildingUpgrade = (
+  createEvents: CreateEvents,
   database: DbFacade,
   villageId: Village['id'],
   startsAt?: number,

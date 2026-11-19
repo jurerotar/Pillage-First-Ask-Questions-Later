@@ -25,6 +25,7 @@ import {
   insertEffectQuery,
   selectWheatProductionEffectIdQuery,
 } from '../../../../queries/effect-queries';
+import { createEvents } from '../../../../utils/create-event';
 import { removeTroops } from '../../../../utils/troops';
 import { calculateResourceSiteResourcesAt } from '../../../../utils/village';
 import {
@@ -33,16 +34,14 @@ import {
 } from '../../../../utils/zod/event-schemas';
 import { createControllerArgs } from '../../../controllers/__tests__/utils/controller-args';
 import { getReport } from '../../../controllers/report-controllers';
-import {
-  adventureMovementResolver,
-  attackMovementResolver,
-  findNewVillageMovementResolver,
-  oasisOccupationMovementResolver,
-  raidMovementResolver,
-  reinforcementMovementResolver,
-  relocationMovementResolver,
-  returnMovementResolver,
-} from '../troop-movement-resolver';
+import { adventureMovementResolver } from '../troop-movement-adventure-resolver';
+import { attackMovementResolver } from '../troop-movement-attack-resolver';
+import { findNewVillageMovementResolver } from '../troop-movement-find-new-village-resolver';
+import { oasisOccupationMovementResolver } from '../troop-movement-oasis-occupation-resolver';
+import { raidMovementResolver } from '../troop-movement-raid-resolver';
+import { reinforcementMovementResolver } from '../troop-movement-reinforcements-resolver';
+import { relocationMovementResolver } from '../troop-movement-relocation-resolver';
+import { returnMovementResolver } from '../troop-movement-return-resolver';
 
 const mockRandom = (rolls: number[]) => {
   const random = vi.spyOn(Math, 'random').mockReturnValue(0);
@@ -116,7 +115,7 @@ const getVillageTileId = (database: DbFacade, villageId: number) =>
     schema: tileIdSchema,
   })!;
 
-describe(oasisOccupationMovementResolver, () => {
+describe('oasis occupation movement', () => {
   test('should occupy oasis and send troops back', async () => {
     using database = await prepareTestDatabase();
     const villageId = 1;
@@ -128,7 +127,7 @@ describe(oasisOccupationMovementResolver, () => {
 
     const resolvesAt = Date.now();
 
-    oasisOccupationMovementResolver(
+    oasisOccupationMovementResolver.resolve(
       database,
       createGameEventMock('troopMovementOasisOccupation', {
         villageId,
@@ -146,6 +145,7 @@ describe(oasisOccupationMovementResolver, () => {
           },
         ],
       }),
+      createEvents,
     );
 
     const occupyingVillageId = database.selectValue({
@@ -182,7 +182,7 @@ describe(oasisOccupationMovementResolver, () => {
   });
 });
 
-describe(adventureMovementResolver, () => {
+describe('adventure movement', () => {
   test('should handle hero surviving adventure', async () => {
     using database = await prepareTestDatabase();
 
@@ -224,7 +224,7 @@ describe(adventureMovementResolver, () => {
 
     using _random = mockRandom([0.1, 0.7, 0.75]);
 
-    adventureMovementResolver(database, mockEvent);
+    adventureMovementResolver.resolve(database, mockEvent, createEvents);
 
     const hero = database.selectObject({
       sql: 'SELECT health, experience FROM heroes WHERE id = $hero_id;',
@@ -367,7 +367,7 @@ describe(adventureMovementResolver, () => {
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     });
 
-    adventureMovementResolver(database, mockEvent);
+    adventureMovementResolver.resolve(database, mockEvent, createEvents);
 
     const hero = database.selectObject({
       sql: 'SELECT health, experience FROM heroes WHERE id = $hero_id;',
@@ -459,7 +459,7 @@ describe(adventureMovementResolver, () => {
   });
 });
 
-describe(relocationMovementResolver, () => {
+describe('relocation movement', () => {
   test('should update hero village_id and hero effects tile_id upon relocation', async () => {
     using database = await prepareTestDatabase();
 
@@ -491,7 +491,7 @@ describe(relocationMovementResolver, () => {
     });
 
     removeTroops(database, mockEvent.troops);
-    relocationMovementResolver(database, mockEvent);
+    relocationMovementResolver.resolve(database, mockEvent, createEvents);
 
     // Verify hero village_id update
     const heroVillageId = database.selectValue({
@@ -615,7 +615,7 @@ describe(relocationMovementResolver, () => {
       ],
     });
 
-    relocationMovementResolver(database, mockEvent);
+    relocationMovementResolver.resolve(database, mockEvent, createEvents);
 
     expect(getTroopWheatProductionEffectValue(database, sourceVillageId)).toBe(
       sourceEffectBefore - troopWheatConsumption,
@@ -626,7 +626,7 @@ describe(relocationMovementResolver, () => {
   });
 });
 
-describe(reinforcementMovementResolver, () => {
+describe('reinforcement movement', () => {
   test('should keep hero effects on origin village when hero is sent as reinforcement', async () => {
     using database = await prepareTestDatabase();
 
@@ -684,7 +684,7 @@ describe(reinforcementMovementResolver, () => {
       ],
     });
 
-    reinforcementMovementResolver(database, mockEvent);
+    reinforcementMovementResolver.resolve(database, mockEvent, createEvents);
 
     const sourceHeroEffectAfterTileIds = database.selectValues({
       sql: "SELECT tile_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);",
@@ -782,7 +782,7 @@ describe(reinforcementMovementResolver, () => {
       ],
     });
 
-    reinforcementMovementResolver(database, mockEvent);
+    reinforcementMovementResolver.resolve(database, mockEvent, createEvents);
 
     const heroVillageId = database.selectValue({
       sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id;',
@@ -863,7 +863,7 @@ describe(reinforcementMovementResolver, () => {
       ],
     });
 
-    reinforcementMovementResolver(database, mockEvent);
+    reinforcementMovementResolver.resolve(database, mockEvent, createEvents);
 
     expect(getTroopWheatProductionEffectValue(database, sourceVillageId)).toBe(
       sourceEffectBefore - troopWheatConsumption,
@@ -929,7 +929,7 @@ describe(reinforcementMovementResolver, () => {
       ],
     });
 
-    reinforcementMovementResolver(database, mockEvent);
+    reinforcementMovementResolver.resolve(database, mockEvent, createEvents);
 
     const reinforcedAmount = database.selectValue({
       sql: `
@@ -957,7 +957,7 @@ describe(reinforcementMovementResolver, () => {
   });
 });
 
-describe(findNewVillageMovementResolver, () => {
+describe('find new village movement', () => {
   test('charges settler upkeep until founding and preserves other troop upkeep', async () => {
     using database = await prepareTestDatabase();
     const sourceTileId = getVillageTileId(database, 1);
@@ -1015,7 +1015,7 @@ describe(findNewVillageMovementResolver, () => {
       bind: { $tile_id: sourceTileId, $starts_at: startsAt },
     });
 
-    findNewVillageMovementResolver(
+    findNewVillageMovementResolver.resolve(
       database,
       createTroopMovementFindNewVillageEventMock({
         villageId: 1,
@@ -1033,6 +1033,7 @@ describe(findNewVillageMovementResolver, () => {
           },
         ],
       }),
+      createEvents,
     );
 
     // The elapsed hour consumes 10 wheat; subsequent hours consume only the remaining 7.
@@ -1089,7 +1090,7 @@ describe(findNewVillageMovementResolver, () => {
       troops: [],
     });
 
-    findNewVillageMovementResolver(database, mockEvent);
+    findNewVillageMovementResolver.resolve(database, mockEvent, createEvents);
 
     // Verify village creation
     const newVillage = database.selectObject({
@@ -1276,7 +1277,7 @@ describe(findNewVillageMovementResolver, () => {
   });
 });
 
-describe(attackMovementResolver, () => {
+describe('attack movement', () => {
   test('should create a return event starting at the attack resolution time', async () => {
     using database = await prepareTestDatabase();
     const villageId = 1;
@@ -1293,7 +1294,7 @@ describe(attackMovementResolver, () => {
       targetTileId: getTileIdByCoordinates(database, { x: 0, y: 1 }),
     });
 
-    attackMovementResolver(database, mockEvent);
+    attackMovementResolver.resolve(database, mockEvent, createEvents);
 
     const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
@@ -1361,7 +1362,7 @@ describe(attackMovementResolver, () => {
       ],
     });
 
-    attackMovementResolver(database, mockEvent);
+    attackMovementResolver.resolve(database, mockEvent, createEvents);
 
     const targetResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
@@ -1488,7 +1489,7 @@ describe(attackMovementResolver, () => {
       },
     });
 
-    returnMovementResolver(database, returnEvent);
+    returnMovementResolver.resolve(database, returnEvent, createEvents);
 
     const originResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
@@ -1571,7 +1572,7 @@ describe(attackMovementResolver, () => {
       ],
     });
 
-    attackMovementResolver(database, mockEvent);
+    attackMovementResolver.resolve(database, mockEvent, createEvents);
 
     const targetResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
@@ -1626,7 +1627,7 @@ describe(attackMovementResolver, () => {
   });
 });
 
-describe(raidMovementResolver, () => {
+describe('raid movement', () => {
   test('should create a return event starting at the raid resolution time', async () => {
     using database = await prepareTestDatabase();
     const villageId = 1;
@@ -1643,7 +1644,7 @@ describe(raidMovementResolver, () => {
       targetTileId: getTileIdByCoordinates(database, { x: 0, y: 1 }),
     });
 
-    raidMovementResolver(database, mockEvent);
+    raidMovementResolver.resolve(database, mockEvent, createEvents);
 
     const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
@@ -1719,7 +1720,7 @@ describe(raidMovementResolver, () => {
       ],
     });
 
-    raidMovementResolver(database, mockEvent);
+    raidMovementResolver.resolve(database, mockEvent, createEvents);
 
     const targetResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
@@ -1846,7 +1847,7 @@ describe(raidMovementResolver, () => {
       },
     });
 
-    returnMovementResolver(database, returnEvent);
+    returnMovementResolver.resolve(database, returnEvent, createEvents);
 
     const originResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
@@ -1946,7 +1947,7 @@ describe(raidMovementResolver, () => {
       ],
     });
 
-    raidMovementResolver(database, mockEvent);
+    raidMovementResolver.resolve(database, mockEvent, createEvents);
 
     const targetResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
@@ -2070,7 +2071,7 @@ describe(raidMovementResolver, () => {
       ],
     });
 
-    raidMovementResolver(database, mockEvent);
+    raidMovementResolver.resolve(database, mockEvent, createEvents);
 
     const targetResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',

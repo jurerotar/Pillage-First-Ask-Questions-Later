@@ -10,7 +10,7 @@ import {
   getPlayerCulturePointsRequirementContext,
   updatePlayerCulturePointsAt,
 } from '../culture-points';
-import { insertEvents } from '../events';
+import { insertEvents } from '../insert-events';
 import { validateTroopMovement } from '../troops';
 
 test('new worlds seed and accrue culture points only for PLAYER_ID', async () => {

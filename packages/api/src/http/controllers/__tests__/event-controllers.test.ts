@@ -17,7 +17,7 @@ import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectEventByIdQuery } from '../../../queries/event-queries';
 import { updateResourceSiteResourcesByTileIdToValuesQuery } from '../../../queries/village-queries';
-import { insertEvents } from '../../../utils/events';
+import { insertEvents } from '../../../utils/insert-events';
 import { insertScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
   cancelConstructionEvent,

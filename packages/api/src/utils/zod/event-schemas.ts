@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   type GameEvent,
+  type GameEventType,
   gameEventTypeSchema,
 } from '@pillage-first/types/models/game-event';
 
@@ -18,11 +19,11 @@ export const mapEventRowToTypedEvent = (
   row: z.infer<typeof baseEventRowSchema>,
 ) =>
   ({
-    ...(row.meta !== null ? JSON.parse(row.meta) : {}),
+    ...(row.meta === null ? {} : JSON.parse(row.meta)),
     id: row.id,
     type: row.type,
     startsAt: row.starts_at,
     duration: row.duration,
     resolvesAt: row.resolves_at,
     villageId: row.village_id,
-  }) as GameEvent;
+  }) as GameEvent<GameEventType>;

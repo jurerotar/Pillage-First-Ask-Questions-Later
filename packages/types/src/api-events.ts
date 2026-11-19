@@ -1,6 +1,10 @@
 import type { Building } from './models/building';
 import type { BuildingField } from './models/building-field';
-import type { GameEvent, GameEventType } from './models/game-event';
+import type {
+  GameEvent,
+  GameEventType,
+  NewGameEvent,
+} from './models/game-event';
 import type { ScheduledConstructionCancellationReasonDetail } from './models/report';
 import type { Tile } from './models/tile';
 import type { Village } from './models/village';
@@ -38,7 +42,15 @@ export type ControllerErrorEvent = {
 export type EventApiNotificationEvent<
   T extends GameEventType | undefined = undefined,
 > = GameEvent<T> & {
-  eventKey: EventKey;
+  eventKey: 'event:success' | 'event:error';
+  affectedVillageIds: (Village['id'] | null)[];
+  affectedTileIds: Tile['id'][];
+};
+
+export type EventCreatedNotificationEvent<
+  T extends GameEventType | undefined = undefined,
+> = NewGameEvent<T> & {
+  eventKey: 'event:created';
   affectedVillageIds: (Village['id'] | null)[];
   affectedTileIds: Tile['id'][];
 };

@@ -5,10 +5,9 @@ import {
   createHeroHealthRegenerationEventMock,
   createHeroRevivalEventMock,
 } from '@pillage-first/mocks/event';
-import {
-  heroHealthRegenerationResolver,
-  heroRevivalResolver,
-} from '../hero-resolvers';
+import { createEvents } from '../../../../utils/create-event';
+import { heroHealthRegenerationResolver } from '../hero-health-regeneration-resolver';
+import { heroRevivalResolver } from '../hero-revival-resolver';
 
 describe('hero-resolvers', () => {
   test('heroRevivalResolver should set hero health to 100', async () => {
@@ -20,7 +19,7 @@ describe('hero-resolvers', () => {
       sql: "DELETE FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND tile_id = (SELECT v.tile_id FROM heroes h JOIN villages v ON v.id = h.village_id LIMIT 1);",
     });
 
-    heroRevivalResolver(
+    heroRevivalResolver.resolve(
       database,
       createHeroRevivalEventMock({
         id: 1,
@@ -28,6 +27,7 @@ describe('hero-resolvers', () => {
         duration: 1000,
         villageId: 1,
       }),
+      createEvents,
     );
 
     const { health, villageId } = database.selectObject({
@@ -71,7 +71,7 @@ describe('hero-resolvers', () => {
     database.exec({ sql: 'DELETE FROM events;' });
 
     // 3. Resolve
-    heroHealthRegenerationResolver(database, eventArgs);
+    heroHealthRegenerationResolver.resolve(database, eventArgs, createEvents);
 
     // 4. Verify health increased
     const health = database.selectValue({
@@ -109,7 +109,7 @@ describe('hero-resolvers', () => {
     });
 
     // 3. Resolve
-    heroHealthRegenerationResolver(database, eventArgs);
+    heroHealthRegenerationResolver.resolve(database, eventArgs, createEvents);
 
     // 4. Verify health stays 100
     const health = database.selectValue({
@@ -135,13 +135,14 @@ describe('hero-resolvers', () => {
       sql: 'UPDATE heroes SET health = 0, health_regeneration = 10;',
     });
 
-    heroHealthRegenerationResolver(
+    heroHealthRegenerationResolver.resolve(
       database,
       createHeroHealthRegenerationEventMock({
         id: 1,
         startsAt: 1000,
         duration: 8_640_000,
       }),
+      createEvents,
     );
 
     const health = database.selectValue({

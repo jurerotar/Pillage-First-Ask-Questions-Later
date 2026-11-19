@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Effect } from './effect';
+import type { ResourceBundle } from './resource';
 import type { Tribe } from './tribe';
 
 export type BuildingEffect = {
@@ -125,7 +126,7 @@ export type Building = {
   buildingDurationReduction: number;
   effects: (tribe: Tribe) => BuildingEffect[];
   buildingRequirements: BuildingRequirement[];
-  baseBuildingCost: number[];
+  baseBuildingCost: ResourceBundle;
   category: BuildingCategory;
   buildingCostCoefficient: number;
   maxLevel: number;

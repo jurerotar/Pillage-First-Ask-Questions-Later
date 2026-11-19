@@ -1,7 +1,8 @@
+import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { NatureUnitId } from '@pillage-first/types/models/unit';
 
 export const ANIMAL_CAGE_ITEM_ID = 1023;
-export const ANIMAL_CAGE_COST = [250, 150, 350, 100];
+export const ANIMAL_CAGE_COST: ResourceBundle = [250, 150, 350, 100];
 export const ANIMAL_CAGE_BASE_DURATION = 10 * 60 * 1000;
 
 export const HUNTERS_LODGE_HUNTING_PARTY_BASE_DURATION = 30 * 60 * 1000;
@@ -38,7 +39,7 @@ export const getHunterLodgeCatchableAnimals = (
 
 export const calculateHuntersLodgeHuntCost = (
   huntingPartyLevel: number,
-): number[] => {
+): ResourceBundle => {
   return [0, 0, 0, huntingPartyLevel * 100];
 };
 

@@ -14,6 +14,7 @@ import {
 import type { Resource } from '@pillage-first/types/models/resource';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import type { CreateEvents } from '../http/events/resolver';
 import {
   deleteHeroEffectsQuery,
   updateHeroVillageEffectsByVillageIdQuery,
@@ -26,7 +27,6 @@ import {
   updateHeroInventoryItemAmountByHeroIdAndItemIdQuery,
   updateHeroVillageByCurrentVillageQuery,
 } from '../queries/hero-queries';
-import { createEvents } from './create-event';
 import { getVillageTileId, updateResourceSiteResourcesAt } from './village';
 
 const resourceProductionEffectIds = [
@@ -300,6 +300,7 @@ export const updateHeroResourceProductionEffects = ({
 };
 
 export const createHeroHealthRegenerationEventByVillageId = (
+  createEvents: CreateEvents,
   database: DbFacade,
   villageId: number,
   startsAt: number,

@@ -1,4 +1,9 @@
-import type { Resource, Resources } from '@pillage-first/types/models/resource';
+import {
+  mapResourceBundle,
+  type Resource,
+  type ResourceBundle,
+  type Resources,
+} from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import {
@@ -89,12 +94,13 @@ export const calculateMaxUnits = (
 export const calculateUnitUpgradeCostForLevel = (
   unitId: Unit['id'],
   level: number,
-): number[] => {
+): ResourceBundle => {
   const { baseRecruitmentCost } = getUnitDefinition(unitId);
 
   const unitUpgradeCostModifier = 1.2;
 
-  return baseRecruitmentCost.map(
+  return mapResourceBundle(
+    baseRecruitmentCost,
     (resource) =>
       Math.ceil((5 * resource * unitUpgradeCostModifier ** (level - 1)) / 5) *
       5,
@@ -133,7 +139,9 @@ export const calculateSmithyImprovedUnitValue = ({
   return baseValue + (baseValue + (300 * upkeep) / 7) * (1.007 ** level - 1);
 };
 
-export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {
+export const calculateUnitResearchCost = (
+  unitId: Unit['id'],
+): ResourceBundle => {
   const { baseRecruitmentCost, category, tier } = getUnitDefinition(unitId);
 
   const unitResearchCostModifier = (() => {
@@ -152,7 +160,8 @@ export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {
     return 1.5;
   })();
 
-  return baseRecruitmentCost.map(
+  return mapResourceBundle(
+    baseRecruitmentCost,
     (resource) => Math.ceil((resource * unitResearchCostModifier) / 5) * 5,
   );
 };

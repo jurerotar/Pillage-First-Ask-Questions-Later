@@ -5,12 +5,12 @@ import {
 } from '@pillage-first/types/models/trade-route';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import type { TradeRouteBody } from '../http/controllers/schemas/marketplace-schemas';
+import type { CreateEvents } from '../http/events/resolver';
 import {
   selectPlayerTradeRouteByIdQuery,
   selectTradeRouteByIdQuery,
   selectTradeRoutesByTileIdQuery,
 } from '../queries/trade-route-queries';
-import { createEvents } from './create-event';
 import {
   getMarketplaceVillage,
   getMarketplaceVillageWithTargetByTileId,
@@ -46,6 +46,7 @@ export const getTradeRouteById = (database: DbFacade, routeId: number) => {
 };
 
 export const scheduleTradeRoute = (
+  createEvents: CreateEvents,
   database: DbFacade,
   routeId: number,
   villageId: number,

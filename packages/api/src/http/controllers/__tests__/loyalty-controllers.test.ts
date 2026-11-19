@@ -4,7 +4,8 @@ import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { selectTileLoyaltyQuery } from '../../../queries/loyalty-queries';
-import { loyaltyIncreaseResolver } from '../../events/resolvers/loyalty-resolvers';
+import { createEvents } from '../../../utils/create-event';
+import { loyaltyIncreaseResolver } from '../../events/resolvers/loyalty-increase-resolver';
 import { getTileLoyalty } from '../loyalty-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -92,7 +93,7 @@ describe('loyalty-controllers', () => {
     });
 
     // Resolve (Global increase for all villages and oases)
-    loyaltyIncreaseResolver(
+    loyaltyIncreaseResolver.resolve(
       database,
       createLoyaltyIncreaseEventMock({
         id: 1,
@@ -101,6 +102,7 @@ describe('loyalty-controllers', () => {
         resolvesAt: Date.now(),
         startsAt: Date.now() - 1000,
       }),
+      createEvents,
     );
 
     const loyalty1 = database.selectValues({

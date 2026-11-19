@@ -1,4 +1,5 @@
 import type { Building } from '@pillage-first/types/models/building';
+import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
 import { calculateTotalCulturePointsForLevel } from './buildings';
 
@@ -14,7 +15,7 @@ const MAX_CULTURE_POINTS_REQUIREMENT_SPEED_FACTOR = 7;
 export const CULTURE_POINTS_CELEBRATION_COSTS = {
   small: [6400, 6650, 5940, 1340],
   large: [29_700, 33_250, 32_000, 6700],
-} satisfies Record<CulturePointsCelebrationType, number[]>;
+} satisfies Record<CulturePointsCelebrationType, ResourceBundle>;
 
 export const CULTURE_POINTS_CELEBRATION_LIMITS = {
   small: 500,

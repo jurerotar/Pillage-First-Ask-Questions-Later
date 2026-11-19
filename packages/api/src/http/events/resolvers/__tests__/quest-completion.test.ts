@@ -13,6 +13,7 @@ import {
 import type { Building } from '@pillage-first/types/models/building';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { createEvents } from '../../../../utils/create-event';
 import {
   assessCaptureAnimalCountByIdQuestCompletion,
   assessCaptureAnimalKindCountQuestCompletion,
@@ -22,11 +23,11 @@ import {
   insertGatheringExpeditionReport,
   insertReport,
 } from '../../../../utils/report';
-import { buildingLevelChangeResolver } from '../building-resolvers';
-import { huntersLodgeHuntResolver } from '../hunters-lodge-resolvers';
+import { buildingLevelChangeResolver } from '../building-level-change-resolver';
+import { huntersLodgeHuntResolver } from '../hunters-lodge-hunt-resolver';
 
 const resolveHunt = (database: DbFacade, timestamp: number) =>
-  huntersLodgeHuntResolver(
+  huntersLodgeHuntResolver.resolve(
     database,
     createHuntersLodgeHuntEventMock({
       id: timestamp,
@@ -36,6 +37,7 @@ const resolveHunt = (database: DbFacade, timestamp: number) =>
       resolvesAt: timestamp,
       huntingPartyLevel: 5,
     }),
+    createEvents,
   );
 
 describe('quest completion on building level up', () => {
@@ -80,7 +82,7 @@ describe('quest completion on building level up', () => {
       previousLevel: 0,
     });
 
-    buildingLevelChangeResolver(database, mockEvent);
+    buildingLevelChangeResolver.resolve(database, mockEvent, createEvents);
 
     // 4. Check if quest is completed
     const finalQuest = database.selectValue({
@@ -161,7 +163,7 @@ describe('quest completion on building level up', () => {
       previousLevel: 0,
     });
 
-    buildingLevelChangeResolver(database, mockEvent);
+    buildingLevelChangeResolver.resolve(database, mockEvent, createEvents);
 
     // 5. Check if quest is completed
     const finalQuest = database.selectValue({

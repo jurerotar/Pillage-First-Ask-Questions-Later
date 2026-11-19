@@ -1,4 +1,8 @@
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
+import {
+  mapResourceBundle,
+  type ResourceBundle,
+} from '@pillage-first/types/models/resource';
 import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import {
   calculateProgressPercentage,
@@ -63,7 +67,7 @@ export const calculateHeroLevel = (currentExp: number) => {
   };
 };
 
-const tribeToHeroRevivalCostMap = new Map<PlayableTribe, number[]>([
+const tribeToHeroRevivalCostMap = new Map<PlayableTribe, ResourceBundle>([
   ['romans', [130, 115, 180, 75]],
   ['teutons', [180, 130, 115, 75]],
   ['gauls', [115, 180, 130, 75]],
@@ -74,10 +78,10 @@ const tribeToHeroRevivalCostMap = new Map<PlayableTribe, number[]>([
 export const calculateHeroRevivalCost = (
   tribe: PlayableTribe,
   level: number,
-): number[] => {
+): ResourceBundle => {
   const baseRevivalCost = tribeToHeroRevivalCostMap.get(tribe)!;
 
-  return baseRevivalCost.map((resource) =>
+  return mapResourceBundle(baseRevivalCost, (resource) =>
     roundToN(resource * (1 + level / 24) * (level + 1), 5),
   );
 };
