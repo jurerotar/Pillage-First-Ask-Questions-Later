@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { itemsMap } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
 import { serverDbSchema } from '@pillage-first/types/models/server';
@@ -856,6 +857,38 @@ export const upgradeDb = (
             bind: { $id: batch.id },
           });
         }
+
+        // Keep removed item IDs recoverable without exposing them to inventory consumers.
+        tx.exec({
+          sql: `
+            CREATE TABLE IF NOT EXISTS legacy_hero_inventory (
+              hero_id INTEGER NOT NULL REFERENCES heroes (id) ON DELETE CASCADE,
+              item_id INTEGER NOT NULL,
+              amount INTEGER NOT NULL CHECK (amount > 0),
+              PRIMARY KEY (hero_id, item_id)
+            ) STRICT, WITHOUT ROWID;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            INSERT INTO legacy_hero_inventory (hero_id, item_id, amount)
+            SELECT hero_id, item_id, amount
+            FROM hero_inventory
+            WHERE item_id NOT IN (SELECT value FROM json_each($item_ids));
+          `,
+          bind: { $item_ids: JSON.stringify([...itemsMap.keys()]) },
+        });
+
+        tx.exec({
+          sql: `
+            DELETE FROM hero_inventory
+            WHERE (hero_id, item_id) IN (
+              SELECT hero_id, item_id
+              FROM legacy_hero_inventory
+            );
+          `,
+        });
       });
     } finally {
       db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
