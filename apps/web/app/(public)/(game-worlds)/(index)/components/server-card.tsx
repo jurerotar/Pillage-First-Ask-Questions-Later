@@ -130,7 +130,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void duplicateGameWorld({ server });
+                duplicateGameWorld({ server });
               }}
             >
               {isDuplicateGameWorldPending ? (
