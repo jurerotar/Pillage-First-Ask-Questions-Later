@@ -148,7 +148,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void deleteGameWorld({ server });
+                deleteGameWorld({ server });
               }}
             >
               {isDeleteGameWorldPending ? (

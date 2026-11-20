@@ -241,7 +241,7 @@ export const useGameWorldActions = () => {
       },
     });
 
-  const { mutateAsync: deleteGameWorldData } = useMutation<
+  const { mutate: deleteGameWorldData } = useMutation<
     Server[] | null,
     Error,
     { server: Server }
@@ -265,7 +265,7 @@ export const useGameWorldActions = () => {
     },
   });
 
-  const { mutateAsync: deleteGameWorld, isPending: isDeleteGameWorldPending } =
+  const { mutate: deleteGameWorld, isPending: isDeleteGameWorldPending } =
     useMutation<Server[] | null, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
         const rootHandle = await getRootHandle();
