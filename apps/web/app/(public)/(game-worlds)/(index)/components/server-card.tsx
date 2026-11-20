@@ -112,7 +112,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void exportGameWorld({ server });
+                exportGameWorld({ server });
               }}
             >
               {isExportGameWorldPending ? (

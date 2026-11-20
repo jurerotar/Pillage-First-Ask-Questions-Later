@@ -177,7 +177,7 @@ export const useGameWorldActions = () => {
     },
   });
 
-  const { mutateAsync: exportGameWorld, isPending: isExportGameWorldPending } =
+  const { mutate: exportGameWorld, isPending: isExportGameWorldPending } =
     useMutation<void, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
         const databaseBuffer = await exportGameWorldDatabase(server);
