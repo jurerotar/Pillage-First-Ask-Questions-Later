@@ -1,19 +1,19 @@
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { ReportListingDto } from '@pillage-first/types/dtos/report';
-import type { BaseReport, ReportTag } from '@pillage-first/types/models/report';
+import type { BaseReport } from '@pillage-first/types/models/report';
 import {
   reportListingsCacheKey,
   reportsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 
-const markRead = <T extends { tags: ReportTag[] }>(report: T): T => {
-  if (report.tags.includes('read')) {
+const markRead = <T extends { isRead: boolean }>(report: T): T => {
+  if (report.isRead) {
     return report;
   }
 
-  return { ...report, tags: [...report.tags, 'read'] };
+  return { ...report, isRead: true };
 };
 
 export const useReport = (reportId: BaseReport['id']) => {

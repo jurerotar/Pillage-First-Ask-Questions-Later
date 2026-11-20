@@ -15,7 +15,6 @@ import {
   getMarketplaceVillage,
   getMarketplaceVillageWithTargetByTileId,
   getMerchantAmount,
-  getTotalResourceAmount,
   getVillageMerchantStats,
 } from './marketplace';
 
@@ -31,11 +30,18 @@ export const tradeRouteRowSchema = tradeRouteSchema.extend({
   paused: z.coerce.boolean(),
 });
 
+const tradeRouteExecutionRowSchema = tradeRouteRowSchema
+  .omit({ nextAt: true })
+  .extend({
+    sourcePlayerId: z.number(),
+    targetPlayerId: z.number(),
+  });
+
 export const getTradeRouteById = (database: DbFacade, routeId: number) => {
   return database.selectObject({
     sql: selectTradeRouteByIdQuery,
     bind: { $route_id: routeId },
-    schema: tradeRouteRowSchema,
+    schema: tradeRouteExecutionRowSchema,
   });
 };
 
@@ -91,14 +97,6 @@ export const validateTradeRoute = (
 
   if (targetVillage.tileId !== route.targetTileId) {
     throw new Error('Target tile does not belong to target village');
-  }
-
-  if (getTotalResourceAmount(route.resources) <= 0) {
-    throw new Error('Trade route must include resources');
-  }
-
-  if (!Number.isFinite(route.interval) || route.interval <= 0) {
-    throw new Error('Trade route interval must be positive');
   }
 
   const merchantAmount = getMerchantAmount(

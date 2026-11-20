@@ -43,8 +43,9 @@ export const createEvents = <T extends GameEventType>(
   const sampleEvent = args as GameEvent<T>;
   let { startsAt, duration } = args;
   const amount = args?.amount ?? 1;
+  const now = Date.now();
 
-  validateEventCreationPrerequisites(database, sampleEvent);
+  validateEventCreationPrerequisites(database, sampleEvent, now);
 
   const eventCost = getEventCost(database, sampleEvent);
 
@@ -92,7 +93,6 @@ export const createEvents = <T extends GameEventType>(
 
   const earliestEvent = events.at(0)!;
 
-  const now = Date.now();
   const newResolvesAt = events.map((e) => e.startsAt + e.duration);
   const earliestNewResolvesAt = earliestEvent.startsAt + earliestEvent.duration;
 
@@ -104,7 +104,7 @@ export const createEvents = <T extends GameEventType>(
   });
 
   insertEvents(database, events);
-  runEventCreationSideEffects(database, events);
+  runEventCreationSideEffects(database, events, now);
 
   postWorkerMessage({
     eventKey: 'event:created',

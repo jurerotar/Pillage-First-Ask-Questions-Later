@@ -120,10 +120,10 @@ import {
 } from './quests';
 import { getTradeRouteById } from './trade-routes';
 import {
+  getWoundedTroopAmountAt,
   materializeWoundedTroopsAt,
   removeTroops,
   removeWoundedTroops,
-  selectWoundedTroopAmount,
   validateTroopMovement,
 } from './troops';
 import {
@@ -133,7 +133,7 @@ import {
   isUnitInVillageTribe,
 } from './unit-event-validation';
 import { getVillagePlayerId } from './village';
-import { apiEffectSchema } from './zod/effect-schemas';
+import { apiEffectsJsonSchema } from './zod/effect-schemas';
 
 const nonMetaEventProperties = new Set([
   'id',
@@ -204,13 +204,10 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
 export const validateEventCreationPrerequisites = (
   database: DbFacade,
   event: GameEvent,
+  now = Date.now(),
 ): void => {
   if (isUnitImprovementEvent(event)) {
     const { villageId, level } = event;
-
-    if (level > 20) {
-      throw new Error('Unit upgrade level cannot exceed 20');
-    }
 
     const smithyLevel =
       database.selectValue({
@@ -346,10 +343,6 @@ export const validateEventCreationPrerequisites = (
       throw new Error('Unit does not belong to village tribe');
     }
 
-    if (!Number.isInteger(amount) || amount <= 0) {
-      throw new Error('Unit training amount must be positive');
-    }
-
     if (unit.researchRequirements.length > 0) {
       const isUnitResearched = database.selectValue({
         sql: selectIsUnitResearchedQuery,
@@ -395,12 +388,11 @@ export const validateEventCreationPrerequisites = (
         throw new Error('Only infantry and cavalry can be healed');
       }
 
-      materializeWoundedTroopsAt(database, villageId, Date.now());
-
-      const woundedAmount = selectWoundedTroopAmount(
+      const woundedAmount = getWoundedTroopAmountAt(
         database,
         villageId,
         unitId,
+        now,
       );
 
       if (amount > woundedAmount) {
@@ -441,10 +433,6 @@ export const validateEventCreationPrerequisites = (
       throw new Error("Hunter's Lodge does not exist");
     }
 
-    if (isAnimalCageProductionEvent(event) && event.cageAmount <= 0) {
-      throw new Error('Animal cage amount must be positive');
-    }
-
     if (isHuntersLodgeHuntEvent(event)) {
       if (event.huntingPartyLevel > huntersLodgeLevel) {
         throw new Error("Hunter's Lodge level is too low");
@@ -468,11 +456,7 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTrapperCageProductionEvent(event)) {
-    const { villageId, cageAmount } = event;
-
-    if (cageAmount <= 0) {
-      throw new Error('Trapper cage amount must be positive');
-    }
+    const { villageId, amount } = event;
 
     const trapperLevel =
       database.selectValue({
@@ -505,7 +489,7 @@ export const validateEventCreationPrerequisites = (
     const queuedCageAmount =
       database.selectValue({
         sql: `
-          SELECT COALESCE(SUM(CAST(JSON_EXTRACT(meta, '$.cageAmount') AS INTEGER)), 0)
+          SELECT COUNT(*)
           FROM
             events
           WHERE
@@ -520,7 +504,7 @@ export const validateEventCreationPrerequisites = (
 
     const capacity = calculateTrapperCapacity(trapperLevel);
 
-    if (currentCageAmount + queuedCageAmount + cageAmount > capacity) {
+    if (currentCageAmount + queuedCageAmount + amount > capacity) {
       throw new Error('Trapper cage capacity exceeded');
     }
 
@@ -556,10 +540,6 @@ export const validateEventCreationPrerequisites = (
       throw new Error("Gatherer's Hut is busy");
     }
 
-    if (!Array.isArray(troops) || troops.length === 0) {
-      throw new Error('Gathering trip must include troops');
-    }
-
     const { villageTileId, playerTribe } = database.selectObject({
       sql: `
         SELECT
@@ -583,10 +563,6 @@ export const validateEventCreationPrerequisites = (
     const troopAmountsByUnitId = new Map<string, number>();
 
     for (const troop of troops) {
-      if (!Number.isInteger(troop.amount) || troop.amount <= 0) {
-        throw new Error('Gathering trip troop amount must be positive');
-      }
-
       const unit = getUnitDefinition(troop.unitId);
 
       if (unit.id === 'HERO') {
@@ -836,7 +812,7 @@ export const validateEventCreationPrerequisites = (
   if (isAdventureTroopMovementEvent(event)) {
     const { available: adventurePoints } = getPlayerHeroAdventureStateAt(
       database,
-      Date.now(),
+      now,
       getVillagePlayerId(database, event.villageId),
     );
 
@@ -873,10 +849,31 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isResourceTransferEvent(event)) {
-    const { village, merchant, marketplaceLevel, usedMerchantAmount } =
-      getVillageMerchantStats(database, event.villageId);
     const totalResourceAmount = getTotalResourceAmount(event.resources);
     const isReturnTransfer = totalResourceAmount === 0;
+
+    if (isReturnTransfer) {
+      if (event.targetVillageId !== event.villageId) {
+        throw new Error('Merchant return must target the source village');
+      }
+
+      const village = getMarketplaceVillage(database, event.villageId);
+
+      if (!village) {
+        throw new Error(
+          'Target village does not exist or does not belong to player',
+        );
+      }
+
+      if (event.targetTileId !== village.tileId) {
+        throw new Error('Merchant return target tile must be source village');
+      }
+
+      return;
+    }
+
+    const { village, merchant, marketplaceLevel, usedMerchantAmount } =
+      getVillageMerchantStats(database, event.villageId);
 
     const targetVillage = getMarketplaceVillage(
       database,
@@ -891,22 +888,6 @@ export const validateEventCreationPrerequisites = (
 
     if (targetVillage.tileId !== event.targetTileId) {
       throw new Error('Target tile does not belong to target village');
-    }
-
-    if (isReturnTransfer) {
-      if (event.targetVillageId !== event.villageId) {
-        throw new Error('Merchant return must target the source village');
-      }
-
-      if (event.targetTileId !== village.tileId) {
-        throw new Error('Merchant return target tile must be source village');
-      }
-
-      if (event.merchantAmount <= 0) {
-        throw new Error('Merchant return must include merchants');
-      }
-
-      return;
     }
 
     if (event.targetVillageId === event.villageId) {
@@ -944,7 +925,7 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTroopMovementEvent(event)) {
-    const errors = validateTroopMovement(database, event);
+    const errors = validateTroopMovement(database, event, now);
 
     if (errors.length > 0) {
       throw new Error(errors[0]);
@@ -990,6 +971,7 @@ export const validateEventCreationPrerequisites = (
 export const runEventCreationSideEffects = (
   database: DbFacade,
   events: GameEvent[],
+  now = Date.now(),
 ) => {
   const [event] = events;
 
@@ -1002,7 +984,6 @@ export const runEventCreationSideEffects = (
       schema: z.number(),
     })!;
 
-    const now = Date.now();
     const { available } = materializeHeroAdventurePointsAt(
       database,
       heroId,
@@ -1043,8 +1024,6 @@ export const runEventCreationSideEffects = (
   }
 
   if (isTroopTrainingEvent(event)) {
-    const now = Date.now();
-
     if (isHealingTroopTrainingBuilding(event.buildingId)) {
       materializeWoundedTroopsAt(database, event.villageId, now);
       removeWoundedTroops(database, [
@@ -1202,7 +1181,7 @@ export const getEventCost = (
       return [0, 0, 0, 0];
     }
 
-    return ANIMAL_CAGE_COST.map((cost) => cost * event.cageAmount);
+    return ANIMAL_CAGE_COST.map((cost) => cost * event.amount);
   }
 
   if (isTrapperCageProductionEvent(event)) {
@@ -1215,7 +1194,7 @@ export const getEventCost = (
       return [0, 0, 0, 0];
     }
 
-    return TRAPPER_CAGE_COST.map((cost) => cost * event.cageAmount);
+    return TRAPPER_CAGE_COST.map((cost) => cost * event.amount);
   }
 
   if (isHuntersLodgeHuntEvent(event)) {
@@ -1323,14 +1302,14 @@ export const getEventDuration = (
 
     const { villageId, buildingId, level } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'buildingDuration',
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
     const tileId = database.selectValue({
       sql: selectVillageTileIdQuery,
       bind: {
@@ -1365,14 +1344,14 @@ export const getEventDuration = (
 
     const { villageId, unitId } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'unitResearchDuration',
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
     const tileId = database.selectValue({
       sql: selectVillageTileIdQuery,
       bind: {
@@ -1402,14 +1381,14 @@ export const getEventDuration = (
 
     const { villageId, unitId, level } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'unitImprovementDuration',
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
     const tileId = database.selectValue({
       sql: selectVillageTileIdQuery,
       bind: {
@@ -1442,14 +1421,14 @@ export const getEventDuration = (
 
     const { unitId, villageId, durationEffectId, buildingId } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: durationEffectId,
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
     const tileId = database.selectValue({
       sql: selectVillageTileIdQuery,
       bind: {
@@ -1488,7 +1467,7 @@ export const getEventDuration = (
       schema: speedSchema,
     })!;
 
-    return (ANIMAL_CAGE_BASE_DURATION * event.cageAmount) / speed;
+    return ANIMAL_CAGE_BASE_DURATION / speed;
   }
 
   if (isTrapperCageProductionEvent(event)) {
@@ -1506,7 +1485,7 @@ export const getEventDuration = (
       schema: speedSchema,
     })!;
 
-    return (TRAPPER_CAGE_BASE_DURATION * event.cageAmount) / speed;
+    return TRAPPER_CAGE_BASE_DURATION / speed;
   }
 
   if (isHuntersLodgeHuntEvent(event)) {
@@ -1602,13 +1581,13 @@ export const getEventDuration = (
 
     const { villageId, targetTileId, originTileId, troops } = event;
 
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectUnitSpeedRelevantEffectsQuery,
       bind: {
         $village_id: villageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
 
     const mapSize = database.selectValue({
       sql: selectServerMapSizeQuery,

@@ -47,9 +47,9 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "knip": "6.43.0",
+    "knip": "6.45.1",
     "typescript": "7.0.2",
-    "vitest": "5.0.5"
+    "vitest": "5.1.0"
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@6/schema.json",

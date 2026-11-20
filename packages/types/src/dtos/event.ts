@@ -27,11 +27,11 @@ export const baseEventDtoSchema = z
 
 const optionalTimingSchema = {
   startsAt: z.number().optional(),
-  duration: z.number().optional(),
+  duration: z.number().nonnegative().optional(),
 };
 
 const villageEventSchema = {
-  villageId: z.number(),
+  villageId: z.int().positive(),
   ...optionalTimingSchema,
 };
 
@@ -42,10 +42,10 @@ const globalEventSchema = {
 
 const buildingEventSchema = {
   ...villageEventSchema,
-  buildingFieldId: z.number(),
+  buildingFieldId: z.int().positive(),
   buildingId: buildingIdSchema,
-  level: z.number(),
-  previousLevel: z.number(),
+  level: z.int().nonnegative(),
+  previousLevel: z.int().nonnegative(),
 };
 
 const troopMovementEventSchema = {
@@ -62,13 +62,13 @@ const merchantMovementEventSchema = {
   ...villageEventSchema,
   originTileId: tileIdSchema,
   targetTileId: tileIdSchema,
-  targetVillageId: z.number(),
+  targetVillageId: z.int().positive(),
   resources: resourcesSchema,
 };
 
 const resourceTransferEventSchema = {
   ...merchantMovementEventSchema,
-  merchantAmount: z.number(),
+  merchantAmount: z.int().positive(),
   repeatRemaining: z.number().int().min(0).max(4),
   repeatResources: resourcesSchema,
 };
@@ -113,8 +113,8 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('troopTraining'),
       ...villageEventSchema,
-      batchId: z.string(),
-      amount: z.number(),
+      batchId: z.string().min(1),
+      amount: z.int().positive(),
       unitId: unitIdSchema,
       durationEffectId: troopTrainingDurationEffectIdSchema,
       buildingId: buildingIdSchema,
@@ -128,27 +128,29 @@ export const createEventDtoSchema = z
       type: z.literal('unitImprovement'),
       ...villageEventSchema,
       unitId: unitIdSchema,
-      level: z.number(),
+      level: z.int().positive().max(20),
     }),
     z.strictObject({
       type: z.literal('animalCageProduction'),
       ...villageEventSchema,
-      cageAmount: z.number(),
+      batchId: z.string().min(1),
+      amount: z.int().positive(),
     }),
     z.strictObject({
       type: z.literal('trapperCageProduction'),
       ...villageEventSchema,
-      cageAmount: z.number(),
+      batchId: z.string().min(1),
+      amount: z.int().positive(),
     }),
     z.strictObject({
       type: z.literal('huntersLodgeHunt'),
       ...villageEventSchema,
-      huntingPartyLevel: z.number(),
+      huntingPartyLevel: z.int().positive(),
     }),
     z.strictObject({
       type: z.literal('gatherersHutGatheringTrip'),
       ...villageEventSchema,
-      troops: z.array(troopSchema),
+      troops: z.array(troopSchema).min(1),
     }),
     z.strictObject({
       type: gameEventTypeSchema.extract([
@@ -161,6 +163,7 @@ export const createEventDtoSchema = z
         'troopMovementAdventure',
       ]),
       ...troopMovementEventSchema,
+      troops: z.array(troopSchema).min(1),
     }),
     z.strictObject({
       type: z.literal('troopMovementReturn'),
@@ -192,7 +195,7 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('tradeRoute'),
       ...villageEventSchema,
-      tradeRouteId: z.number(),
+      tradeRouteId: z.int().positive(),
     }),
   ])
   .meta({ id: 'CreateEventDto' });

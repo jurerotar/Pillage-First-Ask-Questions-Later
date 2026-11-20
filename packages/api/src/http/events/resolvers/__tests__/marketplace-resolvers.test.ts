@@ -125,6 +125,230 @@ const insertTradeRoute = (
 };
 
 describe('marketplace resolvers', () => {
+  test.each([
+    ['departure', 17],
+    ['empty surplus', 7],
+    ['busy merchants', 8],
+    ['changed ownership', 5],
+  ] as const)(
+    'tradeRoute handles %s within %i statements',
+    async (scenario, expectedStatements) => {
+      using database = await prepareTestDatabase();
+
+      database.exec({ sql: 'DELETE FROM events;' });
+
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+
+      const source = getPlayerVillage(database);
+      const target = createTestVillage(database, 'Query Budget Target', {
+        resourceSite: { updatedAt: NOW },
+      });
+
+      setTestBuildingLevel(database, source.id, 'MARKETPLACE', 1, 32);
+
+      const resources = { wood: 500, clay: 500, iron: 500, wheat: 500 };
+
+      setTestVillageResources(database, source.tile_id, resources, NOW);
+
+      const eventId = insertTradeRoute(
+        database,
+        source.id,
+        target.id,
+        { wood: 100, clay: 0, iron: 0, wheat: 0 },
+        {
+          wood: scenario === 'empty surplus' ? 500 : 0,
+          clay: 0,
+          iron: 0,
+          wheat: 0,
+        },
+      );
+
+      if (scenario === 'busy merchants') {
+        insertEvent(
+          database,
+          createResourceTransferEventMock({
+            villageId: source.id,
+            targetVillageId: source.id,
+            originTileId: target.tileId,
+            targetTileId: source.tile_id,
+            resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+            merchantAmount: 1,
+            startsAt: NOW,
+            duration: 7_200_000,
+          }),
+        );
+      }
+
+      if (scenario === 'changed ownership') {
+        database.exec({
+          sql: 'UPDATE villages SET player_id = (SELECT id FROM players WHERE id != $player_id LIMIT 1) WHERE id = $id;',
+          bind: { $player_id: PLAYER_ID, $id: target.id },
+        });
+      }
+
+      const methods = [
+        'selectObject',
+        'selectObjects',
+        'selectValue',
+        'selectValues',
+        'exec',
+      ] as const;
+      const queries = methods.map((method) => vi.spyOn(database, method));
+
+      try {
+        resolveEvent(database, eventId);
+
+        const calls = queries.flatMap((query) => query.mock.calls);
+
+        expect(calls).toHaveLength(expectedStatements);
+        expect(calls.some(([args]) => args.sql.includes('AS nextAt'))).toBe(
+          false,
+        );
+      } finally {
+        for (const query of queries) {
+          query.mockRestore();
+        }
+      }
+
+      expect(getVillageResources(database, source.tile_id)).toStrictEqual({
+        ...resources,
+        wood: scenario === 'departure' ? 400 : 500,
+      });
+
+      expect(
+        database.selectValue({
+          sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
+          schema: z.number(),
+        }),
+      ).toBe(scenario === 'departure' || scenario === 'busy merchants' ? 1 : 0);
+
+      expect(
+        database.selectValue({
+          sql: "SELECT COUNT(*) FROM events WHERE type = 'tradeRoute' AND starts_at = $next_at;",
+          bind: { $next_at: NOW + 3_600_000 },
+          schema: z.number(),
+        }),
+      ).toBe(1);
+    },
+  );
+
+  test.each(['missing', 'paused', 'wrong village'] as const)(
+    'tradeRoute ignores a %s route without creating events or spending resources',
+    async (scenario) => {
+      using database = await prepareTestDatabase();
+
+      database.exec({ sql: 'DELETE FROM events;' });
+
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+
+      const source = getPlayerVillage(database);
+      const target = createTestVillage(database, 'Inactive Route Target');
+      const resources = { wood: 500, clay: 500, iron: 500, wheat: 500 };
+
+      setTestVillageResources(database, source.tile_id, resources, NOW);
+
+      const eventId = insertTradeRoute(
+        database,
+        source.id,
+        target.id,
+        { wood: 100, clay: 0, iron: 0, wheat: 0 },
+        { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      );
+
+      if (scenario === 'missing') {
+        database.exec({ sql: 'DELETE FROM trade_routes;' });
+      } else if (scenario === 'paused') {
+        database.exec({ sql: 'UPDATE trade_routes SET paused = 1;' });
+      } else {
+        database.exec({
+          sql: 'UPDATE events SET village_id = $village_id WHERE id = $id;',
+          bind: { $village_id: target.id, $id: eventId },
+        });
+      }
+
+      createSchedulerDataSource(database).resolveEvent(eventId);
+
+      expect(getVillageResources(database, source.tile_id)).toStrictEqual(
+        resources,
+      );
+
+      expect(
+        database.selectValue({
+          sql: 'SELECT COUNT(*) FROM events;',
+          schema: z.number(),
+        }),
+      ).toBe(0);
+    },
+  );
+
+  test.each([
+    ['single', 'resourceTransfer'],
+    ['batch', 'resourceTransfer'],
+    ['single', 'tradeRoute'],
+    ['batch', 'tradeRoute'],
+  ] as const)(
+    'tradeRoute rolls back a failed %s resolution when inserting %s fails',
+    async (mode, failedType) => {
+      using database = await prepareTestDatabase();
+
+      database.exec({ sql: 'DELETE FROM events;' });
+
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+
+      const source = getPlayerVillage(database);
+      const target = createTestVillage(database, 'Rollback Route Target', {
+        resourceSite: { updatedAt: NOW },
+      });
+
+      setTestBuildingLevel(database, source.id, 'MARKETPLACE', 1, 32);
+
+      const resources = { wood: 500, clay: 500, iron: 500, wheat: 500 };
+
+      setTestVillageResources(database, source.tile_id, resources, NOW);
+
+      const eventId = insertTradeRoute(
+        database,
+        source.id,
+        target.id,
+        { wood: 100, clay: 0, iron: 0, wheat: 0 },
+        { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      );
+
+      const before = database.selectObjects({
+        sql: 'SELECT * FROM events ORDER BY id;',
+        schema: z.record(z.string(), z.unknown()),
+      });
+
+      database.execMulti({
+        sql: `CREATE TEMP TRIGGER fail_route_event_insert
+          BEFORE INSERT ON events WHEN NEW.type = '${failedType}'
+          BEGIN SELECT RAISE(ABORT, 'simulated event insertion failure'); END;`,
+      });
+
+      const scheduler = createSchedulerDataSource(database);
+
+      expect(() =>
+        mode === 'single'
+          ? scheduler.resolveEvent(eventId)
+          : scheduler.resolveEvents([eventId]),
+      ).toThrow('simulated event insertion failure');
+
+      expect(getVillageResources(database, source.tile_id)).toStrictEqual(
+        resources,
+      );
+
+      expect(
+        database.selectObjects({
+          sql: 'SELECT * FROM events ORDER BY id;',
+          schema: z.record(z.string(), z.unknown()),
+        }),
+      ).toStrictEqual(before);
+    },
+  );
+
   afterEach(() => {
     resetSchedulerForTesting();
     vi.useRealTimers();

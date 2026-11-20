@@ -11,7 +11,8 @@ const makeReport = (id: number, timestamp: number): ReportListingDto => ({
   timestamp,
   type: 'battle',
   outcome: 'attackerNoLoss',
-  tags: [],
+  isRead: false,
+  isArchived: false,
   summary: {
     originName: 'Origin',
     originCoordinates: { x: 0, y: 0 },
@@ -23,7 +24,7 @@ const makeReport = (id: number, timestamp: number): ReportListingDto => ({
 
 const makeReadReport = (id: number, timestamp: number): ReportListingDto => ({
   ...makeReport(id, timestamp),
-  tags: ['read'],
+  isRead: true,
 });
 
 describe(useAdjacentReports, () => {

@@ -201,7 +201,8 @@ export const createTrapperCageProductionEventMock = (
   overrides: Partial<GameEvent<'trapperCageProduction'>> = {},
 ): GameEvent<'trapperCageProduction'> => {
   return createGameEventMock('trapperCageProduction', {
-    cageAmount: 1,
+    batchId: globalThis.crypto.randomUUID(),
+    amount: 1,
     ...overrides,
   });
 };
@@ -210,7 +211,8 @@ export const createAnimalCageProductionEventMock = (
   overrides: Partial<GameEvent<'animalCageProduction'>> = {},
 ): GameEvent<'animalCageProduction'> => {
   return createGameEventMock('animalCageProduction', {
-    cageAmount: 1,
+    batchId: globalThis.crypto.randomUUID(),
+    amount: 1,
     ...overrides,
   });
 };

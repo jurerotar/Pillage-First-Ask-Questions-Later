@@ -62,7 +62,7 @@ import {
   getVillageTileId,
   updateResourceSiteResourcesAt,
 } from '../../../utils/village';
-import { apiEffectSchema } from '../../../utils/zod/effect-schemas';
+import { apiEffectsJsonSchema } from '../../../utils/zod/effect-schemas';
 import type { Resolver } from '../resolver';
 
 export const adventureMovementResolver: Resolver<
@@ -494,14 +494,14 @@ export const attackMovementResolver: Resolver<
     }) ?? null;
 
   if (targetVillageId !== null) {
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'crannyCapacity',
         $village_id: targetVillageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
 
     if (effects.some(({ type }) => type === 'base')) {
       const { total } = calculateComputedEffect(
@@ -560,14 +560,14 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
     }) ?? null;
 
   if (targetVillageId !== null) {
-    const effects = database.selectObjects({
+    const effects = database.selectValue({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'crannyCapacity',
         $village_id: targetVillageId,
       },
-      schema: apiEffectSchema,
-    });
+      schema: apiEffectsJsonSchema,
+    })!;
 
     if (effects.some(({ type }) => type === 'base')) {
       const { total } = calculateComputedEffect(

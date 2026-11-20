@@ -149,6 +149,14 @@ export const buildingLevelChangeResolver: Resolver<
 
   const isLevelIncreasing = previousLevel < level;
 
+  const hasCapacityEffects = effects.some(({ effectId }) => {
+    return effectId === 'warehouseCapacity' || effectId === 'granaryCapacity';
+  });
+
+  if (level < previousLevel && hasCapacityEffects) {
+    updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+  }
+
   if (isLevelIncreasing) {
     assessBuildingQuestCompletion(
       database,
@@ -324,6 +332,14 @@ export const buildingDestructionResolver: Resolver<
         },
       });
     }
+  }
+
+  const hasCapacityEffects = effects.some(({ effectId }) => {
+    return effectId === 'warehouseCapacity' || effectId === 'granaryCapacity';
+  });
+
+  if (hasCapacityEffects) {
+    updateResourceSiteResourcesAt(database, tileId, resolvesAt);
   }
 
   // Reduce population

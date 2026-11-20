@@ -123,7 +123,9 @@ export const createNewEvents = createController('/events', 'post', {
   summary: 'Create new events',
   requestBody: createEventDtoSchema,
 })(({ database, body }) => {
-  createEvents(database, body as never);
+  database.transaction((db) => {
+    createEvents(db, body as never);
+  });
 });
 
 export const cancelConstructionEvent = createController(

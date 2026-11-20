@@ -26,8 +26,8 @@ export const roundToNDecimalPoints = (number: number, n = 2): number => {
   return Math.round(number * 10 ** n) / 10 ** n;
 };
 
-export const roundTo5 = (n: number): number => {
-  return Math.round(n / 5) * 5;
+export const roundToN = (value: number, step: number): number => {
+  return Math.round(value / step) * step;
 };
 
 export const randomInt = (min: number, max: number): number => {

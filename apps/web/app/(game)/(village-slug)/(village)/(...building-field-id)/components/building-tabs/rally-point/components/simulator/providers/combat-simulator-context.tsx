@@ -1,16 +1,18 @@
 import { createContext } from 'react';
 import type {
-  CombatSimulatorHeroStats,
   CombatSimulatorMode,
-  CombatSimulatorReinforcement,
-  CombatSimulatorState,
   CombatSimulatorTroop,
 } from '@pillage-first/types/models/combat-simulator';
 import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
+import type {
+  CombatSimulatorFormReinforcement,
+  CombatSimulatorFormState,
+  CombatSimulatorHeroFormValues,
+} from '../utils/combat-simulator-form';
 
 export type CombatSimulatorContextValue = {
-  state: CombatSimulatorState;
+  state: CombatSimulatorFormState;
   setCombatMode: (combatMode: CombatSimulatorMode) => void;
   swapPlayerRole: () => void;
   setAttackerTribe: (tribe: PlayableTribe) => void;
@@ -25,8 +27,8 @@ export type CombatSimulatorContextValue = {
     unitId: UnitId,
     smithyImprovementLevel: number,
   ) => void;
-  setAttackerHeroStats: (heroStats: CombatSimulatorHeroStats) => void;
-  setDefenderHeroStats: (heroStats: CombatSimulatorHeroStats) => void;
+  setAttackerHeroStats: (heroStats: CombatSimulatorHeroFormValues) => void;
+  setDefenderHeroStats: (heroStats: CombatSimulatorHeroFormValues) => void;
   setAttackerBreweryLevel: (breweryLevel: number) => void;
   setDefenderWallLevel: (wallLevel: number) => void;
   setDefenderResidenceLevel: (residenceLevel: number) => void;
@@ -35,23 +37,23 @@ export type CombatSimulatorContextValue = {
   clearDefenderData: () => void;
   addDefenderReinforcement: (tribe?: Tribe) => void;
   removeDefenderReinforcement: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
+    reinforcementId: CombatSimulatorFormReinforcement['id'],
   ) => void;
   setDefenderReinforcementTribe: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
+    reinforcementId: CombatSimulatorFormReinforcement['id'],
     tribe: Tribe,
   ) => void;
   setDefenderReinforcementTroops: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
+    reinforcementId: CombatSimulatorFormReinforcement['id'],
     troops: CombatSimulatorTroop[],
   ) => void;
   setDefenderReinforcementSmithyImprovementLevel: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
+    reinforcementId: CombatSimulatorFormReinforcement['id'],
     unitId: UnitId,
     smithyImprovementLevel: number,
   ) => void;
   clearDefenderReinforcementData: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
+    reinforcementId: CombatSimulatorFormReinforcement['id'],
   ) => void;
 };
 

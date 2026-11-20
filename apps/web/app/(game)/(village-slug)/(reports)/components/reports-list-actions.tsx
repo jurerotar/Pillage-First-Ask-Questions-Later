@@ -1,11 +1,12 @@
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
-import type { BaseReport, ReportTag } from '@pillage-first/types/models/report';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
+import type { ReportTag } from '@pillage-first/types/models/report';
 import type { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Button } from 'app/components/ui/button';
 
 type ReportsListActionsProps = {
-  reports: Pick<BaseReport, 'id' | 'tags'>[];
+  reports: Pick<ReportListingDto, 'id' | 'isRead' | 'isArchived'>[];
   updateReports: ReturnType<typeof useReports>['updateReports'];
   deleteReports: ReturnType<typeof useReports>['deleteReports'];
   onAction?: () => void;
@@ -23,10 +24,10 @@ export const ReportsListActions = ({
 }: ReportsListActionsProps) => {
   const { t } = useTranslation();
   const reportIds = reports.map(({ id }) => id);
-  const canMarkAsRead = reports.some(({ tags }) => !tags.includes('read'));
-  const canMarkAsUnread = reports.some(({ tags }) => tags.includes('read'));
-  const canArchive = reports.some(({ tags }) => !tags.includes('archived'));
-  const canUnarchive = reports.some(({ tags }) => tags.includes('archived'));
+  const canMarkAsRead = reports.some(({ isRead }) => !isRead);
+  const canMarkAsUnread = reports.some(({ isRead }) => isRead);
+  const canArchive = reports.some(({ isArchived }) => !isArchived);
+  const canUnarchive = reports.some(({ isArchived }) => isArchived);
   const actionVariant = isPopoverActions ? 'ghost' : 'outline';
 
   const updateSelectedReports = (tags: Partial<Record<ReportTag, boolean>>) => {

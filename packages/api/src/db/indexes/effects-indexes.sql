@@ -1,11 +1,10 @@
--- General tile-scoped lookups and cleanup/update paths that target all effects on a tile.
-CREATE INDEX idx_effects_tile_id ON effects(tile_id);
+-- Tile-scoped cleanup and updates, including hero and troop effects.
+CREATE INDEX idx_effects_tile_id ON effects(tile_id, source_id);
 
--- Building-effect updates by effect + tile + scope + field/source specifier.
+-- Covers tile-local reads and narrows building-effect updates to the field.
 CREATE INDEX idx_effects_tile_effect_scope_spec
-  ON effects(effect_id, tile_id, scope_id, source_specifier);
+  ON effects(tile_id, effect_id, scope_id, source_specifier, source_id, type_id, value);
 
--- Hot resource-site resource calculation query. Covers effect filtering plus returned scalar columns
--- for selectResourceSiteResourcesRelevantEffectsByTileIdQuery.
+-- Nonlocal reads can seek directly to global/server scopes and effect IDs.
 CREATE INDEX idx_effects_resource_site_resources
-  ON effects(effect_id, scope_id, tile_id, source_specifier, source_id, type_id, value);
+  ON effects(scope_id, effect_id, tile_id);

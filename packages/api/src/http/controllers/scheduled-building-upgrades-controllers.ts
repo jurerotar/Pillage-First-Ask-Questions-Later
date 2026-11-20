@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import { selectRelevantActiveBuildingConstructionExistsQuery } from '../../queries/event-queries';
@@ -32,7 +31,7 @@ export const getScheduledBuildingUpgrades = createController(
   {
     summary: 'Get scheduled building upgrades',
     requestParams: {
-      path: z.strictObject({ villageId: z.coerce.number() }),
+      path: z.strictObject({ villageId: z.coerce.number().int().positive() }),
     },
     response: z.array(scheduledBuildingUpgradeSchema),
   },
@@ -46,7 +45,7 @@ export const scheduleBuildingUpgrade = createController(
   {
     summary: 'Schedule a building upgrade',
     requestParams: {
-      path: z.strictObject({ villageId: z.coerce.number() }),
+      path: z.strictObject({ villageId: z.coerce.number().int().positive() }),
     },
     requestBody: scheduleBuildingUpgradeSchema,
   },
@@ -77,12 +76,6 @@ export const scheduleBuildingUpgrade = createController(
 
     if (activeAndScheduledCount >= 5) {
       throw new BuildingConstructionQueueFullError();
-    }
-
-    const { maxLevel } = getBuildingDefinition(buildingId);
-
-    if (level > maxLevel) {
-      throw new Error('Building level cannot exceed max level');
     }
 
     const currentVirtualLevel = db.selectValue({
@@ -160,7 +153,7 @@ export const reorderScheduledBuildingUpgrades = createController(
   {
     summary: 'Reorder scheduled building upgrades',
     requestParams: {
-      path: z.strictObject({ villageId: z.coerce.number() }),
+      path: z.strictObject({ villageId: z.coerce.number().int().positive() }),
     },
     requestBody: reorderScheduledBuildingUpgradesSchema,
   },
@@ -173,7 +166,6 @@ export const reorderScheduledBuildingUpgrades = createController(
 
     if (
       scheduledUpgradeIds.length !== scheduledUpgrades.length ||
-      new Set(scheduledUpgradeIds).size !== scheduledUpgradeIds.length ||
       scheduledUpgradeIds.some((id) => !upgradesById.has(id))
     ) {
       throw new Error('Scheduled upgrade order must include the entire queue');
@@ -211,8 +203,8 @@ export const cancelScheduledBuildingUpgrade = createController(
     summary: 'Cancel a scheduled building upgrade',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
-        scheduledUpgradeId: z.coerce.number(),
+        villageId: z.coerce.number().int().positive(),
+        scheduledUpgradeId: z.coerce.number().int().positive(),
       }),
     },
   },

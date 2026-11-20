@@ -223,13 +223,13 @@ describe('developer-tools-controllers', () => {
           startsAt: now + 2000,
           duration: 6000,
           villageId: 1,
-          cageAmount: 3,
+          amount: 3,
         }),
         createTrapperCageProductionEventMock({
           startsAt: now + 3000,
           duration: 7000,
           villageId: 1,
-          cageAmount: 4,
+          amount: 4,
         }),
       ]);
 

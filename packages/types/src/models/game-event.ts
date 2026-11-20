@@ -45,11 +45,13 @@ type UnitImprovementEvent = {
 };
 
 type AnimalCageProductionEvent = {
-  cageAmount: number;
+  batchId: string;
+  amount: number;
 };
 
 type TrapperCageProductionEvent = {
-  cageAmount: number;
+  batchId: string;
+  amount: number;
 };
 
 type HuntersLodgeHuntEvent = {

@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { itemsMap } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
 import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportCapturedAnimalsTable from '../schemas/battle-report-captured-animals-schema.sql?raw';
 import createBattleReportConquestsTable from '../schemas/battle-report-conquests-schema.sql?raw';
@@ -22,6 +24,7 @@ import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listi
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
 import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
+import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
 import createOasisCaptureFailureReasonIdsTable from '../schemas/lookup-tables/oasis-capture-failure-reason-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
@@ -139,22 +142,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.64', (db) => {
-    db.exec({
-      sql: `
-        DELETE
-        FROM
-          world_items
-        WHERE
-          item_id IN (1026, 1027, 1028, 1029);
-      `,
-    });
-
-    db.exec({
-      sql: 'ALTER TABLE map_filters DROP COLUMN should_show_treasure_icons;',
-    });
-  });
 
   migrate('0.4.66', (db) => {
     db.exec({
@@ -761,6 +748,151 @@ export const upgradeDb = (
 
       setupGlobalWriteTriggers(tx);
     });
+  });
+
+  migrate('0.4.84', (db) => {
+    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+
+    try {
+      db.transaction((tx) => {
+        tx.execMulti({
+          sql: `
+            DROP INDEX IF EXISTS idx_effects_tile_id;
+            DROP INDEX IF EXISTS idx_effects_tile_effect_scope_spec;
+            DROP INDEX IF EXISTS idx_effects_resource_site_resources;
+          `,
+        });
+
+        tx.execMulti({ sql: createEffectsIndexes });
+      });
+
+      db.transaction((tx) => {
+        tx.execMulti({
+          sql: `
+            CREATE TEMP TABLE building_durability_effect_ids_backup AS SELECT id, effect FROM effect_ids;
+            DROP TABLE effect_ids;
+          `,
+        });
+
+        tx.execMulti({ sql: createEffectIdsTable });
+
+        tx.execMulti({
+          sql: `
+            INSERT INTO effect_ids (id, effect)
+            SELECT id, effect
+            FROM building_durability_effect_ids_backup;
+
+            DROP TABLE building_durability_effect_ids_backup;
+
+            INSERT INTO effect_ids (effect)
+            VALUES ('buildingDurability')
+            ON CONFLICT (effect) DO NOTHING;
+          `,
+        });
+
+        const batches = tx.selectObjects({
+          sql: `
+            SELECT
+              id,
+              type,
+              village_id,
+              starts_at,
+              duration,
+              meta,
+              JSON_EXTRACT(meta, '$.cageAmount') AS amount
+            FROM
+              events
+            WHERE
+              type IN ('animalCageProduction', 'trapperCageProduction')
+              AND JSON_EXTRACT(meta, '$.cageAmount') IS NOT NULL;
+          `,
+          schema: z.strictObject({
+            id: z.number(),
+            type: z.string(),
+            village_id: z.number().nullable(),
+            starts_at: z.number(),
+            duration: z.number(),
+            meta: z.string(),
+            amount: z.int().positive(),
+          }),
+        });
+
+        for (const batch of batches) {
+          // Divide the saved batch duration rather than recalculating it from
+          // today's speed/settings. The last cage keeps the original deadline.
+          tx.exec({
+            sql: `
+              WITH RECURSIVE cages(i) AS (
+                SELECT 0
+                UNION ALL
+                SELECT i + 1
+                FROM cages
+                WHERE i + 1 < $amount
+              )
+              INSERT INTO events (type, village_id, starts_at, duration, meta)
+              SELECT
+                $type,
+                $village_id,
+                $starts_at + CAST(1.0 * $duration * i / $amount AS INTEGER),
+                CAST(1.0 * $duration * (i + 1) / $amount AS INTEGER)
+                  - CAST(1.0 * $duration * i / $amount AS INTEGER),
+                JSON_SET(JSON_REMOVE($meta, '$.cageAmount'),
+                  '$.amount', $amount, '$.batchId', $batch_id)
+              FROM
+                cages;
+            `,
+            bind: {
+              $type: batch.type,
+              $village_id: batch.village_id,
+              $starts_at: batch.starts_at,
+              $duration: batch.duration,
+              $meta: batch.meta,
+              $amount: batch.amount,
+              $batch_id: `legacy-cages-${batch.id}`,
+            },
+          });
+
+          tx.exec({
+            sql: 'DELETE FROM events WHERE id = $id;',
+            bind: { $id: batch.id },
+          });
+        }
+
+        // Keep removed item IDs recoverable without exposing them to inventory consumers.
+        tx.exec({
+          sql: `
+            CREATE TABLE IF NOT EXISTS legacy_hero_inventory (
+              hero_id INTEGER NOT NULL REFERENCES heroes (id) ON DELETE CASCADE,
+              item_id INTEGER NOT NULL,
+              amount INTEGER NOT NULL CHECK (amount > 0),
+              PRIMARY KEY (hero_id, item_id)
+            ) STRICT, WITHOUT ROWID;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            INSERT INTO legacy_hero_inventory (hero_id, item_id, amount)
+            SELECT hero_id, item_id, amount
+            FROM hero_inventory
+            WHERE item_id NOT IN (SELECT value FROM json_each($item_ids));
+          `,
+          bind: { $item_ids: JSON.stringify([...itemsMap.keys()]) },
+        });
+
+        tx.exec({
+          sql: `
+            DELETE FROM hero_inventory
+            WHERE (hero_id, item_id) IN (
+              SELECT hero_id, item_id
+              FROM legacy_hero_inventory
+            );
+          `,
+        });
+      });
+    } finally {
+      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+    }
   });
 
   // If all migrations passed, bump it to current version

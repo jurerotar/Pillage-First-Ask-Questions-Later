@@ -30,6 +30,10 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
     navigateToTab,
   } = useFilteredReports();
 
+  const unreadReportIds = reports
+    .filter(({ isRead }) => !isRead)
+    .map(({ id }) => id);
+
   const title = `${t('Reports')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
@@ -81,14 +85,10 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
                       <Button
                         variant="outline"
                         size="sm"
-                        disabled={
-                          !reports.some(({ tags }) => !tags.includes('read'))
-                        }
+                        disabled={unreadReportIds.length === 0}
                         onClick={() =>
                           updateReports({
-                            reportIds: reports
-                              .filter(({ tags }) => !tags.includes('read'))
-                              .map(({ id }) => id),
+                            reportIds: unreadReportIds,
                             tags: { read: true },
                           })
                         }

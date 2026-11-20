@@ -10,8 +10,6 @@ import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { culturePointsRequirementSpeedSchema } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-
 const buildingCulturePointsRowSchema = z.strictObject({
   building_id: buildingIdSchema,
   level: z.number(),
@@ -76,6 +74,32 @@ export const calculatePlayerCulturePointsProduction = (
   return total;
 };
 
+export const calculatePlayerCulturePointsAt = (
+  database: DbFacade,
+  timestamp: number,
+  playerId = PLAYER_ID,
+  production = calculatePlayerCulturePointsProduction(database, playerId),
+): number | undefined => {
+  return database.selectValue({
+    sql: `
+      SELECT
+        culture_points + (
+          1.0 * $production * MAX(0, $timestamp - culture_points_updated_at) / 86400000
+        )
+      FROM
+        culture_points
+      WHERE
+        player_id = $player_id;
+    `,
+    bind: {
+      $production: production,
+      $timestamp: timestamp,
+      $player_id: playerId,
+    },
+    schema: z.number(),
+  });
+};
+
 export const updatePlayerCulturePointsAt = (
   database: DbFacade,
   timestamp: number,
@@ -87,7 +111,7 @@ export const updatePlayerCulturePointsAt = (
       UPDATE culture_points
       SET
         culture_points = culture_points + (
-          1.0 * $production * MAX(0, $timestamp - culture_points_updated_at) / $day
+          1.0 * $production * MAX(0, $timestamp - culture_points_updated_at) / 86400000
         ),
         culture_points_updated_at = MAX(culture_points_updated_at, $timestamp)
       WHERE
@@ -97,7 +121,6 @@ export const updatePlayerCulturePointsAt = (
     bind: {
       $production: production,
       $timestamp: timestamp,
-      $day: DAY_IN_MILLISECONDS,
       $player_id: playerId,
     },
     schema: z.number(),
@@ -155,28 +178,28 @@ export const getPlayerCulturePointsRequirementContext = (
   const { villageCount, pendingVillageCount, culturePointsRequirementSpeed } =
     database.selectObject({
       sql: `
-      SELECT
-        (
-          SELECT COUNT(*)
-          FROM
-            villages
-          WHERE
-            player_id = $player_id
-        ) AS villageCount,
-        (
-          SELECT COUNT(*)
-          FROM
-            events e
-            JOIN villages v ON v.id = e.village_id
-          WHERE
-            v.player_id = $player_id
-            AND e.type = 'troopMovementFindNewVillage'
-        ) AS pendingVillageCount,
-        culture_points_requirement_speed AS culturePointsRequirementSpeed
-      FROM
-        servers
-      LIMIT 1;
-    `,
+        SELECT
+          (
+            SELECT COUNT(*)
+            FROM
+              villages
+            WHERE
+              player_id = $player_id
+          ) AS villageCount,
+          (
+            SELECT COUNT(*)
+            FROM
+              events e
+              JOIN villages v ON v.id = e.village_id
+            WHERE
+              v.player_id = $player_id
+              AND e.type = 'troopMovementFindNewVillage'
+          ) AS pendingVillageCount,
+          culture_points_requirement_speed AS culturePointsRequirementSpeed
+        FROM
+          servers
+        LIMIT 1;
+      `,
       bind: { $player_id: playerId },
       schema: z.strictObject({
         villageCount: z.number(),

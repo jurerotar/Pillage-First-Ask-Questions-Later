@@ -1,6 +1,9 @@
 import type { z } from 'zod';
 import { unitsMap } from '@pillage-first/game-assets/units';
-import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
+import {
+  reportDtoSchema,
+  reportListingDtoSchema,
+} from '@pillage-first/types/dtos/report';
 import type {
   BattleSiegeResult,
   BattleType,
@@ -13,7 +16,7 @@ import {
 import {
   type BattleReportSummary,
   type movementReportUnitSchema,
-  reportSchema,
+  reportTagSchema,
 } from '@pillage-first/types/models/report';
 import {
   type CombatUnit,
@@ -105,43 +108,46 @@ const mapTradeReportRowToSummaryDto = (row: TradeReportRow) => {
   };
 };
 
-const mapBaseReportRowToDto = (row: ReportRow) => ({
+const mapReportStateToDto = (tagsJson: string) => {
+  const tags = reportTagSchema.array().parse(JSON.parse(tagsJson));
+
+  return {
+    isRead: tags.includes('read'),
+    isArchived: tags.includes('archived'),
+  };
+};
+
+const mapBaseReportRowToDto = (row: ReportRow | ReportListingRow) => ({
   id: row.id,
   villageId: row.village_id,
   timestamp: row.timestamp,
   outcome: row.outcome,
-  tags: JSON.parse(row.tags_json),
+  ...mapReportStateToDto(row.tags_json),
 });
 
 export const mapReportListingRowToDto = (
   row: ReportListingRow,
 ): ReportListingDto => {
   const summary = JSON.parse(row.summary_json);
+  const base = mapBaseReportRowToDto(row);
 
   if (row.type === 'unitResearch') {
     return reportListingDtoSchema.parse({
-      id: row.id,
-      villageId: row.village_id,
-      timestamp: row.timestamp,
+      ...base,
       type: row.type,
-      outcome: row.outcome,
       summary: {
         villageId: summary.villageId,
         villageName: summary.villageName,
         villageCoordinates: summary.villageCoordinates,
       },
       unitId: summary.unitId,
-      tags: JSON.parse(row.tags_json),
     });
   }
 
   if (row.type === 'unitImprovement') {
     return reportListingDtoSchema.parse({
-      id: row.id,
-      villageId: row.village_id,
-      timestamp: row.timestamp,
+      ...base,
       type: row.type,
-      outcome: row.outcome,
       summary: {
         villageId: summary.villageId,
         villageName: summary.villageName,
@@ -149,17 +155,13 @@ export const mapReportListingRowToDto = (
       },
       unitId: summary.unitId,
       level: summary.level,
-      tags: JSON.parse(row.tags_json),
     });
   }
 
   if (row.type === 'scheduledConstructionCancellation') {
     return reportListingDtoSchema.parse({
-      id: row.id,
-      villageId: row.village_id,
-      timestamp: row.timestamp,
+      ...base,
       type: row.type,
-      outcome: row.outcome,
       summary: {
         villageId: summary.villageId,
         villageName: summary.villageName,
@@ -170,18 +172,13 @@ export const mapReportListingRowToDto = (
       level: summary.level,
       reason: summary.reason,
       reasonDetail: summary.reasonDetail,
-      tags: JSON.parse(row.tags_json),
     });
   }
 
   return reportListingDtoSchema.parse({
-    id: row.id,
-    villageId: row.village_id,
-    timestamp: row.timestamp,
+    ...base,
     type: row.type,
-    outcome: row.outcome,
     summary,
-    tags: JSON.parse(row.tags_json),
   });
 };
 
@@ -342,7 +339,7 @@ export const mapBattleReportRowToDto = (
     };
   };
 
-  return reportSchema.parse({
+  return reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'battle',
     summary: mapBattleReportRowToSummaryDto(row),
@@ -380,7 +377,7 @@ export const mapBattleReportRowToDto = (
 };
 
 export const mapAdventureReportRowToDto = (row: AdventureReportRow) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'adventure',
     summary: mapAdventureReportRowToSummaryDto(row),
@@ -395,7 +392,7 @@ export const mapMovementReportRowToDto = (
   row: MovementReportRow,
   movementUnits: z.infer<typeof movementReportUnitSchema>[],
 ) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'movement',
     summary: mapMovementReportRowToSummaryDto(row),
@@ -410,7 +407,7 @@ export const mapMovementReportRowToDto = (
   });
 
 export const mapTradeReportRowToDto = (row: TradeReportRow) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'trade',
     summary: mapTradeReportRowToSummaryDto(row),
@@ -441,7 +438,7 @@ export const mapHuntingPartyReportRowToDto = (
   row: HuntingPartyReportRow,
   units: z.infer<typeof movementReportUnitSchema>[],
 ) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'huntingParty',
     summary: mapExpeditionReportRowToSummaryDto(row),
@@ -453,7 +450,7 @@ export const mapGatheringExpeditionReportRowToDto = (
   row: GatheringExpeditionReportRow,
   units: z.infer<typeof movementReportUnitSchema>[],
 ) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'gatheringExpedition',
     summary: mapExpeditionReportRowToSummaryDto(row),
@@ -503,7 +500,7 @@ export const mapScoutingReportRowToDto = (
     };
   });
 
-  return reportSchema.parse({
+  return reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'scouting',
     summary: {
@@ -544,7 +541,7 @@ export const mapScoutingReportRowToDto = (
 };
 
 export const mapUnitResearchReportRowToDto = (row: UnitResearchReportRow) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'unitResearch',
     summary: {
@@ -558,7 +555,7 @@ export const mapUnitResearchReportRowToDto = (row: UnitResearchReportRow) =>
 export const mapUnitImprovementReportRowToDto = (
   row: UnitImprovementReportRow,
 ) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'unitImprovement',
     summary: {
@@ -571,7 +568,7 @@ export const mapUnitImprovementReportRowToDto = (
   });
 
 export const mapVillageFoundedReportRowToDto = (row: VillageFoundedReportRow) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'villageFounded',
     summary: {
@@ -587,7 +584,7 @@ export const mapVillageFoundedReportRowToDto = (row: VillageFoundedReportRow) =>
 export const mapScheduledConstructionCancellationReportRowToDto = (
   row: ScheduledConstructionCancellationReportRow,
 ) =>
-  reportSchema.parse({
+  reportDtoSchema.parse({
     ...mapBaseReportRowToDto(row),
     type: 'scheduledConstructionCancellation',
     summary: {

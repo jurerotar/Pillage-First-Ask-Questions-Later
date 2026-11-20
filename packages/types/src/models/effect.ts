@@ -35,6 +35,7 @@ export const effectIdSchema = z
     'greatStableTrainingDuration',
     'workshopTrainingDuration',
     'hospitalTrainingDuration',
+    'buildingDurability',
   ])
   .meta({ id: 'EffectId' });
 

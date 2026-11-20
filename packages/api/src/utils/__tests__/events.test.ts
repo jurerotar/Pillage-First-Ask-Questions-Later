@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import {
+  createTestVillage,
   prepareTestDatabase,
   setTestBuildingLevel,
   setTestDeveloperSetting,
@@ -33,6 +34,7 @@ import {
   createHeroHealthRegenerationEventMock,
   createHeroRevivalEventMock,
   createHuntersLodgeHuntEventMock,
+  createResourceTransferEventMock,
   createTrapperCageProductionEventMock,
   createTroopMovementAdventureEventMock,
   createTroopMovementAttackEventMock,
@@ -50,6 +52,7 @@ import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectResourceSiteResourcesRelevantEffectsByTileIdQuery } from '../../queries/effect-queries';
+import { selectVillageMerchantStatsByVillageIdQuery } from '../../queries/marketplace-queries';
 import { createEvents } from '../create-event';
 import {
   getEventCost,
@@ -102,6 +105,86 @@ const getAnyVillageWithTile = (
 
 describe('events utils', () => {
   describe(validateEventCreationPrerequisites, () => {
+    test.each([
+      ['valid', undefined],
+      [
+        'missing source',
+        'Target village does not exist or does not belong to player',
+      ],
+      ['missing target', 'Merchant return must target the source village'],
+      ['foreign target', 'Merchant return must target the source village'],
+      ['wrong tile', 'Merchant return target tile must be source village'],
+      ['different source', 'Merchant return must target the source village'],
+    ] as const)(
+      'resourceTransfer - validates a %s return without merchant stats or writes',
+      async (scenario, error) => {
+        using database = await prepareTestDatabase();
+
+        const source = getAnyVillageWithTile(database);
+
+        const event = createResourceTransferEventMock({
+          villageId: source.id,
+          targetVillageId: source.id,
+          targetTileId: source.tileId,
+          resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+          merchantAmount: 1,
+        });
+
+        if (scenario === 'missing source') {
+          event.villageId = -1;
+          event.targetVillageId = -1;
+        } else if (scenario === 'missing target') {
+          event.targetVillageId = -1;
+        } else if (
+          scenario === 'foreign target' ||
+          scenario === 'different source'
+        ) {
+          const playerId =
+            scenario === 'foreign target'
+              ? database.selectValue({
+                  sql: 'SELECT id FROM players WHERE id != $player_id LIMIT 1;',
+                  bind: { $player_id: PLAYER_ID },
+                  schema: z.number(),
+                })!
+              : PLAYER_ID;
+
+          const target = createTestVillage(
+            database,
+            'Return validation target',
+            { playerId },
+          );
+
+          event.targetVillageId = target.id;
+          event.targetTileId = target.tileId;
+        } else if (scenario === 'wrong tile') {
+          event.targetTileId = source.tileId + 1;
+        }
+
+        database.exec({ sql: 'PRAGMA query_only = ON;' });
+
+        using selectObject = vi.spyOn(database, 'selectObject');
+
+        const validate = () =>
+          validateEventCreationPrerequisites(database, event);
+
+        if (error) {
+          expect(validate).toThrow(error);
+        } else {
+          expect(validate).not.toThrow();
+        }
+
+        expect(selectObject).toHaveBeenCalledTimes(
+          event.targetVillageId === event.villageId ? 1 : 0,
+        );
+
+        expect(selectObject).not.toHaveBeenCalledWith(
+          expect.objectContaining({
+            sql: selectVillageMerchantStatsByVillageIdQuery,
+          }),
+        );
+      },
+    );
+
     test('unitImprovement - should throw if smithy is busy', async () => {
       using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
@@ -183,14 +266,13 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       expect(() =>
-        validateEventCreationPrerequisites(
-          database,
-          createUnitImprovementEventMock({
-            villageId,
-            level: 21,
-          }),
-        ),
-      ).toThrow('Unit upgrade level cannot exceed 20');
+        createEvents<'unitImprovement'>(database, {
+          type: 'unitImprovement',
+          villageId,
+          unitId: 'PHALANX',
+          level: 21,
+        }),
+      ).toThrow(z.ZodError);
     });
 
     test('unitImprovement - should throw if smithy level is lower than requested upgrade level', async () => {
@@ -1992,7 +2074,7 @@ describe('events utils', () => {
       setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 1);
 
       const event = createAnimalCageProductionEventMock({
-        cageAmount: 2,
+        amount: 2,
       });
 
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
@@ -2004,7 +2086,7 @@ describe('events utils', () => {
       setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 1);
 
       const event = createTrapperCageProductionEventMock({
-        cageAmount: 2,
+        amount: 2,
       });
 
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
@@ -2014,7 +2096,7 @@ describe('events utils', () => {
       using database = await prepareTestDatabase();
 
       const event = createAnimalCageProductionEventMock({
-        cageAmount: 2,
+        amount: 2,
       });
 
       expect(getEventCost(database, event)).toStrictEqual(
@@ -2026,7 +2108,7 @@ describe('events utils', () => {
       using database = await prepareTestDatabase();
 
       const event = createTrapperCageProductionEventMock({
-        cageAmount: 2,
+        amount: 2,
       });
 
       expect(getEventCost(database, event)).toStrictEqual(
@@ -2294,7 +2376,7 @@ describe('events utils', () => {
       setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 1);
 
       const event = createAnimalCageProductionEventMock({
-        cageAmount: 3,
+        amount: 3,
       });
 
       expect(getEventDuration(database, event)).toBe(0);
@@ -2306,7 +2388,7 @@ describe('events utils', () => {
       setTestDeveloperSetting(database, 'is_instant_unit_training_enabled', 1);
 
       const event = createTrapperCageProductionEventMock({
-        cageAmount: 3,
+        amount: 3,
       });
 
       expect(getEventDuration(database, event)).toBe(0);
@@ -2545,7 +2627,7 @@ describe('events utils', () => {
       expect(healingDuration).toBe(normalDuration / 2);
     });
 
-    test('animalCageProduction - should return batch duration based on server speed', async () => {
+    test('animalCageProduction - should return per-cage duration based on server speed', async () => {
       using database = await prepareTestDatabase();
 
       database.exec({
@@ -2554,15 +2636,15 @@ describe('events utils', () => {
       });
 
       const event = createAnimalCageProductionEventMock({
-        cageAmount: 3,
+        amount: 3,
       });
 
       expect(getEventDuration(database, event)).toBe(
-        (ANIMAL_CAGE_BASE_DURATION * 3) / 2,
+        ANIMAL_CAGE_BASE_DURATION / 2,
       );
     });
 
-    test('trapperCageProduction - should return batch duration based on server speed', async () => {
+    test('trapperCageProduction - should return per-cage duration based on server speed', async () => {
       using database = await prepareTestDatabase();
 
       database.exec({
@@ -2571,11 +2653,11 @@ describe('events utils', () => {
       });
 
       const event = createTrapperCageProductionEventMock({
-        cageAmount: 3,
+        amount: 3,
       });
 
       expect(getEventDuration(database, event)).toBe(
-        (TRAPPER_CAGE_BASE_DURATION * 3) / 2,
+        TRAPPER_CAGE_BASE_DURATION / 2,
       );
     });
 
