@@ -13,7 +13,7 @@ import {
 import {
   createBuildingPlaceholder,
   removeBuildingPlaceholder,
-} from '../../utils/building-placeholder';
+} from '../../utils/buildings';
 import {
   insertScheduledBuildingUpgrade,
   removeScheduledBuildingUpgradeChain,

@@ -8,9 +8,10 @@ import {
 } from '@pillage-first/types/models/report';
 import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import { selectVillageResearchedUnitsQuery } from '../../../../queries/unit-queries';
-import { unitResearchResolver } from '../unit-research-resolvers';
+import { createEvents } from '../../../../utils/create-event';
+import { unitResearchResolver } from '../unit-research-resolver';
 
-describe(unitResearchResolver, () => {
+describe('unit research', () => {
   test('should insert unit research record', async () => {
     using database = await prepareTestDatabase();
     const villageId = 1;
@@ -24,7 +25,7 @@ describe(unitResearchResolver, () => {
       unitId,
     });
 
-    unitResearchResolver(database, mockEvent);
+    unitResearchResolver.resolve(database, mockEvent, createEvents);
 
     const research = database
       .selectObjects({

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createTrapperCageProductionEventMock } from '@pillage-first/mocks/event';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
-import { insertEvents } from '../../../../utils/events';
+import { insertEvents } from '../../../../utils/insert-events';
 import * as notifications from '../../../../worker/notification-port';
 import { resolveEvent } from '../../resolve-event';
 import {

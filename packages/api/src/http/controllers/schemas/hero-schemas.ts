@@ -8,6 +8,8 @@ export const getHeroSchema = z
   .strictObject({
     id: z.number(),
     health: z.number(),
+    next_health_regeneration_at: z.number().nullable(),
+    world_speed: z.number(),
     experience: z.number(),
     attack_power: z.number(),
     resource_production: z.number(),

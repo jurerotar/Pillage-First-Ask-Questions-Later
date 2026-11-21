@@ -21,7 +21,7 @@ import {
   selectTroopMovementEventsQuery,
 } from '../../queries/event-queries';
 import { deleteScheduledBuildingUpgradesByVillageAndFieldQuery } from '../../queries/scheduled-building-upgrades-queries';
-import { removeBuildingPlaceholder } from '../../utils/building-placeholder';
+import { removeBuildingPlaceholder } from '../../utils/buildings';
 import { createEvents } from '../../utils/create-event';
 import { promoteNextScheduledBuildingUpgrade } from '../../utils/scheduled-building-upgrades';
 import {
@@ -124,7 +124,7 @@ export const createNewEvents = createController('/events', 'post', {
   requestBody: createEventDtoSchema,
 })(({ database, body }) => {
   database.transaction((db) => {
-    createEvents(db, body as never);
+    createEvents(db, body);
   });
 });
 
@@ -193,7 +193,13 @@ export const cancelConstructionEvent = createController(
       resourcesToRefund,
     );
 
-    promoteNextScheduledBuildingUpgrade(db, villageId, now, buildingFieldId);
+    promoteNextScheduledBuildingUpgrade(
+      createEvents,
+      db,
+      villageId,
+      now,
+      buildingFieldId,
+    );
   });
 
   triggerKick();

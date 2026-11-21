@@ -12,8 +12,9 @@ import {
 } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import * as notificationPort from '../../worker/notification-port';
-import { createBuildingPlaceholder } from '../building-placeholder';
-import { insertEvents } from '../events';
+import { createBuildingPlaceholder } from '../buildings';
+import { createEvents } from '../create-event';
+import { insertEvents } from '../insert-events';
 import {
   insertScheduledBuildingUpgrade,
   promoteNextScheduledBuildingUpgrade,
@@ -100,7 +101,7 @@ describe('scheduled building upgrades', () => {
         level: 1,
       });
 
-      promoteNextScheduledBuildingUpgrade(database, villageId);
+      promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
       const reasonDetail = {
         type: 'missing-requirements',
@@ -181,7 +182,7 @@ describe('scheduled building upgrades', () => {
       level: 1,
     });
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const reasonDetail = {
       type: 'missing-requirements',
@@ -257,7 +258,7 @@ describe('scheduled building upgrades', () => {
       },
     });
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const counts = database.selectObject({
       sql: `
@@ -293,7 +294,7 @@ describe('scheduled building upgrades', () => {
       bind: { $village_id: villageId },
     });
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const promoted = database.selectObject({
       sql: `
@@ -361,7 +362,7 @@ describe('scheduled building upgrades', () => {
       },
     });
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const counts = database.selectObject({
       sql: `
@@ -416,7 +417,7 @@ describe('scheduled building upgrades', () => {
       });
     }
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const result = database.selectObject({
       sql: `
@@ -489,7 +490,7 @@ describe('scheduled building upgrades', () => {
       });
     }
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const result = database.selectObject({
       sql: `
@@ -594,6 +595,7 @@ describe('scheduled building upgrades', () => {
     });
 
     promoteNextScheduledBuildingUpgrade(
+      createEvents,
       database,
       villageId,
       undefined,
@@ -670,7 +672,7 @@ describe('scheduled building upgrades', () => {
       });
     }
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     expect(
       database.selectValue({
@@ -814,7 +816,7 @@ describe('scheduled building upgrades', () => {
       level: validLevel,
     });
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const promoted = database.selectObject({
       sql: `
@@ -876,7 +878,7 @@ describe('scheduled building upgrades', () => {
       });
     }
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const counts = database.selectObject({
       sql: `
@@ -987,7 +989,7 @@ describe('scheduled building upgrades', () => {
       level: validLevel,
     });
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const result = database.selectObject({
       sql: `
@@ -1056,7 +1058,7 @@ describe('scheduled building upgrades', () => {
       level: 1,
     });
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const result = database.selectObject({
       sql: `
@@ -1127,7 +1129,7 @@ describe('scheduled building upgrades', () => {
       });
     }
 
-    promoteNextScheduledBuildingUpgrade(database, villageId);
+    promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
     const result = database.selectObject({
       sql: `
@@ -1211,7 +1213,7 @@ describe('scheduled building upgrades', () => {
         level: field.level + 1,
       });
 
-      promoteNextScheduledBuildingUpgrade(database, villageId);
+      promoteNextScheduledBuildingUpgrade(createEvents, database, villageId);
 
       const counts = database.selectObject({
         sql: `
@@ -1261,6 +1263,7 @@ describe('scheduled building upgrades', () => {
     });
 
     promoteNextScheduledBuildingUpgrade(
+      createEvents,
       database,
       villageId,
       predecessorResolvesAt,

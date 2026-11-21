@@ -1,12 +1,16 @@
 import type { z } from 'zod';
 import {
+  calculateHealthRegenerationInterval,
+  getHeroHealthAt,
+} from '@pillage-first/game-assets/utils/hero';
+import {
   heroAuctionBuyListingDtoSchema,
   heroAuctionHistoryEntryDtoSchema,
   heroAuctionSellListingDtoSchema,
-  heroDtoSchema,
   heroInventoryEntryDtoSchema,
   heroLoadoutEntryDtoSchema,
 } from '@pillage-first/types/dtos/hero';
+import { type Hero, heroSchema } from '@pillage-first/types/models/hero';
 import type {
   getHeroAuctionBuyListingSchema,
   getHeroAuctionHistoryEntrySchema,
@@ -16,9 +20,7 @@ import type {
   getHeroSchema,
 } from '../schemas/hero-schemas';
 
-const mapHeroStatus = (
-  row: z.infer<typeof getHeroSchema>,
-): z.infer<typeof heroDtoSchema>['status'] => {
+const mapHeroStatus = (row: z.infer<typeof getHeroSchema>): Hero['status'] => {
   if (row.health <= 0) {
     return { type: 'dead' };
   }
@@ -34,13 +36,24 @@ const mapHeroStatus = (
   return { type: 'reinforcing', tileId: row.stationed_tile_id! };
 };
 
-export const mapHero = (
-  row: z.infer<typeof getHeroSchema>,
-): z.infer<typeof heroDtoSchema> => {
+export const mapHero = (row: z.infer<typeof getHeroSchema>): Hero => {
+  const healthRegenerationInterval = calculateHealthRegenerationInterval(
+    row.health_regeneration,
+    row.world_speed,
+  );
+  const { health, nextHealthRegenerationAt } = getHeroHealthAt(
+    row.health,
+    row.next_health_regeneration_at,
+    healthRegenerationInterval,
+    Date.now(),
+  );
+
   const dto = {
     id: row.id,
+    nextHealthRegenerationAt,
+    healthRegenerationInterval,
     stats: {
-      health: row.health,
+      health,
       experience: row.experience,
       attackPower: row.base_attack_power,
       healthRegeneration: row.health_regeneration,
@@ -62,7 +75,7 @@ export const mapHero = (
     status: mapHeroStatus(row),
   };
 
-  return heroDtoSchema.parse(dto);
+  return heroSchema.parse(dto);
 };
 
 export const mapHeroLoadoutEntry = (

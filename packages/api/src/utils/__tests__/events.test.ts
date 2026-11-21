@@ -25,13 +25,13 @@ import {
   TRAPPER_CAGE_BASE_DURATION,
   TRAPPER_CAGE_COST,
 } from '@pillage-first/game-assets/utils/trapper';
+import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import {
   createAnimalCageProductionEventMock,
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
   createGameEventMock,
-  createHeroHealthRegenerationEventMock,
   createHeroRevivalEventMock,
   createHuntersLodgeHuntEventMock,
   createResourceTransferEventMock,
@@ -54,16 +54,9 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectResourceSiteResourcesRelevantEffectsByTileIdQuery } from '../../queries/effect-queries';
 import { selectVillageMerchantStatsByVillageIdQuery } from '../../queries/marketplace-queries';
 import { createEvents } from '../create-event';
-import {
-  getEventCost,
-  getEventDuration,
-  getEventResourceSubtractionTimestamp,
-  getEventStartTime,
-  insertEvents,
-  runEventCreationSideEffects,
-  validateEventCreationPrerequisites,
-} from '../events';
+import { insertEvents } from '../insert-events';
 import { calculateResourceSiteResourcesAt } from '../village';
+import { getCreationRules, insertTestEvents } from './event-resolver-helpers';
 
 const getAnyVillageId = (database: DbFacade): number => {
   return database.selectValue({
@@ -104,7 +97,7 @@ const getAnyVillageWithTile = (
 };
 
 describe('events utils', () => {
-  describe(validateEventCreationPrerequisites, () => {
+  describe('creation validation', () => {
     test.each([
       ['valid', undefined],
       [
@@ -165,7 +158,7 @@ describe('events utils', () => {
         using selectObject = vi.spyOn(database, 'selectObject');
 
         const validate = () =>
-          validateEventCreationPrerequisites(database, event);
+          getCreationRules(database, event).validate(Date.now());
 
         if (error) {
           expect(validate).toThrow(error);
@@ -220,12 +213,12 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitImprovementEventMock({
             villageId,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Smithy is busy');
     });
 
@@ -252,12 +245,12 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitImprovementEventMock({
             villageId,
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -298,13 +291,13 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitImprovementEventMock({
             villageId,
             level: 2,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Smithy level is too low for this unit upgrade');
     });
 
@@ -326,13 +319,13 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitResearchEventMock({
             villageId,
             unitId: 'PHALANX',
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Academy is busy');
     });
 
@@ -350,13 +343,13 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitResearchEventMock({
             villageId,
             unitId: 'PHALANX',
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Unit is already researched');
     });
 
@@ -375,13 +368,13 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitResearchEventMock({
             villageId,
             unitId: 'PHALANX',
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -390,13 +383,13 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitResearchEventMock({
             villageId,
             unitId: 'LEGIONNAIRE',
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Unit does not belong to village tribe');
     });
 
@@ -407,13 +400,13 @@ describe('events utils', () => {
       setTestBuildingLevel(database, villageId, 'ACADEMY', 2);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitResearchEventMock({
             villageId,
             unitId: 'SWORDSMAN',
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Unit research requirements are not met');
     });
 
@@ -424,13 +417,13 @@ describe('events utils', () => {
       setTestBuildingLevel(database, villageId, 'ACADEMY', 3);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createUnitResearchEventMock({
             villageId,
             unitId: 'SWORDSMAN',
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -443,9 +436,9 @@ describe('events utils', () => {
         unitId: 'LEGIONNAIRE',
       });
 
-      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
-        'Unit does not belong to village tribe',
-      );
+      expect(() =>
+        getCreationRules(database, event).validate(Date.now()),
+      ).toThrow('Unit does not belong to village tribe');
     });
 
     test('troopTraining - should throw if unit is not researched', async () => {
@@ -457,9 +450,9 @@ describe('events utils', () => {
         unitId: 'SWORDSMAN',
       });
 
-      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
-        'Unit is not researched',
-      );
+      expect(() =>
+        getCreationRules(database, event).validate(Date.now()),
+      ).toThrow('Unit is not researched');
     });
 
     test('troopTraining - should throw if training building does not match unit category', async () => {
@@ -475,9 +468,9 @@ describe('events utils', () => {
         durationEffectId: 'stableTrainingDuration',
       });
 
-      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
-        'Unit training building does not match unit category',
-      );
+      expect(() =>
+        getCreationRules(database, event).validate(Date.now()),
+      ).toThrow('Unit training building does not match unit category');
     });
 
     test('troopTraining - should throw if duration effect does not match training building', async () => {
@@ -493,9 +486,9 @@ describe('events utils', () => {
         durationEffectId: 'stableTrainingDuration',
       });
 
-      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
-        'Unit training duration effect does not match building',
-      );
+      expect(() =>
+        getCreationRules(database, event).validate(Date.now()),
+      ).toThrow('Unit training duration effect does not match building');
     });
 
     test('troopTraining - should throw if recruitment building requirements are missing', async () => {
@@ -511,9 +504,9 @@ describe('events utils', () => {
         durationEffectId: 'residenceTrainingDuration',
       });
 
-      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
-        'Unit recruitment requirements are not met',
-      );
+      expect(() =>
+        getCreationRules(database, event).validate(Date.now()),
+      ).toThrow('Unit recruitment requirements are not met');
     });
 
     test('troopTraining - should throw if healing unit is not researched', async () => {
@@ -537,9 +530,9 @@ describe('events utils', () => {
         amount: 5,
       });
 
-      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
-        'Unit is not researched',
-      );
+      expect(() =>
+        getCreationRules(database, event).validate(Date.now()),
+      ).toThrow('Unit is not researched');
     });
 
     test('troopTraining - should throw if healing more troops than are wounded', async () => {
@@ -563,9 +556,9 @@ describe('events utils', () => {
         amount: 5,
       });
 
-      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
-        'Not enough wounded troops available',
-      );
+      expect(() =>
+        getCreationRules(database, event).validate(Date.now()),
+      ).toThrow('Not enough wounded troops available');
     });
 
     test('buildingLevelChange - should throw if target level exceeds max level', async () => {
@@ -574,14 +567,14 @@ describe('events utils', () => {
       const { maxLevel } = getBuildingDefinition('MAIN_BUILDING');
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             buildingId: 'MAIN_BUILDING',
             level: maxLevel + 1,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Building level cannot exceed max level');
     });
 
@@ -591,14 +584,14 @@ describe('events utils', () => {
       const { maxLevel } = getBuildingDefinition('MAIN_BUILDING');
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             buildingId: 'MAIN_BUILDING',
             level: maxLevel + 1,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Building level cannot exceed max level');
     });
 
@@ -620,13 +613,13 @@ describe('events utils', () => {
       })!;
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: occupiedBuildingFieldId,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Building field is already occupied');
     });
 
@@ -660,14 +653,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId,
             buildingId: 'WAREHOUSE',
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -694,14 +687,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId,
             buildingId: 'BARRACKS',
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Building requirements are not met');
     });
 
@@ -732,7 +725,7 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
@@ -741,7 +734,7 @@ describe('events utils', () => {
             previousLevel: 1,
             level: 2,
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -781,7 +774,7 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
@@ -790,13 +783,13 @@ describe('events utils', () => {
             previousLevel: 5,
             level: 6,
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({ villageId }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -818,10 +811,10 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementAdventureEventMock({ villageId }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('No adventure points available');
     });
 
@@ -832,13 +825,13 @@ describe('events utils', () => {
       setTestBuildingLevel(database, villageId, 'HUNTERS_LODGE', 2);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createHuntersLodgeHuntEventMock({
             villageId,
             huntingPartyLevel: 3,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow("Hunter's Lodge level is too low");
     });
 
@@ -856,13 +849,13 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createHuntersLodgeHuntEventMock({
             villageId,
             huntingPartyLevel: 1,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow("Hunter's Lodge is busy");
     });
 
@@ -889,14 +882,14 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 19, // village building
             buildingId: 'WAREHOUSE',
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Building construction queue is full');
     });
 
@@ -923,14 +916,14 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 19, // village building
             buildingId: 'WAREHOUSE',
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -957,14 +950,14 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 2, // another resource field
             buildingId: 'WHEAT_FIELD',
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Building construction queue is full');
     });
 
@@ -991,13 +984,13 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             buildingFieldId: 20, // another village building
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Building construction queue is full');
     });
 
@@ -1025,13 +1018,13 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             buildingFieldId: 20,
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1046,13 +1039,13 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             buildingFieldId: 20,
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1071,14 +1064,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             previousLevel: 2,
             level: 1,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Main building level 10 is required to downgrade buildings');
     });
 
@@ -1097,14 +1090,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             previousLevel: 2,
             level: 1,
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1131,14 +1124,14 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             previousLevel: 3,
             level: 2,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Main building is busy');
     });
 
@@ -1165,14 +1158,14 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingLevelChangeEventMock({
             villageId,
             previousLevel: 2,
             level: 1,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Main building is busy');
     });
 
@@ -1198,12 +1191,12 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingDestructionEventMock({
             villageId,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Main building is busy');
     });
 
@@ -1229,14 +1222,14 @@ describe('events utils', () => {
       ]);
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createBuildingDestructionEventMock({
             villageId,
             previousLevel: 9,
             level: 0,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Main building is busy');
     });
 
@@ -1258,10 +1251,10 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementAdventureEventMock({ villageId }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1352,10 +1345,10 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementAdventureEventMock({ villageId: homeVillage.id }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Hero is not stationed in his home village');
     });
 
@@ -1369,14 +1362,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('No free oasis occupation slots available');
     });
 
@@ -1406,14 +1399,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1452,14 +1445,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('No free oasis occupation slots available');
     });
 
@@ -1475,12 +1468,12 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementAttackEventMock({
             targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Target must be a village or an oasis');
     });
 
@@ -1494,10 +1487,10 @@ describe('events utils', () => {
       })!;
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementAttackEventMock({ targetTileId }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1509,10 +1502,10 @@ describe('events utils', () => {
       })!;
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementAttackEventMock({ targetTileId }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1528,12 +1521,12 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementRaidEventMock({
             targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Target must be a village or an oasis');
     });
 
@@ -1545,10 +1538,10 @@ describe('events utils', () => {
       })!;
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementRaidEventMock({ targetTileId }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1562,7 +1555,7 @@ describe('events utils', () => {
       })!;
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementFindNewVillageEventMock({
             targetTileId,
@@ -1575,7 +1568,7 @@ describe('events utils', () => {
               },
             ],
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Target tile must be unoccupied');
     });
 
@@ -1605,14 +1598,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Target must be an oasis');
     });
 
@@ -1645,14 +1638,14 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId,
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Oasis is already occupied by you');
     });
 
@@ -1660,12 +1653,12 @@ describe('events utils', () => {
       using database = await prepareTestDatabase();
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementRelocationEventMock({
             targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Target tile does not exist');
     });
 
@@ -1694,13 +1687,13 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createTroopMovementRelocationEventMock({
             villageId,
             targetTileId,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Troops can not be relocated to oasis');
     });
 
@@ -1708,7 +1701,7 @@ describe('events utils', () => {
       using database = await prepareTestDatabase();
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createGameEventMock('troopMovementReturn', {
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
@@ -1717,7 +1710,7 @@ describe('events utils', () => {
               { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, sourceTileId: 1 },
             ],
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
 
@@ -1731,12 +1724,12 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createHeroRevivalEventMock({
             villageId,
           }),
-        ),
+        ).validate(Date.now()),
       ).toThrow('Hero is already alive');
     });
 
@@ -1750,17 +1743,17 @@ describe('events utils', () => {
       });
 
       expect(() =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createHeroRevivalEventMock({
             villageId,
           }),
-        ),
+        ).validate(Date.now()),
       ).not.toThrow();
     });
   });
 
-  describe(runEventCreationSideEffects, () => {
+  describe('insert side effects', () => {
     test('troopMovementAdventure - should materialize accrued points before spending one', async () => {
       using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
@@ -1786,7 +1779,7 @@ describe('events utils', () => {
         bind: { $hero_id: heroId },
       });
 
-      runEventCreationSideEffects(database, [
+      insertTestEvents(database, [
         createTroopMovementAdventureEventMock({ villageId }),
       ]);
 
@@ -1851,7 +1844,7 @@ describe('events utils', () => {
         ],
       });
 
-      runEventCreationSideEffects(database, [event]);
+      insertTestEvents(database, [event]);
 
       const amount = database.selectValue({
         sql: `
@@ -1943,7 +1936,7 @@ describe('events utils', () => {
         }),
       ];
 
-      runEventCreationSideEffects(database, events);
+      insertTestEvents(database, events);
 
       const getAmount = (unit: Unit['id']) =>
         database.selectValue({
@@ -1976,7 +1969,7 @@ describe('events utils', () => {
         Date.now() + 60_000,
       );
 
-      runEventCreationSideEffects(database, [
+      insertTestEvents(database, [
         createTroopTrainingEventMock({
           villageId,
           buildingId: 'HOSPITAL',
@@ -2002,7 +1995,7 @@ describe('events utils', () => {
     });
   });
 
-  describe(getEventCost, () => {
+  describe('creation cost', () => {
     test('buildingLevelUp - should return zero cost if free building construction enabled', async () => {
       using database = await prepareTestDatabase();
 
@@ -2014,7 +2007,7 @@ describe('events utils', () => {
 
       const event = createBuildingLevelChangeEventMock();
 
-      const result = getEventCost(database, event);
+      const result = getCreationRules(database, event).cost();
 
       expect(result).toStrictEqual([0, 0, 0, 0]);
     });
@@ -2030,7 +2023,7 @@ describe('events utils', () => {
 
       const event = createBuildingLevelChangeEventMock();
 
-      const result = getEventCost(database, event);
+      const result = getCreationRules(database, event).cost();
 
       expect(result).toHaveLength(4);
       expect(result.some((v) => v > 0)).toBe(true);
@@ -2043,7 +2036,9 @@ describe('events utils', () => {
 
       const event = createUnitResearchEventMock();
 
-      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+      expect(getCreationRules(database, event).cost()).toStrictEqual([
+        0, 0, 0, 0,
+      ]);
     });
 
     test('unitImprovement - should return zero cost if free unit improvement enabled', async () => {
@@ -2053,7 +2048,9 @@ describe('events utils', () => {
 
       const event = createUnitImprovementEventMock();
 
-      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+      expect(getCreationRules(database, event).cost()).toStrictEqual([
+        0, 0, 0, 0,
+      ]);
     });
 
     test('troopTraining - should return zero cost if free unit training enabled', async () => {
@@ -2065,7 +2062,9 @@ describe('events utils', () => {
         amount: 10,
       });
 
-      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+      expect(getCreationRules(database, event).cost()).toStrictEqual([
+        0, 0, 0, 0,
+      ]);
     });
 
     test('animalCageProduction - should return zero cost if free unit training enabled', async () => {
@@ -2077,7 +2076,9 @@ describe('events utils', () => {
         amount: 2,
       });
 
-      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+      expect(getCreationRules(database, event).cost()).toStrictEqual([
+        0, 0, 0, 0,
+      ]);
     });
 
     test('trapperCageProduction - should return zero cost if free unit training enabled', async () => {
@@ -2089,7 +2090,9 @@ describe('events utils', () => {
         amount: 2,
       });
 
-      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+      expect(getCreationRules(database, event).cost()).toStrictEqual([
+        0, 0, 0, 0,
+      ]);
     });
 
     test('animalCageProduction - should return cost for the full cage batch', async () => {
@@ -2099,7 +2102,7 @@ describe('events utils', () => {
         amount: 2,
       });
 
-      expect(getEventCost(database, event)).toStrictEqual(
+      expect(getCreationRules(database, event).cost()).toStrictEqual(
         ANIMAL_CAGE_COST.map((cost) => cost * 2),
       );
     });
@@ -2111,7 +2114,7 @@ describe('events utils', () => {
         amount: 2,
       });
 
-      expect(getEventCost(database, event)).toStrictEqual(
+      expect(getCreationRules(database, event).cost()).toStrictEqual(
         TRAPPER_CAGE_COST.map((cost) => cost * 2),
       );
     });
@@ -2136,8 +2139,8 @@ describe('events utils', () => {
           buildingId: greatBuildingId,
         } as GameEvent<'troopTraining'>;
 
-        const baseCost = getEventCost(database, baseEvent);
-        const greatCost = getEventCost(database, greatEvent);
+        const baseCost = getCreationRules(database, baseEvent).cost();
+        const greatCost = getCreationRules(database, greatEvent).cost();
 
         expect(greatCost).toStrictEqual(baseCost.map((v) => v * 3));
       },
@@ -2146,12 +2149,12 @@ describe('events utils', () => {
     test('huntersLodgeHunt - should return wheat cost based on party level', async () => {
       using database = await prepareTestDatabase();
 
-      const cost = getEventCost(
+      const cost = getCreationRules(
         database,
         createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 3,
         }),
-      );
+      ).cost();
 
       expect(cost).toStrictEqual([0, 0, 0, 300]);
     });
@@ -2161,12 +2164,12 @@ describe('events utils', () => {
 
       setTestDeveloperSetting(database, 'is_free_hunting_parties_enabled', 1);
 
-      const cost = getEventCost(
+      const cost = getCreationRules(
         database,
         createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 3,
         }),
-      );
+      ).cost();
 
       expect(cost).toStrictEqual([0, 0, 0, 0]);
     });
@@ -2195,12 +2198,12 @@ describe('events utils', () => {
       const { level } = calculateHeroLevel(experience);
       const expectedCost = calculateHeroRevivalCost(tribe, level);
 
-      const result = getEventCost(
+      const result = getCreationRules(
         database,
         createHeroRevivalEventMock({
           villageId,
         }),
-      );
+      ).cost();
 
       expect(result).toStrictEqual(expectedCost);
     });
@@ -2211,12 +2214,12 @@ describe('events utils', () => {
 
       setTestDeveloperSetting(database, 'is_free_hero_revive_enabled', 1);
 
-      const result = getEventCost(
+      const result = getCreationRules(
         database,
         createHeroRevivalEventMock({
           villageId,
         }),
-      );
+      ).cost();
 
       expect(result).toStrictEqual([0, 0, 0, 0]);
     });
@@ -2232,26 +2235,32 @@ describe('events utils', () => {
       celebrationType: 'small' as const,
     };
 
-    const cost = getEventCost(database, event);
-    const duration = getEventDuration(database, event);
+    const cost = getCreationRules(database, event).cost();
+    const duration = getCreationRules(database, event).duration(Date.now());
 
     expect(cost.some((value) => value > 0)).toBe(true);
     expect(duration).toBeGreaterThan(0);
 
     setTestDeveloperSetting(database, 'is_free_celebrations_enabled', 1);
 
-    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
-    expect(getEventDuration(database, event)).toBe(duration);
+    expect(getCreationRules(database, event).cost()).toStrictEqual([
+      0, 0, 0, 0,
+    ]);
+    expect(getCreationRules(database, event).duration(Date.now())).toBe(
+      duration,
+    );
 
     setTestDeveloperSetting(database, 'is_instant_celebrations_enabled', 1);
 
-    expect(getEventDuration(database, event)).toBe(0);
-    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+    expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
+    expect(getCreationRules(database, event).cost()).toStrictEqual([
+      0, 0, 0, 0,
+    ]);
 
     setTestDeveloperSetting(database, 'is_free_celebrations_enabled', 0);
 
-    expect(getEventCost(database, event)).toStrictEqual(cost);
-    expect(getEventDuration(database, event)).toBe(0);
+    expect(getCreationRules(database, event).cost()).toStrictEqual(cost);
+    expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
   });
 
   test('large celebration developer flags independently control cost and duration', async () => {
@@ -2264,34 +2273,40 @@ describe('events utils', () => {
       celebrationType: 'large' as const,
     };
 
-    const cost = getEventCost(database, event);
-    const duration = getEventDuration(database, event);
+    const cost = getCreationRules(database, event).cost();
+    const duration = getCreationRules(database, event).duration(Date.now());
 
     expect(cost.some((value) => value > 0)).toBe(true);
     expect(duration).toBeGreaterThan(0);
 
     setTestDeveloperSetting(database, 'is_free_celebrations_enabled', 1);
 
-    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
-    expect(getEventDuration(database, event)).toBe(duration);
+    expect(getCreationRules(database, event).cost()).toStrictEqual([
+      0, 0, 0, 0,
+    ]);
+    expect(getCreationRules(database, event).duration(Date.now())).toBe(
+      duration,
+    );
 
     setTestDeveloperSetting(database, 'is_instant_celebrations_enabled', 1);
 
-    expect(getEventDuration(database, event)).toBe(0);
-    expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+    expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
+    expect(getCreationRules(database, event).cost()).toStrictEqual([
+      0, 0, 0, 0,
+    ]);
 
     setTestDeveloperSetting(database, 'is_free_celebrations_enabled', 0);
 
-    expect(getEventCost(database, event)).toStrictEqual(cost);
-    expect(getEventDuration(database, event)).toBe(0);
+    expect(getCreationRules(database, event).cost()).toStrictEqual(cost);
+    expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
   });
 
-  describe(getEventDuration, () => {
+  describe('event duration', () => {
     test('buildingConstruction - should return 0', async () => {
       using database = await prepareTestDatabase();
       const event = createGameEventMock('buildingConstruction');
 
-      expect(getEventDuration(database, event)).toBe(0);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
     });
 
     test('buildingDestruction - should return duration based on level and server speed', async () => {
@@ -2310,7 +2325,9 @@ describe('events utils', () => {
 
       const expectedDuration = calculateBuildingDestructionDuration(6, 2);
 
-      expect(getEventDuration(database, event)).toBe(expectedDuration);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(
+        expectedDuration,
+      );
     });
 
     test('buildingLevelUp - should return 0 if instant construction enabled', async () => {
@@ -2326,7 +2343,7 @@ describe('events utils', () => {
         villageId: getAnyVillageId(database),
       });
 
-      expect(getEventDuration(database, event)).toBe(0);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
     });
 
     test('unitResearch - should return 0 if instant research enabled', async () => {
@@ -2338,7 +2355,7 @@ describe('events utils', () => {
         villageId: getAnyVillageId(database),
       });
 
-      expect(getEventDuration(database, event)).toBe(0);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
     });
 
     test('unitImprovement - should return 0 if instant improvement enabled', async () => {
@@ -2354,7 +2371,7 @@ describe('events utils', () => {
         villageId: getAnyVillageId(database),
       });
 
-      expect(getEventDuration(database, event)).toBe(0);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
     });
 
     test('troopTraining - should return 0 if instant training enabled', async () => {
@@ -2367,7 +2384,7 @@ describe('events utils', () => {
         amount: 10,
       });
 
-      expect(getEventDuration(database, event)).toBe(0);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
     });
 
     test('animalCageProduction - should return 0 if instant unit training enabled', async () => {
@@ -2379,7 +2396,7 @@ describe('events utils', () => {
         amount: 3,
       });
 
-      expect(getEventDuration(database, event)).toBe(0);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
     });
 
     test('trapperCageProduction - should return 0 if instant unit training enabled', async () => {
@@ -2391,7 +2408,7 @@ describe('events utils', () => {
         amount: 3,
       });
 
-      expect(getEventDuration(database, event)).toBe(0);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(0);
     });
 
     test('buildingLevelUp - should apply effects and return a positive duration', async () => {
@@ -2407,7 +2424,7 @@ describe('events utils', () => {
         villageId: getAnyVillageId(database),
       });
 
-      const result = getEventDuration(database, event);
+      const result = getCreationRules(database, event).duration(Date.now());
 
       expect(result).toBeGreaterThan(0);
     });
@@ -2421,7 +2438,7 @@ describe('events utils', () => {
         villageId: getAnyVillageId(database),
       });
 
-      const result = getEventDuration(database, event);
+      const result = getCreationRules(database, event).duration(Date.now());
 
       expect(result).toBeGreaterThan(0);
     });
@@ -2439,7 +2456,7 @@ describe('events utils', () => {
         villageId: getAnyVillageId(database),
       });
 
-      const result = getEventDuration(database, event);
+      const result = getCreationRules(database, event).duration(Date.now());
 
       expect(result).toBeGreaterThan(0);
     });
@@ -2454,7 +2471,7 @@ describe('events utils', () => {
         amount: 10,
       });
 
-      const result = getEventDuration(database, event);
+      const result = getCreationRules(database, event).duration(Date.now());
 
       expect(result).toBeGreaterThan(0);
     });
@@ -2506,7 +2523,9 @@ describe('events utils', () => {
         `,
       });
 
-      const durationWithoutBonus = getEventDuration(database, event);
+      const durationWithoutBonus = getCreationRules(database, event).duration(
+        Date.now(),
+      );
 
       database.exec({
         sql: `
@@ -2532,7 +2551,9 @@ describe('events utils', () => {
         bind: { $tile_id: village.tileId },
       });
 
-      expect(getEventDuration(database, event)).toBe(durationWithoutBonus / 2);
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(
+        durationWithoutBonus / 2,
+      );
     });
 
     test('troopMovementAttack - should use current hero speed for hero movements', async () => {
@@ -2585,16 +2606,18 @@ describe('events utils', () => {
         bind: { $player_id: PLAYER_ID },
       });
 
-      const durationWithSpeedFive = getEventDuration(database, event);
+      const durationWithSpeedFive = getCreationRules(database, event).duration(
+        Date.now(),
+      );
 
       database.exec({
         sql: 'UPDATE heroes SET speed = 10 WHERE player_id = $player_id;',
         bind: { $player_id: PLAYER_ID },
       });
 
-      expect(getEventDuration(database, event)).toBeCloseTo(
-        durationWithSpeedFive / 2,
-      );
+      expect(
+        getCreationRules(database, event).duration(Date.now()),
+      ).toBeCloseTo(durationWithSpeedFive / 2);
     });
 
     test('troopTraining - should heal troops in half the normal training duration', async () => {
@@ -2604,7 +2627,7 @@ describe('events utils', () => {
 
       const villageId = getAnyVillageId(database);
 
-      const normalDuration = getEventDuration(
+      const normalDuration = getCreationRules(
         database,
         createTroopTrainingEventMock({
           villageId,
@@ -2612,9 +2635,9 @@ describe('events utils', () => {
           durationEffectId: 'hospitalTrainingDuration',
           unitId: 'LEGIONNAIRE',
         }),
-      );
+      ).duration(Date.now());
 
-      const healingDuration = getEventDuration(
+      const healingDuration = getCreationRules(
         database,
         createTroopTrainingEventMock({
           villageId,
@@ -2622,7 +2645,7 @@ describe('events utils', () => {
           durationEffectId: 'hospitalTrainingDuration',
           unitId: 'LEGIONNAIRE',
         }),
-      );
+      ).duration(Date.now());
 
       expect(healingDuration).toBe(normalDuration / 2);
     });
@@ -2639,7 +2662,7 @@ describe('events utils', () => {
         amount: 3,
       });
 
-      expect(getEventDuration(database, event)).toBe(
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(
         ANIMAL_CAGE_BASE_DURATION / 2,
       );
     });
@@ -2656,7 +2679,7 @@ describe('events utils', () => {
         amount: 3,
       });
 
-      expect(getEventDuration(database, event)).toBe(
+      expect(getCreationRules(database, event).duration(Date.now())).toBe(
         TRAPPER_CAGE_BASE_DURATION / 2,
       );
     });
@@ -2669,12 +2692,12 @@ describe('events utils', () => {
         bind: { $speed: 2 },
       });
 
-      const result = getEventDuration(
+      const result = getCreationRules(
         database,
         createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 4,
         }),
-      );
+      ).duration(Date.now());
 
       expect(result).toBe((4 * 30 * 60 * 1000) / 2);
     });
@@ -2684,12 +2707,12 @@ describe('events utils', () => {
 
       setTestDeveloperSetting(database, 'is_instant_unit_travel_enabled', 1);
 
-      const result = getEventDuration(
+      const result = getCreationRules(
         database,
         createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 4,
         }),
-      );
+      ).duration(Date.now());
 
       expect(result).toBe(0);
     });
@@ -2717,12 +2740,12 @@ describe('events utils', () => {
       const { level } = calculateHeroLevel(experience);
       const expectedDuration = calculateHeroRevivalTime(level) / speed;
 
-      const result = getEventDuration(
+      const result = getCreationRules(
         database,
         createHeroRevivalEventMock({
           villageId,
         }),
-      );
+      ).duration(Date.now());
 
       expect(result).toBe(expectedDuration);
     });
@@ -2733,32 +2756,14 @@ describe('events utils', () => {
 
       setTestDeveloperSetting(database, 'is_instant_hero_revive_enabled', 1);
 
-      const result = getEventDuration(
+      const result = getCreationRules(
         database,
         createHeroRevivalEventMock({
           villageId,
         }),
-      );
+      ).duration(Date.now());
 
       expect(result).toBe(0);
-    });
-
-    test('heroHealthRegeneration - should return correct duration', async () => {
-      using database = await prepareTestDatabase();
-
-      database.exec({
-        sql: 'UPDATE heroes SET health_regeneration = 25 WHERE player_id = $player_id',
-        bind: { $player_id: PLAYER_ID },
-      });
-
-      const result = getEventDuration(
-        database,
-        createHeroHealthRegenerationEventMock(),
-      );
-
-      const dayInMs = 24 * 60 * 60 * 1000;
-
-      expect(result).toBe(dayInMs / 25);
     });
   });
 
@@ -2784,7 +2789,10 @@ describe('events utils', () => {
           0,
         );
 
-        const [wood, clay, iron, wheat] = getEventCost(database, event);
+        const [wood, clay, iron, wheat] = getCreationRules(
+          database,
+          event,
+        ).cost();
         const resources = { wood, clay, iron, wheat };
 
         expect(resources[resource]).toBeGreaterThan(0);
@@ -2970,6 +2978,94 @@ describe('events utils', () => {
       expect(eventCount).toBe(0);
     });
 
+    test('troopTraining - charges the full batch when it is queued', async () => {
+      using database = await prepareTestDatabase();
+      const { id: villageId, tileId } = getAnyVillageWithTile(database);
+      const now = Date.now();
+      using _clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+
+      setTestBuildingLevel(database, villageId, 'BARRACKS', 1, 19);
+      setTestDeveloperSetting(database, 'is_free_unit_training_enabled', 0);
+
+      const args = {
+        type: 'troopTraining',
+        villageId,
+        unitId: 'PHALANX',
+        amount: 2,
+        buildingId: 'BARRACKS',
+        batchId: 'paid-training-batch',
+        durationEffectId: 'barracksTrainingDuration',
+        startsAt: now + 60_000,
+        duration: 1000,
+      } as const;
+      const [wood, clay, iron, wheat] = getUnitDefinition(
+        args.unitId,
+      ).baseRecruitmentCost;
+
+      database.exec({
+        sql: `
+          UPDATE resource_sites
+          SET wood = $wood, clay = $clay, iron = $iron, wheat = $wheat,
+              updated_at = $now
+          WHERE tile_id = $tile_id;
+        `,
+        bind: {
+          $wood: wood * 2 - 1,
+          $clay: clay * 2,
+          $iron: iron * 2,
+          $wheat: wheat * 2,
+          $now: now,
+          $tile_id: tileId,
+        },
+      });
+
+      const readBatchStartTimes = () =>
+        database.selectObjects({
+          sql: `
+            SELECT starts_at AS startsAt
+            FROM events
+            WHERE type = 'troopTraining'
+              AND json_extract(meta, '$.batchId') = $batch_id
+            ORDER BY starts_at;
+          `,
+          bind: { $batch_id: args.batchId },
+          schema: z.strictObject({ startsAt: z.number() }),
+        });
+
+      expect(() => createEvents<'troopTraining'>(database, args)).toThrow(
+        'Not enough resources',
+      );
+      expect(readBatchStartTimes()).toStrictEqual([]);
+      expect(
+        calculateResourceSiteResourcesAt(database, tileId, now),
+      ).toMatchObject({
+        currentWood: wood * 2 - 1,
+        currentClay: clay * 2,
+        currentIron: iron * 2,
+        currentWheat: wheat * 2,
+      });
+
+      database.exec({
+        sql: 'UPDATE resource_sites SET wood = wood + 1 WHERE tile_id = $tile_id;',
+        bind: { $tile_id: tileId },
+      });
+
+      createEvents<'troopTraining'>(database, args);
+
+      expect(readBatchStartTimes()).toStrictEqual([
+        { startsAt: args.startsAt },
+        { startsAt: args.startsAt + args.duration },
+      ]);
+      expect(
+        calculateResourceSiteResourcesAt(database, tileId, now),
+      ).toMatchObject({
+        currentWood: 0,
+        currentClay: 0,
+        currentIron: 0,
+        currentWheat: 0,
+      });
+    });
+
     test('troopTraining - should complete queued troop count quests when units are queued', async () => {
       using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
@@ -3139,7 +3235,7 @@ describe('events utils', () => {
     });
   });
 
-  describe(getEventStartTime, () => {
+  describe('queue start time', () => {
     test('troopTraining - should return now if no previous events', async () => {
       using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
@@ -3154,7 +3250,7 @@ describe('events utils', () => {
         villageId,
       });
 
-      expect(getEventStartTime(database, event)).toBe(now);
+      expect(getCreationRules(database, event).startTime()).toBe(now);
 
       vi.useRealTimers();
     });
@@ -3180,7 +3276,7 @@ describe('events utils', () => {
         batchId: 'b2',
       });
 
-      expect(getEventStartTime(database, newEvent)).toBe(1500);
+      expect(getCreationRules(database, newEvent).startTime()).toBe(1500);
     });
 
     test('unitImprovement - should return last resolves_at or now', async () => {
@@ -3199,10 +3295,10 @@ describe('events utils', () => {
         }),
       ]);
 
-      const startTime = getEventStartTime(
+      const startTime = getCreationRules(
         database,
         createUnitImprovementEventMock(),
-      );
+      ).startTime();
 
       expect(startTime).toBe(2500);
     });
@@ -3222,22 +3318,39 @@ describe('events utils', () => {
         duration: 1000,
       });
 
-      expect(getEventStartTime(database, event)).toBe(now);
+      expect(getCreationRules(database, event).startTime()).toBe(now);
 
       vi.useRealTimers();
     });
 
-    test('returnTroopMovement - should return resolvesAt for movement-triggered return', async () => {
+    test('returnTroopMovement - uses the supplied start time for an automatic return', async () => {
       using database = await prepareTestDatabase();
+      const { id: villageId, tileId } = getAnyVillageWithTile(database);
+      const startsAt = 3000;
 
-      const event = createGameEventMock('troopMovementReturn', {
-        startsAt: 2000,
+      createEvents<'troopMovementReturn'>(database, {
+        type: 'troopMovementReturn',
+        villageId,
+        startsAt,
         duration: 1000,
-        resolvesAt: 3000,
+        originTileId: tileId,
+        targetTileId: tileId,
+        troops: [],
         originalMovementType: 'troopMovementAttack',
       });
 
-      expect(getEventStartTime(database, event)).toBe(3000);
+      expect(
+        database.selectValue({
+          sql: `
+            SELECT starts_at
+            FROM events
+            WHERE type = 'troopMovementReturn'
+            ORDER BY id DESC
+            LIMIT 1;
+          `,
+          schema: z.number(),
+        }),
+      ).toBe(startsAt);
     });
 
     test('buildingConstruction - should return now', async () => {
@@ -3249,10 +3362,10 @@ describe('events utils', () => {
 
       vi.setSystemTime(new Date(now));
 
-      const result = getEventStartTime(
+      const result = getCreationRules(
         database,
         createBuildingConstructionEventMock(),
-      );
+      ).startTime();
 
       expect(result).toBe(now);
 
@@ -3260,7 +3373,7 @@ describe('events utils', () => {
     });
   });
 
-  describe(getEventResourceSubtractionTimestamp, () => {
+  describe('resource debit timestamp', () => {
     test('should return now even if the event starts in the future (repro for incorrect resource subtraction)', async () => {
       using database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
@@ -3314,11 +3427,10 @@ describe('events utils', () => {
 
       // Instead of relying on createEvents to pick up our startsAt (it won't),
       // we'll directly test getEventResourceSubtractionTimestamp with a future startsAt.
-      const resultTimestamp = getEventResourceSubtractionTimestamp(
+      const resultTimestamp = getCreationRules(
         database,
         trainingEvent,
-        futureStartsAt,
-      );
+      ).chargeAt(futureStartsAt);
 
       // It MUST return 'now', not 'futureStartsAt'
       expect(resultTimestamp).toBe(now);

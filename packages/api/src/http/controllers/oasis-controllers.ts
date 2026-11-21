@@ -5,6 +5,7 @@ import {
   deleteOasisEffectsQuery,
 } from '../../queries/oasis-queries';
 import { selectVillageIdByTileIdQuery } from '../../queries/village-queries';
+import { createEvents } from '../../utils/create-event';
 import {
   occupyOasisForVillage,
   returnOasisReinforcements,
@@ -63,7 +64,7 @@ export const abandonOasis = createController(
 
     updateResourceSiteResourcesAt(db, tileId, now);
 
-    returnOasisReinforcements(db, oasisTileId, villageId, now);
+    returnOasisReinforcements(createEvents, db, oasisTileId, villageId, now);
 
     db.exec({
       sql: deleteOasisEffectsQuery,

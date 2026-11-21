@@ -24,6 +24,7 @@ import {
   selectWoundedTroopsByVillageQuery,
   updateVillageNameQuery,
 } from '../../queries/player-queries';
+import { createEvents } from '../../utils/create-event';
 import { relocateHero } from '../../utils/hero';
 import {
   hasHero,
@@ -330,6 +331,7 @@ export const returnReinforcements = createController(
     const now = Date.now();
 
     returnStationedTroops(
+      createEvents,
       db,
       currentTileId,
       sourceTileId,
@@ -379,6 +381,7 @@ export const returnSentReinforcements = createController(
     const now = Date.now();
 
     returnStationedTroops(
+      createEvents,
       db,
       stationedTileId,
       currentTileId,
