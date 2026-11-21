@@ -21,10 +21,10 @@ import {
 } from '../../../utils/hero';
 import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
 import { insertAdventureReport } from '../../../utils/report';
+import { getMovementDuration } from '../../../utils/troop-movements';
 import { removeTroops } from '../../../utils/troops';
 import { getVillagePlayerId } from '../../../utils/village';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { getMovementDuration } from './troop-movement-event-helpers';
 
 const resolveAdventureMovement: Resolver<
   GameEvent<'troopMovementAdventure'>

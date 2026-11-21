@@ -10,6 +10,10 @@ import {
   updatePopulationEffectQuery,
 } from '../../../queries/effect-queries';
 import { selectTribeByVillageId } from '../../../queries/village-queries';
+import {
+  getBuildingChangeDuration,
+  validateDowngrade,
+} from '../../../utils/buildings';
 import { updatePlayerCulturePointsAt } from '../../../utils/culture-points';
 import { updateOasisEffectsForVillage } from '../../../utils/oasis';
 import {
@@ -19,10 +23,6 @@ import {
   updateResourceSiteResourcesAt,
 } from '../../../utils/village';
 import { defineEventResolver, type Resolver } from '../resolver';
-import {
-  getBuildingChangeDuration,
-  validateDowngrade,
-} from './building-event-helpers';
 
 const resolveBuildingDestruction: Resolver<GameEvent<'buildingDestruction'>> = (
   database,

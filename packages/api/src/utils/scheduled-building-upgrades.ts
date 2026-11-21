@@ -25,12 +25,12 @@ import {
   selectScheduledBuildingUpgradesQuery,
 } from '../queries/scheduled-building-upgrades-queries';
 import { postWorkerMessage } from '../worker/notification-port';
-import { getBuildingLevelChangeCost } from './building-level-change-cost';
-import { removeBuildingPlaceholder } from './building-placeholder';
 import {
   assertBuildingConstructionRequirementsAreMet,
   assessBuildingConstructionRequirements,
-} from './building-requirements';
+  getBuildingLevelChangeCost,
+  removeBuildingPlaceholder,
+} from './buildings';
 import { insertScheduledConstructionCancellationReport } from './report';
 import { calculateResourceSiteResourcesAt, getVillageTileId } from './village';
 

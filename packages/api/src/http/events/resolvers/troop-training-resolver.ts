@@ -17,9 +17,9 @@ import {
 import { selectIsUnitResearchedQuery } from '../../../queries/unit-research-queries';
 import {
   selectTribeByVillageId,
-  selectVillageBuildingLevelQuery,
   selectVillageTileIdQuery,
 } from '../../../queries/village-queries';
+import { requireVillageBuildingLevel } from '../../../utils/buildings';
 import {
   assessQueuedTroopCountByIdQuestCompletion,
   assessQueuedTroopCountQuestCompletion,
@@ -148,18 +148,12 @@ export const troopTrainingEventResolver = defineEventResolver<'troopTraining'>(
           }
         }
 
-        const unitTrainingBuildingLevel = database.selectValue({
-          sql: selectVillageBuildingLevelQuery,
-          bind: {
-            $village_id: villageId,
-            $building_id: buildingId,
-          },
-          schema: z.number().nullable(),
-        });
-
-        if (unitTrainingBuildingLevel === null) {
-          throw new Error('Unit training building does not exist');
-        }
+        requireVillageBuildingLevel(
+          database,
+          villageId,
+          buildingId,
+          'Unit training building does not exist',
+        );
 
         if (!doesTroopTrainingDurationEffectMatchBuilding(event)) {
           throw new Error(

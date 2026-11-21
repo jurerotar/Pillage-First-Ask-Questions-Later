@@ -10,6 +10,7 @@ import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { randomArrayElement } from '@pillage-first/utils/random';
 import { selectVillageEventExistsByTypeQuery } from '../../../queries/event-queries';
 import { selectVillageAndFirstOasisTileIdsQuery } from '../../../queries/map-queries';
+import { requireVillageBuildingLevel } from '../../../utils/buildings';
 import {
   assessCaptureAnimalCountByIdQuestCompletion,
   assessCaptureAnimalKindCountQuestCompletion,
@@ -17,7 +18,6 @@ import {
 import { insertHuntingPartyReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { requireHuntersLodgeLevel } from './hunters-lodge-event-helpers';
 
 const resolveHuntersLodgeHunt: Resolver<GameEvent<'huntersLodgeHunt'>> = (
   database,
@@ -94,7 +94,12 @@ export const huntersLodgeHuntResolver = defineEventResolver<'huntersLodgeHunt'>(
   (database, event) => ({
     validate: () => {
       const { villageId } = event;
-      const huntersLodgeLevel = requireHuntersLodgeLevel(database, villageId);
+      const huntersLodgeLevel = requireVillageBuildingLevel(
+        database,
+        villageId,
+        'HUNTERS_LODGE',
+        "Hunter's Lodge does not exist",
+      );
 
       if (event.huntingPartyLevel > huntersLodgeLevel) {
         throw new Error("Hunter's Lodge level is too low");

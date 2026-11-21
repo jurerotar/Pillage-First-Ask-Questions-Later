@@ -6,7 +6,10 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
 import { selectVillageEventExistsByTypeQuery } from '../../../queries/event-queries';
-import { selectVillageBuildingLevelQuery } from '../../../queries/village-queries';
+import {
+  getVillageBuildingLevel,
+  requireVillageBuildingLevel,
+} from '../../../utils/buildings';
 import {
   addPlayerCulturePoints,
   calculateCulturePointsCelebrationReward,
@@ -30,19 +33,12 @@ export const culturePointsCelebrationResolver =
       validate: () => {
         const { villageId, celebrationType } = event;
 
-        const townHallLevel =
-          database.selectValue({
-            sql: selectVillageBuildingLevelQuery,
-            bind: {
-              $village_id: villageId,
-              $building_id: 'TOWN_HALL',
-            },
-            schema: z.number().nullable(),
-          }) ?? 0;
-
-        if (townHallLevel <= 0) {
-          throw new Error('Town Hall is required');
-        }
+        const townHallLevel = requireVillageBuildingLevel(
+          database,
+          villageId,
+          'TOWN_HALL',
+          'Town Hall is required',
+        );
 
         if (celebrationType === 'large' && townHallLevel < 10) {
           throw new Error('Large celebrations require Town Hall level 10');
@@ -81,15 +77,11 @@ export const culturePointsCelebrationResolver =
           }),
         })!;
 
-        const townHallLevel =
-          database.selectValue({
-            sql: selectVillageBuildingLevelQuery,
-            bind: {
-              $village_id: event.villageId,
-              $building_id: 'TOWN_HALL',
-            },
-            schema: z.number().nullable(),
-          }) ?? 0;
+        const townHallLevel = getVillageBuildingLevel(
+          database,
+          event.villageId,
+          'TOWN_HALL',
+        );
 
         const isInstant = database.selectValue({
           sql: 'SELECT is_instant_celebrations_enabled FROM developer_settings',

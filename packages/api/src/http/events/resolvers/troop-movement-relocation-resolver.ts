@@ -4,9 +4,9 @@ import { selectRelocationTargetVillageIdByTileIdQuery } from '../../../queries/t
 import { relocateHero } from '../../../utils/hero';
 import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
 import { insertMovementReport } from '../../../utils/report';
+import { movementCreation } from '../../../utils/troop-movements';
 import { addTroops } from '../../../utils/troops';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { movementCreation } from './troop-movement-event-helpers';
 
 const resolveRelocationMovement: Resolver<
   GameEvent<'troopMovementRelocation'>

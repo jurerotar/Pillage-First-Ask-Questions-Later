@@ -3,13 +3,13 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { selectPlayerVillageIdByTileIdQuery } from '../../../queries/village-queries';
 import { calculateAdventureDuration } from '../../../utils/adventures';
-import { addTroops } from '../../../utils/troops';
-import { addResourceSiteResourcesAt } from '../../../utils/village';
-import { defineEventResolver, type Resolver } from '../resolver';
 import {
   getMovementDuration,
   getTravelDuration,
-} from './troop-movement-event-helpers';
+} from '../../../utils/troop-movements';
+import { addTroops } from '../../../utils/troops';
+import { addResourceSiteResourcesAt } from '../../../utils/village';
+import { defineEventResolver, type Resolver } from '../resolver';
 
 const resolveReturnMovement: Resolver<GameEvent<'troopMovementReturn'>> = (
   database,

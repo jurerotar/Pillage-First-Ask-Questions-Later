@@ -1,7 +1,7 @@
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { occupyOasisForVillage } from '../../../utils/oasis';
+import { movementCreation } from '../../../utils/troop-movements';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { movementCreation } from './troop-movement-event-helpers';
 
 const resolveOasisOccupationMovement: Resolver<
   GameEvent<'troopMovementOasisOccupation'>

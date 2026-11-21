@@ -21,7 +21,7 @@ import {
   selectTroopMovementEventsQuery,
 } from '../../queries/event-queries';
 import { deleteScheduledBuildingUpgradesByVillageAndFieldQuery } from '../../queries/scheduled-building-upgrades-queries';
-import { removeBuildingPlaceholder } from '../../utils/building-placeholder';
+import { removeBuildingPlaceholder } from '../../utils/buildings';
 import { createEvents } from '../../utils/create-event';
 import { promoteNextScheduledBuildingUpgrade } from '../../utils/scheduled-building-upgrades';
 import {

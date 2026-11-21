@@ -8,10 +8,8 @@ import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { selectAllRelevantEffectsByIdQuery } from '../../../queries/effect-queries';
 import { selectVillageEventExistsByTypeQuery } from '../../../queries/event-queries';
-import {
-  selectVillageBuildingLevelQuery,
-  selectVillageTileIdQuery,
-} from '../../../queries/village-queries';
+import { selectVillageTileIdQuery } from '../../../queries/village-queries';
+import { requireVillageBuildingLevel } from '../../../utils/buildings';
 import { insertUnitImprovementReport } from '../../../utils/report';
 import { apiEffectsJsonSchema } from '../../../utils/zod/effect-schemas';
 import { defineEventResolver, type Resolver } from '../resolver';
@@ -66,19 +64,13 @@ export const unitImprovementResolver = defineEventResolver<'unitImprovement'>(
     validate: () => {
       const { villageId, level } = event;
 
-      const smithyLevel =
-        database.selectValue({
-          sql: selectVillageBuildingLevelQuery,
-          bind: {
-            $village_id: villageId,
-            $building_id: 'SMITHY',
-          },
-          schema: z.number().nullable(),
-        }) ?? 0;
-
-      if (smithyLevel < level) {
-        throw new Error('Smithy level is too low for this unit upgrade');
-      }
+      requireVillageBuildingLevel(
+        database,
+        villageId,
+        'SMITHY',
+        'Smithy level is too low for this unit upgrade',
+        level,
+      );
 
       const hasOngoingUnitImprovementEventsInThisVillage = database.selectValue(
         {

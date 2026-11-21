@@ -10,7 +10,7 @@ import { speedSchema } from '@pillage-first/types/models/server';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import { selectVillageEventExistsByTypeQuery } from '../../../queries/event-queries';
-import { selectVillageBuildingLevelQuery } from '../../../queries/village-queries';
+import { requireVillageBuildingLevel } from '../../../utils/buildings';
 import { assessGatheredResourceCountQuestCompletion } from '../../../utils/quests';
 import { insertGatheringExpeditionReport } from '../../../utils/report';
 import { addTroops, removeTroops } from '../../../utils/troops';
@@ -87,18 +87,12 @@ export const gatherersHutGatheringTripResolver =
       validate: () => {
         const { villageId, troops } = event;
 
-        const gatherersHutLevel = database.selectValue({
-          sql: selectVillageBuildingLevelQuery,
-          bind: {
-            $village_id: villageId,
-            $building_id: 'GATHERERS_HUT',
-          },
-          schema: z.number().nullable(),
-        })!;
-
-        if (gatherersHutLevel === null) {
-          throw new Error("Gatherer's Hut does not exist");
-        }
+        const gatherersHutLevel = requireVillageBuildingLevel(
+          database,
+          villageId,
+          'GATHERERS_HUT',
+          "Gatherer's Hut does not exist",
+        );
 
         const hasOngoingGatheringTrip = database.selectValue({
           sql: selectVillageEventExistsByTypeQuery,

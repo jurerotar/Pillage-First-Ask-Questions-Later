@@ -27,12 +27,12 @@ import {
 } from '../../../queries/troop-movement-queries';
 import { updatePlayerCulturePointsAt } from '../../../utils/culture-points';
 import { insertVillageFoundedReport } from '../../../utils/report';
+import { movementCreation } from '../../../utils/troop-movements';
 import {
   getVillageTileId,
   updateResourceSiteResourcesAt,
 } from '../../../utils/village';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { movementCreation } from './troop-movement-event-helpers';
 
 const resolveFindNewVillageMovement: Resolver<
   GameEvent<'troopMovementFindNewVillage'>

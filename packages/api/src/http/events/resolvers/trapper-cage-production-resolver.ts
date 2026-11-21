@@ -7,7 +7,7 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { mapResourceBundle } from '@pillage-first/types/models/resource';
 import { speedSchema } from '@pillage-first/types/models/server';
-import { selectVillageBuildingLevelQuery } from '../../../queries/village-queries';
+import { requireVillageBuildingLevel } from '../../../utils/buildings';
 import { defineEventResolver, type Resolver } from '../resolver';
 
 const resolveTrapperCageProduction: Resolver<
@@ -35,19 +35,12 @@ export const trapperCageProductionResolver =
       validate: () => {
         const { villageId, amount } = event;
 
-        const trapperLevel =
-          database.selectValue({
-            sql: selectVillageBuildingLevelQuery,
-            bind: {
-              $village_id: villageId,
-              $building_id: 'TRAPPER',
-            },
-            schema: z.number().nullable(),
-          }) ?? 0;
-
-        if (trapperLevel <= 0) {
-          throw new Error('Trapper does not exist');
-        }
+        const trapperLevel = requireVillageBuildingLevel(
+          database,
+          villageId,
+          'TRAPPER',
+          'Trapper does not exist',
+        );
 
         const currentCageAmount = database.selectValue({
           sql: `

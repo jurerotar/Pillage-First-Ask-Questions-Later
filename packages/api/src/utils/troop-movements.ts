@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { calculateTotalCarryCapacity } from '@pillage-first/game-assets/utils/troops';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type {
+  GameEvent,
+  TroopMovementEventType,
+} from '@pillage-first/types/models/game-event';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
@@ -9,9 +12,16 @@ import {
   calculateLootableCarryCapacity,
   distributeLoot,
 } from '@pillage-first/utils/game/combat';
+import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
+import type { EventCreationArgs } from '../http/events/resolver';
+import { selectUnitSpeedRelevantEffectsQuery } from '../queries/effect-queries';
+import { selectHeroSpeedQuery } from '../queries/hero-queries';
+import { selectServerMapSizeQuery } from '../queries/server-queries';
 import { selectBattleReportParticipantsByTargetTileIdQuery } from '../queries/troop-movement-queries';
 import { type CreateNewBattleReport, insertBattleReport } from './report';
+import { removeTroops, validateTroopMovement } from './troops';
 import { getVillageTileId, subtractResourceSiteResourcesAt } from './village';
+import { apiEffectsJsonSchema } from './zod/effect-schemas';
 
 type BattleReportParticipant = CreateNewBattleReport['attacker'];
 type BattleReportUnit = CreateNewBattleReport['attacker']['units'][number];
@@ -228,3 +238,74 @@ export const resolveNoCombatOffensiveMovement = (
 
   return loot;
 };
+
+export const getMovementDuration = (
+  database: DbFacade,
+  calculateDuration: () => number,
+) => {
+  const isInstantUnitTravelEnabled = database.selectValue({
+    sql: 'SELECT is_instant_unit_travel_enabled FROM developer_settings',
+    schema: z.coerce.boolean(),
+  })!;
+
+  if (isInstantUnitTravelEnabled) {
+    return 0;
+  }
+
+  return calculateDuration();
+};
+
+export const getTravelDuration = (
+  database: DbFacade,
+  event: EventCreationArgs<TroopMovementEventType>,
+) => {
+  const { villageId, targetTileId, originTileId, troops } = event;
+
+  const effects = database.selectValue({
+    sql: selectUnitSpeedRelevantEffectsQuery,
+    bind: {
+      $village_id: villageId,
+    },
+    schema: apiEffectsJsonSchema,
+  })!;
+
+  const mapSize = database.selectValue({
+    sql: selectServerMapSizeQuery,
+    schema: z.number(),
+  })!;
+
+  const heroSpeed = database.selectValue({
+    sql: selectHeroSpeedQuery,
+    schema: z.number(),
+  })!;
+
+  return calculateTravelDuration({
+    targetTileId,
+    originTileId,
+    mapSize,
+    troops,
+    effects,
+    heroSpeed,
+  });
+};
+
+export const movementCreation = (
+  database: DbFacade,
+  event: EventCreationArgs<TroopMovementEventType>,
+) => ({
+  validate: (now: number) => {
+    const errors = validateTroopMovement(database, event, now);
+
+    if (errors.length > 0) {
+      throw new Error(errors[0]);
+    }
+  },
+  duration: () => {
+    return getMovementDuration(database, () =>
+      getTravelDuration(database, event),
+    );
+  },
+  afterInsert: () => {
+    removeTroops(database, event.troops);
+  },
+});

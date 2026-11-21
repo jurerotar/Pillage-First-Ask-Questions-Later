@@ -8,8 +8,8 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { mapResourceBundle } from '@pillage-first/types/models/resource';
 import { speedSchema } from '@pillage-first/types/models/server';
 import { insertHeroItemIntoHeroInventoryQuery } from '../../../queries/hero-queries';
+import { requireVillageBuildingLevel } from '../../../utils/buildings';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { requireHuntersLodgeLevel } from './hunters-lodge-event-helpers';
 
 const resolveAnimalCageProduction: Resolver<
   GameEvent<'animalCageProduction'>
@@ -35,7 +35,12 @@ export const animalCageProductionResolver =
   defineEventResolver<'animalCageProduction'>(
     (database, event) => ({
       validate: () => {
-        requireHuntersLodgeLevel(database, event.villageId);
+        requireVillageBuildingLevel(
+          database,
+          event.villageId,
+          'HUNTERS_LODGE',
+          "Hunter's Lodge does not exist",
+        );
       },
       cost: () => {
         const isFreeUnitTrainingEnabled = database.selectValue({

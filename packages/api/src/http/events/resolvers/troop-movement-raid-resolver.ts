@@ -5,10 +5,12 @@ import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-com
 import { selectAllRelevantEffectsByIdQuery } from '../../../queries/effect-queries';
 import { selectTargetVillageIdByTileIdQuery } from '../../../queries/troop-movement-queries';
 import { selectPlayerVillageIdByTileIdQuery } from '../../../queries/village-queries';
-import { resolveNoCombatOffensiveMovement } from '../../../utils/troop-movement';
+import {
+  movementCreation,
+  resolveNoCombatOffensiveMovement,
+} from '../../../utils/troop-movements';
 import { apiEffectsJsonSchema } from '../../../utils/zod/effect-schemas';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { movementCreation } from './troop-movement-event-helpers';
 
 const resolveRaidMovement: Resolver<GameEvent<'troopMovementRaid'>> = (
   database,

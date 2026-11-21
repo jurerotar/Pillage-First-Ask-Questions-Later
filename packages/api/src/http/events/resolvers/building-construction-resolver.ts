@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
-import { assertBuildingConstructionRequirementsAreMet } from '../../../utils/building-requirements';
+import {
+  assertBuildingConstructionRequirementsAreMet,
+  createBuildingPlaceholder,
+  validateBuildingQueue,
+} from '../../../utils/buildings';
 import { getVillageTileId } from '../../../utils/village';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { validateBuildingQueue } from './building-event-helpers';
 
 const resolveBuildingConstruction: Resolver<
   GameEvent<'buildingConstruction'>

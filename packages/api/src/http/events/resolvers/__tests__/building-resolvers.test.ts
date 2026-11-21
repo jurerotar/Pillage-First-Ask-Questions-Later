@@ -17,7 +17,7 @@ import {
 import {
   createBuildingPlaceholder,
   removeBuildingPlaceholder,
-} from '../../../../utils/building-placeholder';
+} from '../../../../utils/buildings';
 import { createEvents } from '../../../../utils/create-event';
 import { insertScheduledBuildingUpgrade } from '../../../../utils/scheduled-building-upgrades';
 import { buildingConstructionResolver } from '../building-construction-resolver';

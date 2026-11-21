@@ -4,9 +4,9 @@ import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { selectVillageIdAndTileIdQuery } from '../../../queries/village-queries';
 import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
 import { insertMovementReport } from '../../../utils/report';
+import { movementCreation } from '../../../utils/troop-movements';
 import { addTroops } from '../../../utils/troops';
 import { defineEventResolver, type Resolver } from '../resolver';
-import { movementCreation } from './troop-movement-event-helpers';
 
 const resolveReinforcementMovement: Resolver<
   GameEvent<'troopMovementReinforcements'>

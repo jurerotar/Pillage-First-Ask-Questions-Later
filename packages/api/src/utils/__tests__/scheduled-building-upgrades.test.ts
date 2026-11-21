@@ -12,7 +12,7 @@ import {
 } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import * as notificationPort from '../../worker/notification-port';
-import { createBuildingPlaceholder } from '../building-placeholder';
+import { createBuildingPlaceholder } from '../buildings';
 import { createEvents } from '../create-event';
 import { insertEvents } from '../insert-events';
 import {
