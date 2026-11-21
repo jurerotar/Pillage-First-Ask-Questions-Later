@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import type { CreateEvents } from '../http/events/resolver';
 import { selectTileLoyaltyQuery } from '../queries/loyalty-queries';
-import { createEvents } from './create-event';
 
 export const createLoyaltyIncreaseEvent = (
+  createEvents: CreateEvents,
   database: DbFacade,
   startsAt = Date.now(),
 ) => {

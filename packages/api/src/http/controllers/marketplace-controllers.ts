@@ -123,7 +123,7 @@ export const createTradeRoute = createController(
       schema: z.number(),
     })!;
 
-    scheduleTradeRoute(db, routeId, event.villageId, startsAt);
+    scheduleTradeRoute(createEvents, db, routeId, event.villageId, startsAt);
   });
 });
 
@@ -167,7 +167,7 @@ export const updateTradeRoute = createController(
     });
 
     if (!route.paused) {
-      scheduleTradeRoute(db, routeId, route.villageId, startsAt);
+      scheduleTradeRoute(createEvents, db, routeId, route.villageId, startsAt);
     }
   });
 
@@ -215,7 +215,13 @@ export const setTradeRoutePaused = createController(
               (Math.floor((now - route.startsAt) / route.interval) + 1) *
                 route.interval;
 
-        scheduleTradeRoute(db, routeId, route.villageId, startsAt);
+        scheduleTradeRoute(
+          createEvents,
+          db,
+          routeId,
+          route.villageId,
+          startsAt,
+        );
       }
     });
 

@@ -18,12 +18,11 @@ import {
   createBuildingPlaceholder,
   removeBuildingPlaceholder,
 } from '../../../../utils/building-placeholder';
+import { createEvents } from '../../../../utils/create-event';
 import { insertScheduledBuildingUpgrade } from '../../../../utils/scheduled-building-upgrades';
-import {
-  buildingConstructionResolver,
-  buildingDestructionResolver,
-  buildingLevelChangeResolver,
-} from '../building-resolvers';
+import { buildingConstructionResolver } from '../building-construction-resolver';
+import { buildingDestructionResolver } from '../building-destruction-resolver';
+import { buildingLevelChangeResolver } from '../building-level-change-resolver';
 
 describe('building resolvers', () => {
   describe.each([
@@ -63,7 +62,7 @@ describe('building resolvers', () => {
           resolvesAt: timestamp,
         });
 
-        buildingLevelChangeResolver(database, event);
+        buildingLevelChangeResolver.resolve(database, event, createEvents);
 
         const isGranary = buildingId.endsWith('GRANARY');
 
@@ -80,7 +79,7 @@ describe('building resolvers', () => {
         );
 
         if (change === 'demolition') {
-          buildingDestructionResolver(
+          buildingDestructionResolver.resolve(
             database,
             createBuildingDestructionEventMock({
               villageId,
@@ -89,13 +88,18 @@ describe('building resolvers', () => {
               previousLevel: 10,
               resolvesAt: timestamp,
             }),
+            createEvents,
           );
         } else {
-          buildingLevelChangeResolver(database, {
-            ...event,
-            previousLevel: 10,
-            level: 1,
-          });
+          buildingLevelChangeResolver.resolve(
+            database,
+            {
+              ...event,
+              previousLevel: 10,
+              level: 1,
+            },
+            createEvents,
+          );
         }
 
         const resources = database.selectObject({
@@ -183,7 +187,7 @@ describe('building resolvers', () => {
     expect(getPopulationEffect()).toBe(populationBefore);
   });
 
-  describe(buildingConstructionResolver, () => {
+  describe('building construction', () => {
     test('should construct a building', async () => {
       using database = await prepareTestDatabase();
       const villageId = 1;
@@ -201,7 +205,11 @@ describe('building resolvers', () => {
         previousLevel: 0,
       });
 
-      buildingConstructionResolver(database, { ...mockEvent, id: 999 });
+      buildingConstructionResolver.resolve(
+        database,
+        { ...mockEvent, id: 999 },
+        createEvents,
+      );
 
       const field = database.selectObject({
         sql: 'SELECT village_id, field_id, building_id, level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
@@ -243,7 +251,7 @@ describe('building resolvers', () => {
     });
   });
 
-  describe(buildingLevelChangeResolver, () => {
+  describe('building level change', () => {
     test('promotes the next scheduled upgrade after a completed level increase', async () => {
       using database = await prepareTestDatabase();
       const villageId = 1;
@@ -273,7 +281,7 @@ describe('building resolvers', () => {
         level: scheduledField.level + 1,
       });
 
-      buildingLevelChangeResolver(
+      buildingLevelChangeResolver.resolve(
         database,
         createBuildingLevelChangeEventMock({
           villageId,
@@ -282,6 +290,7 @@ describe('building resolvers', () => {
           previousLevel: completedField.level,
           level: completedField.level + 1,
         }),
+        createEvents,
       );
 
       const promoted = database.selectObject({
@@ -364,7 +373,11 @@ describe('building resolvers', () => {
         previousLevel: 1,
       });
 
-      buildingLevelChangeResolver(database, { ...mockEvent, id: 888 });
+      buildingLevelChangeResolver.resolve(
+        database,
+        { ...mockEvent, id: 888 },
+        createEvents,
+      );
 
       const field = database.selectValue({
         sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
@@ -409,7 +422,7 @@ describe('building resolvers', () => {
       const buildingId: Building['id'] = 'BARRACKS';
 
       // Construct Barracks at level 0 (initial state)
-      buildingConstructionResolver(
+      buildingConstructionResolver.resolve(
         database,
         createBuildingConstructionEventMock({
           id: 10,
@@ -421,6 +434,7 @@ describe('building resolvers', () => {
           level: 0,
           previousLevel: 0,
         }),
+        createEvents,
       );
 
       // Verify level 0 effect value (should be 1)
@@ -447,7 +461,7 @@ describe('building resolvers', () => {
       expect(effectValue0).toBe(1);
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
-      buildingLevelChangeResolver(
+      buildingLevelChangeResolver.resolve(
         database,
         createBuildingLevelChangeEventMock({
           id: 11,
@@ -459,6 +473,7 @@ describe('building resolvers', () => {
           level: 2,
           previousLevel: 1,
         }),
+        createEvents,
       );
 
       // Verify level 2 effect value
@@ -528,7 +543,7 @@ describe('building resolvers', () => {
         previousLevel: 3,
       });
 
-      buildingLevelChangeResolver(database, mockEvent);
+      buildingLevelChangeResolver.resolve(database, mockEvent, createEvents);
 
       const field = database.selectValue({
         sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
@@ -568,7 +583,7 @@ describe('building resolvers', () => {
     });
   });
 
-  describe(buildingDestructionResolver, () => {
+  describe('building destruction', () => {
     test('should demolish a building', async () => {
       using database = await prepareTestDatabase();
       const villageId = 1;
@@ -627,7 +642,7 @@ describe('building resolvers', () => {
         previousLevel: 5,
       });
 
-      buildingDestructionResolver(database, mockEvent);
+      buildingDestructionResolver.resolve(database, mockEvent, createEvents);
 
       const field = database.selectObject({
         sql: 'SELECT village_id, field_id, building_id, level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
@@ -712,7 +727,7 @@ describe('building resolvers', () => {
         previousLevel: 10,
       });
 
-      buildingDestructionResolver(database, mockEvent);
+      buildingDestructionResolver.resolve(database, mockEvent, createEvents);
 
       const field = database.selectValue({
         sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',

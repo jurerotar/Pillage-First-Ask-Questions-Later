@@ -17,7 +17,7 @@ import {
 } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { calculatePlayerCulturePointsProduction } from '../../../utils/culture-points';
-import { insertEvents } from '../../../utils/events';
+import { insertEvents } from '../../../utils/insert-events';
 import {
   cancelScheduling,
   resetSchedulerForTesting,

@@ -4,6 +4,7 @@ import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { selectTileLoyaltyQuery } from '../../../../queries/loyalty-queries';
+import { createEvents } from '../../../../utils/create-event';
 import { createLoyaltyIncreaseEvent } from '../../../../utils/loyalty';
 import {
   initScheduler,
@@ -11,9 +12,9 @@ import {
   scheduleNextEvent,
 } from '../../scheduler/scheduler';
 import { createSchedulerDataSource } from '../../scheduler/scheduler-data-source';
-import { loyaltyIncreaseResolver } from '../loyalty-resolvers';
+import { loyaltyIncreaseResolver } from '../loyalty-increase-resolver';
 
-describe(loyaltyIncreaseResolver, () => {
+describe('loyalty increase', () => {
   afterEach(() => {
     resetSchedulerForTesting();
     vi.useRealTimers();
@@ -43,7 +44,7 @@ describe(loyaltyIncreaseResolver, () => {
       database.exec({
         sql: 'INSERT INTO loyalties (tile_id, loyalty) SELECT tile_id, 50 FROM villages WHERE id = 1;',
       });
-      createLoyaltyIncreaseEvent(database, start);
+      createLoyaltyIncreaseEvent(createEvents, database, start);
 
       const dataSource = createSchedulerDataSource(database);
       initScheduler(dataSource);
@@ -89,8 +90,8 @@ describe(loyaltyIncreaseResolver, () => {
     vi.setSystemTime(100_000_000);
 
     const startsAt = 1_000_000;
-    createLoyaltyIncreaseEvent(database, startsAt);
-    createLoyaltyIncreaseEvent(database, startsAt);
+    createLoyaltyIncreaseEvent(createEvents, database, startsAt);
+    createLoyaltyIncreaseEvent(createEvents, database, startsAt);
 
     expect(
       database.selectValue({
@@ -161,13 +162,14 @@ describe(loyaltyIncreaseResolver, () => {
     const duration = 3_600_000;
     const now = Date.now();
 
-    loyaltyIncreaseResolver(
+    loyaltyIncreaseResolver.resolve(
       database,
       createLoyaltyIncreaseEventMock({
         duration,
         resolvesAt: now,
         startsAt: now - duration,
       }),
+      createEvents,
     );
 
     const v1Loyalty = database.selectValue({
@@ -220,13 +222,14 @@ describe(loyaltyIncreaseResolver, () => {
     const duration = 3_600_000;
     const now = Date.now();
 
-    loyaltyIncreaseResolver(
+    loyaltyIncreaseResolver.resolve(
       database,
       createLoyaltyIncreaseEventMock({
         duration,
         resolvesAt: now,
         startsAt: now - duration,
       }),
+      createEvents,
     );
 
     const loyalty = database.selectValue({
@@ -265,13 +268,14 @@ describe(loyaltyIncreaseResolver, () => {
     const duration = 3_600_000;
     const now = Date.now();
 
-    loyaltyIncreaseResolver(
+    loyaltyIncreaseResolver.resolve(
       database,
       createLoyaltyIncreaseEventMock({
         duration,
         resolvesAt: now,
         startsAt: now - duration,
       }),
+      createEvents,
     );
 
     const loyalties = database.selectValues({
@@ -302,7 +306,7 @@ describe(loyaltyIncreaseResolver, () => {
 
     const duration = 3_600_000;
 
-    loyaltyIncreaseResolver(
+    loyaltyIncreaseResolver.resolve(
       database,
       createLoyaltyIncreaseEventMock({
         villageId: null,
@@ -310,6 +314,7 @@ describe(loyaltyIncreaseResolver, () => {
         resolvesAt,
         startsAt: resolvesAt - duration,
       }),
+      createEvents,
     );
 
     const starts_at = database.selectValue({
@@ -327,7 +332,7 @@ describe(loyaltyIncreaseResolver, () => {
     database.exec({ sql: 'DELETE FROM loyalties;' });
     database.exec({ sql: "DELETE FROM events WHERE type = 'loyaltyIncrease'" });
 
-    loyaltyIncreaseResolver(
+    loyaltyIncreaseResolver.resolve(
       database,
       createLoyaltyIncreaseEventMock({
         villageId: null,
@@ -335,6 +340,7 @@ describe(loyaltyIncreaseResolver, () => {
         resolvesAt,
         startsAt: resolvesAt - 3_600_000,
       }),
+      createEvents,
     );
 
     const eventCount = database.selectValue({

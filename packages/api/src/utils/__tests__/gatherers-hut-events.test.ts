@@ -15,11 +15,7 @@ import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createEvents } from '../create-event';
-import {
-  getEventDuration,
-  runEventCreationSideEffects,
-  validateEventCreationPrerequisites,
-} from '../events';
+import { getCreationRules, insertTestEvents } from './event-resolver-helpers';
 
 const getVillageTileId = (database: DbFacade, villageId: number): number => {
   return database.selectValue({
@@ -59,7 +55,7 @@ describe('gatherers hut events', () => {
     const villageTileId = getVillageTileId(database, villageId);
 
     expect(() =>
-      validateEventCreationPrerequisites(
+      getCreationRules(
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
@@ -72,7 +68,7 @@ describe('gatherers hut events', () => {
             },
           ],
         }),
-      ),
+      ).validate(Date.now()),
     ).toThrow("Gatherer's Hut does not exist");
   });
 
@@ -85,7 +81,7 @@ describe('gatherers hut events', () => {
     setTestIdleTroops(database, 'PHALANX', 15, villageTileId);
 
     expect(() =>
-      validateEventCreationPrerequisites(
+      getCreationRules(
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
@@ -98,7 +94,7 @@ describe('gatherers hut events', () => {
             },
           ],
         }),
-      ),
+      ).validate(Date.now()),
     ).toThrow("Gatherer's Hut party size exceeded");
   });
 
@@ -110,7 +106,7 @@ describe('gatherers hut events', () => {
     setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
 
     expect(() =>
-      validateEventCreationPrerequisites(
+      getCreationRules(
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
@@ -123,7 +119,7 @@ describe('gatherers hut events', () => {
             },
           ],
         }),
-      ),
+      ).validate(Date.now()),
     ).toThrow('Gathering trips can only include idle home troops');
   });
 
@@ -136,7 +132,7 @@ describe('gatherers hut events', () => {
     setTestIdleTroops(database, 'LEGIONNAIRE', 1, villageTileId);
 
     expect(() =>
-      validateEventCreationPrerequisites(
+      getCreationRules(
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
@@ -149,7 +145,7 @@ describe('gatherers hut events', () => {
             },
           ],
         }),
-      ),
+      ).validate(Date.now()),
     ).toThrow("Gathering trips can only include troops from player's tribe");
   });
 
@@ -161,7 +157,7 @@ describe('gatherers hut events', () => {
     setTestBuildingLevel(database, villageId, 'GATHERERS_HUT', 1);
 
     expect(() =>
-      validateEventCreationPrerequisites(
+      getCreationRules(
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
@@ -174,7 +170,7 @@ describe('gatherers hut events', () => {
             },
           ],
         }),
-      ),
+      ).validate(Date.now()),
     ).toThrow('Gathering trips can only include regular troops');
   });
 
@@ -187,7 +183,7 @@ describe('gatherers hut events', () => {
     setTestIdleTroops(database, 'PHALANX', 1, villageTileId);
 
     expect(() =>
-      validateEventCreationPrerequisites(
+      getCreationRules(
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
@@ -200,7 +196,7 @@ describe('gatherers hut events', () => {
             },
           ],
         }),
-      ),
+      ).validate(Date.now()),
     ).toThrow('Not enough idle troops available');
   });
 
@@ -236,7 +232,7 @@ describe('gatherers hut events', () => {
       }
 
       const validate = () =>
-        validateEventCreationPrerequisites(
+        getCreationRules(
           database,
           createGatherersHutGatheringTripEventMock({
             villageId,
@@ -251,7 +247,7 @@ describe('gatherers hut events', () => {
               },
             ],
           }),
-        );
+        ).validate(Date.now());
 
       if (availability === 'available') {
         expect(validate).not.toThrow();
@@ -285,13 +281,13 @@ describe('gatherers hut events', () => {
     });
 
     expect(() =>
-      validateEventCreationPrerequisites(
+      getCreationRules(
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
           troops,
         }),
-      ),
+      ).validate(Date.now()),
     ).toThrow("Gatherer's Hut is busy");
   });
 
@@ -302,7 +298,7 @@ describe('gatherers hut events', () => {
 
     setTestIdleTroops(database, 'PHALANX', 10, villageTileId);
 
-    runEventCreationSideEffects(database, [
+    insertTestEvents(database, [
       createGatherersHutGatheringTripEventMock({
         villageId,
         troops: [
@@ -343,7 +339,7 @@ describe('gatherers hut events', () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    const duration = getEventDuration(
+    const duration = getCreationRules(
       database,
       createGatherersHutGatheringTripEventMock({
         villageId,
@@ -357,7 +353,7 @@ describe('gatherers hut events', () => {
           },
         ],
       }),
-    );
+    ).duration(Date.now());
 
     expect(duration).toBeGreaterThanOrEqual(48 * 60_000);
     expect(duration).toBeLessThanOrEqual(72 * 60_000);
@@ -389,8 +385,8 @@ describe('gatherers hut events', () => {
       troops: event.troops,
     });
 
-    expect(getEventDuration(database, retriedEvent)).toBe(
-      getEventDuration(database, event),
+    expect(getCreationRules(database, retriedEvent).duration(Date.now())).toBe(
+      getCreationRules(database, event).duration(Date.now()),
     );
   });
 
@@ -402,7 +398,7 @@ describe('gatherers hut events', () => {
     setTestDeveloperSetting(database, 'is_instant_unit_travel_enabled', 1);
 
     expect(
-      getEventDuration(
+      getCreationRules(
         database,
         createGatherersHutGatheringTripEventMock({
           villageId,
@@ -415,7 +411,7 @@ describe('gatherers hut events', () => {
             },
           ],
         }),
-      ),
+      ).duration(Date.now()),
     ).toBe(0);
   });
 });

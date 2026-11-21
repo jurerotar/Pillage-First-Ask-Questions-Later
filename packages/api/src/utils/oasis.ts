@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { oasisReinforcementToReturnSchema } from '../http/controllers/schemas/oasis-schemas';
+import type { CreateEvents } from '../http/events/resolver';
 import {
   deleteOasisEffectsByTileIdQuery,
   insertOasisEffectsForVillageQuery,
@@ -95,6 +96,7 @@ export const occupyOasisForVillage = (
 };
 
 export const returnOasisReinforcements = (
+  createEvents: CreateEvents,
   db: DbFacade,
   oasisId: number,
   owningVillageId: number,
@@ -134,6 +136,14 @@ export const returnOasisReinforcements = (
   }
 
   for (const [sourceTileId, { troops }] of troopsBySourceTileId) {
-    returnStationedTroops(db, oasisId, sourceTileId, sourceTileId, troops, now);
+    returnStationedTroops(
+      createEvents,
+      db,
+      oasisId,
+      sourceTileId,
+      sourceTileId,
+      troops,
+      now,
+    );
   }
 };

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { createGameEventMock } from '@pillage-first/mocks/event';
-import { runEventCreationSideEffects } from '../events';
+import { insertTestEvents } from './event-resolver-helpers';
 
 test('celebrations complete global milestones on start and preserve completion timestamps', async () => {
   using database = await prepareTestDatabase();
@@ -22,7 +22,7 @@ test('celebrations complete global milestones on start and preserve completion t
   expect(questIds.length).toBeGreaterThan(0);
 
   for (let count = 1; count <= 100; count += 1) {
-    runEventCreationSideEffects(database, [
+    insertTestEvents(database, [
       createGameEventMock('culturePointsCelebration', {
         villageId,
         startsAt: count,

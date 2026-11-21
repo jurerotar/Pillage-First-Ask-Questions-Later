@@ -8,7 +8,8 @@ import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { buildingLevelChangeResolver } from '../../events/resolvers/building-resolvers';
+import { createEvents } from '../../../utils/create-event';
+import { buildingLevelChangeResolver } from '../../events/resolvers/building-level-change-resolver';
 import { abandonOasis, occupyOasis } from '../oasis-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -269,7 +270,7 @@ describe('oasis-controllers', () => {
 
     setTestBuildingLevel(database, village.id, 'WATERWORKS', 1, 19);
 
-    buildingLevelChangeResolver(
+    buildingLevelChangeResolver.resolve(
       database,
       createBuildingLevelChangeEventMock({
         villageId: village.id,
@@ -278,6 +279,7 @@ describe('oasis-controllers', () => {
         previousLevel: 1,
         level: 20,
       }),
+      createEvents,
     );
 
     const effects = selectOccupiedOasisBonusEffects(

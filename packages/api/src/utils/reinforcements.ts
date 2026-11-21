@@ -3,10 +3,10 @@ import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/u
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { troopAmountSchema } from '../http/controllers/schemas/player-schemas';
+import type { CreateEvents } from '../http/events/resolver';
 import { updateWheatProductionByTroopsAndTileIdEffectQuery } from '../queries/effect-queries';
 import { selectTroopAmountQuery } from '../queries/player-queries';
 import { selectVillageIdByTileIdQuery } from '../queries/village-queries';
-import { createEvents } from './create-event';
 import { addTroops, removeTroops } from './troops';
 import { updateResourceSiteResourcesAt } from './village';
 
@@ -140,6 +140,7 @@ export const moveStationedTroops = (
 };
 
 export const returnStationedTroops = (
+  createEvents: CreateEvents,
   database: DbFacade,
   originTileId: number,
   targetTileId: number,

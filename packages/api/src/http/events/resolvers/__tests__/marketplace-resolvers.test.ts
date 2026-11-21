@@ -22,6 +22,7 @@ import {
 } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { insertTradeRouteQuery } from '../../../../queries/trade-route-queries';
+import { createEvents } from '../../../../utils/create-event';
 import { scheduleTradeRoute } from '../../../../utils/trade-routes';
 import { calculateResourceSiteResourcesAt } from '../../../../utils/village';
 import { resolveEvent } from '../../resolve-event';
@@ -116,7 +117,7 @@ const insertTradeRoute = (
     schema: z.number(),
   })!;
 
-  scheduleTradeRoute(database, routeId, villageId, NOW);
+  scheduleTradeRoute(createEvents, database, routeId, villageId, NOW);
 
   return database.selectValue({
     sql: "SELECT id FROM events WHERE type = 'tradeRoute';",

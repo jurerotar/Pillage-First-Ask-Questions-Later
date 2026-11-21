@@ -6,7 +6,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { insertEffectByEffectNameQuery } from '../../../queries/effect-queries';
-import { insertEvents } from '../../../utils/events';
+import { insertEvents } from '../../../utils/insert-events';
 import { getVillageStorage } from '../storage-controllers';
 import { createControllerArgs } from './utils/controller-args';
 

@@ -2,12 +2,13 @@ import { expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createTrapperCageProductionEventMock } from '@pillage-first/mocks/event';
-import { trapperCageProductionResolver } from '../trapper-resolvers';
+import { createEvents } from '../../../../utils/create-event';
+import { trapperCageProductionResolver } from '../trapper-cage-production-resolver';
 
 test('trapper cage production creates one free cage per event', async () => {
   using database = await prepareTestDatabase();
 
-  trapperCageProductionResolver(
+  trapperCageProductionResolver.resolve(
     database,
     createTrapperCageProductionEventMock({
       id: 1,
@@ -16,6 +17,7 @@ test('trapper cage production creates one free cage per event', async () => {
       startsAt: 1000,
       duration: 1000,
     }),
+    createEvents,
   );
 
   expect(

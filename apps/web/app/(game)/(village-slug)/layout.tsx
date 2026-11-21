@@ -773,7 +773,7 @@ const TopNavigation = ({
               </Suspense>
               <VillageOverviewDesktopItem />
             </div>
-            <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
+            <nav className="pointer-events-none flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1 [&_a]:pointer-events-auto">
               <ul className="hidden lg:flex gap-3 justify-center items-center">
                 <li>
                   <ReportsNavigationItem />
