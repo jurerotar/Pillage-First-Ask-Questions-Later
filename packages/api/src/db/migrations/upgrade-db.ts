@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { itemsMap } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
+import { calculateHealthRegenerationInterval } from '@pillage-first/game-assets/utils/hero';
 import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -888,6 +889,51 @@ export const upgradeDb = (
               FROM legacy_hero_inventory
             );
           `,
+        });
+
+        tx.exec({
+          sql: 'ALTER TABLE heroes ADD COLUMN next_health_regeneration_at INTEGER;',
+        });
+
+        const nextLegacyTick = tx.selectValue({
+          sql: "SELECT MIN(resolves_at) FROM events WHERE type = 'heroHealthRegeneration';",
+          schema: z.number().nullable(),
+        });
+
+        const now = Date.now();
+
+        const injuredHeroes = tx.selectObjects({
+          sql: `
+            SELECT heroes.id, player_id, health_regeneration, servers.speed
+            FROM heroes CROSS JOIN servers
+            WHERE health BETWEEN 1 AND 99 AND health_regeneration > 0;
+          `,
+          schema: z.strictObject({
+            id: z.number(),
+            player_id: z.number(),
+            health_regeneration: z.number(),
+            speed: z.number(),
+          }),
+        });
+
+        for (const hero of injuredHeroes) {
+          const interval = calculateHealthRegenerationInterval(
+            hero.health_regeneration,
+            hero.speed,
+          );
+          tx.exec({
+            sql: 'UPDATE heroes SET next_health_regeneration_at = $next_at WHERE id = $hero_id;',
+            bind: {
+              $hero_id: hero.id,
+              $next_at:
+                (hero.player_id === PLAYER_ID ? nextLegacyTick : null) ??
+                now + interval,
+            },
+          });
+        }
+
+        tx.exec({
+          sql: "DELETE FROM events WHERE type = 'heroHealthRegeneration';",
         });
       });
     } finally {

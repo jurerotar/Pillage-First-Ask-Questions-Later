@@ -6,7 +6,6 @@ import { buildingDestructionResolver } from './resolvers/building-destruction-re
 import { buildingLevelChangeResolver } from './resolvers/building-level-change-resolver';
 import { culturePointsCelebrationResolver } from './resolvers/culture-points-celebration-resolver';
 import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-gathering-trip-resolver';
-import { heroHealthRegenerationResolver } from './resolvers/hero-health-regeneration-resolver';
 import { heroRevivalResolver } from './resolvers/hero-revival-resolver';
 import { huntersLodgeHuntResolver } from './resolvers/hunters-lodge-hunt-resolver';
 import { loyaltyIncreaseResolver } from './resolvers/loyalty-increase-resolver';
@@ -43,7 +42,6 @@ const gameEventResolvers: GameEventResolverMap = {
   troopMovementOasisOccupation: oasisOccupationMovementResolver,
   troopMovementAdventure: adventureMovementResolver,
   heroRevival: heroRevivalResolver,
-  heroHealthRegeneration: heroHealthRegenerationResolver,
   loyaltyIncrease: loyaltyIncreaseResolver,
   culturePointsCelebration: culturePointsCelebrationResolver,
   unitResearch: unitResearchResolver,

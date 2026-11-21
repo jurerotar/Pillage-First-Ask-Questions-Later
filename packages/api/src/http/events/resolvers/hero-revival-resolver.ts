@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
-  calculateHealthRegenerationEventDuration,
   calculateHeroLevel,
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
@@ -18,38 +17,31 @@ import { defineEventResolver, type Resolver } from '../resolver';
 const resolveHeroRevival: Resolver<GameEvent<'heroRevival'>> = (
   database,
   args,
-  createEvents,
 ) => {
   const { resolvesAt } = args;
 
-  const { villageId, tileId, healthRegeneration, speed } =
-    database.selectObject({
-      sql: `
+  const { villageId, tileId } = database.selectObject({
+    sql: `
         SELECT
           villages.id AS villageId,
-          villages.tile_id AS tileId,
-          heroes.health_regeneration AS healthRegeneration,
-          servers.speed AS speed
+          villages.tile_id AS tileId
         FROM heroes
         JOIN villages ON heroes.village_id = villages.id
-        CROSS JOIN servers
         WHERE heroes.player_id = $player_id;
       `,
-      bind: {
-        $player_id: PLAYER_ID,
-      },
-      schema: z.strictObject({
-        villageId: z.number(),
-        tileId: tileIdSchema,
-        healthRegeneration: z.number(),
-        speed: z.number(),
-      }),
-    })!;
+    bind: {
+      $player_id: PLAYER_ID,
+    },
+    schema: z.strictObject({
+      villageId: z.number(),
+      tileId: tileIdSchema,
+    }),
+  })!;
 
   updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 
   database.exec({
-    sql: 'UPDATE heroes SET health = 100 WHERE player_id = $player_id;',
+    sql: 'UPDATE heroes SET health = 100, next_health_regeneration_at = NULL WHERE player_id = $player_id;',
     bind: { $player_id: PLAYER_ID },
   });
 
@@ -66,18 +58,6 @@ const resolveHeroRevival: Resolver<GameEvent<'heroRevival'>> = (
       sourceTileId: tileId,
     },
   ]);
-
-  const duration = calculateHealthRegenerationEventDuration(
-    healthRegeneration,
-    speed,
-  );
-
-  createEvents<'heroHealthRegeneration'>(database, {
-    villageId: null,
-    type: 'heroHealthRegeneration',
-    startsAt: resolvesAt,
-    duration,
-  });
 
   return {
     affectedVillageIds: [villageId],

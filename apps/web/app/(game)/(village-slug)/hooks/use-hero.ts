@@ -1,5 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { use } from 'react';
+import { use, useSyncExternalStore } from 'react';
+import {
+  calculateHeroHealthAt,
+  getHeroHealthRegenerationDeadline,
+} from '@pillage-first/game-assets/utils/hero';
 import type {
   Hero,
   HeroResourceToProduce,
@@ -10,12 +14,13 @@ import {
   heroCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
+import { getCurrentTime, subscribeToTimer } from 'app/(game)/utils/timer';
 import { invalidateQueries } from 'app/utils/react-query';
 
 export const useHero = () => {
   const { apiClient } = use(ApiContext);
 
-  const { data: hero } = useSuspenseQuery({
+  const { data: heroSnapshot } = useSuspenseQuery({
     queryKey: [heroCacheKey],
     queryFn: async () => {
       const { data } = await apiClient.get('/me/hero');
@@ -24,7 +29,30 @@ export const useHero = () => {
     },
   });
 
-  const { health, experience } = hero.stats;
+  const { stats, nextHealthRegenerationAt, healthRegenerationInterval } =
+    heroSnapshot;
+
+  const health = useSyncExternalStore(subscribeToTimer, () =>
+    calculateHeroHealthAt(
+      stats.health,
+      nextHealthRegenerationAt,
+      healthRegenerationInterval,
+      getCurrentTime(),
+    ),
+  );
+
+  const hero = {
+    ...heroSnapshot,
+    nextHealthRegenerationAt: getHeroHealthRegenerationDeadline(
+      health,
+      nextHealthRegenerationAt,
+      healthRegenerationInterval,
+      health - stats.health,
+    ),
+    stats: { ...stats, health },
+  };
+
+  const { experience } = hero.stats;
   const isHeroAlive = hero.status.type !== 'dead';
 
   const { mutate: updateHeroAttributes } = useMutation({

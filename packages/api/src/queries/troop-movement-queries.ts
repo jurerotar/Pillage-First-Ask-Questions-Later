@@ -77,7 +77,7 @@ export const selectHeroAdventureContextByVillageIdQuery = `
   SELECT
     h.id AS heroId,
     h.player_id AS playerId,
-    h.health AS healthBefore,
+    h.damage_reduction AS damageReduction,
     ha.completed + 1 AS adventureId
   FROM
     heroes h
@@ -93,11 +93,12 @@ export const selectHeroAdventureContextByVillageIdQuery = `
 export const updateHeroAfterAdventureByHeroIdQuery = `
   UPDATE heroes
   SET
-    health = MAX(0, health - MAX(0, 5 - damage_reduction)),
+    health = $health,
+    next_health_regeneration_at = $next_health_regeneration_at,
     experience =
       experience +
       CASE
-        WHEN MAX(0, health - MAX(0, 5 - damage_reduction)) > 0
+        WHEN $health > 0
           THEN CAST(
             ROUND(
               (
@@ -112,7 +113,6 @@ export const updateHeroAfterAdventureByHeroIdQuery = `
         ELSE 0
         END
   WHERE id = $hero_id
-  RETURNING health
 `;
 
 export const updateCompletedHeroAdventuresByHeroIdQuery = `

@@ -205,13 +205,6 @@ describe('adventure movement', () => {
       bind: { $hero_id: heroId },
     });
 
-    const regenerationEventCountBefore = database.selectValue({
-      sql: "SELECT COUNT(*) FROM events WHERE type = 'heroHealthRegeneration';",
-      schema: z.number(),
-    });
-
-    expect(regenerationEventCountBefore).toBe(0);
-
     const mockEvent = createTroopMovementAdventureEventMock({
       id: 1,
       startsAt: 1000,
@@ -322,18 +315,59 @@ describe('adventure movement', () => {
 
     expect(quest).toBe(1500);
 
-    const regenerationEvent = database.selectObject({
-      sql: "SELECT type, starts_at AS startsAt FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
-      schema: z.strictObject({
-        type: z.string(),
-        startsAt: z.number(),
-      }),
+    const nextRegenerationAt = database.selectValue({
+      sql: 'SELECT next_health_regeneration_at FROM heroes WHERE id = $hero_id;',
+      bind: { $hero_id: heroId },
+      schema: z.number().nullable(),
+    });
+
+    expect(nextRegenerationAt).toBe(mockEvent.resolvesAt + 8_640_000);
+  });
+
+  test('applies healing due at the adventure deadline before damage', async () => {
+    using database = await prepareTestDatabase();
+
+    const villageId = 1;
+    const heroId = database.selectValue({
+      sql: 'SELECT id FROM heroes WHERE player_id = (SELECT player_id FROM villages WHERE id = $village_id);',
+      bind: { $village_id: villageId },
+      schema: z.number(),
     })!;
 
-    expect(regenerationEvent).toStrictEqual({
-      type: 'heroHealthRegeneration',
-      startsAt: mockEvent.resolvesAt,
+    database.exec({
+      sql: 'UPDATE heroes SET health = 5, damage_reduction = 0, next_health_regeneration_at = 1500 WHERE id = $hero_id;',
+      bind: { $hero_id: heroId },
     });
+
+    const originTileId = getVillageTileId(database, villageId);
+    const adventure = createTroopMovementAdventureEventMock({
+      startsAt: 1000,
+      duration: 500,
+      villageId,
+      originTileId,
+      targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
+      troops: [
+        {
+          unitId: 'HERO',
+          amount: 1,
+          tileId: originTileId,
+          sourceTileId: originTileId,
+        },
+      ],
+    });
+
+    adventureMovementResolver.resolve(database, adventure, createEvents);
+
+    expect(
+      database.selectObject({
+        sql: 'SELECT health, next_health_regeneration_at FROM heroes WHERE id = $hero_id;',
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({
+          health: z.number(),
+          next_health_regeneration_at: z.number(),
+        }),
+      }),
+    ).toEqual({ health: 1, next_health_regeneration_at: 8_641_500 });
   });
 
   test('should handle hero death during adventure', async () => {
@@ -441,12 +475,13 @@ describe('adventure movement', () => {
 
     expect(returnEvent).toBeUndefined();
 
-    const regenerationEvent = database.selectValue({
-      sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
-      schema: z.string(),
+    const nextRegenerationAt = database.selectValue({
+      sql: 'SELECT next_health_regeneration_at FROM heroes WHERE id = $hero_id;',
+      bind: { $hero_id: heroId },
+      schema: z.number().nullable(),
     });
 
-    expect(regenerationEvent).toBeUndefined();
+    expect(nextRegenerationAt).toBeNull();
 
     // Check if hero effects were removed
     const effectsCount = database.selectValue({

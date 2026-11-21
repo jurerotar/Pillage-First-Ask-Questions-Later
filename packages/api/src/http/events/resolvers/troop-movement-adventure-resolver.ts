@@ -15,7 +15,8 @@ import {
   materializeHeroAdventurePointsAt,
 } from '../../../utils/adventures';
 import {
-  createHeroHealthRegenerationEventByVillageId,
+  getHeroHealthStateAt,
+  getNextHeroHealthRegenerationAt,
   onHeroDeath,
 } from '../../../utils/hero';
 import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
@@ -30,24 +31,42 @@ const resolveAdventureMovement: Resolver<
 > = (database, args, createEvents) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
-  const { heroId, playerId, healthBefore, adventureId } = database.selectObject(
-    {
+  const { heroId, playerId, damageReduction, adventureId } =
+    database.selectObject({
       sql: selectHeroAdventureContextByVillageIdQuery,
       bind: { $village_id: villageId },
       schema: z.strictObject({
         heroId: z.number(),
         playerId: z.number(),
-        healthBefore: z.number(),
+        damageReduction: z.number(),
         adventureId: z.int(),
       }),
-    },
-  )!;
+    })!;
 
-  const healthAfter = database.selectValue({
+  const {
+    health: healthBefore,
+    nextHealthRegenerationAt,
+    interval,
+  } = getHeroHealthStateAt(database, heroId, resolvesAt);
+
+  const healthAfter = Math.max(
+    0,
+    healthBefore - Math.max(0, 5 - damageReduction),
+  );
+
+  database.exec({
     sql: updateHeroAfterAdventureByHeroIdQuery,
-    bind: { $hero_id: heroId },
-    schema: z.number(),
-  })!;
+    bind: {
+      $hero_id: heroId,
+      $health: healthAfter,
+      $next_health_regeneration_at: getNextHeroHealthRegenerationAt(
+        healthAfter,
+        nextHealthRegenerationAt,
+        interval,
+        resolvesAt,
+      ),
+    },
+  });
 
   const adventureLoot =
     healthAfter > 0 ? rollLootTable(adventureLootTable) : null;
@@ -88,15 +107,6 @@ const resolveAdventureMovement: Resolver<
   });
 
   assessAdventureCountQuestCompletion(database, resolvesAt, playerId);
-
-  if (healthAfter < 100) {
-    createHeroHealthRegenerationEventByVillageId(
-      createEvents,
-      database,
-      villageId,
-      resolvesAt,
-    );
-  }
 
   createEvents<'troopMovementReturn'>(database, {
     villageId,

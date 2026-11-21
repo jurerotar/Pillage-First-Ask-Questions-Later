@@ -32,7 +32,6 @@ import {
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
   createGameEventMock,
-  createHeroHealthRegenerationEventMock,
   createHeroRevivalEventMock,
   createHuntersLodgeHuntEventMock,
   createResourceTransferEventMock,
@@ -2765,24 +2764,6 @@ describe('events utils', () => {
       ).duration(Date.now());
 
       expect(result).toBe(0);
-    });
-
-    test('heroHealthRegeneration - should return correct duration', async () => {
-      using database = await prepareTestDatabase();
-
-      database.exec({
-        sql: 'UPDATE heroes SET health_regeneration = 25 WHERE player_id = $player_id',
-        bind: { $player_id: PLAYER_ID },
-      });
-
-      const result = getCreationRules(
-        database,
-        createHeroHealthRegenerationEventMock(),
-      ).duration(Date.now());
-
-      const dayInMs = 24 * 60 * 60 * 1000;
-
-      expect(result).toBe(dayInMs / 25);
     });
   });
 

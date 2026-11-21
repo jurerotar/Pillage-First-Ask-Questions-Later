@@ -228,9 +228,6 @@ export const cachesToClearOnResolve: Handlers = {
       ]),
     ];
   },
-  heroHealthRegeneration: () => {
-    return [[heroCacheKey]];
-  },
   loyaltyIncrease: () => {
     return [[loyaltyCacheKey]];
   },

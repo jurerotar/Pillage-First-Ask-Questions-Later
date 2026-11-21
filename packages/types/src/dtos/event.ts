@@ -176,10 +176,6 @@ export const createEventDtoSchema = z
       ...villageEventSchema,
     }),
     z.strictObject({
-      type: z.literal('heroHealthRegeneration'),
-      ...globalEventSchema,
-    }),
-    z.strictObject({
       type: z.literal('loyaltyIncrease'),
       ...globalEventSchema,
     }),

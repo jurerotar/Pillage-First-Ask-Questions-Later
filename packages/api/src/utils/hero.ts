@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
-  calculateHealthRegenerationEventDuration,
+  calculateHealthRegenerationInterval,
   calculateHeroAttackPower,
   calculateHeroEquipmentBonuses,
+  getHeroHealthAt,
 } from '@pillage-first/game-assets/utils/hero';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import type { ResourceProductionEffectId } from '@pillage-first/types/models/effect';
@@ -14,7 +15,6 @@ import {
 import type { Resource } from '@pillage-first/types/models/resource';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import type { CreateEvents } from '../http/events/resolver';
 import {
   deleteHeroEffectsQuery,
   updateHeroVillageEffectsByVillageIdQuery,
@@ -145,6 +145,51 @@ const getHeroEquipmentBonuses = (database: DbFacade, heroId: number) => {
   );
 };
 
+export const getNextHeroHealthRegenerationAt = (
+  health: number,
+  nextHealthRegenerationAt: number | null,
+  interval: number,
+  timestamp: number,
+): number | null => {
+  return health > 0 && health < 100 && interval > 0
+    ? (nextHealthRegenerationAt ?? timestamp + interval)
+    : null;
+};
+
+export const getHeroHealthStateAt = (
+  database: DbFacade,
+  heroId: number,
+  timestamp: number,
+) => {
+  const { health, nextHealthRegenerationAt, healthRegeneration, speed } =
+    database.selectObject({
+      sql: `
+        SELECT health, next_health_regeneration_at AS nextHealthRegenerationAt,
+          health_regeneration AS healthRegeneration, servers.speed
+        FROM heroes CROSS JOIN servers
+        WHERE heroes.id = $hero_id;
+      `,
+      bind: { $hero_id: heroId },
+      schema: z.strictObject({
+        health: z.number(),
+        nextHealthRegenerationAt: z.number().nullable(),
+        healthRegeneration: z.number(),
+        speed: z.number(),
+      }),
+    })!;
+
+  const interval = calculateHealthRegenerationInterval(
+    healthRegeneration,
+    speed,
+  );
+
+  return {
+    ...getHeroHealthAt(health, nextHealthRegenerationAt, interval, timestamp),
+    interval,
+    speed,
+  };
+};
+
 export const updateHeroEquipmentBonuses = (
   database: DbFacade,
   heroId: number,
@@ -170,13 +215,28 @@ export const updateHeroEquipmentBonuses = (
   })!;
 
   const equipmentBonuses = getHeroEquipmentBonuses(database, heroId);
+  const now = Date.now();
+
+  const { health, nextHealthRegenerationAt, speed } = getHeroHealthStateAt(
+    database,
+    heroId,
+    now,
+  );
+  const healthRegeneration =
+    baseHeroHealthRegeneration + equipmentBonuses.healthRegeneration;
+  const interval = calculateHealthRegenerationInterval(
+    healthRegeneration,
+    speed,
+  );
 
   database.exec({
     sql: `
       UPDATE heroes
       SET
         base_attack_power = $attack_power,
-        health_regeneration = $base_health_regeneration + $health_regeneration_bonus,
+        health = $health,
+        next_health_regeneration_at = $next_health_regeneration_at,
+        health_regeneration = $health_regeneration,
         damage_reduction = $damage_reduction_bonus,
         experience_modifier = $experience_modifier_bonus,
         speed = $base_speed + $speed_bonus
@@ -190,8 +250,14 @@ export const updateHeroEquipmentBonuses = (
         hero.attack_power,
         equipmentBonuses.power,
       ),
-      $base_health_regeneration: baseHeroHealthRegeneration,
-      $health_regeneration_bonus: equipmentBonuses.healthRegeneration,
+      $health: health,
+      $next_health_regeneration_at: getNextHeroHealthRegenerationAt(
+        health,
+        nextHealthRegenerationAt,
+        interval,
+        now,
+      ),
+      $health_regeneration: healthRegeneration,
       $damage_reduction_bonus: equipmentBonuses.damageReduction,
       $experience_modifier_bonus: equipmentBonuses.experienceModifier,
       $base_speed: baseHeroSpeed,
@@ -241,7 +307,8 @@ export const onHeroDeath = (database: DbFacade, timestamp: number) => {
   });
 
   database.exec({
-    sql: "DELETE FROM events WHERE type = 'heroHealthRegeneration';",
+    sql: 'UPDATE heroes SET next_health_regeneration_at = NULL WHERE player_id = $player_id;',
+    bind: { $player_id: PLAYER_ID },
   });
 };
 
@@ -296,51 +363,6 @@ export const updateHeroResourceProductionEffects = ({
       $effects: JSON.stringify(effects),
       $village_id: villageId,
     },
-  });
-};
-
-export const createHeroHealthRegenerationEventByVillageId = (
-  createEvents: CreateEvents,
-  database: DbFacade,
-  villageId: number,
-  startsAt: number,
-) => {
-  const { healthRegeneration, speed } = database.selectObject({
-    sql: `
-      SELECT
-        heroes.health_regeneration AS healthRegeneration,
-        servers.speed AS speed
-      FROM
-        heroes
-        CROSS JOIN servers
-      WHERE
-        heroes.player_id = (
-        SELECT player_id
-        FROM
-          villages
-        WHERE
-          id = $village_id
-        );
-    `,
-    bind: {
-      $village_id: villageId,
-    },
-    schema: z.strictObject({
-      healthRegeneration: z.number(),
-      speed: z.number(),
-    }),
-  })!;
-
-  const duration = calculateHealthRegenerationEventDuration(
-    healthRegeneration,
-    speed,
-  );
-
-  createEvents<'heroHealthRegeneration'>(database, {
-    villageId: null,
-    type: 'heroHealthRegeneration',
-    startsAt,
-    duration,
   });
 };
 
