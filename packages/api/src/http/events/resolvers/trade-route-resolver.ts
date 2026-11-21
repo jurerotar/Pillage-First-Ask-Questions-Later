@@ -89,8 +89,6 @@ const resolveTradeRoute: Resolver<GameEvent<'tradeRoute'>> = (
     }
   }
 
-  // Unexpected failures must reach the scheduler so its transaction/savepoint
-  // restores the resources, the consumed trigger and any newly created events.
   createEvents<'tradeRoute'>(database, {
     type: 'tradeRoute',
     tradeRouteId: route.id,
