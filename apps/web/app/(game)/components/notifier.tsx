@@ -6,20 +6,24 @@ import { calculateGatherersHutGatheringResources } from '@pillage-first/game-ass
 import type {
   ApiNotificationEvent,
   EventApiNotificationEvent,
-  EventCreatedNotificationEvent,
   ScheduledBuildingConstructionCancelledNotificationEvent,
 } from '@pillage-first/types/api-events';
-import type { GameEventType } from '@pillage-first/types/models/game-event';
 import type { Server } from '@pillage-first/types/models/server';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
 import { formatNumber } from '@pillage-first/utils/format';
 import {
+  isAdventureTroopMovementEvent,
+  isAnimalCageProductionEvent,
   isBuildingLevelChangeEvent,
   isFindNewVillageTroopMovementEvent,
   isGatherersHutGatheringTripEvent,
+  isHeroRevivalEvent,
   isHuntersLodgeHuntEvent,
+  isOasisOccupationTroopMovementEvent,
+  isReinforcementsTroopMovementEvent,
   isRelocationTroopMovementEvent,
+  isTroopTrainingEvent,
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
@@ -261,10 +265,10 @@ const getEventResolvedInfo = (
 };
 
 const getEventCreatedInfo = (
-  event: EventCreatedNotificationEvent<GameEventType>,
+  event: EventApiNotificationEvent,
   { t, mapSize, playerVillagesMap }: NotificationFactoryArgs,
 ): NotificationInfo | undefined => {
-  if (event.type === 'buildingLevelChange') {
+  if (isBuildingLevelChangeEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
     const { level, previousLevel } = event;
@@ -284,7 +288,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'unitResearch') {
+  if (isUnitResearchEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const unitName = t(`UNITS.${event.unitId}.NAME`);
 
@@ -296,7 +300,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'unitImprovement') {
+  if (isUnitImprovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const unitName = t(`UNITS.${event.unitId}.NAME`);
     const { level } = event;
@@ -313,7 +317,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'troopMovementAdventure') {
+  if (isAdventureTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     return {
       toastTitle: t('Hero sent on adventure from {{villageName}}', {
@@ -322,14 +326,14 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'heroRevival') {
+  if (isHeroRevivalEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     return {
       toastTitle: t('Hero revival started in {{villageName}}', { villageName }),
     };
   }
 
-  if (event.type === 'troopMovementReinforcements') {
+  if (isReinforcementsTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
@@ -345,7 +349,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'troopMovementRelocation') {
+  if (isRelocationTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
@@ -361,7 +365,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'troopMovementFindNewVillage') {
+  if (isFindNewVillageTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
@@ -377,7 +381,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'troopMovementOasisOccupation') {
+  if (isOasisOccupationTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
@@ -393,7 +397,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'gatherersHutGatheringTrip') {
+  if (isGatherersHutGatheringTripEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const troopAmount = getTroopAmount(event.troops);
 
@@ -408,7 +412,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'huntersLodgeHunt') {
+  if (isHuntersLodgeHuntEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
 
     return {
@@ -422,7 +426,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'animalCageProduction') {
+  if (isAnimalCageProductionEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
 
     return {
@@ -436,7 +440,7 @@ const getEventCreatedInfo = (
     };
   }
 
-  if (event.type === 'troopTraining') {
+  if (isTroopTrainingEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const unitName = t(`UNITS.${event.unitId}.NAME`);
     const { amount } = event;

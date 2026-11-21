@@ -1,7 +1,10 @@
 import { z } from 'zod';
-import type { EventCreatedNotificationEvent } from '@pillage-first/types/api-events';
+import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import { createEventDtoSchema } from '@pillage-first/types/dtos/event';
-import type { GameEventType } from '@pillage-first/types/models/game-event';
+import type {
+  GameEvent,
+  GameEventType,
+} from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import type { EventCreationArgs } from '../http/events/resolver';
 import { getEventResolver } from '../http/events/resolver-registry';
@@ -74,11 +77,11 @@ export const createEvents = <T extends GameEventType>(
 
   postWorkerMessage({
     eventKey: 'event:created',
-    ...earliestEvent,
+    ...(earliestEvent as GameEvent),
     // Creating events doesn't require this, because cache invalidation is already done by the frontend
     affectedVillageIds: [],
     affectedTileIds: [],
-  } satisfies EventCreatedNotificationEvent);
+  } satisfies EventApiNotificationEvent);
 
   const createdImmediate = events.some((event) => event.resolvesAt <= now);
 

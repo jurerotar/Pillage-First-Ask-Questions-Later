@@ -3,10 +3,8 @@ import type {
   ControllerErrorEvent,
   DatabaseInitializationErrorEvent,
   EventApiNotificationEvent,
-  EventCreatedNotificationEvent,
   ScheduledBuildingConstructionCancelledNotificationEvent,
 } from '@pillage-first/types/api-events';
-import type { GameEventType } from '@pillage-first/types/models/game-event';
 
 const isNotificationMessageEvent = (
   event: MessageEvent,
@@ -27,7 +25,7 @@ export const isEventResolvedNotificationMessageEvent = (
 
 export const isEventCreatedNotificationMessageEvent = (
   event: MessageEvent,
-): event is MessageEvent<EventCreatedNotificationEvent<GameEventType>> => {
+): event is MessageEvent<EventApiNotificationEvent> => {
   return (
     isNotificationMessageEvent(event) && event.data.eventKey === 'event:created'
   );
