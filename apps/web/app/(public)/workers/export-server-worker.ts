@@ -1,8 +1,6 @@
-import type { SAHPoolUtil, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
+import type { SAHPoolUtil } from '@sqlite.org/sqlite-wasm';
 import type { OpfsSahPoolOptions } from '@pillage-first/utils/facades/database';
 import { toTransferableArrayBuffer } from 'app/(public)/workers/utils/array-buffer';
-
-const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
 
 export type ExportServerWorkerReturn =
   | {
@@ -17,11 +15,13 @@ export type ExportServerWorkerReturn =
 const urlParams = new URLSearchParams(globalThis.location.search);
 const serverSlug = urlParams.get('server-slug')!;
 
-let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
 
 try {
-  sqlite3 ??= await sqlite3InitModule();
+  const { default: sqlite3InitModule } = await import(
+    '@sqlite.org/sqlite-wasm'
+  );
+  const sqlite3 = await sqlite3InitModule();
 
   const opfsSahPoolOptions: OpfsSahPoolOptions = {
     directory: `/pillage-first-ask-questions-later/${serverSlug}`,
