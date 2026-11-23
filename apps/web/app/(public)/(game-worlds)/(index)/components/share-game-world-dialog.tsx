@@ -209,8 +209,10 @@ export const ShareGameWorldDialog = ({
           </div>
         ) : (
           <Button
+            className="justify-self-end"
             disabled={isUploading}
             onClick={() => share()}
+            size="fit"
           >
             {isUploading
               ? 'Uploading game world...'

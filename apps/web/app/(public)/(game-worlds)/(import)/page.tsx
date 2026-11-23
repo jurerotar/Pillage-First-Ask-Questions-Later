@@ -140,6 +140,28 @@ const ImportGameWorld = () => {
     },
   });
 
+  const {
+    mutate: downloadWorldFile,
+    isPending: isDownloadingFile,
+    error: downloadError,
+    reset: resetDownload,
+  } = useMutation<void, Error, { worldId: string; name: string }>({
+    mutationFn: async ({ worldId, name }) => {
+      setProgress(null);
+
+      const buffer = await downloadSharedWorld(worldId, setProgress);
+      const blob = new Blob([buffer], { type: 'application/vnd.sqlite3' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${name || worldId}.sqlite3`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    },
+  });
+
+  const isTransferring = isImporting || isDownloadingFile;
+
   const worldPreview = useQuery({
     queryKey: ['shared-world-preview', worldId],
     queryFn: async ({ signal }) =>
@@ -149,15 +171,19 @@ const ImportGameWorld = () => {
     refetchOnWindowFocus: false,
   });
 
-  const remoteImportError = typeof importSource === 'string' ? error : null;
+  const remoteError =
+    downloadError ??
+    (typeof importSource === 'string' ? error : null) ??
+    worldPreview.error;
   const localImportError = typeof importSource !== 'string' ? error : null;
 
   const closeRemoteImport = () => {
-    if (isImporting) {
+    if (isTransferring) {
       return;
     }
 
     resetImport();
+    resetDownload();
     setSearchParams(
       (params) => {
         const updated = new URLSearchParams(params);
@@ -215,7 +241,7 @@ const ImportGameWorld = () => {
           <Dialog
             open={worldId !== null}
             onOpenChange={(open, eventDetails) => {
-              if (!open && isImporting) {
+              if (!open && isTransferring) {
                 eventDetails.cancel();
                 return;
               }
@@ -225,12 +251,13 @@ const ImportGameWorld = () => {
               }
             }}
           >
-            <DialogContent closeDisabled={isImporting}>
+            <DialogContent closeDisabled={isTransferring}>
               <DialogHeader>
                 <DialogTitle>Import shared game world</DialogTitle>
                 <DialogDescription>
-                  Download this world onto this device and continue playing. The
-                  link stays available for 24 hours after the upload completes.
+                  Import this world to continue playing, or download it as a
+                  .sqlite3 file. The link stays available for 24 hours after the
+                  upload completes.
                 </DialogDescription>
               </DialogHeader>
               {worldPreview.isPending && (
@@ -281,61 +308,74 @@ const ImportGameWorld = () => {
                   </dl>
                 </div>
               )}
-              {(remoteImportError || worldPreview.error) && (
-                <Alert variant="error">
-                  {remoteImportError?.message ?? worldPreview.error?.message}
-                </Alert>
+              {remoteError && (
+                <Alert variant="error">{remoteError.message}</Alert>
               )}
-              {worldPreview.isError && !isImporting && (
+              {worldPreview.isError && !isTransferring && (
                 <Button
+                  className="justify-self-end"
                   variant="outline"
+                  size="fit"
                   disabled={worldPreview.isFetching}
                   onClick={() => void worldPreview.refetch()}
                 >
                   Retry loading details
                 </Button>
               )}
-              {isImporting && typeof importSource === 'string' && (
+              {(isDownloadingFile ||
+                (isImporting && typeof importSource === 'string')) && (
                 <GameWorldTransferProgress
                   label={
-                    importStage === 'downloading'
+                    isDownloadingFile || importStage === 'downloading'
                       ? 'Downloading game world...'
                       : importStage === 'importing'
                         ? 'Importing game world...'
                         : 'Finishing import...'
                   }
                   progress={progress}
-                  showProgressText={importStage === 'downloading'}
+                  showProgressText={
+                    isDownloadingFile || importStage === 'downloading'
+                  }
                 />
               )}
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  disabled={isImporting}
-                  onClick={closeRemoteImport}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  disabled={
-                    isImporting ||
-                    !worldId ||
-                    (!downloads.current.get(worldId)?.imported &&
-                      (worldPreview.isPending || worldPreview.isError))
-                  }
-                  onClick={() => {
-                    if (worldId) {
+              {worldId && worldPreview.isSuccess && (
+                <DialogFooter className="flex-wrap">
+                  <Button
+                    variant="outline"
+                    className="mr-auto"
+                    disabled={isTransferring}
+                    onClick={closeRemoteImport}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    disabled={isTransferring}
+                    onClick={() => {
+                      resetImport();
+                      downloadWorldFile({
+                        worldId,
+                        name: worldPreview.data.name,
+                      });
+                    }}
+                  >
+                    Download file
+                  </Button>
+                  <Button
+                    disabled={isTransferring}
+                    onClick={() => {
+                      resetDownload();
                       startImport(worldId);
-                    }
-                  }}
-                >
-                  {isImporting
-                    ? 'Importing...'
-                    : worldId && downloads.current.get(worldId)?.imported
-                      ? 'Finish import'
-                      : 'Download and import game world'}
-                </Button>
-              </DialogFooter>
+                    }}
+                  >
+                    {isImporting
+                      ? 'Importing...'
+                      : downloads.current.get(worldId)?.imported
+                        ? 'Finish import'
+                        : 'Import game world'}
+                  </Button>
+                </DialogFooter>
+              )}
             </DialogContent>
           </Dialog>
           <div className="flex flex-col gap-2">
@@ -355,7 +395,7 @@ const ImportGameWorld = () => {
                 onClick={() => {
                   fileInputRef.current?.click();
                 }}
-                disabled={isImporting}
+                disabled={isTransferring}
               >
                 {isImporting
                   ? t('Importing...')
