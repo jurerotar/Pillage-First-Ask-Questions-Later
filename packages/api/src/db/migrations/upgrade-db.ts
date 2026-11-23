@@ -959,8 +959,4 @@ export const upgradeDb = (
       sql: `PRAGMA user_version=${targetDatabaseVersion};`,
     });
   }
-
-  database.exec({
-    sql: 'VACUUM;',
-  });
 };
