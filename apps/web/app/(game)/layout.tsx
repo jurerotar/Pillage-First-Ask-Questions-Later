@@ -14,12 +14,10 @@ import type { ToasterProps } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
 import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { GameStartupSplash } from 'app/(game)/components/game-startup-splash';
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
-import {
-  ApiProvider,
-  ApiProviderFallback,
-} from 'app/(game)/providers/api-provider';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { HeadLinks } from 'app/components/head-links';
 import { Toaster } from 'app/components/ui/toaster';
@@ -154,14 +152,14 @@ const LayoutContent = memo<Route.ComponentProps>(
         </head>
         <body className="bg-background text-foreground transition-colors">
           <QueryClientProvider client={queryClient}>
-            <Suspense fallback={<ApiProviderFallback />}>
-              <div className="api-provider-splash-content">
+            <GameStartupSplash key={serverSlug}>
+              <Suspense fallback={null}>
                 <ApiProvider serverSlug={serverSlug}>
                   <Outlet />
                   <Notifier serverSlug={serverSlug} />
                 </ApiProvider>
-              </div>
-            </Suspense>
+              </Suspense>
+            </GameStartupSplash>
             <Toaster
               position={toasterPosition}
               closeButton
