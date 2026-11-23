@@ -154,10 +154,11 @@ test('getPastEventIds orders by resolution time, then ID', async () => {
   ]);
 });
 
-test('refetches up to 64 overdue events and resolves an inserted follow-up before the rest', async () => {
+test('rescans inside the transaction and resolves an inserted follow-up before the rest', async () => {
   using context = await setup();
   using _clock = vi.spyOn(Date, 'now').mockReturnValue(4000);
   const { database, resolver, source } = context;
+  using transaction = vi.spyOn(database, 'transaction');
 
   insertEvents(
     database,
@@ -210,6 +211,7 @@ test('refetches up to 64 overdue events and resolves an inserted follow-up befor
     ...remaining,
   ]);
   expect(source.getPastEventIds(Date.now())).toStrictEqual([]);
+  expect(transaction).toHaveBeenCalledTimes(2);
 });
 
 test('getNextEvent returns the earliest strictly future event', async () => {
@@ -416,6 +418,20 @@ test('consumes event IDs lazily between resolutions', async () => {
   context.source.resolveEvents(ids());
 
   expect(context.resolvedIds()).toStrictEqual([1, 2]);
+});
+
+test('commits the resolved prefix when a rescan fails', async () => {
+  using context = await setup();
+  const failure = new Error('Overdue event lookup failed');
+
+  function* ids() {
+    yield 1;
+    throw failure;
+  }
+
+  expect(() => context.source.resolveEvents(ids())).toThrow(failure);
+  expect(context.resolvedIds()).toStrictEqual([1]);
+  expect(context.post).toHaveBeenCalledExactlyOnceWith(message(1));
 });
 
 test('rolls back the failing event while retaining the successful prefix', async () => {

@@ -79,12 +79,17 @@ export const createSchedulerDataSource = (
               notifications.push(notification);
             }
 
-            if (failure) {
+            if (failure || count + 1 === COMMIT_BATCH_SIZE) {
               break;
             }
 
             // Advance lazily so cancellation/rescan checks happen after each event.
-            next = iterator.next();
+            try {
+              next = iterator.next();
+            } catch (error) {
+              failure = { error };
+              break;
+            }
           }
         });
 
@@ -100,6 +105,10 @@ export const createSchedulerDataSource = (
 
       while (!next.done) {
         resolveBatch();
+        if (!next.done) {
+          // A full batch commits before the next lookup or event is pulled.
+          next = iterator.next();
+        }
       }
     },
   };
