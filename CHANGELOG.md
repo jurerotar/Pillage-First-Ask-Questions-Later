@@ -1,3 +1,16 @@
+## Version 0.4.85
+
+#### Nov 23, 2026
+
+- [UIUXImprovement] The game world picker now shows when each world was last opened. You can sort by last opened
+  in either direction or by name, and filter by map size, speed, and tribe.
+- [Performance] When opening a game world, the loading animation should now disappear about 15% faster.
+- [Performance] Further optimized the offline catch-up mechanism. It now processes more events per database transaction,
+  reducing startup time. During testing, this resulted in ~ 70-80% faster game world start up times for very large game
+  worlds.
+- [Performance] Reduced database work when processing trade routes and pruning old, unarchived reports. Removed
+  unnecessary SQL queries and sped up trade route lookups by ~ 40%.
+
 ## Version 0.4.84
 
 #### Nov 17, 2026
