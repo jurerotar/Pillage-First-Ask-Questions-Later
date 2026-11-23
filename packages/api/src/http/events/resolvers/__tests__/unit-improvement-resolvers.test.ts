@@ -7,9 +7,10 @@ import {
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
-import { unitImprovementResolver } from '../unit-improvement-resolvers';
+import { createEvents } from '../../../../utils/create-event';
+import { unitImprovementResolver } from '../unit-improvement-resolver';
 
-describe(unitImprovementResolver, () => {
+describe('unit improvement', () => {
   test('only improves the unit for the village owner', async () => {
     using database = await prepareTestDatabase();
 
@@ -31,13 +32,14 @@ describe(unitImprovementResolver, () => {
       });
     }
 
-    unitImprovementResolver(
+    unitImprovementResolver.resolve(
       database,
       createUnitImprovementEventMock({
         villageId: 1,
         unitId: 'LEGIONNAIRE',
         level: 2,
       }),
+      createEvents,
     );
 
     for (const playerId of [owner, other]) {
@@ -78,7 +80,11 @@ describe(unitImprovementResolver, () => {
       level: 1,
     });
 
-    unitImprovementResolver(database, { ...mockEvent, id: 999 });
+    unitImprovementResolver.resolve(
+      database,
+      { ...mockEvent, id: 999 },
+      createEvents,
+    );
 
     const improvement = database.selectValue({
       sql: 'SELECT level FROM unit_improvements WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);',

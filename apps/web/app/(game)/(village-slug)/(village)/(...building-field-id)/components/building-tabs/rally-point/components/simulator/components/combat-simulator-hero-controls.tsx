@@ -10,11 +10,7 @@ import {
   GiShield,
 } from 'react-icons/gi';
 import { items } from '@pillage-first/game-assets/items';
-import type {
-  CombatSimulatorHeroItemSlot,
-  CombatSimulatorHeroStats,
-  CombatSimulatorTroop,
-} from '@pillage-first/types/models/combat-simulator';
+import type { CombatSimulatorTroop } from '@pillage-first/types/models/combat-simulator';
 import type {
   HeroEquipmentItem,
   HeroItem,
@@ -27,6 +23,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from 'app/components/ui/popover';
+import type {
+  CombatSimulatorHeroFormValues,
+  CombatSimulatorHeroItemSlot,
+} from '../utils/combat-simulator-form';
 import { LevelInputPopover } from './level-input-popover';
 
 const heroEquipmentItems = items.filter((item): item is HeroEquipmentItem => {
@@ -177,8 +177,8 @@ const CombatSimulatorHeroItemControls = ({
   heroStats,
   onHeroStatsChange,
 }: {
-  heroStats: CombatSimulatorHeroStats;
-  onHeroStatsChange: (heroStats: CombatSimulatorHeroStats) => void;
+  heroStats: CombatSimulatorHeroFormValues;
+  onHeroStatsChange: (heroStats: CombatSimulatorHeroFormValues) => void;
 }) => {
   const { t } = useTranslation();
 
@@ -252,8 +252,8 @@ export const CombatSimulatorHeroStatsControlsRow = ({
 }: {
   participantRole: 'attacker' | 'defender';
   troops: CombatSimulatorTroop[];
-  heroStats: CombatSimulatorHeroStats;
-  onHeroStatsChange: (heroStats: CombatSimulatorHeroStats) => void;
+  heroStats: CombatSimulatorHeroFormValues;
+  onHeroStatsChange: (heroStats: CombatSimulatorHeroFormValues) => void;
 }) => {
   const { t } = useTranslation();
   const heroTroop = troops.find(({ unitId }) => unitId === 'HERO');
@@ -309,7 +309,7 @@ export const CombatSimulatorHeroStatsControlsRow = ({
         },
   ] satisfies {
     key: keyof Pick<
-      CombatSimulatorHeroStats,
+      CombatSimulatorHeroFormValues,
       'hp' | 'strength' | 'attackBonus' | 'defenceBonus'
     >;
     label: string;

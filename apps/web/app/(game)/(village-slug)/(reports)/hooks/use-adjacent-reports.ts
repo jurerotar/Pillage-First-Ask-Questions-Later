@@ -12,7 +12,7 @@ export const useAdjacentReports = (
     for (let index = endIndex - 1; index >= 0; index -= 1) {
       const report = reports[index];
 
-      if (!report.tags.includes('read')) {
+      if (!report.isRead) {
         return report.id;
       }
     }
@@ -24,7 +24,7 @@ export const useAdjacentReports = (
     for (let index = startIndex; index < reports.length; index += 1) {
       const report = reports[index];
 
-      if (!report.tags.includes('read')) {
+      if (!report.isRead) {
         return report.id;
       }
     }

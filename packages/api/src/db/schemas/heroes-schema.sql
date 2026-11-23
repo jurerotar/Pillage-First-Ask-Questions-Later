@@ -4,6 +4,7 @@ CREATE TABLE heroes
   player_id INTEGER NOT NULL,
 
   health INTEGER NOT NULL DEFAULT 100 CHECK (health BETWEEN 0 AND 100),
+  next_health_regeneration_at INTEGER,
   experience INTEGER NOT NULL DEFAULT 0 CHECK (experience >= 0),
   base_attack_power INTEGER NOT NULL CHECK (base_attack_power >= 0),
   health_regeneration INTEGER NOT NULL CHECK (health_regeneration >= 0),

@@ -13,12 +13,17 @@ export const getTileTroopMovementsRowSchema = tileTroopMovementDtoSchema.extend(
   },
 );
 
-export const troopMovementValidationBodySchema = z.strictObject({
-  type: troopMovementTypeSchema,
-  originTileId: tileIdSchema,
-  targetTileId: tileIdSchema,
-  troops: z.array(troopSchema.pick({ unitId: true, amount: true })),
-});
+export const troopMovementValidationBodySchema = z
+  .strictObject({
+    type: troopMovementTypeSchema,
+    originTileId: tileIdSchema,
+    targetTileId: tileIdSchema,
+    troops: z.array(troopSchema.pick({ unitId: true, amount: true })),
+  })
+  .refine(
+    ({ type, troops }) => type === 'troopMovementReturn' || troops.length > 0,
+    { message: 'At least 1 troop must be selected', path: ['troops'] },
+  );
 
 export const getVillageTroopMovementsRowSchema = z
   .strictObject({

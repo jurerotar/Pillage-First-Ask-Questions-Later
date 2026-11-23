@@ -464,7 +464,7 @@ const ConstructionQueueContent = ({
 
   return (
     <aside
-      className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-safe z-30 flex max-w-[calc(100vw-var(--twsa-safe-area-inset-left)-var(--twsa-safe-area-inset-right)-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color,left] lg:bottom-14 lg:z-10"
+      className="fixed bottom-[calc(max(var(--twsa-inset-bottom),2rem)+4.5rem)] left-safe z-30 flex max-w-[calc(100vw-var(--twsa-inset-left)-var(--twsa-inset-right)-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color,left] lg:bottom-14 lg:z-10"
       ref={containerRef}
     >
       {!isExtended && selectedEvent && (

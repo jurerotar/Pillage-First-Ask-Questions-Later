@@ -1,8 +1,4 @@
-import type {
-  OpfsSAHPoolDatabase,
-  SAHPoolUtil,
-  Sqlite3Static,
-} from '@sqlite.org/sqlite-wasm';
+import type { OpfsSAHPoolDatabase, SAHPoolUtil } from '@sqlite.org/sqlite-wasm';
 import {
   type Server,
   serverDbSchema,
@@ -23,7 +19,6 @@ export type ImportGameWorldWorkerResponse =
       error: string;
     };
 
-let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
 let database: OpfsSAHPoolDatabase | null = null;
 
@@ -37,7 +32,7 @@ globalThis.addEventListener(
     const { databaseBuffer } = event.data;
 
     try {
-      sqlite3 ??= await sqlite3InitModule();
+      const sqlite3 = await sqlite3InitModule();
 
       const id = crypto.randomUUID();
       const slug = `s-${id.slice(0, 4)}`;
@@ -88,4 +83,5 @@ globalThis.addEventListener(
       globalThis.close();
     }
   },
+  { once: true },
 );

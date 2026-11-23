@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import type { BaseReport } from '@pillage-first/types/models/report';
 
-export const useReportSelection = (visibleReports: BaseReport[]) => {
+export const useReportSelection = (
+  visibleReports: Pick<BaseReport, 'id'>[],
+) => {
   const [selectedReportIds, setSelectedReportIds] = useState<
     BaseReport['id'][]
   >([]);

@@ -1,13 +1,16 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { calculateLoyaltyIncreaseEventDuration } from '@pillage-first/game-assets/utils/loyalty';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { speedSchema } from '@pillage-first/types/models/server';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { createLoyaltyIncreaseEvent } from '../../../utils/loyalty';
-import type { Resolver } from '../resolver';
+import { defineEventResolver, type Resolver } from '../resolver';
 
-export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
+const resolveLoyaltyIncrease: Resolver<GameEvent<'loyaltyIncrease'>> = (
   database,
   args,
+  createEvents,
 ) => {
   const { resolvesAt } = args;
 
@@ -62,7 +65,7 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
   })!;
 
   if (hasLoyalties) {
-    createLoyaltyIncreaseEvent(database, resolvesAt);
+    createLoyaltyIncreaseEvent(createEvents, database, resolvesAt);
   }
 
   return {
@@ -70,3 +73,28 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
     affectedTileIds: affectedVillages.map(({ tileId }) => tileId),
   };
 };
+
+export const loyaltyIncreaseResolver = defineEventResolver<'loyaltyIncrease'>(
+  (database) => ({
+    duration: (startsAt) => {
+      const { createdAt, speed } = database.selectObject({
+        sql: 'SELECT created_at AS createdAt, speed FROM servers LIMIT 1;',
+        schema: z.strictObject({
+          createdAt: z.number(),
+          speed: speedSchema,
+        }),
+      })!;
+
+      const loyaltyIncreaseDuration =
+        calculateLoyaltyIncreaseEventDuration(speed);
+      const elapsedSinceServerStart = startsAt - createdAt;
+      const timeUntilNextIncrease =
+        (loyaltyIncreaseDuration -
+          (elapsedSinceServerStart % loyaltyIncreaseDuration)) %
+        loyaltyIncreaseDuration;
+
+      return timeUntilNextIncrease || loyaltyIncreaseDuration;
+    },
+  }),
+  resolveLoyaltyIncrease,
+);

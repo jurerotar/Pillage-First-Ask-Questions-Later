@@ -1,5 +1,5 @@
-import { createReadStream } from 'node:fs';
-import { open, rename, rm } from 'node:fs/promises';
+import { createReadStream, renameSync } from 'node:fs';
+import { open, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { Hono } from 'hono';
@@ -367,7 +367,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
 
     if (upload?.status !== 'complete' || isWorldUploadExpired(upload)) {
       return context.json(
-        error('This game world is unavailable or has already been imported.'),
+        error('This game world is unavailable or has expired.'),
         404,
       );
     }
@@ -387,30 +387,15 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     }
   });
 
-  // Confirmation uses POST; link previews and crawlers cannot claim a world.
+  // Keep downloading explicit so link previews only fetch metadata.
   app.post('/api/game-worlds/:worldId/download', (context) => {
     const worldId = context.req.param('worldId');
     const upload = store.getUploadForWorld(worldId);
 
     if (upload?.status !== 'complete' || isWorldUploadExpired(upload)) {
       return context.json(
-        error('This game world is unavailable or has already been imported.'),
+        error('This game world is unavailable or has expired.'),
         404,
-      );
-    }
-
-    const token = getBearerToken(context.req.raw);
-
-    if (!token || token.length < 32 || token.length > 128) {
-      return context.json(error('A download token is required.'), 400);
-    }
-
-    if (!store.claimWorld(worldId, hashToken(token))) {
-      return context.json(
-        error(
-          'This game world is being imported on another device. Try again in 15 minutes.',
-        ),
-        409,
       );
     }
 
@@ -425,30 +410,6 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
         createReadStream(getUploadPaths(config, upload).completed),
       ) as ReadableStream,
     );
-  });
-
-  app.delete('/api/game-worlds/:worldId', async (context) => {
-    const worldId = context.req.param('worldId');
-
-    if (!store.getWorld(worldId)) {
-      return context.body(null, 204);
-    }
-
-    const token = getBearerToken(context.req.raw);
-
-    if (!token || !store.ownsWorldClaim(worldId, hashToken(token))) {
-      return context.json(error('Invalid download capability.'), 401);
-    }
-
-    const upload = store.getUploadForWorld(worldId);
-
-    if (upload) {
-      await removeUploadFiles(config, upload);
-    }
-
-    store.deleteWorld(worldId, 'imported');
-
-    return context.body(null, 204);
   });
 
   app.post('/api/reports', async (context) => {
@@ -751,7 +712,12 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
         );
       }
 
-      await rename(paths.staging, paths.completed);
+      if (isWorldUploadExpired(upload)) {
+        return context.json(error('Invalid upload URL.'), 401);
+      }
+
+      // Publish the file and completion timestamp before expiry cleanup can run.
+      renameSync(paths.staging, paths.completed);
       store.completeUpload(upload.id, 'application/vnd.sqlite3');
     } catch (uploadError) {
       console.error('Unable to finalize uploaded world', uploadError);

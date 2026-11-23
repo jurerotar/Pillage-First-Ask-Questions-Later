@@ -112,7 +112,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void exportGameWorld({ server });
+                exportGameWorld({ server });
               }}
             >
               {isExportGameWorldPending ? (
@@ -130,7 +130,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void duplicateGameWorld({ server });
+                duplicateGameWorld({ server });
               }}
             >
               {isDuplicateGameWorldPending ? (
@@ -148,7 +148,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void deleteGameWorld({ server });
+                deleteGameWorld({ server });
               }}
             >
               {isDeleteGameWorldPending ? (

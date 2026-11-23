@@ -1,4 +1,5 @@
-export const TRAPPER_CAGE_COST = [35, 30, 10, 20];
+import type { ResourceBundle } from '@pillage-first/types/models/resource';
+export const TRAPPER_CAGE_COST: ResourceBundle = [35, 30, 10, 20];
 export const TRAPPER_CAGE_BASE_DURATION = 10 * 60 * 1000;
 
 export const TRAPPER_CAPACITY_PER_LEVEL = [

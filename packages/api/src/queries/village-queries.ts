@@ -233,32 +233,6 @@ export const selectInvalidRearrangeSourceFieldCountQuery = `
     );
 `;
 
-export const selectDuplicateRearrangeSourceFieldCountQuery = `
-  WITH updates_raw(field_id, building_text, source_field_id) AS (
-    SELECT
-      CAST(value ->> '$.buildingFieldId' AS INTEGER),
-      value ->> '$.buildingId',
-      CAST(value ->> '$.sourceBuildingFieldId' AS INTEGER)
-    FROM JSON_EACH($updates)
-  ),
-  updates AS (
-    SELECT ur.field_id, bi.id AS building_id, ur.source_field_id
-    FROM updates_raw ur
-    LEFT JOIN building_ids bi ON bi.building = ur.building_text
-    WHERE ur.field_id BETWEEN 19 AND 38
-  )
-  SELECT COUNT(*)
-  FROM (
-    SELECT u.source_field_id
-    FROM updates u
-    WHERE
-      u.building_id IS NOT NULL
-      AND u.source_field_id IS NOT NULL
-    GROUP BY u.source_field_id
-    HAVING COUNT(*) > 1
-  );
-`;
-
 export const deleteRearrangedBuildingFieldsQuery = `
   WITH updates_raw(field_id, building_text, source_field_id) AS (
     SELECT

@@ -10,20 +10,7 @@ import { Link } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import type { CombatSimulatorReportDto } from '@pillage-first/types/dtos/combat-simulator';
-import type {
-  AdventureReport,
-  BattleReport,
-  GatheringExpeditionReport,
-  HuntingPartyReport,
-  Report as ReportType,
-  ScheduledConstructionCancellationReport,
-  ScoutingReport,
-  TradeReport,
-  TroopMovementReport,
-  UnitImprovementReport,
-  UnitResearchReport,
-  VillageFoundedReport,
-} from '@pillage-first/types/models/report';
+import type { ReportDto as ReportType } from '@pillage-first/types/dtos/report';
 import { formatNumber } from '@pillage-first/utils/format';
 import { calculateBattleUnitCasualties } from '@pillage-first/utils/game/combat';
 import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
@@ -58,6 +45,24 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { SiegeResultInformation } from './siege-result-information';
+
+type AdventureReport = Extract<ReportType, { type: 'adventure' }>;
+type BattleReport = Extract<ReportType, { type: 'battle' }>;
+type GatheringExpeditionReport = Extract<
+  ReportType,
+  { type: 'gatheringExpedition' }
+>;
+type HuntingPartyReport = Extract<ReportType, { type: 'huntingParty' }>;
+type ScheduledConstructionCancellationReport = Extract<
+  ReportType,
+  { type: 'scheduledConstructionCancellation' }
+>;
+type ScoutingReport = Extract<ReportType, { type: 'scouting' }>;
+type TradeReport = Extract<ReportType, { type: 'trade' }>;
+type TroopMovementReport = Extract<ReportType, { type: 'movement' }>;
+type UnitImprovementReport = Extract<ReportType, { type: 'unitImprovement' }>;
+type UnitResearchReport = Extract<ReportType, { type: 'unitResearch' }>;
+type VillageFoundedReport = Extract<ReportType, { type: 'villageFounded' }>;
 
 type ReportContextState = {
   report: ReportType | CombatSimulatorReportDto;
@@ -119,7 +124,8 @@ export const ReportHeader = ({ actions }: ReportHeaderProps) => {
 
 type BattleTableParticipant = {
   troops: Pick<
-    BattleReport['battle']['attacker']['troops'],
+    | BattleReport['battle']['attacker']['troops']
+    | CombatSimulatorReportDto['battle']['attacker'],
     'tribe' | 'units' | 'hero'
   >;
   player?: BattleReport['battle']['attacker']['player'];

@@ -105,7 +105,11 @@ export const selectTradeRoutesByTileIdQuery = `
   ORDER BY r.id;
 `;
 
-export const selectTradeRouteByIdQuery = `${selectTradeRoutesQuery}
+// Execution does not need nextAt; avoid searching the event queue for it.
+export const selectTradeRouteByIdQuery = `${selectTradeRouteColumnsQuery},
+    origin.player_id AS sourcePlayerId,
+    target.player_id AS targetPlayerId
+  ${selectTradeRouteJoinsQuery}
   WHERE r.id = $route_id;
 `;
 

@@ -8,6 +8,21 @@ describe(calculateCurrentAmount, () => {
   const baseTime = Date.now();
   const storageCapacity = 1000;
 
+  test.each([-60, 0, 60])(
+    'clamps existing overflow before applying production of %s/hr',
+    (hourlyProduction) => {
+      const result = calculateCurrentAmount({
+        lastKnownResourceAmount: 1500,
+        lastUpdatedAt: baseTime,
+        hourlyProduction,
+        storageCapacity,
+        timestamp: baseTime + oneHour,
+      });
+
+      expect(result.currentAmount).toBe(hourlyProduction < 0 ? 940 : 1000);
+    },
+  );
+
   const getMockVillage = (
     override: Partial<typeof villageMock> = {},
   ): Village => ({

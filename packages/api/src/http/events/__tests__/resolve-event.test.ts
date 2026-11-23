@@ -3,13 +3,14 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createTrapperCageProductionEventMock } from '@pillage-first/mocks/event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { insertEvents } from '../../../utils/events';
+import { createEvents } from '../../../utils/create-event';
+import { insertEvents } from '../../../utils/insert-events';
 import * as notifications from '../../../worker/notification-port';
 import { resolveEvent } from '../resolve-event';
-import { trapperCageProductionResolver } from '../resolvers/trapper-resolvers';
+import { trapperCageProductionResolver } from '../resolvers/trapper-cage-production-resolver';
 
-vi.mock('../resolvers/trapper-resolvers', () => ({
-  trapperCageProductionResolver: vi.fn(),
+vi.mock('../resolvers/trapper-cage-production-resolver', () => ({
+  trapperCageProductionResolver: { resolve: vi.fn() },
 }));
 
 const setup = (database: DbFacade) => {
@@ -20,7 +21,7 @@ const setup = (database: DbFacade) => {
     startsAt: 1000,
     duration: 1000,
     villageId: 1,
-    cageAmount: 4,
+    amount: 4,
   });
 
   insertEvents(database, [event]);
@@ -29,11 +30,12 @@ const setup = (database: DbFacade) => {
     schema: z.number(),
   })!;
 
-  const resolver = vi.mocked(trapperCageProductionResolver);
+  const resolver = vi.mocked(trapperCageProductionResolver.resolve);
 
-  resolver
-    .mockReset()
-    .mockReturnValue({ affectedVillageIds: [1], affectedTileIds: [] });
+  resolver.mockReset().mockReturnValue({
+    affectedVillageIds: [1],
+    affectedTileIds: [],
+  });
 
   const notify = vi.fn<NonNullable<Parameters<typeof resolveEvent>[2]>>();
 
@@ -64,7 +66,11 @@ test('passes the typed event to its resolver', async () => {
 
   resolveEvent(database, event.id, notify);
 
-  expect(resolver).toHaveBeenCalledExactlyOnceWith(database, event);
+  expect(resolver).toHaveBeenCalledExactlyOnceWith(
+    database,
+    event,
+    createEvents,
+  );
 });
 
 test('removes a resolved event from the queue', async () => {

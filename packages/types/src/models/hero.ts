@@ -24,6 +24,8 @@ export const heroStatusSchema = z.discriminatedUnion('type', [
 export const heroSchema = z
   .strictObject({
     id: z.number(),
+    nextHealthRegenerationAt: z.number().nullable(),
+    healthRegenerationInterval: z.number(),
     stats: z.strictObject({
       health: z.number(),
       experience: z.number(),

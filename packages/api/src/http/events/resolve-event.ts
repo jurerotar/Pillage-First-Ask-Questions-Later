@@ -1,80 +1,13 @@
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
-import type {
-  GameEvent,
-  GameEventType,
-} from '@pillage-first/types/models/game-event';
+import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { createEvents } from '../../utils/create-event';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
 } from '../../utils/zod/event-schemas';
 import { postWorkerMessage } from '../../worker/notification-port';
-import type { Resolver, ResolverResult } from './resolver';
-import {
-  buildingConstructionResolver,
-  buildingDestructionResolver,
-  buildingLevelChangeResolver,
-} from './resolvers/building-resolvers';
-import { culturePointsCelebrationResolver } from './resolvers/culture-points-resolvers';
-import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-resolvers';
-import {
-  heroHealthRegenerationResolver,
-  heroRevivalResolver,
-} from './resolvers/hero-resolvers';
-import {
-  animalCageProductionResolver,
-  huntersLodgeHuntResolver,
-} from './resolvers/hunters-lodge-resolvers';
-import { loyaltyIncreaseResolver } from './resolvers/loyalty-resolvers';
-import {
-  resourceTransferResolver,
-  tradeRouteResolver,
-} from './resolvers/marketplace-resolvers';
-import { trapperCageProductionResolver } from './resolvers/trapper-resolvers';
-import {
-  adventureMovementResolver,
-  attackMovementResolver,
-  findNewVillageMovementResolver,
-  oasisOccupationMovementResolver,
-  raidMovementResolver,
-  reinforcementMovementResolver,
-  relocationMovementResolver,
-  returnMovementResolver,
-} from './resolvers/troop-movement-resolver';
-import { troopTrainingEventResolver } from './resolvers/troop-resolvers';
-import { unitImprovementResolver } from './resolvers/unit-improvement-resolvers';
-import { unitResearchResolver } from './resolvers/unit-research-resolvers';
-
-type GameEventResolverMap = {
-  [TEventType in GameEventType]: Resolver<GameEvent<TEventType>>;
-};
-
-const gameEventResolvers = {
-  buildingLevelChange: buildingLevelChangeResolver,
-  buildingConstruction: buildingConstructionResolver,
-  buildingDestruction: buildingDestructionResolver,
-  troopTraining: troopTrainingEventResolver,
-  troopMovementReinforcements: reinforcementMovementResolver,
-  troopMovementRelocation: relocationMovementResolver,
-  troopMovementReturn: returnMovementResolver,
-  troopMovementFindNewVillage: findNewVillageMovementResolver,
-  troopMovementAttack: attackMovementResolver,
-  troopMovementRaid: raidMovementResolver,
-  troopMovementOasisOccupation: oasisOccupationMovementResolver,
-  troopMovementAdventure: adventureMovementResolver,
-  heroRevival: heroRevivalResolver,
-  heroHealthRegeneration: heroHealthRegenerationResolver,
-  loyaltyIncrease: loyaltyIncreaseResolver,
-  culturePointsCelebration: culturePointsCelebrationResolver,
-  unitResearch: unitResearchResolver,
-  unitImprovement: unitImprovementResolver,
-  animalCageProduction: animalCageProductionResolver,
-  trapperCageProduction: trapperCageProductionResolver,
-  huntersLodgeHunt: huntersLodgeHuntResolver,
-  gatherersHutGatheringTrip: gatherersHutGatheringTripResolver,
-  resourceTransfer: resourceTransferResolver,
-  tradeRoute: tradeRouteResolver,
-} satisfies GameEventResolverMap;
+import { getEventResolver } from './resolver-registry';
 
 export const resolveEvent = (
   database: DbFacade,
@@ -101,10 +34,9 @@ export const resolveEvent = (
   const event = mapEventRowToTypedEvent(eventRow);
 
   try {
-    const resolver = gameEventResolvers[event.type];
-    const { affectedVillageIds, affectedTileIds } = (
-      resolver as (db: DbFacade, ev: GameEvent) => ResolverResult
-    )(database, event);
+    const { affectedVillageIds, affectedTileIds } = getEventResolver(
+      event.type,
+    ).resolve(database, event, createEvents);
 
     notify({
       eventKey: 'event:success',

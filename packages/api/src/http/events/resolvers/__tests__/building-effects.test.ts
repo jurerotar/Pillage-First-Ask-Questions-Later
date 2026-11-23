@@ -6,10 +6,9 @@ import {
   createBuildingLevelChangeEventMock,
 } from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
-import {
-  buildingConstructionResolver,
-  buildingLevelChangeResolver,
-} from '../building-resolvers';
+import { createEvents } from '../../../../utils/create-event';
+import { buildingConstructionResolver } from '../building-construction-resolver';
+import { buildingLevelChangeResolver } from '../building-level-change-resolver';
 
 describe('building effects', () => {
   const buildingsToTest: { id: Building['id']; effectId: string }[] = [
@@ -27,7 +26,7 @@ describe('building effects', () => {
       const buildingFieldId = 20;
 
       // Construct building at level 0
-      buildingConstructionResolver(
+      buildingConstructionResolver.resolve(
         database,
         createBuildingConstructionEventMock({
           id: Math.floor(Math.random() * 1_000_000),
@@ -39,6 +38,7 @@ describe('building effects', () => {
           level: 0,
           previousLevel: 0,
         }),
+        createEvents,
       );
 
       // Verify level 0 effect value (should be 1)
@@ -55,7 +55,7 @@ describe('building effects', () => {
       expect(effectValue0).toBe(1);
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
-      buildingLevelChangeResolver(
+      buildingLevelChangeResolver.resolve(
         database,
         createBuildingLevelChangeEventMock({
           id: Math.floor(Math.random() * 1_000_000),
@@ -67,6 +67,7 @@ describe('building effects', () => {
           level: 2,
           previousLevel: 1,
         }),
+        createEvents,
       );
 
       // Verify level 2 effect value

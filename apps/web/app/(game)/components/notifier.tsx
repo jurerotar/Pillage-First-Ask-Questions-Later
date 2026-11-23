@@ -433,7 +433,7 @@ const getEventCreatedInfo = (
       toastTitle: t(
         'Added {{count}} animal cages to production queue in {{villageName}}',
         {
-          count: event.cageAmount,
+          count: event.amount,
           villageName,
         },
       ),

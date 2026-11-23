@@ -169,12 +169,6 @@ export const isHeroRevivalEvent = (
   return event.type === 'heroRevival';
 };
 
-export const isHeroHealthRegenerationEvent = (
-  event: GameEvent,
-): event is GameEvent<'heroHealthRegeneration'> => {
-  return event.type === 'heroHealthRegeneration';
-};
-
 export const isLoyaltyIncreaseEvent = (
   event: GameEvent,
 ): event is GameEvent<'loyaltyIncrease'> => {

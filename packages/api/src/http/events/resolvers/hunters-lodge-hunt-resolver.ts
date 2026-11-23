@@ -1,44 +1,28 @@
 import { z } from 'zod';
 import {
-  ANIMAL_CAGE_ITEM_ID,
+  calculateHuntersLodgeHuntCost,
+  calculateHuntersLodgeHuntDuration,
   getHunterLodgeCatchableAnimals,
 } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { speedSchema } from '@pillage-first/types/models/server';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { randomArrayElement } from '@pillage-first/utils/random';
-import { insertHeroItemIntoHeroInventoryQuery } from '../../../queries/hero-queries';
+import { selectVillageEventExistsByTypeQuery } from '../../../queries/event-queries';
 import { selectVillageAndFirstOasisTileIdsQuery } from '../../../queries/map-queries';
+import { requireVillageBuildingLevel } from '../../../utils/buildings';
 import {
   assessCaptureAnimalCountByIdQuestCompletion,
   assessCaptureAnimalKindCountQuestCompletion,
 } from '../../../utils/quests';
 import { insertHuntingPartyReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
-import type { Resolver } from '../resolver';
+import { defineEventResolver, type Resolver } from '../resolver';
 
-export const animalCageProductionResolver: Resolver<
-  GameEvent<'animalCageProduction'>
-> = (database, args) => {
-  const { cageAmount, villageId } = args;
-
-  database.exec({
-    sql: insertHeroItemIntoHeroInventoryQuery,
-    bind: {
-      $village_id: villageId,
-      $item_id: ANIMAL_CAGE_ITEM_ID,
-      $amount: cageAmount,
-    },
-  });
-
-  return {
-    affectedVillageIds: [villageId],
-    affectedTileIds: [],
-  };
-};
-
-export const huntersLodgeHuntResolver: Resolver<
-  GameEvent<'huntersLodgeHunt'>
-> = (database, args) => {
+const resolveHuntersLodgeHunt: Resolver<GameEvent<'huntersLodgeHunt'>> = (
+  database,
+  args,
+) => {
   const { huntingPartyLevel, resolvesAt, villageId } = args;
 
   const huntersLodge = database.selectObject({
@@ -105,3 +89,64 @@ export const huntersLodgeHuntResolver: Resolver<
     affectedTileIds: [huntersLodge.villageTileId],
   };
 };
+
+export const huntersLodgeHuntResolver = defineEventResolver<'huntersLodgeHunt'>(
+  (database, event) => ({
+    validate: () => {
+      const { villageId } = event;
+      const huntersLodgeLevel = requireVillageBuildingLevel(
+        database,
+        villageId,
+        'HUNTERS_LODGE',
+        "Hunter's Lodge does not exist",
+      );
+
+      if (event.huntingPartyLevel > huntersLodgeLevel) {
+        throw new Error("Hunter's Lodge level is too low");
+      }
+
+      const hasOngoingHunt = database.selectValue({
+        sql: selectVillageEventExistsByTypeQuery,
+        bind: {
+          $village_id: villageId,
+          $type: 'huntersLodgeHunt',
+        },
+        schema: z.coerce.boolean(),
+      });
+
+      if (hasOngoingHunt) {
+        throw new Error("Hunter's Lodge is busy");
+      }
+    },
+    cost: () => {
+      const isFreeHuntingPartiesEnabled = database.selectValue({
+        sql: 'SELECT is_free_hunting_parties_enabled FROM developer_settings',
+        schema: z.coerce.boolean(),
+      });
+
+      if (isFreeHuntingPartiesEnabled) {
+        return [0, 0, 0, 0];
+      }
+
+      return calculateHuntersLodgeHuntCost(event.huntingPartyLevel);
+    },
+    duration: () => {
+      const isInstantUnitTravelEnabled = database.selectValue({
+        sql: 'SELECT is_instant_unit_travel_enabled FROM developer_settings',
+        schema: z.coerce.boolean(),
+      });
+
+      if (isInstantUnitTravelEnabled) {
+        return 0;
+      }
+
+      const speed = database.selectValue({
+        sql: 'SELECT speed FROM servers LIMIT 1;',
+        schema: speedSchema,
+      })!;
+
+      return calculateHuntersLodgeHuntDuration(event.huntingPartyLevel, speed);
+    },
+  }),
+  resolveHuntersLodgeHunt,
+);

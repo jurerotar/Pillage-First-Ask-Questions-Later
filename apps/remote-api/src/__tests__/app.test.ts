@@ -83,7 +83,7 @@ const uploadSharedWorld = async (
   return reservation;
 };
 
-test('persists usage statistics and counts shared transfer retries and imports correctly', async () => {
+test('persists usage statistics and counts repeat shared downloads', async () => {
   await using testApp = await createTestApp();
   const { app, store, config, dataDirectory } = testApp;
   const headers = { authorization: `Bearer ${config.apiToken}` };
@@ -99,25 +99,12 @@ test('persists usage statistics and counts shared transfer retries and imports c
     ).toBe(200);
   }
   const path = `/api/game-worlds/${share.worldId}`;
-  expect(
-    (await app.request(`${path}/download`, { method: 'POST' })).status,
-  ).toBe(400);
-  const downloadHeaders = {
-    authorization: `Bearer ${'download-token'.repeat(3)}`,
-  };
   for (let index = 0; index < 2; index += 1) {
     const response = await app.request(`${path}/download`, {
       method: 'POST',
-      headers: downloadHeaders,
     });
     expect(response.status).toBe(200);
     await response.arrayBuffer();
-  }
-  for (let index = 0; index < 2; index += 1) {
-    expect(
-      (await app.request(path, { method: 'DELETE', headers: downloadHeaders }))
-        .status,
-    ).toBe(204);
   }
   const response = await app.request('/api/admin/statistics', { headers });
   expect(response.status).toBe(200);
@@ -129,7 +116,6 @@ test('persists usage statistics and counts shared transfer retries and imports c
     sharedUploadedBytes: sqliteFile.length,
     sharedDownloadsStarted: 2,
     sharedDownloadBytesRequested: 2 * sqliteFile.length,
-    sharedImportsConfirmed: 1,
     reportUploadsCompleted: 0,
     reportsSubmitted: 0,
   });
@@ -276,28 +262,16 @@ test('previews an uploaded world without claiming it, then invalidates the previ
   expect(Buffer.from(await download.arrayBuffer())).toStrictEqual(contents);
   expect(store.getWorld(share.worldId)).toBeDefined();
 
-  await app.request(previewPath, { method: 'DELETE', headers });
-
-  expect((await app.request(previewPath)).status).toBe(404);
-  await expect(readdir(join(dataDirectory, 'uploads'))).resolves.toStrictEqual(
-    [],
-  );
+  expect((await app.request(previewPath)).status).toBe(200);
 });
 
-test('shares a world separately from reports, claims it on confirmation, and deletes it after import', async () => {
+test('allows repeat and concurrent shared world downloads', async () => {
   await using testApp = await createTestApp();
 
-  const { app, store, dataDirectory } = testApp;
-
+  const { app, store } = testApp;
   const share = await uploadSharedWorld(app);
   const path = `/api/game-worlds/${share.worldId}`;
-  const token = 'download-token-'.repeat(3);
-  const download = () => {
-    return app.request(`${path}/download`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${token}` },
-    });
-  };
+  const download = () => app.request(`${path}/download`, { method: 'POST' });
 
   expect((await download()).status).toBe(404);
   expect(
@@ -305,62 +279,23 @@ test('shares a world separately from reports, claims it on confirmation, and del
   ).toBe(200);
   expect(store.listReports()).toStrictEqual([]);
   expect((await app.request(`${path}/download`)).status).toBe(404);
-  expect(
-    (await app.request(`${path}/download`, { method: 'POST' })).status,
-  ).toBe(400);
 
-  const response = await download();
+  const responses = await Promise.all([download(), download()]);
+  for (const response of responses) {
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-world-size')).toBe(
+      String(sqliteFile.length),
+    );
+    expect(response.headers.get('content-length')).toBe(
+      String(sqliteFile.length),
+    );
+    expect(Buffer.from(await response.arrayBuffer())).toStrictEqual(sqliteFile);
+  }
 
-  expect(response.status).toBe(200);
-  expect(response.headers.get('x-world-size')).toBe(String(sqliteFile.length));
-  expect(response.headers.get('content-length')).toBe(
-    String(sqliteFile.length),
-  );
-  expect(Buffer.from(await response.arrayBuffer())).toStrictEqual(sqliteFile);
-  expect(store.getWorld(share.worldId)).toBeDefined();
-
-  // A retry from the same device is safe; another device cannot import concurrently.
+  expect((await app.request(path, { method: 'DELETE' })).status).toBe(404);
   const repeated = await download();
-
   expect(repeated.status).toBe(200);
-
-  await repeated.arrayBuffer();
-
-  expect(
-    (
-      await app.request(`${path}/download`, {
-        method: 'POST',
-        headers: { authorization: `Bearer ${'other-token'.repeat(4)}` },
-      })
-    ).status,
-  ).toBe(409);
-  expect(
-    (
-      await app.request(path, {
-        method: 'DELETE',
-        headers: { authorization: `Bearer ${share.writeToken}` },
-      })
-    ).status,
-  ).toBe(401);
-
-  const options = {
-    method: 'DELETE',
-    headers: { authorization: `Bearer ${token}` },
-  };
-
-  expect((await app.request(path, options)).status).toBe(204);
-  expect((await app.request(path, options)).status).toBe(204);
-  expect(store.getWorld(share.worldId)).toBeUndefined();
-  await expect(readdir(join(dataDirectory, 'uploads'))).resolves.toStrictEqual(
-    [],
-  );
-  await expect(readdir(join(dataDirectory, 'staging'))).resolves.toStrictEqual(
-    [],
-  );
-  expect((await download()).status).toBe(404);
-  expect(
-    (await app.request(share.completeUrl, { method: 'POST' })).status,
-  ).toBe(401);
+  expect(Buffer.from(await repeated.arrayBuffer())).toStrictEqual(sqliteFile);
 });
 
 test('expires shared worlds after 24 hours and cleans up completed and pending uploads without deleting reports', async () => {
@@ -373,7 +308,11 @@ test('expires shared worlds after 24 hours and cleans up completed and pending u
   const completed = await uploadSharedWorld(app);
   const pending = await uploadSharedWorld(app);
 
-  await app.request(completed.completeUrl, { method: 'POST' });
+  const completionTime = now + 60_000;
+  clock.mockReturnValue(completionTime);
+  expect(
+    (await app.request(completed.completeUrl, { method: 'POST' })).status,
+  ).toBe(200);
 
   const completedPath = join(
     dataDirectory,
@@ -406,14 +345,6 @@ test('expires shared worlds after 24 hours and cleans up completed and pending u
 
   clock.mockReturnValue(now + sharedWorldLifetimeMs);
 
-  const download = await app.request(
-    `/api/game-worlds/${completed.worldId}/download`,
-    {
-      method: 'POST',
-      headers: { authorization: `Bearer ${'token'.repeat(8)}` },
-    },
-  );
-
   const renewal = await app.request(
     `/api/game-worlds/${pending.worldId}/upload-url`,
     {
@@ -422,8 +353,21 @@ test('expires shared worlds after 24 hours and cleans up completed and pending u
     },
   );
 
-  expect(download.status).toBe(404);
   expect(renewal.status).toBe(401);
+  await cleanupExpiredWorlds(config, store);
+  expect(store.getWorld(pending.worldId)).toBeUndefined();
+  expect(store.getWorld(completed.worldId)).toBeDefined();
+
+  const downloadPath = `/api/game-worlds/${completed.worldId}/download`;
+  clock.mockReturnValue(completionTime + sharedWorldLifetimeMs - 1);
+  const download = await app.request(downloadPath, { method: 'POST' });
+  expect(download.status).toBe(200);
+  expect(Buffer.from(await download.arrayBuffer())).toStrictEqual(sqliteFile);
+
+  clock.mockReturnValue(completionTime + sharedWorldLifetimeMs);
+  expect((await app.request(downloadPath, { method: 'POST' })).status).toBe(
+    404,
+  );
   expect(
     (await app.request(`/api/game-worlds/${completed.worldId}`)).status,
   ).toBe(404);
@@ -433,11 +377,10 @@ test('expires shared worlds after 24 hours and cleans up completed and pending u
 
   expect(store.getStatistics()).toMatchObject({
     sharedWorldsExpired: 2,
-    sharedImportsConfirmed: 0,
     sharedUploadsReserved: 2,
     sharedUploadsCompleted: 1,
     sharedUploadedBytes: sqliteFile.length,
-    sharedDownloadsStarted: 0,
+    sharedDownloadsStarted: 1,
     reportsSubmitted: 1,
     reportsDeleted: 0,
   });

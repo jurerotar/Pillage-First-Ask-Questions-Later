@@ -20,3 +20,8 @@ export const resourcesSchema = z
 export type Resource = z.infer<typeof resourceSchema>;
 export type ResourceBundle = z.infer<typeof resourceBundleSchema>;
 export type Resources = z.infer<typeof resourcesSchema>;
+
+export const mapResourceBundle = (
+  [wood, clay, iron, wheat]: ResourceBundle,
+  map: (amount: number) => number,
+): ResourceBundle => [map(wood), map(clay), map(iron), map(wheat)];

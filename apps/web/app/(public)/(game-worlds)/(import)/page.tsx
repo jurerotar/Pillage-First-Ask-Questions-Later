@@ -35,7 +35,6 @@ import { invalidateQueries } from 'app/utils/react-query';
 import {
   downloadSharedWorld,
   getSharedWorldPreview,
-  remoteRequest,
   type TransferProgress,
 } from 'app/utils/remote-api';
 import { workerFactory } from 'app/utils/workers';
@@ -46,7 +45,6 @@ type ImportGameWorldSuccess = Extract<
 >;
 
 type WorldDownload = {
-  token: string;
   imported?: ImportGameWorldSuccess;
   registered?: boolean;
 };
@@ -96,9 +94,7 @@ const ImportGameWorld = () => {
         return importDatabase(await source.arrayBuffer());
       }
 
-      const download: WorldDownload = downloads.current.get(source) ?? {
-        token: crypto.randomUUID(),
-      };
+      const download: WorldDownload = downloads.current.get(source) ?? {};
 
       downloads.current.set(source, download);
 
@@ -111,11 +107,7 @@ const ImportGameWorld = () => {
       setProgress(null);
       setImportStage('downloading');
 
-      const buffer = await downloadSharedWorld(
-        source,
-        download.token,
-        setProgress,
-      );
+      const buffer = await downloadSharedWorld(source, setProgress);
 
       setImportStage('importing');
       setProgress({ loaded: buffer.byteLength, total: buffer.byteLength });
@@ -135,27 +127,16 @@ const ImportGameWorld = () => {
         pushGameWorldImported(server);
       }
 
-      await invalidateQueries(context, [[availableServerCacheKey]]);
-      if (typeof source === 'string' && download) {
+      if (download) {
         setImportStage('finishing');
-
-        try {
-          await remoteRequest(
-            `/api/game-worlds/${encodeURIComponent(source)}`,
-            {
-              method: 'DELETE',
-              headers: { authorization: `Bearer ${download.token}` },
-            },
-          );
-        } catch (error) {
-          throw new Error(
-            'Your game world was imported, but its uploaded copy could not be deleted. Retry to finish sharing.',
-            { cause: error },
-          );
-        }
       }
 
+      await invalidateQueries(context, [[availableServerCacheKey]]);
       await navigate(`/game/${server.slug}/v-1/resources`);
+
+      if (typeof source === 'string') {
+        downloads.current.delete(source);
+      }
     },
   });
 
@@ -248,9 +229,8 @@ const ImportGameWorld = () => {
               <DialogHeader>
                 <DialogTitle>Import shared game world</DialogTitle>
                 <DialogDescription>
-                  Download this world onto this device and continue playing.
-                  After a successful import, the uploaded copy will be deleted
-                  and this link will no longer work.
+                  Download this world onto this device and continue playing. The
+                  link stays available for 24 hours after the upload completes.
                 </DialogDescription>
               </DialogHeader>
               {worldPreview.isPending && (
@@ -340,7 +320,7 @@ const ImportGameWorld = () => {
                   disabled={
                     isImporting ||
                     !worldId ||
-                    (!downloads.current.get(worldId)?.registered &&
+                    (!downloads.current.get(worldId)?.imported &&
                       (worldPreview.isPending || worldPreview.isError))
                   }
                   onClick={() => {
@@ -351,8 +331,8 @@ const ImportGameWorld = () => {
                 >
                   {isImporting
                     ? 'Importing...'
-                    : worldId && downloads.current.get(worldId)?.registered
-                      ? 'Finish sharing'
+                    : worldId && downloads.current.get(worldId)?.imported
+                      ? 'Finish import'
                       : 'Download and import game world'}
                 </Button>
               </DialogFooter>

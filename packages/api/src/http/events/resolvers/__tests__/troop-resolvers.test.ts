@@ -5,13 +5,14 @@ import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
+import { createEvents } from '../../../../utils/create-event';
 import {
   calculateResourceSiteResourcesAt,
   getVillageTileId,
 } from '../../../../utils/village';
-import { troopTrainingEventResolver } from '../troop-resolvers';
+import { troopTrainingEventResolver } from '../troop-training-resolver';
 
-describe(troopTrainingEventResolver, () => {
+describe('troop training event', () => {
   test('should apply new troop upkeep only after training completes', async () => {
     using database = await prepareTestDatabase();
     const tileId = getVillageTileId(database, 1);
@@ -53,7 +54,7 @@ describe(troopTrainingEventResolver, () => {
       bind: { $tile_id: tileId, $starts_at: startsAt },
     });
 
-    troopTrainingEventResolver(
+    troopTrainingEventResolver.resolve(
       database,
       createTroopTrainingEventMock({
         villageId: 1,
@@ -62,6 +63,7 @@ describe(troopTrainingEventResolver, () => {
         duration: 3_600_000,
         resolvesAt,
       }),
+      createEvents,
     );
 
     expect(
@@ -98,7 +100,11 @@ describe(troopTrainingEventResolver, () => {
       buildingId: 'BARRACKS',
     });
 
-    troopTrainingEventResolver(database, { ...mockEvent, id: 999 });
+    troopTrainingEventResolver.resolve(
+      database,
+      { ...mockEvent, id: 999 },
+      createEvents,
+    );
 
     // Verify troops table
     const troop = database.selectValue({
@@ -130,13 +136,25 @@ describe(troopTrainingEventResolver, () => {
     expect(effect).toBeDefined();
 
     for (let i = 0; i < 9; i += 1) {
-      troopTrainingEventResolver(database, {
-        ...mockEvent,
-        id: 1000 + i,
-        amount: 1, // This is ignored by the resolver; each event resolves one troop.
-        resolvesAt: 1200,
-      });
+      troopTrainingEventResolver.resolve(
+        database,
+        {
+          ...mockEvent,
+          id: 1000 + i,
+          amount: 9,
+          resolvesAt: 1200,
+        },
+        createEvents,
+      );
     }
+
+    expect(
+      database.selectValue({
+        sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id) AND tile_id = $tile_id AND source_tile_id = $tile_id;',
+        bind: { $unit_id: unitId, $tile_id: villageTileId },
+        schema: z.number(),
+      }),
+    ).toBe(troop + 9);
 
     // Verify history table (Trigger should have fired on event deletion)
     // In this test, we are calling the resolver directly, which DOES NOT delete the event from the database.

@@ -134,14 +134,12 @@ export const ReportsTable = ({
                   <Text
                     className={clsx(
                       'inline-flex gap-2 items-center',
-                      report.tags.includes('read')
+                      report.isRead
                         ? 'text-gray-700 font-normal'
                         : 'text-link font-medium',
                     )}
                   >
-                    {report.tags.includes('archived') && (
-                      <Icon type="archived" />
-                    )}
+                    {report.isArchived && <Icon type="archived" />}
                     <Icon type={report.outcome} />
 
                     {getReportSubject(report, t)}

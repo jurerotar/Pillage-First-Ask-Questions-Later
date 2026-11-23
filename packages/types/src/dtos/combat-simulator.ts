@@ -1,9 +1,15 @@
 import { z } from 'zod';
-import { battleSchema, battleTroopsSchema } from '../models/battle';
+import {
+  battleHeroOutcomeSchema,
+  battleSchema,
+  battleTroopsSchema,
+} from '../models/battle';
 import { combatSimulatorStateSchema } from '../models/combat-simulator';
 import { battleReportSchema } from '../models/report';
 
-const simulatorTroopsSchema = battleTroopsSchema.omit({ id: true });
+const simulatorTroopsSchema = battleTroopsSchema.omit({ id: true }).extend({
+  hero: battleHeroOutcomeSchema.omit({ heroId: true }).nullable(),
+});
 
 export const combatSimulatorReportDtoSchema = battleReportSchema
   .pick({ type: true })

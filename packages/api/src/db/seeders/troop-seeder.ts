@@ -2,7 +2,10 @@ import { prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitByTribeAndTier } from '@pillage-first/game-assets/utils/units';
-import type { Resource } from '@pillage-first/types/models/resource';
+import {
+  type Resource,
+  resourceSchema,
+} from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';
@@ -759,26 +762,25 @@ export const troopSeeder = (database: DbFacade, server: Server): void => {
     sql: `
       SELECT
         o.tile_id AS tile_id,
-        GROUP_CONCAT(ri.resource) AS resources
+        COALESCE(MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END), 'wheat') AS resource
       FROM
         oasis o
           JOIN resource_ids ri ON ri.id = o.resource_id
       GROUP BY
         o.tile_id
       HAVING
-        MAX(o.village_id) IS NULL;
+        MAX(o.village_id) IS NULL
+      ORDER BY
+        o.tile_id;
     `,
     schema: z.strictObject({
       tile_id: tileIdSchema,
-      resources: z.string(),
+      resource: resourceSchema,
     }),
   });
 
-  for (const { tile_id, resources } of oasis) {
-    const [r1, r2] = resources.split(',') as Resource[];
-    const primaryResource = r2 ? (r1 === 'wheat' ? r2 : r1) : r1;
-
-    const troopIdsWithAmount = oasisTroopCombinations.get(primaryResource)!;
+  for (const { tile_id, resource } of oasis) {
+    const troopIdsWithAmount = oasisTroopCombinations.get(resource)!;
 
     for (const [unitId, min, max] of troopIdsWithAmount) {
       const amount = seededRandomIntFromInterval(prng, min, max);

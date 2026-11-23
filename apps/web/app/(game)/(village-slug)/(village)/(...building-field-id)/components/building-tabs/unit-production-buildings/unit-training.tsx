@@ -2,6 +2,7 @@ import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
+import { useUnitResearch } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/hooks/use-unit-research';
 import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/hooks/use-units';
 import {
   troopTrainingBuildingConfigMap,
@@ -29,6 +30,7 @@ import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 export const UnitTraining = () => {
   const { t } = useTranslation();
   const { getTribeUnitsByCategory } = useUnits();
+  const { isUnitResearched } = useUnitResearch();
   const { buildingField } = use(BuildingFieldContext);
 
   const buildingId = buildingField!.buildingId as TroopTrainingBuildingId;
@@ -89,7 +91,7 @@ export const UnitTraining = () => {
               <UnitOwnedTroops />
               <UnitAttributes />
               <UnitCost />
-              <UnitRequirements />
+              {!isUnitResearched(id) && <UnitRequirements />}
               <UnitRecruitment />
             </UnitCard>
           </TabPanel>

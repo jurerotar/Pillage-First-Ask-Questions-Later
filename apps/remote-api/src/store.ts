@@ -108,9 +108,7 @@ export class Store implements Disposable {
       CREATE TABLE IF NOT EXISTS game_worlds (
         id TEXT PRIMARY KEY,
         upload_expires_at INTEGER,
-        write_token_hash TEXT NOT NULL,
-        download_token_hash TEXT,
-        claimed_until INTEGER
+        write_token_hash TEXT NOT NULL
       ) STRICT;
       CREATE TABLE IF NOT EXISTS uploads (
         id TEXT PRIMARY KEY,
@@ -331,37 +329,13 @@ export class Store implements Disposable {
     return row && toUpload(row);
   }
 
-  public claimWorld(id: string, tokenHash: string): boolean {
-    return (
-      this.#database
-        .prepare(`UPDATE game_worlds SET download_token_hash = ?, claimed_until = ?
-      WHERE id = ? AND (download_token_hash IS NULL OR download_token_hash = ? OR claimed_until <= ?)`)
-        .run(tokenHash, Date.now() + 15 * 60 * 1000, id, tokenHash, Date.now())
-        .changes === 1
-    );
-  }
-
-  public ownsWorldClaim(id: string, tokenHash: string): boolean {
-    return Boolean(
-      this.#database
-        .prepare(
-          'SELECT 1 FROM game_worlds WHERE id = ? AND download_token_hash = ?',
-        )
-        .get(id, tokenHash),
-    );
-  }
-
-  public deleteWorld(id: string, reason?: 'imported' | 'expired'): void {
+  public deleteWorld(id: string, reason?: 'expired'): void {
     this.#database.exec('BEGIN IMMEDIATE;');
     try {
       if (reason) {
-        const counter =
-          reason === 'imported'
-            ? 'sharedImportsConfirmed'
-            : 'sharedWorldsExpired';
         this.#database
           .prepare(`
-          UPDATE statistics SET ${counter} = ${counter} + 1
+          UPDATE statistics SET sharedWorldsExpired = sharedWorldsExpired + 1
           WHERE id = 1 AND EXISTS (SELECT 1 FROM game_worlds WHERE id = ?)
         `)
           .run(id);
@@ -380,14 +354,14 @@ export class Store implements Disposable {
     }
   }
 
-  public listExpiredWorldIds(createdBefore: number): string[] {
+  public listExpiredWorldIds(cutoff: number): string[] {
     const rows = this.#database
       .prepare(`
       SELECT game_worlds.id FROM game_worlds
       LEFT JOIN uploads ON uploads.world_id = game_worlds.id
-      WHERE uploads.created_at <= ? OR uploads.id IS NULL
+      WHERE COALESCE(uploads.completed_at, uploads.created_at) <= ? OR uploads.id IS NULL
     `)
-      .all(createdBefore) as { id: string }[];
+      .all(cutoff) as { id: string }[];
 
     return rows.map(({ id }) => id);
   }

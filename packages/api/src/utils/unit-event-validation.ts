@@ -146,7 +146,7 @@ export const doesTroopTrainingBuildingMatchUnit = (
 };
 
 export const doesTroopTrainingDurationEffectMatchBuilding = (
-  event: GameEvent<'troopTraining'>,
+  event: Pick<GameEvent<'troopTraining'>, 'buildingId' | 'durationEffectId'>,
 ): boolean => {
   const expectedDurationEffectId =
     troopTrainingDurationEffectIdByBuildingId.get(event.buildingId) ?? null;

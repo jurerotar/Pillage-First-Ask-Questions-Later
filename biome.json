@@ -46,6 +46,8 @@
       "nursery": {
         "noArrayForEach": "error",
         "noAwaitInPromiseMethods": "error",
+        "noInvalidFetchOptions": "error",
+        "noLateCurrentTargetAccess": "error",
         "noLateEventControl": "error",
         "noMismatchedMapKey": "error",
         "noMisusedPromises": "error",

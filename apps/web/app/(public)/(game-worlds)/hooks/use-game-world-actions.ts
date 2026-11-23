@@ -177,7 +177,7 @@ export const useGameWorldActions = () => {
     },
   });
 
-  const { mutateAsync: exportGameWorld, isPending: isExportGameWorldPending } =
+  const { mutate: exportGameWorld, isPending: isExportGameWorldPending } =
     useMutation<void, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
         const databaseBuffer = await exportGameWorldDatabase(server);
@@ -214,36 +214,34 @@ export const useGameWorldActions = () => {
       },
     });
 
-  const {
-    mutateAsync: duplicateGameWorld,
-    isPending: isDuplicateGameWorldPending,
-  } = useMutation<Server, Error, { server: Server }>({
-    mutationFn: async ({ server }) => {
-      const databaseBuffer = await exportGameWorldDatabase(server);
+  const { mutate: duplicateGameWorld, isPending: isDuplicateGameWorldPending } =
+    useMutation<Server, Error, { server: Server }>({
+      mutationFn: async ({ server }) => {
+        const databaseBuffer = await exportGameWorldDatabase(server);
 
-      return importGameWorldDatabase(databaseBuffer);
-    },
-    onSuccess: async (duplicatedServer, _vars, _onMutateResult, context) => {
-      addAvailableServer(duplicatedServer);
-      pushGameWorldDuplicated(duplicatedServer);
-      await invalidateQueries(context, [[availableServerCacheKey]]);
-      toast.success('Game world duplicated');
-    },
-    onError: (error) => {
-      let description = error.message;
+        return importGameWorldDatabase(databaseBuffer);
+      },
+      onSuccess: async (duplicatedServer, _vars, _onMutateResult, context) => {
+        addAvailableServer(duplicatedServer);
+        pushGameWorldDuplicated(duplicatedServer);
+        await invalidateQueries(context, [[availableServerCacheKey]]);
+        toast.success('Game world duplicated');
+      },
+      onError: (error) => {
+        let description = error.message;
 
-      if (isFileSystemLockError(error)) {
-        description =
-          "The game world can only be duplicated if there's no current open instance of it.";
-      }
+        if (isFileSystemLockError(error)) {
+          description =
+            "The game world can only be duplicated if there's no current open instance of it.";
+        }
 
-      toast.error('Failed to duplicate game world', {
-        description,
-      });
-    },
-  });
+        toast.error('Failed to duplicate game world', {
+          description,
+        });
+      },
+    });
 
-  const { mutateAsync: deleteGameWorldData } = useMutation<
+  const { mutate: deleteGameWorldData } = useMutation<
     Server[] | null,
     Error,
     { server: Server }
@@ -267,7 +265,7 @@ export const useGameWorldActions = () => {
     },
   });
 
-  const { mutateAsync: deleteGameWorld, isPending: isDeleteGameWorldPending } =
+  const { mutate: deleteGameWorld, isPending: isDeleteGameWorldPending } =
     useMutation<Server[] | null, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
         const rootHandle = await getRootHandle();

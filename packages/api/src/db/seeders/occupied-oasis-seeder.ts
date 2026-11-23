@@ -26,11 +26,7 @@ const getOasisSlots = (heroMansionLevel: number): number => {
     return 2;
   }
 
-  if (heroMansionLevel >= 10) {
-    return 1;
-  }
-
-  return 0;
+  return 1;
 };
 
 export const occupiedOasisSeeder = (
@@ -42,20 +38,21 @@ export const occupiedOasisSeeder = (
   const villageFields = database.selectObjects({
     sql: `
       SELECT
-        villages.id,
-        x,
-        y,
-        COALESCE(MAX(building_fields.level), 0) AS hero_mansion_level
+        v.id,
+        t.x,
+        t.y,
+        MAX(bf.level) AS hero_mansion_level
       FROM
-        tiles
-          INNER JOIN villages ON tiles.id = villages.tile_id
-          LEFT JOIN building_fields
-            ON building_fields.village_id = villages.id
-            AND building_fields.building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION')
+        building_fields bf
+          JOIN villages v ON v.id = bf.village_id
+          JOIN tiles t ON t.id = v.tile_id
+      WHERE
+        bf.building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION')
+        AND bf.level >= 10
       GROUP BY
-        villages.id,
-        x,
-        y;
+        v.id
+      ORDER BY
+        v.id;
     `,
     schema: villageSchema,
   });
@@ -80,10 +77,6 @@ export const occupiedOasisSeeder = (
 
   for (const { hero_mansion_level, id: villageId, x, y } of villageFields) {
     const maxOasisAmount = getOasisSlots(hero_mansion_level);
-
-    if (maxOasisAmount === 0) {
-      continue;
-    }
 
     let assignedOasisCounter = 0;
 
