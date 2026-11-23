@@ -21,8 +21,8 @@ export const createSchedulerDataSource = (
   return {
     getPastEventIds: (now: number) => {
       return database.selectValues({
-        sql: 'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at, id;',
-        bind: { $now: now },
+        sql: 'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at, id LIMIT $limit;',
+        bind: { $now: now, $limit: COMMIT_BATCH_SIZE },
         schema: getPastEventIdsSchema,
       });
     },
