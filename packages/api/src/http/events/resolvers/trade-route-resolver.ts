@@ -103,14 +103,7 @@ const resolveTradeRoute: Resolver<GameEvent<'tradeRoute'>> = (
 };
 
 export const tradeRouteResolver = defineEventResolver<'tradeRoute'>(
-  (database, event) => ({
-    validate: () => {
-      const route = getTradeRouteById(database, event.tradeRouteId);
-
-      if (!route || route.paused || route.villageId !== event.villageId) {
-        throw new Error('Active trade route does not exist');
-      }
-    },
+  () => ({
     duration: () => 0,
   }),
   resolveTradeRoute,

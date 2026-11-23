@@ -53,18 +53,31 @@ export const cancelScheduling = (): void => {
 };
 
 function* pendingEventIds(
-  pastEventIds: GameEvent['id'][],
+  dataSource: SchedulerDataSource,
+  firstBatch: GameEvent['id'][],
 ): Generator<GameEvent['id']> {
-  for (const id of pastEventIds) {
+  let pastEventIds = firstBatch;
+
+  while (pastEventIds.length > 0) {
+    for (const id of pastEventIds) {
+      if (shutdownController.signal.aborted) {
+        return;
+      }
+
+      yield id;
+
+      if (takeNeedsRescan()) {
+        break;
+      }
+    }
+
     if (shutdownController.signal.aborted) {
-      break;
+      return;
     }
 
-    yield id;
-
-    if (takeNeedsRescan()) {
-      break;
-    }
+    // The resolver consumes this iterator inside its transaction, so this read
+    // can see follow-ups inserted by events that have not been committed yet.
+    pastEventIds = dataSource.getPastEventIds(Date.now());
   }
 }
 
@@ -85,22 +98,11 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
 
   schedulingInProgress = true;
   try {
-    while (true) {
-      // If cancellation happened while we were looping, stop.
-      if (shutdownController.signal.aborted) {
-        break;
-      }
+    takeNeedsRescan();
+    const pastEventIds = dataSource.getPastEventIds(Date.now());
 
-      // If someone requested a rescan before we started, consume-request and continue.
-      takeNeedsRescan();
-
-      const pastEventIds = dataSource.getPastEventIds(Date.now());
-
-      if (pastEventIds.length === 0) {
-        break;
-      }
-
-      dataSource.resolveEvents(pendingEventIds(pastEventIds));
+    if (pastEventIds.length > 0) {
+      dataSource.resolveEvents(pendingEventIds(dataSource, pastEventIds));
     }
 
     if (shutdownController.signal.aborted) {

@@ -127,10 +127,10 @@ const insertTradeRoute = (
 
 describe('marketplace resolvers', () => {
   test.each([
-    ['departure', 17],
-    ['empty surplus', 7],
-    ['busy merchants', 8],
-    ['changed ownership', 5],
+    ['departure', 16],
+    ['empty surplus', 6],
+    ['busy merchants', 7],
+    ['changed ownership', 4],
   ] as const)(
     'tradeRoute handles %s within %i statements',
     async (scenario, expectedStatements) => {

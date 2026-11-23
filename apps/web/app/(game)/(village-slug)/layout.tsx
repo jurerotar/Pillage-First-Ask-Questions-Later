@@ -69,6 +69,7 @@ import { CurrentVillageLiveResourcesProvider } from 'app/(game)/(village-slug)/p
 import { GameLayoutContext } from 'app/(game)/(village-slug)/providers/game-layout-context';
 import { GameLayoutProvider } from 'app/(game)/(village-slug)/providers/game-layout-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
+import { GameStartupContentReady } from 'app/(game)/components/game-startup-splash';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
@@ -1071,6 +1072,7 @@ const GameLayout = memo<Route.ComponentProps>(
                   <TroopMovements />
                   <Suspense fallback={<PageFallback />}>
                     <Outlet />
+                    <GameStartupContentReady />
                   </Suspense>
                   <ConstructionQueue />
                   <TroopList />

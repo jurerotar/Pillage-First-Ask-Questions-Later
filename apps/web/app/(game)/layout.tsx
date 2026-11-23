@@ -11,16 +11,13 @@ import {
   type ShouldRevalidateFunction,
 } from 'react-router';
 import type { ToasterProps } from 'sonner';
-import type { Server } from '@pillage-first/types/models/server';
 import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { GameStartupSplash } from 'app/(game)/components/game-startup-splash';
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
-import {
-  ApiProvider,
-  ApiProviderFallback,
-} from 'app/(game)/providers/api-provider';
-import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
+import { getGameWorldListing } from 'app/(public)/(game-worlds)/utils/game-world-listing';
 import { HeadLinks } from 'app/components/head-links';
 import { Toaster } from 'app/components/ui/toaster';
 import { pushGameWorldOpened } from 'app/instrumentation/product-events';
@@ -31,16 +28,6 @@ import { CookieProvider } from 'app/providers/cookie-provider';
 export { ErrorBoundary } from 'app/(game)/error-boundary';
 
 const addGameWorldAttributesToFaro = (serverSlug: string): void => {
-  const getGameWorldListing = (): Server[] => {
-    try {
-      return JSON.parse(
-        window.localStorage.getItem(availableServerCacheKey) ?? '[]',
-      );
-    } catch {
-      return [];
-    }
-  };
-
   const gameWorld = getGameWorldListing().find(({ slug }) => {
     return slug === serverSlug;
   });
@@ -51,13 +38,14 @@ const addGameWorldAttributesToFaro = (serverSlug: string): void => {
 
   pushGameWorldOpened(gameWorld);
 
+  const { lastOpenedAt: _lastOpenedAt, ...gameWorldAttributes } = gameWorld;
   const session = faro.api.getSession();
 
   faro.api.setSession({
     ...session,
     attributes: {
       ...session?.attributes,
-      gameWorld: JSON.stringify(gameWorld),
+      gameWorld: JSON.stringify(gameWorldAttributes),
     },
   });
 };
@@ -154,14 +142,14 @@ const LayoutContent = memo<Route.ComponentProps>(
         </head>
         <body className="bg-background text-foreground transition-colors">
           <QueryClientProvider client={queryClient}>
-            <Suspense fallback={<ApiProviderFallback />}>
-              <div className="api-provider-splash-content">
+            <GameStartupSplash key={serverSlug}>
+              <Suspense fallback={null}>
                 <ApiProvider serverSlug={serverSlug}>
                   <Outlet />
                   <Notifier serverSlug={serverSlug} />
                 </ApiProvider>
-              </div>
-            </Suspense>
+              </Suspense>
+            </GameStartupSplash>
             <Toaster
               position={toasterPosition}
               closeButton
