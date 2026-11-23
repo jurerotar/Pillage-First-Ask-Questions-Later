@@ -36,6 +36,12 @@ describe(matchRoute, () => {
     expect(result.controller.path).toBe('/tiles/:tileId/stationed-troops');
   });
 
+  test('matches the unread report count before the report detail route', () => {
+    const result = matchRoute('/reports/unread-count', 'GET');
+
+    expect(result.controller.path).toBe('/reports/unread-count');
+  });
+
   test('matches body routes using real schema', () => {
     const result = matchRoute(
       '/villages/123/bookmarks/MAIN_BUILDING',

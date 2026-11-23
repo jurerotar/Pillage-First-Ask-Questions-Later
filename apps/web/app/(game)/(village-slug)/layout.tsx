@@ -61,7 +61,7 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
+import { useUnreadReportCount } from 'app/(game)/(village-slug)/hooks/use-unread-report-count';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 import { CurrentVillageComputedEffectsProvider } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-provider';
@@ -115,8 +115,8 @@ const Counter = ({ counter }: CounterProps) => {
 };
 
 const ReportsCounter = () => {
-  const { reports } = useReports('unread');
-  return <Counter counter={reports.length} />;
+  const count = useUnreadReportCount();
+  return <Counter counter={count} />;
 };
 
 const AdventurePointsCounter = () => {

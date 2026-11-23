@@ -109,6 +109,7 @@ import {
   getReport,
   getReports,
   getTileReports,
+  getUnreadReportCount,
   updateReports,
 } from './controllers/report-controllers';
 import {
@@ -284,6 +285,7 @@ export const apiRoutes = [
   createRoute(updateReportGenerationSettings),
   createRoute(getReports),
   createRoute(getTileReports),
+  createRoute(getUnreadReportCount),
   createRoute(getReport),
   createRoute(updateReports),
   createRoute(deleteReports),

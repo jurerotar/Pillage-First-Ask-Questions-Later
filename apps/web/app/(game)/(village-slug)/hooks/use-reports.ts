@@ -11,6 +11,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import {
   reportListingsCacheKey,
   reportsCacheKey,
+  unreadReportCountQueryKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -66,7 +67,11 @@ export const useReports = (scope: ReportScope = 'global') => {
       const deletedReportIds = new Set(reportIds);
 
       context.client.setQueriesData<ReportListingDto[]>(
-        { queryKey: [reportListingsCacheKey] },
+        {
+          queryKey: [reportListingsCacheKey],
+          predicate: ({ queryKey }) =>
+            queryKey[1] !== unreadReportCountQueryKey,
+        },
         (reports = []) => {
           return reports.filter((report) => !deletedReportIds.has(report.id));
         },

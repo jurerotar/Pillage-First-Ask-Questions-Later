@@ -23,6 +23,7 @@ import {
   getReport,
   getReports,
   getTileReports,
+  getUnreadReportCount,
   updateReports,
 } from '../report-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -291,6 +292,60 @@ describe('report-controllers', () => {
     );
     expect(unreadReports).toHaveLength(1);
     expect(unreadReports.every(({ type }) => type === 'trade')).toBe(true);
+  });
+
+  test('counts unread reports with the same filters as the unread listing', async () => {
+    using database = await prepareReportsTestDatabase();
+
+    database.exec({
+      sql: 'UPDATE trade_reports SET target_tile_id = origin_tile_id;',
+    });
+
+    setActiveReportFilters(
+      database,
+      ['battle', 'trade', 'adventure'],
+      'unread',
+    );
+
+    const expectUnreadIds = (ids: number[]) => {
+      const reports = getReports(
+        database,
+        createControllerArgs<'/reports'>({ query: { scope: 'unread' } }),
+      );
+
+      expect(reports.map(({ id }) => id)).toStrictEqual(ids);
+      expect(
+        getUnreadReportCount(
+          database,
+          createControllerArgs<'/reports/unread-count'>({}),
+        ),
+      ).toBe(ids.length);
+    };
+
+    expectUnreadIds([2]);
+
+    setActiveReportFilters(
+      database,
+      ['battle', 'trade', 'noLoss', 'ownTrades'],
+      'unread',
+    );
+
+    expectUnreadIds([4]);
+
+    database.exec({ sql: 'DELETE FROM report_tags WHERE report_id = 1;' });
+    expectUnreadIds([4, 1]);
+
+    setActiveReportFilters(
+      database,
+      ['battle', 'trade', 'ownTrades'],
+      'unread',
+    );
+
+    expectUnreadIds([4]);
+
+    setActiveReportFilters(database, [], 'unread');
+
+    expectUnreadIds([]);
   });
 
   test('should include custom report types only while their filters are active', async () => {

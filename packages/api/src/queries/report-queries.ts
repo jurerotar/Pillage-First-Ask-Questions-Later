@@ -56,6 +56,17 @@ export const insertTradeReportQuery = createInsertReportQuery(`
         )
 `);
 
+const reportFilterSource = `
+  FROM reports r
+  JOIN report_type_ids rty ON rty.id = r.type_id
+  JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+  LEFT JOIN trade_reports tr ON tr.report_id = r.id
+  LEFT JOIN tiles trade_origin_t ON trade_origin_t.id = tr.origin_tile_id
+  LEFT JOIN villages trade_origin_v ON trade_origin_v.tile_id = trade_origin_t.id
+  LEFT JOIN tiles trade_target_t ON trade_target_t.id = tr.target_tile_id
+  LEFT JOIN villages trade_target_v ON trade_target_v.tile_id = trade_target_t.id
+`;
+
 const selectReportListingsBaseQuery = `
   SELECT
     r.id,
@@ -162,9 +173,7 @@ const selectReportListingsBaseQuery = `
       JOIN report_tag_ids rti ON rti.id = rt.report_tag_id
       WHERE rt.report_id = r.id
     ), '[]') AS tags_json
-  FROM reports r
-  JOIN report_type_ids rty ON rty.id = r.type_id
-  JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+  ${reportFilterSource}
   LEFT JOIN battle_reports b ON b.report_id = r.id
   LEFT JOIN tiles origin_t ON origin_t.id = b.origin_tile_id
   LEFT JOIN villages origin_v ON origin_v.tile_id = origin_t.id
@@ -184,12 +193,7 @@ const selectReportListingsBaseQuery = `
   LEFT JOIN tiles movement_target_t ON movement_target_t.id = mr.target_tile_id
   LEFT JOIN villages movement_target_v ON movement_target_v.tile_id = movement_target_t.id
   LEFT JOIN players movement_target_p ON movement_target_p.id = movement_target_v.player_id
-  LEFT JOIN trade_reports tr ON tr.report_id = r.id
-  LEFT JOIN tiles trade_origin_t ON trade_origin_t.id = tr.origin_tile_id
-  LEFT JOIN villages trade_origin_v ON trade_origin_v.tile_id = trade_origin_t.id
   LEFT JOIN players trade_origin_p ON trade_origin_p.id = trade_origin_v.player_id
-  LEFT JOIN tiles trade_target_t ON trade_target_t.id = tr.target_tile_id
-  LEFT JOIN villages trade_target_v ON trade_target_v.tile_id = trade_target_t.id
   LEFT JOIN players trade_target_p ON trade_target_p.id = trade_target_v.player_id
   LEFT JOIN hunting_party_reports hpr ON hpr.report_id = r.id
   LEFT JOIN tiles hunting_t ON hunting_t.id = hpr.village_tile_id
@@ -244,8 +248,7 @@ export const selectTileReportListingsQuery = `
   ORDER BY r.timestamp DESC, r.id DESC;
 `;
 
-export const selectReportListingsQuery = `
-  ${selectReportListingsBaseQuery}
+const reportListingFilters = `
   WHERE
     ($scope != 'village' OR r.village_id = $village_id)
     AND (
@@ -295,7 +298,18 @@ export const selectReportListingsQuery = `
       OR rty.report_type != 'trade'
       OR trade_origin_v.player_id != trade_target_v.player_id
     )
+`;
+
+export const selectReportListingsQuery = `
+  ${selectReportListingsBaseQuery}
+  ${reportListingFilters}
   ORDER BY r.timestamp DESC;
+`;
+
+export const selectUnreadReportCountQuery = `
+  SELECT COUNT(*)
+  ${reportFilterSource}
+  ${reportListingFilters};
 `;
 
 export const selectReportTypeQuery = `

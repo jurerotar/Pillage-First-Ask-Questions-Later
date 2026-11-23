@@ -28,6 +28,7 @@ import {
   selectTradeReportQuery,
   selectUnitImprovementReportQuery,
   selectUnitResearchReportQuery,
+  selectUnreadReportCountQuery,
   selectVillageFoundedReportQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
@@ -59,6 +60,7 @@ import {
   tradeReportRowSchema,
   unitImprovementReportRowSchema,
   unitResearchReportRowSchema,
+  unreadReportCountSchema,
   villageFoundedReportRowSchema,
 } from './schemas/report-schemas';
 
@@ -86,6 +88,22 @@ export const getReports = createController('/reports', {
   });
 
   return rows.map(mapReportListingRowToDto);
+});
+
+export const getUnreadReportCount = createController('/reports/unread-count', {
+  summary: 'Get the count of reports matching the unread report filters',
+  response: unreadReportCountSchema,
+})(({ database, context: { playerId } }) => {
+  return database.selectValue({
+    sql: selectUnreadReportCountQuery,
+    bind: {
+      $player_id: playerId,
+      $village_id: null,
+      $scope: 'unread',
+      $filter_name: reportFilterNameByScope.unread,
+    },
+    schema: unreadReportCountSchema,
+  })!;
 });
 
 export const getTileReports = createController('/tiles/:tileId/reports', {

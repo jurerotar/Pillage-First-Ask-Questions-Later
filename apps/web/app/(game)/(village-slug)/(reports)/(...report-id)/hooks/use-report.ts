@@ -5,6 +5,7 @@ import type { BaseReport } from '@pillage-first/types/models/report';
 import {
   reportListingsCacheKey,
   reportsCacheKey,
+  unreadReportCountQueryKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 
@@ -44,13 +45,19 @@ export const useReport = (reportId: BaseReport['id']) => {
       queryClient.setQueriesData<ReportListingDto[]>(
         {
           queryKey: [reportListingsCacheKey],
-          predicate: (query) => query.queryKey[2] !== 'unread',
+          predicate: ({ queryKey }) =>
+            queryKey[2] !== 'unread' &&
+            queryKey[1] !== unreadReportCountQueryKey,
         },
         (reports) =>
           reports?.map((report) =>
             report.id === reportId ? markRead(report) : report,
           ),
       );
+
+      void queryClient.invalidateQueries({
+        queryKey: [reportListingsCacheKey, unreadReportCountQueryKey],
+      });
 
       return data;
     },

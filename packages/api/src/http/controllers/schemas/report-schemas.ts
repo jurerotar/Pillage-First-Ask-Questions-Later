@@ -30,6 +30,8 @@ export const getReportTypeRowSchema = z.strictObject({
   type: reportTypeSchema,
 });
 
+export const unreadReportCountSchema = z.int().nonnegative();
+
 const nullableReportDetailColumns = z
   .strictObject({
     battle_is_raid: z.int().nullable(),
