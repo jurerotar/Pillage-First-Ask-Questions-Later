@@ -545,7 +545,7 @@ const MapNavigationItem = () => {
       data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       data-tooltip-content={t('Map')}
       to="map"
-      prefetch="render"
+      prefetch="intent"
     >
       <TbMap2 className="text-3xl" />
     </NavigationMainItem>
