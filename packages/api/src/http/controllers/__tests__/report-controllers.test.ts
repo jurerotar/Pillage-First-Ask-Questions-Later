@@ -1517,6 +1517,23 @@ describe('battle combat outcome reports', () => {
         schema: z.int(),
       }),
     ).toBe(1001);
+
+    updateReports(
+      database,
+      createControllerArgs<'/reports', 'patch'>({
+        body: { reportIds: [archived.reportId], tags: { archived: false } },
+      }),
+    );
+
+    expect(addAdventure(8000)).toBeDefined();
+    expect(readReport(archived.reportId)).toBeNull();
+    expect(readReport(newer.reportId)).toBeNull();
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM reports;',
+        schema: z.int(),
+      }),
+    ).toBe(1000);
   });
 
   test('deleting a selected battle leaves unselected reports and their details unchanged', async () => {

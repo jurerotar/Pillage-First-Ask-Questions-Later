@@ -49,6 +49,7 @@ import { oasisCaptureFailureReasonIdsSeeder } from '../seeders/oasis-capture-fai
 import { villageConquestFailureReasonIdsSeeder } from '../seeders/village-conquest-failure-reason-ids-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
+import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
 const indexesMissedBySingleStatementExec = [
@@ -939,6 +940,17 @@ export const upgradeDb = (
     } finally {
       db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
     }
+  });
+
+  migrate('0.4.85', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({
+        sql: `
+          DROP TRIGGER IF EXISTS reports_prune_oldest_before_insert;
+          ${createReportRetentionTriggers}
+        `,
+      });
+    });
   });
 
   // If all migrations passed, bump it to current version

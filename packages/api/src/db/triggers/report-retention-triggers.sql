@@ -6,34 +6,26 @@ BEGIN
     SELECT r.id
     FROM reports r
     WHERE NOT EXISTS (
-      SELECT 1
-      FROM report_tags rt
-      WHERE rt.report_id = r.id
-        AND EXISTS (
-          SELECT 1
-          FROM report_tag_ids
-          WHERE id = rt.report_tag_id
-            AND tag = 'archived'
-        )
+      SELECT 1 FROM report_tags
+      WHERE report_id = r.id
+        AND report_tag_id = (SELECT id FROM report_tag_ids WHERE tag = 'archived')
     )
     ORDER BY r.timestamp, r.id
-    LIMIT MAX(
-      (
-        SELECT COUNT(*)
-        FROM reports counted_report
-        WHERE NOT EXISTS (
-          SELECT 1
-          FROM report_tags rt
-          WHERE rt.report_id = counted_report.id
-            AND EXISTS (
-              SELECT 1
-              FROM report_tag_ids
-              WHERE id = rt.report_tag_id
-                AND tag = 'archived'
-            )
+    LIMIT (
+      SELECT CASE
+        WHEN total < 1000 THEN 0
+        ELSE MAX(
+          -- Count the archive once, and only when pruning might be needed.
+          total - (
+            SELECT COUNT(*)
+            FROM report_tags rt
+            JOIN reports archived ON archived.id = rt.report_id
+            WHERE rt.report_tag_id = (SELECT id FROM report_tag_ids WHERE tag = 'archived')
+          ) - 999,
+          0
         )
-      ) - 999,
-      0
+      END
+      FROM (SELECT COUNT(*) AS total FROM reports)
     )
   );
 END;
