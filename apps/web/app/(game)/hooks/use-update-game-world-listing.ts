@@ -1,18 +1,19 @@
 import { useEffect } from 'react';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
+import type { GameWorldListingEntry } from 'app/(public)/(game-worlds)/utils/game-world-listing';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { reportError } from 'app/instrumentation/report-error';
 
-const updateGameWorldVersionLabel = (serverSlug: Server['slug']): void => {
+const updateGameWorldListing = (serverSlug: Server['slug']): void => {
   try {
     const servers = JSON.parse(
       window.localStorage.getItem(availableServerCacheKey) ?? '[]',
-    ) as Server[];
+    ) as GameWorldListingEntry[];
     let wasUpdated = false;
 
     const updatedServers = servers.map((server) => {
-      if (server.slug !== serverSlug || server.version === env.VERSION) {
+      if (server.slug !== serverSlug) {
         return server;
       }
 
@@ -21,6 +22,7 @@ const updateGameWorldVersionLabel = (serverSlug: Server['slug']): void => {
       return {
         ...server,
         version: env.VERSION,
+        lastOpenedAt: Date.now(),
       };
     });
 
@@ -33,23 +35,16 @@ const updateGameWorldVersionLabel = (serverSlug: Server['slug']): void => {
       JSON.stringify(updatedServers),
     );
   } catch (error) {
-    reportError(error, 'Failed to update game world version label', {
+    reportError(error, 'Failed to update game world listing', {
       serverSlug,
-      source: 'useUpdateGameWorldVersionLabel',
+      source: 'useUpdateGameWorldListing',
       version: env.VERSION,
     });
   }
 };
 
-export const useUpdateGameWorldVersionLabel = (
-  serverSlug: Server['slug'],
-  shouldUpdate: boolean,
-): void => {
+export const useUpdateGameWorldListing = (serverSlug: Server['slug']): void => {
   useEffect(() => {
-    if (!shouldUpdate) {
-      return;
-    }
-
-    updateGameWorldVersionLabel(serverSlug);
-  }, [serverSlug, shouldUpdate]);
+    updateGameWorldListing(serverSlug);
+  }, [serverSlug]);
 };
