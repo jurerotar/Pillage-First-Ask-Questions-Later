@@ -9,7 +9,7 @@ import type { SchedulerDataSource } from './scheduler';
 
 const getPastEventIdsSchema = z.number();
 const FETCH_BATCH_SIZE = 64;
-export const COMMIT_BATCH_SIZE = 256;
+export const COMMIT_BATCH_SIZE = 1_024;
 
 const getNextEventSchema = z.strictObject({
   id: z.number(),
