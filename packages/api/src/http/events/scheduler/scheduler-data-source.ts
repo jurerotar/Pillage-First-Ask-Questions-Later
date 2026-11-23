@@ -8,7 +8,8 @@ import { resolveEvent } from '../resolve-event';
 import type { SchedulerDataSource } from './scheduler';
 
 const getPastEventIdsSchema = z.number();
-export const COMMIT_BATCH_SIZE = 64;
+const FETCH_BATCH_SIZE = 64;
+export const COMMIT_BATCH_SIZE = 256;
 
 const getNextEventSchema = z.strictObject({
   id: z.number(),
@@ -22,7 +23,7 @@ export const createSchedulerDataSource = (
     getPastEventIds: (now: number) => {
       return database.selectValues({
         sql: 'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at, id LIMIT $limit;',
-        bind: { $now: now, $limit: COMMIT_BATCH_SIZE },
+        bind: { $now: now, $limit: FETCH_BATCH_SIZE },
         schema: getPastEventIdsSchema,
       });
     },

@@ -211,7 +211,7 @@ test('rescans inside the transaction and resolves an inserted follow-up before t
     ...remaining,
   ]);
   expect(source.getPastEventIds(Date.now())).toStrictEqual([]);
-  expect(transaction).toHaveBeenCalledTimes(2);
+  expect(transaction).toHaveBeenCalledTimes(1);
 });
 
 test('getNextEvent returns the earliest strictly future event', async () => {
