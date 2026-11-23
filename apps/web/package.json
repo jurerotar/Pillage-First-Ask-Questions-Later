@@ -46,7 +46,7 @@
     "@tanstack/react-query": "5.108.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
-    "i18next": "27.2.4",
+    "i18next": "27.2.2",
     "moderndash": "4.0.2",
     "qrcode.react": "4.2.0",
     "react": "19.3.1",
