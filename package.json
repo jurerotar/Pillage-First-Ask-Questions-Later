@@ -35,7 +35,7 @@
     "playwright": "1.65.1",
     "sharp": "0.35.5",
     "turbo": "2.11.13",
-    "typescript": "7.0.2"
+    "typescript": "7.1.0-beta"
   },
   "overrides": {
     "vite-plugin-devtools-json": {
@@ -44,9 +44,7 @@
     "vite-plugin-pwa": {
       "vite": "8.3.8"
     },
-    "@react-router/dev": {
-      "typescript": "7.0.2"
-    }
+    "typescript": "$typescript"
   },
   "engines": {
     "node": ">=24.22.1"

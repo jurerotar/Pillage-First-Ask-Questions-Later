@@ -1,39 +1,22 @@
-import type { z } from 'zod';
-import type { ApiRouteController } from '@pillage-first/api/api-route-types';
+import type { ApiRoutesByMethod } from '@pillage-first/api/api-route-types';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
 type HttpMethod = 'get' | 'post' | 'patch' | 'delete' | 'query';
 
-type RoutesByMethod = {
-  [TMethod in HttpMethod]: {
-    [TRoute in ApiRouteController as TRoute extends { method: TMethod }
-      ? TRoute['path']
-      : never]: TRoute;
-  };
-};
-
 type PathForMethod<TMethod extends HttpMethod> = Extract<
-  keyof RoutesByMethod[TMethod],
+  keyof ApiRoutesByMethod[TMethod],
   string
 >;
 
 type RouteFor<
   TPath extends PathForMethod<TMethod>,
   TMethod extends HttpMethod,
-> = RoutesByMethod[TMethod][TPath];
+> = ApiRoutesByMethod[TMethod][TPath];
 
 type OperationFor<TRoute> = TRoute extends {
   operation: infer TOperation;
 }
   ? TOperation
-  : never;
-
-type InferInputSchema<TSchema> = TSchema extends { _zod: { input: unknown } }
-  ? z.core.input<TSchema>
-  : never;
-
-type InferOutputSchema<TSchema> = TSchema extends { _zod: { output: unknown } }
-  ? z.core.output<TSchema>
   : never;
 
 type ParametersFor<TOperation> = TOperation extends {
@@ -44,35 +27,29 @@ type ParametersFor<TOperation> = TOperation extends {
 
 type PathParamsFor<TRoute> =
   ParametersFor<OperationFor<TRoute>> extends {
-    path?: infer TPathSchema;
+    path?: infer TPathParams;
   }
-    ? InferOutputSchema<NonNullable<TPathSchema>>
+    ? TPathParams
     : never;
 
 type QueryParamsFor<TRoute> =
   ParametersFor<OperationFor<TRoute>> extends {
-    query?: infer TQuerySchema;
+    query?: infer TQueryParams;
   }
-    ? InferInputSchema<NonNullable<TQuerySchema>>
+    ? TQueryParams
     : never;
 
-type BodySchemaFor<TRoute> =
+type BodyFor<TRoute> =
   OperationFor<TRoute> extends {
-    requestBody?: infer TBodySchema;
+    requestBody: infer TBody;
   }
-    ? NonNullable<TBodySchema>
+    ? TBody
     : never;
 
-type BodyFor<TRoute> = InferInputSchema<BodySchemaFor<TRoute>>;
-
-type SuccessResponseFor<TRoute> =
-  OperationFor<TRoute> extends { response: infer TResponseSchema }
-    ? TResponseSchema extends undefined
-      ? undefined
-      : InferOutputSchema<TResponseSchema>
+type ResponseFor<TRoute> =
+  OperationFor<TRoute> extends { response: infer TResponse }
+    ? TResponse
     : never;
-
-type ResponseFor<TRoute> = SuccessResponseFor<TRoute>;
 
 type HasPathParams<TRoute> = TRoute extends {
   operation: { requestParams: { path: unknown } };

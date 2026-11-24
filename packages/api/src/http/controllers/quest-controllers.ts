@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { getQuestRewards } from '@pillage-first/game-assets/utils/quests';
-import { questIdSchema, questSchema } from '@pillage-first/types/models/quest';
+import {
+  type Quest,
+  questIdSchema,
+  questSchema,
+} from '@pillage-first/types/models/quest';
 import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
@@ -28,7 +32,7 @@ export const getQuests = createController('/me/quests', {
     }),
   },
   response: z.array(questSchema),
-})(({ database, context: { playerId }, query: { villageId } }) => {
+})(({ database, context: { playerId }, query: { villageId } }): Quest[] => {
   const rows = database.selectObjects({
     sql: selectVillageQuestsQuery,
     bind: {

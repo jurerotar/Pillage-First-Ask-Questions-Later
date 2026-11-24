@@ -1,16 +1,14 @@
-import { execFileSync } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
-  mkdtempSync,
   readdirSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+import { dirname, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { createFileSystemLayer } from 'typescript/fs';
+import { API, formatDiagnostics, TypeFormatFlags } from 'typescript/sync';
 
 type GenerateApiRouteTypesResult = {
   changed: boolean;
@@ -35,12 +33,6 @@ export const apiRouteTypesInputGlobs = [
   resolve(apiControllersRoot, '**/*-controller.ts'),
   resolve(apiControllersRoot, '**/*-controllers.ts'),
 ];
-
-const toTsConfigPath = (path: string) => path.replaceAll('\\', '/');
-
-const getTscBinPath = () => {
-  return resolve(repoRoot, 'node_modules/typescript/bin/tsc');
-};
 
 const readFileSystemDirectory = (directory: string) => {
   return readdirSync(directory, { withFileTypes: true }).map((entry) => ({
@@ -86,846 +78,152 @@ export const listApiRouteTypesInputFiles = (): string[] => {
     .toSorted();
 };
 
-const createTemporaryTsConfig = (temporaryRoot: string): string => {
-  const outDir = resolve(temporaryRoot, 'dist');
-  const tsConfigPath = resolve(temporaryRoot, 'tsconfig.json');
+const routingProjection = `
+import type { apiRoutes } from './api-routes';
+import type { input, output } from 'zod/v4/core';
 
-  writeFileSync(
-    tsConfigPath,
-    JSON.stringify(
-      {
-        extends: toTsConfigPath(resolve(apiPackageRoot, 'tsconfig.json')),
-        compilerOptions: {
-          declaration: true,
-          declarationMap: false,
-          emitDeclarationOnly: true,
-          noEmit: false,
-          outDir: toTsConfigPath(outDir),
-          rootDir: toTsConfigPath(resolve(apiPackageRoot, 'src')),
-        },
-        files: [toTsConfigPath(apiRoutesSourcePath)],
-        include: [],
-      },
-      null,
-      2,
-    ),
+type JsonSchema<Entry> = Entry extends {
+  content: { 'application/json': { schema: infer Schema } };
+} ? Schema : never;
+
+type ResponseSchema<Operation> = Operation extends { responses: infer Responses }
+  ? JsonSchema<Responses[Extract<keyof Responses, '200' | '201' | '202'>]>
+  : never;
+
+type Contract<Operation> =
+  (Operation extends { requestParams: { path: infer Path } } ? { path: output<Path> } : {}) &
+  (Operation extends { requestParams: { query: infer Query } } ? { query: input<Query> } : {}) &
+  (Operation extends { requestBody: infer Body }
+    ? [JsonSchema<Body>] extends [never] ? {} : { requestBody: input<JsonSchema<Body>> }
+    : {}) &
+  { response: [ResponseSchema<Operation>] extends [never] ? undefined : output<ResponseSchema<Operation>> };
+
+type Controller = typeof apiRoutes[number]['controller'];
+export declare const routes: {
+  [Route in Controller as \`\${Route['method']} \${Route['path']}\`]: Contract<Route['operation']>;
+};
+`;
+
+const createProjectedRouteTypes = (): string => {
+  // Give the virtual file the same import context as the generated declaration.
+  const projectionPath = resolve(
+    dirname(generatedApiRouteTypesPath),
+    'api-route-types.projection.ts',
+  ).replaceAll('\\', '/');
+  using compiler = new API({ cwd: repoRoot });
+  const config = compiler.parseConfigFile(
+    resolve(apiPackageRoot, 'tsconfig.json'),
   );
-
-  return tsConfigPath;
-};
-
-const emitApiRoutesDeclaration = (): string => {
-  const temporaryRoot = mkdtempSync(join(tmpdir(), 'pillage-api-route-types-'));
-  const tsConfigPath = createTemporaryTsConfig(temporaryRoot);
-  const outputPath = resolve(temporaryRoot, 'dist/http/api-routes.d.ts');
-
-  try {
-    execFileSync(process.execPath, [getTscBinPath(), '-p', tsConfigPath], {
-      cwd: repoRoot,
-      encoding: 'utf8',
-      stdio: 'pipe',
-    });
-
-    if (!existsSync(outputPath)) {
-      throw new Error(`TypeScript did not emit ${outputPath}`);
-    }
-
-    return readFileSync(outputPath, 'utf8');
-  } catch (error) {
-    const { stderr, stdout } = error as {
-      stderr?: string;
-      stdout?: string;
-    };
-
-    throw new Error(
-      ['Failed to emit API route declarations.', stdout?.trim(), stderr?.trim()]
-        .filter(Boolean)
-        .join('\n'),
-      { cause: error },
-    );
-  } finally {
-    if (temporaryRoot.startsWith(tmpdir())) {
-      rmSync(temporaryRoot, { force: true, recursive: true });
-    }
-  }
-};
-
-const extractApiRoutesDeclaration = (declarationText: string): string => {
-  const startMarker = 'export declare const apiRoutes:';
-  const endMarker = '\ntype CompiledRoute =';
-  const startIndex = declarationText.indexOf(startMarker);
-  const endIndex = declarationText.indexOf(endMarker, startIndex);
-
-  if (startIndex === -1 || endIndex === -1) {
-    throw new Error(
-      'Unable to locate the apiRoutes declaration in emitted d.ts',
-    );
+  if (config.errors.length > 0) {
+    throw new Error(formatDiagnostics(config.errors, compiler));
   }
 
-  return declarationText.slice(startIndex, endIndex).trim();
-};
-
-type StaticTypeImport = {
-  importNames: string[];
-  moduleSpecifier: string;
-};
-
-const escapeRegExp = (value: string): string => {
-  return value.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&');
-};
-
-const collectInlineTypeImportNames = (
-  declarationText: string,
-  moduleSpecifier: string,
-): string[] => {
-  return [
-    ...new Set(
-      Array.from(
-        declarationText.matchAll(
-          new RegExp(
-            `import\\("${escapeRegExp(moduleSpecifier)}"\\)\\.(?<importName>[$A-Za-z_][$\\w]*)`,
-            'gu',
-          ),
-        ),
-      ).map(({ groups }) => groups!.importName),
-    ),
-  ].toSorted();
-};
-
-const createNamedTypeImport = ({
-  importNames,
-  moduleSpecifier,
-}: StaticTypeImport): string => {
-  if (importNames.length === 0) {
-    return '';
-  }
-
-  return `import type {\n${importNames.map((importName) => `  ${importName},`).join('\n')}\n} from '${moduleSpecifier}';`;
-};
-
-const splitTopLevelTypeList = (text: string): string[] => {
-  const items: string[] = [];
-  let angleDepth = 0;
-  let braceDepth = 0;
-  let bracketDepth = 0;
-  let parenthesisDepth = 0;
-  let itemStartIndex = 0;
-  let stringDelimiter: '"' | "'" | '`' | undefined;
-
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    const previousCharacter = text[index - 1];
-
-    if (stringDelimiter) {
-      if (character === stringDelimiter && previousCharacter !== '\\') {
-        stringDelimiter = undefined;
-      }
-      continue;
-    }
-
-    if (character === '"' || character === "'" || character === '`') {
-      stringDelimiter = character;
-      continue;
-    }
-
-    if (character === '<') {
-      angleDepth += 1;
-      continue;
-    }
-
-    if (character === '>') {
-      angleDepth -= 1;
-      continue;
-    }
-
-    if (character === '{') {
-      braceDepth += 1;
-      continue;
-    }
-
-    if (character === '}') {
-      braceDepth -= 1;
-      continue;
-    }
-
-    if (character === '[') {
-      bracketDepth += 1;
-      continue;
-    }
-
-    if (character === ']') {
-      bracketDepth -= 1;
-      continue;
-    }
-
-    if (character === '(') {
-      parenthesisDepth += 1;
-      continue;
-    }
-
-    if (character === ')') {
-      parenthesisDepth -= 1;
-      continue;
-    }
-
-    if (
-      character === ',' &&
-      angleDepth === 0 &&
-      braceDepth === 0 &&
-      bracketDepth === 0 &&
-      parenthesisDepth === 0
-    ) {
-      items.push(text.slice(itemStartIndex, index).trim());
-      itemStartIndex = index + 1;
-    }
-  }
-
-  const lastItem = text.slice(itemStartIndex).trim();
-
-  if (lastItem) {
-    items.push(lastItem);
-  }
-
-  return items;
-};
-
-const splitTopLevelIntersection = (text: string): string[] => {
-  const items: string[] = [];
-  let angleDepth = 0;
-  let braceDepth = 0;
-  let bracketDepth = 0;
-  let parenthesisDepth = 0;
-  let itemStartIndex = 0;
-  let stringDelimiter: '"' | "'" | '`' | undefined;
-
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    const previousCharacter = text[index - 1];
-
-    if (stringDelimiter) {
-      if (character === stringDelimiter && previousCharacter !== '\\') {
-        stringDelimiter = undefined;
-      }
-      continue;
-    }
-
-    if (character === '"' || character === "'" || character === '`') {
-      stringDelimiter = character;
-      continue;
-    }
-
-    if (character === '<') {
-      angleDepth += 1;
-      continue;
-    }
-
-    if (character === '>') {
-      angleDepth -= 1;
-      continue;
-    }
-
-    if (character === '{') {
-      braceDepth += 1;
-      continue;
-    }
-
-    if (character === '}') {
-      braceDepth -= 1;
-      continue;
-    }
-
-    if (character === '[') {
-      bracketDepth += 1;
-      continue;
-    }
-
-    if (character === ']') {
-      bracketDepth -= 1;
-      continue;
-    }
-
-    if (character === '(') {
-      parenthesisDepth += 1;
-      continue;
-    }
-
-    if (character === ')') {
-      parenthesisDepth -= 1;
-      continue;
-    }
-
-    if (
-      character === '&' &&
-      angleDepth === 0 &&
-      braceDepth === 0 &&
-      bracketDepth === 0 &&
-      parenthesisDepth === 0
-    ) {
-      items.push(text.slice(itemStartIndex, index).trim());
-      itemStartIndex = index + 1;
-    }
-  }
-
-  const lastItem = text.slice(itemStartIndex).trim();
-
-  if (lastItem) {
-    items.push(lastItem);
-  }
-
-  return items;
-};
-
-const extractFirstSchemaType = (text: string): string | undefined => {
-  const schemaMarker = 'schema:';
-  const schemaMarkerIndex = text.indexOf(schemaMarker);
-
-  if (schemaMarkerIndex === -1) {
-    return undefined;
-  }
-
-  const schemaStartIndex = schemaMarkerIndex + schemaMarker.length;
-  let angleDepth = 0;
-  let braceDepth = 0;
-  let bracketDepth = 0;
-  let parenthesisDepth = 0;
-  let stringDelimiter: '"' | "'" | '`' | undefined;
-
-  for (let index = schemaStartIndex; index < text.length; index += 1) {
-    const character = text[index];
-    const previousCharacter = text[index - 1];
-
-    if (stringDelimiter) {
-      if (character === stringDelimiter && previousCharacter !== '\\') {
-        stringDelimiter = undefined;
-      }
-      continue;
-    }
-
-    if (character === '"' || character === "'" || character === '`') {
-      stringDelimiter = character;
-      continue;
-    }
-
-    if (character === '<') {
-      angleDepth += 1;
-      continue;
-    }
-
-    if (character === '>') {
-      angleDepth -= 1;
-      continue;
-    }
-
-    if (character === '{') {
-      braceDepth += 1;
-      continue;
-    }
-
-    if (character === '}') {
-      braceDepth -= 1;
-      continue;
-    }
-
-    if (character === '[') {
-      bracketDepth += 1;
-      continue;
-    }
-
-    if (character === ']') {
-      bracketDepth -= 1;
-      continue;
-    }
-
-    if (character === '(') {
-      parenthesisDepth += 1;
-      continue;
-    }
-
-    if (character === ')') {
-      parenthesisDepth -= 1;
-      continue;
-    }
-
-    if (
-      character === ';' &&
-      angleDepth === 0 &&
-      braceDepth === 0 &&
-      bracketDepth === 0 &&
-      parenthesisDepth === 0
-    ) {
-      return text.slice(schemaStartIndex, index).trim();
-    }
-  }
-
-  return undefined;
-};
-
-const findTopLevelProperty = (
-  text: string,
-  propertyName: string,
-): string | undefined => {
-  const propertyStartMarkers = [
-    `${propertyName}:`,
-    `readonly ${propertyName}:`,
-  ];
-  let angleDepth = 0;
-  let braceDepth = 0;
-  let bracketDepth = 0;
-  let parenthesisDepth = 0;
-  let stringDelimiter: '"' | "'" | '`' | undefined;
-
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    const previousCharacter = text[index - 1];
-
-    if (stringDelimiter) {
-      if (character === stringDelimiter && previousCharacter !== '\\') {
-        stringDelimiter = undefined;
-      }
-      continue;
-    }
-
-    if (character === '"' || character === "'" || character === '`') {
-      stringDelimiter = character;
-      continue;
-    }
-
-    if (
-      angleDepth === 0 &&
-      braceDepth === 0 &&
-      bracketDepth === 0 &&
-      parenthesisDepth === 0 &&
-      propertyStartMarkers.some((propertyStartMarker) =>
-        text.startsWith(propertyStartMarker, index),
-      )
-    ) {
-      const propertyStartIndex = index;
-
-      for (
-        let propertyEndIndex = index;
-        propertyEndIndex < text.length;
-        propertyEndIndex += 1
-      ) {
-        const propertyCharacter = text[propertyEndIndex];
-        const propertyPreviousCharacter = text[propertyEndIndex - 1];
-
-        if (stringDelimiter) {
-          if (
-            propertyCharacter === stringDelimiter &&
-            propertyPreviousCharacter !== '\\'
-          ) {
-            stringDelimiter = undefined;
-          }
-          continue;
-        }
-
-        if (
-          propertyCharacter === '"' ||
-          propertyCharacter === "'" ||
-          propertyCharacter === '`'
-        ) {
-          stringDelimiter = propertyCharacter;
-          continue;
-        }
-
-        if (propertyCharacter === '<') {
-          angleDepth += 1;
-          continue;
-        }
-
-        if (propertyCharacter === '>') {
-          angleDepth -= 1;
-          continue;
-        }
-
-        if (propertyCharacter === '{') {
-          braceDepth += 1;
-          continue;
-        }
-
-        if (propertyCharacter === '}') {
-          braceDepth -= 1;
-          continue;
-        }
-
-        if (propertyCharacter === '[') {
-          bracketDepth += 1;
-          continue;
-        }
-
-        if (propertyCharacter === ']') {
-          bracketDepth -= 1;
-          continue;
-        }
-
-        if (propertyCharacter === '(') {
-          parenthesisDepth += 1;
-          continue;
-        }
-
-        if (propertyCharacter === ')') {
-          parenthesisDepth -= 1;
-          continue;
-        }
-
-        if (
-          propertyCharacter === ';' &&
-          angleDepth === 0 &&
-          braceDepth === 0 &&
-          bracketDepth === 0 &&
-          parenthesisDepth === 0
-        ) {
-          return text.slice(propertyStartIndex, propertyEndIndex + 1).trim();
-        }
-      }
-    }
-
-    if (character === '<') {
-      angleDepth += 1;
-      continue;
-    }
-
-    if (character === '>') {
-      angleDepth -= 1;
-      continue;
-    }
-
-    if (character === '{') {
-      braceDepth += 1;
-      continue;
-    }
-
-    if (character === '}') {
-      braceDepth -= 1;
-      continue;
-    }
-
-    if (character === '[') {
-      bracketDepth += 1;
-      continue;
-    }
-
-    if (character === ']') {
-      bracketDepth -= 1;
-      continue;
-    }
-
-    if (character === '(') {
-      parenthesisDepth += 1;
-      continue;
-    }
-
-    if (character === ')') {
-      parenthesisDepth -= 1;
-    }
-  }
-
-  return undefined;
-};
-
-const simplifyControllerOperationOmit = (text: string): string => {
-  const startMarker = 'Omit<{';
-  const endMarker = ', "requestBody" | "response" | "responses">';
-  let result = '';
-  let searchStartIndex = 0;
-
-  while (searchStartIndex < text.length) {
-    const omitStartIndex = text.indexOf(startMarker, searchStartIndex);
-
-    if (omitStartIndex === -1) {
-      result += text.slice(searchStartIndex);
-      break;
-    }
-
-    result += text.slice(searchStartIndex, omitStartIndex);
-
-    const objectBodyStartIndex = omitStartIndex + startMarker.length;
-    let braceDepth = 1;
-    let stringDelimiter: '"' | "'" | '`' | undefined;
-    let objectBodyEndIndex: number | undefined;
-
-    for (let index = objectBodyStartIndex; index < text.length; index += 1) {
-      const character = text[index];
-      const previousCharacter = text[index - 1];
-
-      if (stringDelimiter) {
-        if (character === stringDelimiter && previousCharacter !== '\\') {
-          stringDelimiter = undefined;
-        }
-        continue;
-      }
-
-      if (character === '"' || character === "'" || character === '`') {
-        stringDelimiter = character;
-        continue;
-      }
-
-      if (character === '{') {
-        braceDepth += 1;
-        continue;
-      }
-
-      if (character === '}') {
-        braceDepth -= 1;
-
-        if (braceDepth === 0) {
-          objectBodyEndIndex = index;
-          break;
-        }
-      }
-    }
-
-    if (objectBodyEndIndex === undefined) {
-      throw new Error('Unable to parse generated ControllerOperation Omit');
-    }
-
-    const omitEndIndex = objectBodyEndIndex + 1 + endMarker.length;
-
-    if (text.slice(objectBodyEndIndex + 1, omitEndIndex) !== endMarker) {
-      throw new Error('Unexpected generated ControllerOperation Omit shape');
-    }
-
-    const objectBody = text.slice(objectBodyStartIndex, objectBodyEndIndex);
-    const requestParamsProperty = findTopLevelProperty(
-      objectBody,
-      'requestParams',
-    );
-
-    result += requestParamsProperty
-      ? `{\n    ${requestParamsProperty}\n}`
-      : 'Record<never, never>';
-    searchStartIndex = omitEndIndex;
-  }
-
-  return result;
-};
-
-const extractApiRouteTupleItems = (declarationText: string): string[] => {
-  const startMarker = 'export declare const apiRoutes: readonly [';
-  const startIndex = declarationText.indexOf(startMarker);
-
-  if (startIndex === -1) {
-    throw new Error('Unable to locate the generated apiRoutes tuple');
-  }
-
-  const tupleStartIndex = startIndex + startMarker.length;
-  let bracketDepth = 1;
-  let stringDelimiter: '"' | "'" | '`' | undefined;
-
-  for (
-    let index = tupleStartIndex;
-    index < declarationText.length;
-    index += 1
-  ) {
-    const character = declarationText[index];
-    const previousCharacter = declarationText[index - 1];
-
-    if (stringDelimiter) {
-      if (character === stringDelimiter && previousCharacter !== '\\') {
-        stringDelimiter = undefined;
-      }
-      continue;
-    }
-
-    if (character === '"' || character === "'" || character === '`') {
-      stringDelimiter = character;
-      continue;
-    }
-
-    if (character === '[') {
-      bracketDepth += 1;
-      continue;
-    }
-
-    if (character === ']') {
-      bracketDepth -= 1;
-
-      if (bracketDepth === 0) {
-        return splitTopLevelTypeList(
-          declarationText.slice(tupleStartIndex, index),
-        );
-      }
-    }
-  }
-
-  throw new Error('Unable to extract generated apiRoutes tuple items');
-};
-
-const simplifyOperationType = (operationType: string): string => {
-  const properties: string[] = [];
-
-  for (const part of splitTopLevelIntersection(operationType)) {
-    if (part === 'Record<never, never>') {
-      continue;
-    }
-
-    const objectBody =
-      part.startsWith('{') && part.endsWith('}')
-        ? part.slice(1, -1)
-        : undefined;
-
-    if (!objectBody) {
-      throw new Error(`Unexpected generated operation part: ${part}`);
-    }
-
-    const requestParamsProperty = findTopLevelProperty(
-      objectBody,
-      'requestParams',
-    );
-
-    if (requestParamsProperty) {
-      properties.push(requestParamsProperty);
-      continue;
-    }
-
-    const requestBodyProperty = findTopLevelProperty(objectBody, 'requestBody');
-    const requestBodySchema = requestBodyProperty
-      ? extractFirstSchemaType(requestBodyProperty)
-      : undefined;
-
-    if (requestBodySchema) {
-      properties.push(`requestBody: ${requestBodySchema};`);
-      continue;
-    }
-
-    const responsesProperty = findTopLevelProperty(objectBody, 'responses');
-    const responseSchema = responsesProperty
-      ? extractFirstSchemaType(responsesProperty)
-      : undefined;
-
-    if (responsesProperty) {
-      properties.push(`response: ${responseSchema ?? 'undefined'};`);
-      continue;
-    }
-
-    throw new Error(`Unexpected generated operation object: ${part}`);
-  }
-
-  return properties.length > 0
-    ? `{\n${properties.map((property) => `    ${property}`).join('\n')}\n  }`
-    : 'Record<never, never>';
-};
-
-const simplifyApiRouteController = (routeController: string): string => {
-  const startMarker = 'ApiController<';
-
-  if (
-    !routeController.startsWith(startMarker) ||
-    !routeController.endsWith('>')
-  ) {
-    throw new Error(`Unexpected generated controller item: ${routeController}`);
-  }
-
-  const [path, method, operation] = splitTopLevelTypeList(
-    routeController.slice(startMarker.length, -1),
-  );
-
-  if (!path || !method || !operation) {
-    throw new Error(
-      `Unable to parse generated controller item: ${routeController}`,
-    );
-  }
-
-  return `ApiController<${path}, ${method}, ${simplifyOperationType(operation)}>`;
-};
-
-const createApiRouteControllerUnion = (declarationText: string): string => {
-  const routeItems = extractApiRouteTupleItems(declarationText);
-  const routeControllers = routeItems.map((routeItem) => {
-    const startMarker = 'ApiRoute<';
-
-    if (!routeItem.startsWith(startMarker) || !routeItem.endsWith('>')) {
-      throw new Error(`Unexpected generated route item: ${routeItem}`);
-    }
-
-    return simplifyApiRouteController(routeItem.slice(startMarker.length, -1));
+  using snapshot = compiler.createSnapshot({
+    fileSystem: createFileSystemLayer([[projectionPath, routingProjection]]),
+    createPrograms: [
+      { rootFiles: [projectionPath], compilerOptions: config.options },
+    ],
   });
-
-  return `export type ApiRouteController =\n${routeControllers.map((routeController) => `  | ${routeController}`).join('\n')};`;
-};
-
-const replaceInlineTypeImports = (
-  declarationText: string,
-): {
-  declarationText: string;
-  imports: string;
-} => {
-  const locallyTypedDeclarationText = declarationText
-    .replaceAll('Route<', 'ApiRoute<')
-    .replaceAll('import("./controller").Controller<', 'ApiController<');
-  const simplifiedDeclarationText = simplifyControllerOperationOmit(
-    locallyTypedDeclarationText,
-  );
-  const staticTypeImports: StaticTypeImport[] = [
-    {
-      moduleSpecifier: 'zod',
-      importNames: collectInlineTypeImportNames(
-        simplifiedDeclarationText,
-        'zod',
-      ),
-    },
-    {
-      moduleSpecifier: 'zod/v4/core',
-      importNames: collectInlineTypeImportNames(
-        simplifiedDeclarationText,
-        'zod/v4/core',
-      ),
-    },
+  const [program] = snapshot.operation.createdPrograms;
+  const diagnostics = [
+    ...program.getGlobalDiagnostics(),
+    ...program.getProgramDiagnostics(),
+    ...program.getSyntacticDiagnostics(),
+    ...program.getSemanticDiagnostics(),
   ];
+  if (diagnostics.length > 0) {
+    throw new Error(formatDiagnostics(diagnostics, program));
+  }
 
-  let staticImportedDeclarationText = simplifiedDeclarationText;
+  const { checker } = program.getProject();
+  const source = program.getSourceFile(projectionPath);
+  const module = checker.getSymbolOfSourceFile(projectionPath);
+  const routes = module && checker.getMemberInModuleExports(module, 'routes');
+  if (!source || !routes) {
+    throw new Error('Unable to resolve the API route contracts');
+  }
 
-  for (const staticTypeImport of staticTypeImports) {
-    for (const importName of staticTypeImport.importNames) {
-      staticImportedDeclarationText = staticImportedDeclarationText.replaceAll(
-        `import("${staticTypeImport.moduleSpecifier}").${importName}`,
-        importName,
+  const flags =
+    TypeFormatFlags.NoTruncation |
+    TypeFormatFlags.UseFullyQualifiedType |
+    TypeFormatFlags.UseStructuralFallback |
+    TypeFormatFlags.InTypeAlias;
+  const routeSymbols = checker.getPropertiesOfType(
+    checker.getTypeOfSymbol(routes),
+  );
+  if (routeSymbols.length === 0) {
+    throw new Error('No API route contracts found');
+  }
+
+  const methods = new Map<string, string[]>();
+  for (const route of routeSymbols) {
+    const separator = route.name.indexOf(' ');
+    const method = route.name.slice(0, separator);
+    const path = route.name.slice(separator + 1);
+    const operation = checker.getTypeOfSymbol(route);
+    const fields = new Map<string, string>();
+    for (const field of checker.getPropertiesOfType(operation)) {
+      const type = checker.getTypeOfSymbol(field);
+      if (type.isErrorType()) {
+        throw new Error(`Unable to resolve ${field.name} for ${route.name}`);
+      }
+      fields.set(field.name, checker.typeToString(type, source, flags));
+    }
+
+    const response = fields.get('response');
+    if (!response) {
+      throw new Error(`Missing response type for ${route.name}`);
+    }
+    const requestParams = [];
+    for (const parameter of ['path', 'query']) {
+      const type = fields.get(parameter);
+      if (type) {
+        requestParams.push(`${parameter}: ${type};`);
+      }
+    }
+
+    const entry = [`    ${JSON.stringify(path)}: {`, '      operation: {'];
+    if (requestParams.length > 0) {
+      entry.push(
+        '        requestParams: {',
+        ...requestParams.map((parameter) => `          ${parameter}`),
+        '        };',
       );
     }
+    const requestBody = fields.get('requestBody');
+    if (requestBody) {
+      entry.push(`        requestBody: ${requestBody};`);
+    }
+    entry.push(`        response: ${response};`, '      };', '    };');
+
+    const methodRoutes = methods.get(method) ?? [];
+    methodRoutes.push(entry.join('\n'));
+    methods.set(method, methodRoutes);
   }
 
-  return {
-    declarationText: staticImportedDeclarationText,
-    imports: staticTypeImports
-      .map(createNamedTypeImport)
-      .filter(Boolean)
-      .join('\n'),
-  };
-};
-
-const createGeneratedDeclaration = (apiRoutesDeclaration: string): string => {
-  const outputRelativePath = toTsConfigPath(
-    relative(repoRoot, generatedApiRouteTypesPath),
+  const declarations = [...methods].map(([method, routes]) => {
+    return `  ${method}: {\n${routes.join('\n')}\n  };`;
+  });
+  const outputPath = relative(repoRoot, generatedApiRouteTypesPath).replaceAll(
+    '\\',
+    '/',
   );
-  const { declarationText, imports } =
-    replaceInlineTypeImports(apiRoutesDeclaration);
-  const apiRouteControllerUnion =
-    createApiRouteControllerUnion(declarationText);
-
   return `/**
  * Generated by scripts/generate-api-route-types.ts.
- * Output: ${outputRelativePath}
+ * Output: ${outputPath}
  *
  * Do not edit this file directly. It is intentionally ignored by git.
  */
-${imports}
-
-type ApiController<TPath extends string, TMethod extends string, TOperation> = {
-  path: TPath;
-  method: TMethod;
-  operation: TOperation;
+export type ApiRoutesByMethod = {
+${declarations.join('\n')}
 };
-
-${apiRouteControllerUnion}
 `;
 };
 
 export const generateApiRouteTypes = ({
   quiet = false,
 }: GenerateApiRouteTypesOptions = {}): GenerateApiRouteTypesResult => {
-  const declarationText = emitApiRoutesDeclaration();
-  const apiRoutesDeclaration = extractApiRoutesDeclaration(declarationText);
-  const generatedDeclaration = createGeneratedDeclaration(apiRoutesDeclaration);
+  const generatedDeclaration = createProjectedRouteTypes();
   const previousDeclaration = existsSync(generatedApiRouteTypesPath)
     ? readFileSync(generatedApiRouteTypesPath, 'utf8')
     : undefined;
