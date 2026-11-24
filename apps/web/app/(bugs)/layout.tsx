@@ -4,14 +4,13 @@ import {
   useIsMutating,
   useQueryClient,
 } from '@tanstack/react-query';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import type { Route } from '@react-router/types/app/(bugs)/+types/layout';
 import { closeAllApiWorkers } from 'app/(game)/providers/utils/api-worker-manager';
 import { HeadLinks } from 'app/components/head-links';
+import { ThemedDocument } from 'app/components/themed-document';
 import { Button } from 'app/components/ui/button';
-import { CookieContext } from 'app/providers/cookie-context';
-import { CookieProvider } from 'app/providers/cookie-provider';
 import { SignInForm } from './components/sign-in-form';
 
 export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
@@ -64,37 +63,29 @@ const BugReporter = () => {
   );
 };
 
-const LayoutContent = () => {
-  const { uiColorScheme } = use(CookieContext);
+const BugsLayout = () => {
   const [queryClient] = useState(
     () => new QueryClient({ defaultOptions: { queries: { retry: false } } }),
   );
   return (
-    <html
+    <ThemedDocument
       lang="en-US"
-      className={uiColorScheme}
+      head={
+        <>
+          <title>Bug reports | Pillage First!</title>
+          <HeadLinks />
+          <Links />
+        </>
+      }
+      bodyClassName="min-h-screen bg-background px-safe text-foreground transition-colors"
     >
-      <head>
-        <meta charSet="utf-8" />
-        <title>Bug reports | Pillage First!</title>
-        <HeadLinks />
-        <Links />
-      </head>
-      <body className="min-h-screen bg-background px-safe text-foreground transition-colors">
-        <QueryClientProvider client={queryClient}>
-          <BugReporter />
-        </QueryClientProvider>
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+      <QueryClientProvider client={queryClient}>
+        <BugReporter />
+      </QueryClientProvider>
+      <ScrollRestoration />
+      <Scripts />
+    </ThemedDocument>
   );
 };
-
-const BugsLayout = () => (
-  <CookieProvider>
-    <LayoutContent />
-  </CookieProvider>
-);
 
 export default BugsLayout;

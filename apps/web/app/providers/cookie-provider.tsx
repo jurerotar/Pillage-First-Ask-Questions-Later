@@ -10,11 +10,11 @@ import {
   type CookieContextType,
 } from 'app/providers/cookie-context';
 import {
-  COOKIE_UPDATE_EVENT_NAME,
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
   GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
   getCookie,
   LOCALE_COOKIE_NAME,
+  subscribeToCookieChanges,
   UI_COLOR_SCHEME_COOKIE_NAME,
 } from 'app/utils/device';
 
@@ -60,21 +60,9 @@ export const CookieProvider = ({ children }: PropsWithChildren) => {
 
     updateCookies();
 
-    const { cookieStore } = window;
-
-    if (cookieStore) {
-      cookieStore.addEventListener('change', updateCookies);
-    }
-
-    document.addEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
-
-    return () => {
-      if (cookieStore) {
-        cookieStore.removeEventListener('change', updateCookies);
-      }
-
-      document.removeEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
-    };
+    return subscribeToCookieChanges(() => {
+      void updateCookies();
+    });
   }, []);
 
   const value = useMemo(() => cookies, [cookies]);

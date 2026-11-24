@@ -1,5 +1,5 @@
 import { MDXProvider } from '@mdx-js/react';
-import { type ComponentProps, use } from 'react';
+import type { ComponentProps } from 'react';
 import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import type { Route } from '@react-router/types/app/(public)/+types/layout';
 import { closeAllApiWorkers } from 'app/(game)/providers/utils/api-worker-manager';
@@ -8,9 +8,9 @@ import { Footer } from 'app/(public)/components/footer';
 import { MobileNavigation } from 'app/(public)/components/mobile-navigation';
 import { HeadLinks } from 'app/components/head-links';
 import { Text } from 'app/components/text';
+import { ThemedDocument } from 'app/components/themed-document';
 import { Tooltip } from 'app/components/tooltip';
 import { Toaster } from 'app/components/ui/toaster';
-import { CookieContext } from 'app/providers/cookie-context';
 import { CookieProvider } from 'app/providers/cookie-provider';
 
 const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
@@ -78,33 +78,31 @@ export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
 ];
 
 const LayoutContent = () => {
-  const { uiColorScheme } = use(CookieContext);
-
   return (
-    <html
+    <ThemedDocument
       lang="en-US"
-      className={uiColorScheme}
+      head={
+        <>
+          <HeadLinks />
+          <Links />
+        </>
+      }
+      bodyClassName="bg-background px-safe text-foreground transition-colors"
     >
-      <head>
-        <HeadLinks />
-        <Links />
-      </head>
-      <body className="bg-background px-safe text-foreground transition-colors">
-        <DesktopNavigation />
-        <MobileNavigation />
-        <Tooltip
-          id="public-tooltip"
-          className="text-xs!"
-        />
-        <MDXProvider components={mdxComponents}>
-          <Outlet />
-        </MDXProvider>
-        <Footer />
-        <Toaster position="bottom-right" />
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+      <DesktopNavigation />
+      <MobileNavigation />
+      <Tooltip
+        id="public-tooltip"
+        className="text-xs!"
+      />
+      <MDXProvider components={mdxComponents}>
+        <Outlet />
+      </MDXProvider>
+      <Footer />
+      <Toaster position="bottom-right" />
+      <ScrollRestoration />
+      <Scripts />
+    </ThemedDocument>
   );
 };
 

@@ -60,6 +60,17 @@ export const getCookie = async (name: CookieName): Promise<string | null> => {
   return cookie?.split('=')[1] || null;
 };
 
+export const subscribeToCookieChanges = (listener: () => void) => {
+  const { cookieStore } = window;
+  cookieStore?.addEventListener('change', listener);
+  document.addEventListener(COOKIE_UPDATE_EVENT_NAME, listener);
+
+  return () => {
+    cookieStore?.removeEventListener('change', listener);
+    document.removeEventListener(COOKIE_UPDATE_EVENT_NAME, listener);
+  };
+};
+
 export const wait = (duration: number): Promise<void> => {
   return new Promise((resolve) => {
     globalThis.setTimeout(resolve, duration);
