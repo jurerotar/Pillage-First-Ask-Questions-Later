@@ -15,15 +15,16 @@ export const playerVillageDtoSchema = z.strictObject({
   resourceFieldComposition: resourceFieldCompositionSchema,
 });
 
-export const playerVillageListingDtoSchema = playerVillageDtoSchema.extend({
+export const playerVillageListingDtoSchema = z.strictObject({
+  ...playerVillageDtoSchema.shape,
   population: z.number(),
 });
 
-export const playerVillageWithPopulationDtoSchema =
-  playerVillageDtoSchema.extend({
-    population: z.number(),
-    occupiedOasis: z.array(oasisDtoSchema),
-  });
+export const playerVillageWithPopulationDtoSchema = z.strictObject({
+  ...playerVillageDtoSchema.shape,
+  population: z.number(),
+  occupiedOasis: z.array(oasisDtoSchema),
+});
 
 export const villageTroopDtoSchema = z.strictObject({
   canRelocate: z.boolean(),

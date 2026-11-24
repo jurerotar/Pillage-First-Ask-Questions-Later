@@ -96,7 +96,8 @@ const baseReportRowSchema = z.strictObject({
   ...nullableReportDetailColumns,
 });
 
-export const battleReportRowSchema = baseReportRowSchema.extend({
+export const battleReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   type: z.literal('battle'),
   battle_is_raid: z.union([z.literal(0), z.literal(1)]),
   battle_origin_name: z.string(),
@@ -153,7 +154,8 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
 
 export const battleReportSiegeResultRowSchema = battleSiegeResultSchema;
 
-export const adventureReportRowSchema = baseReportRowSchema.extend({
+export const adventureReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   type: z.literal('adventure'),
   adventure_id: z.int(),
   health_before: z.number(),
@@ -166,7 +168,8 @@ export const adventureReportRowSchema = baseReportRowSchema.extend({
   adventure_origin_tribe: tribeSchema,
 });
 
-export const movementReportRowSchema = baseReportRowSchema.extend({
+export const movementReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   type: z.literal('movement'),
   movement_id: z.int(),
   movement_type: z.enum(['reinforcement', 'relocation']),
@@ -183,7 +186,8 @@ export const movementReportRowSchema = baseReportRowSchema.extend({
   movement_target_y: z.int(),
 });
 
-export const tradeReportRowSchema = baseReportRowSchema.extend({
+export const tradeReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   type: z.literal('trade'),
   trade_id: z.int(),
   trade_origin_tile_id: tileIdSchema,
@@ -204,7 +208,8 @@ export const tradeReportRowSchema = baseReportRowSchema.extend({
   trade_wheat: resourcesSchema.shape.wheat,
 });
 
-const expeditionReportRowSchema = baseReportRowSchema.extend({
+const expeditionReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   expedition_id: z.int(),
   expedition_tribe: tribeSchema,
   expedition_village_name: z.string(),
@@ -216,16 +221,18 @@ const expeditionReportRowSchema = baseReportRowSchema.extend({
   loot_wheat: resourcesSchema.shape.wheat.nullable(),
 });
 
-export const huntingPartyReportRowSchema = expeditionReportRowSchema.extend({
+export const huntingPartyReportRowSchema = z.strictObject({
+  ...expeditionReportRowSchema.shape,
   type: z.literal('huntingParty'),
 });
 
-export const gatheringExpeditionReportRowSchema =
-  expeditionReportRowSchema.extend({
-    type: z.literal('gatheringExpedition'),
-  });
+export const gatheringExpeditionReportRowSchema = z.strictObject({
+  ...expeditionReportRowSchema.shape,
+  type: z.literal('gatheringExpedition'),
+});
 
-export const scoutingReportRowSchema = baseReportRowSchema.extend({
+export const scoutingReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   type: z.literal('scouting'),
   scouting_id: z.int(),
   perspective: reportSideSchema,
@@ -251,7 +258,8 @@ export const scoutingReportRowSchema = baseReportRowSchema.extend({
   defender_tribe: tribeSchema,
 });
 
-export const unitResearchReportRowSchema = baseReportRowSchema.extend({
+export const unitResearchReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   type: z.literal('unitResearch'),
   unit_id: unitIdSchema,
   village_name: z.string(),
@@ -259,7 +267,8 @@ export const unitResearchReportRowSchema = baseReportRowSchema.extend({
   village_y: z.int(),
 });
 
-export const unitImprovementReportRowSchema = baseReportRowSchema.extend({
+export const unitImprovementReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   type: z.literal('unitImprovement'),
   unit_id: unitIdSchema,
   level: z.int().positive(),
@@ -268,7 +277,8 @@ export const unitImprovementReportRowSchema = baseReportRowSchema.extend({
   village_y: z.int(),
 });
 
-export const villageFoundedReportRowSchema = baseReportRowSchema.extend({
+export const villageFoundedReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
   type: z.literal('villageFounded'),
   origin_tile_id: tileIdSchema,
   target_tile_id: tileIdSchema,
@@ -280,18 +290,18 @@ export const villageFoundedReportRowSchema = baseReportRowSchema.extend({
   target_y: z.int(),
 });
 
-export const scheduledConstructionCancellationReportRowSchema =
-  baseReportRowSchema.extend({
-    type: z.literal('scheduledConstructionCancellation'),
-    building_id: buildingIdSchema,
-    field_id: z.int(),
-    level: z.int().positive(),
-    reason: scheduledConstructionCancellationReasonSchema,
-    reason_detail_json: z.string(),
-    village_name: z.string(),
-    village_x: z.int(),
-    village_y: z.int(),
-  });
+export const scheduledConstructionCancellationReportRowSchema = z.strictObject({
+  ...baseReportRowSchema.shape,
+  type: z.literal('scheduledConstructionCancellation'),
+  building_id: buildingIdSchema,
+  field_id: z.int(),
+  level: z.int().positive(),
+  reason: scheduledConstructionCancellationReasonSchema,
+  reason_detail_json: z.string(),
+  village_name: z.string(),
+  village_x: z.int(),
+  village_y: z.int(),
+});
 
 export const getReportsRowSchema = z
   .discriminatedUnion('type', [

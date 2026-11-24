@@ -91,20 +91,23 @@ export const combatSimulatorStateSchema = z
   .strictObject({
     combatMode: z.enum(['attack', 'raid']),
     playerRole: z.enum(['attacker', 'defender']),
-    attacker: participantSchema.extend({
+    attacker: z.strictObject({
+      ...participantSchema.shape,
       village: z.strictObject({
         // Village-based bonus; a positive level implies an active celebration.
         breweryLevel: improvementLevelSchema,
       }),
     }),
-    defender: participantSchema.extend({
+    defender: z.strictObject({
+      ...participantSchema.shape,
       village: z.strictObject({
         wallLevel: improvementLevelSchema,
         residenceLevel: improvementLevelSchema,
         trapCount: z.int().min(0).max(10_000),
       }),
       reinforcements: z.array(
-        participantSchema.extend({
+        z.strictObject({
+          ...participantSchema.shape,
           id: z.string(),
           village: z.undefined().optional(),
         }),

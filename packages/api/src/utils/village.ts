@@ -74,7 +74,8 @@ type CalculateResourceSiteResourcesAtReturn = {
   previousUpdatedAt: number;
 };
 
-const resourceSiteStateSchema = resourcesSchema.extend({
+const resourceSiteStateSchema = z.strictObject({
+  ...resourcesSchema.shape,
   last_updated_at: z.number(),
 });
 

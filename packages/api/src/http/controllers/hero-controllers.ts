@@ -276,7 +276,10 @@ export const changeHeroAttributes = createController(
         WHERE h.player_id = $player_id
       `,
       bind: { $player_id: playerId },
-      schema: heroProductionUpdateDtoSchema.extend({ villageId: z.number() }),
+      schema: z.strictObject({
+        ...heroProductionUpdateDtoSchema.shape,
+        villageId: z.number(),
+      }),
     })!;
 
     database.transaction(() => {
@@ -410,7 +413,10 @@ export const changeHeroResourceToProduce = createController(
       WHERE h.player_id = $player_id
     `,
     bind: { $player_id: playerId },
-    schema: heroProductionUpdateDtoSchema.extend({ villageId: z.number() }),
+    schema: z.strictObject({
+      ...heroProductionUpdateDtoSchema.shape,
+      villageId: z.number(),
+    }),
   })!;
 
   database.transaction(() => {

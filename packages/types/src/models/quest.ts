@@ -128,8 +128,9 @@ const baseQuestSchema = z.strictObject({
   completedAt: z.number().nullable(),
 });
 
-const villageQuestsSchema = baseQuestSchema
-  .extend({
+const villageQuestsSchema = z
+  .strictObject({
+    ...baseQuestSchema.shape,
     id: villageQuestIdSchema,
     scope: z.literal('village'),
     villageId: z.number(),
@@ -138,8 +139,9 @@ const villageQuestsSchema = baseQuestSchema
 
 export type VillageQuest = z.infer<typeof villageQuestsSchema>;
 
-const globalQuestsSchema = baseQuestSchema
-  .extend({
+const globalQuestsSchema = z
+  .strictObject({
+    ...baseQuestSchema.shape,
     id: globalQuestIdSchema,
     scope: z.literal('global'),
   })

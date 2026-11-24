@@ -20,11 +20,14 @@ import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
 import { TroopMovementConfirmationModal } from './components/confirmation-modal';
 import { TroopSelectionForm } from './components/troop-selection-form';
 import { useTroopMovementForm } from './hooks/use-troop-movement-form';
-import { baseTroopFormSchema } from './utils/schema';
+import { baseTroopFormSchema, troopFormChecks } from './utils/schema';
 
-const attackRaidFormSchema = baseTroopFormSchema.extend({
-  action: z.enum(['attack_normal', 'attack_raid']),
-});
+const attackRaidFormSchema = z
+  .strictObject({
+    ...baseTroopFormSchema.shape,
+    action: z.enum(['attack_normal', 'attack_raid']),
+  })
+  .check(...troopFormChecks);
 
 type AttackRaidFormValues = z.infer<typeof attackRaidFormSchema>;
 

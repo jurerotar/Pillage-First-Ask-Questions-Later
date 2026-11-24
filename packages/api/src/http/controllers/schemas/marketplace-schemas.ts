@@ -11,11 +11,10 @@ const resourceTransferPayloadSchema = z.strictObject({
   resources: resourcesSchema,
 });
 
-export const transferResourcesBodySchema = resourceTransferPayloadSchema.extend(
-  {
-    repeatCount: z.number().int().min(1).max(5).optional(),
-  },
-);
+export const transferResourcesBodySchema = z.strictObject({
+  ...resourceTransferPayloadSchema.shape,
+  repeatCount: z.number().int().min(1).max(5).optional(),
+});
 
 export const createTradeRouteBodySchema = tradeRouteScheduleSchema.safeExtend({
   ...resourceTransferPayloadSchema.shape,

@@ -18,7 +18,8 @@ import {
   getVillageMerchantStats,
 } from './marketplace';
 
-export const tradeRouteRowSchema = tradeRouteSchema.extend({
+export const tradeRouteRowSchema = z.strictObject({
+  ...tradeRouteSchema.shape,
   resources: z
     .string()
     .transform((value): unknown => JSON.parse(value))
@@ -30,12 +31,11 @@ export const tradeRouteRowSchema = tradeRouteSchema.extend({
   paused: z.coerce.boolean(),
 });
 
-const tradeRouteExecutionRowSchema = tradeRouteRowSchema
-  .omit({ nextAt: true })
-  .extend({
-    sourcePlayerId: z.number(),
-    targetPlayerId: z.number(),
-  });
+const tradeRouteExecutionRowSchema = z.strictObject({
+  ...tradeRouteRowSchema.omit({ nextAt: true }).shape,
+  sourcePlayerId: z.number(),
+  targetPlayerId: z.number(),
+});
 
 export const getTradeRouteById = (database: DbFacade, routeId: number) => {
   return database.selectObject({
