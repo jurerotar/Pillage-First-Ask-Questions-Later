@@ -129,6 +129,12 @@ export const BuildingOverview = () => {
     buildingId,
     actualLevel,
   );
+  const buildingName = t(`BUILDINGS.${building.id}.NAME`);
+
+  const buildingHeading =
+    buildingInstanceNumber !== undefined && buildingInstanceNumber > 1
+      ? `${buildingInstanceNumber}. ${buildingName}`
+      : buildingName;
 
   return (
     <section className="flex flex-col gap-2">
@@ -137,10 +143,7 @@ export const BuildingOverview = () => {
           as="h2"
           className="inline-flex"
         >
-          {buildingInstanceNumber !== undefined &&
-            buildingInstanceNumber > 1 &&
-            `${buildingInstanceNumber}. `}
-          {t(`BUILDINGS.${building.id}.NAME`)}
+          {buildingHeading}
         </Text>
       </div>
       {(isUpgrading || isDowngrading) && (
