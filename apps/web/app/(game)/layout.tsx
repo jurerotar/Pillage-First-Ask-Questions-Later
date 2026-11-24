@@ -19,6 +19,7 @@ import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-alrea
 import { ApiProvider } from 'app/(game)/providers/api-provider';
 import { getGameWorldListing } from 'app/(public)/(game-worlds)/utils/game-world-listing';
 import { HeadLinks } from 'app/components/head-links';
+import { ThemedDocument } from 'app/components/themed-document';
 import { Toaster } from 'app/components/ui/toaster';
 import { pushGameWorldOpened } from 'app/instrumentation/product-events';
 import { loadAppTranslations } from 'app/localization/loaders/app';
@@ -88,7 +89,7 @@ const LayoutContent = memo<Route.ComponentProps>(
     const { sessionId } = loaderData;
 
     const { i18n } = useTranslation();
-    const { uiColorScheme, skinVariant, timeOfDay } = use(CookieContext);
+    const { skinVariant, timeOfDay } = use(CookieContext);
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
     const [queryClient] = useState<QueryClient>(() => {
@@ -128,37 +129,37 @@ const LayoutContent = memo<Route.ComponentProps>(
     }, [serverSlug, sessionId]);
 
     return (
-      <html
+      <ThemedDocument
         lang={i18n.language}
         className={clsx(
-          uiColorScheme,
           `skin-variant-${skinVariant}`,
           `time-of-day-${timeOfDay}`,
         )}
+        head={
+          <>
+            <HeadLinks />
+            <Links />
+          </>
+        }
+        bodyClassName="bg-background text-foreground transition-colors"
       >
-        <head>
-          <HeadLinks />
-          <Links />
-        </head>
-        <body className="bg-background text-foreground transition-colors">
-          <QueryClientProvider client={queryClient}>
-            <GameStartupSplash key={serverSlug}>
-              <Suspense fallback={null}>
-                <ApiProvider serverSlug={serverSlug}>
-                  <Outlet />
-                  <Notifier serverSlug={serverSlug} />
-                </ApiProvider>
-              </Suspense>
-            </GameStartupSplash>
-            <Toaster
-              position={toasterPosition}
-              closeButton
-            />
-          </QueryClientProvider>
-          <ScrollRestoration />
-          <Scripts />
-        </body>
-      </html>
+        <QueryClientProvider client={queryClient}>
+          <GameStartupSplash key={serverSlug}>
+            <Suspense fallback={null}>
+              <ApiProvider serverSlug={serverSlug}>
+                <Outlet />
+                <Notifier serverSlug={serverSlug} />
+              </ApiProvider>
+            </Suspense>
+          </GameStartupSplash>
+          <Toaster
+            position={toasterPosition}
+            closeButton
+          />
+        </QueryClientProvider>
+        <ScrollRestoration />
+        <Scripts />
+      </ThemedDocument>
     );
   },
   (prev, next) => {
