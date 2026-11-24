@@ -35,8 +35,9 @@ export const baseTileSchema = z
   })
   .meta({ id: 'BaseTile' });
 
-const baseOccupiableTileSchema = baseTileSchema
-  .extend({
+const baseOccupiableTileSchema = z
+  .strictObject({
+    ...baseTileSchema.shape,
     type: z.literal('free'),
     attributes: z.strictObject({
       resourceFieldComposition: resourceFieldCompositionSchema,
@@ -44,22 +45,25 @@ const baseOccupiableTileSchema = baseTileSchema
   })
   .meta({ id: 'BaseOccupiableTile' });
 
-const occupiedOccupiableTileSchema = baseOccupiableTileSchema
-  .extend({
+const occupiedOccupiableTileSchema = z
+  .strictObject({
+    ...baseOccupiableTileSchema.shape,
     owner: playerSchema,
     ownerVillage: tileVillageSchema,
   })
   .meta({ id: 'OccupiedOccupiableTile' });
 
-const unoccupiedOccupiableTileSchema = baseOccupiableTileSchema
-  .extend({
+const unoccupiedOccupiableTileSchema = z
+  .strictObject({
+    ...baseOccupiableTileSchema.shape,
     owner: z.literal(null),
     ownerVillage: z.literal(null),
   })
   .meta({ id: 'UnoccupiedOccupiableTile' });
 
-const baseOasisTileSchema = baseTileSchema
-  .extend({
+const baseOasisTileSchema = z
+  .strictObject({
+    ...baseTileSchema.shape,
     type: z.literal('oasis'),
     attributes: z.strictObject({
       oasisGraphics: z.number(),
@@ -68,15 +72,17 @@ const baseOasisTileSchema = baseTileSchema
   })
   .meta({ id: 'BaseOasisTile' });
 
-const occupiedOasisTileSchema = baseOasisTileSchema
-  .extend({
+const occupiedOasisTileSchema = z
+  .strictObject({
+    ...baseOasisTileSchema.shape,
     owner: playerSchema,
     ownerVillage: tileVillageSchema,
   })
   .meta({ id: 'OccupiedOasisTile' });
 
-const unoccupiedOasisTileSchema = baseOasisTileSchema
-  .extend({
+const unoccupiedOasisTileSchema = z
+  .strictObject({
+    ...baseOasisTileSchema.shape,
     owner: z.literal(null),
     ownerVillage: z.literal(null),
   })

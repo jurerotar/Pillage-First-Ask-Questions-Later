@@ -41,50 +41,60 @@ const reportStateDtoSchema = z.strictObject({
   isArchived: z.boolean(),
 });
 
-const battleDtoSchema = battleReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const battleDtoSchema = z.strictObject({
+  ...battleReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const adventureDtoSchema = adventureReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const adventureDtoSchema = z.strictObject({
+  ...adventureReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const tradeDtoSchema = tradeReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const tradeDtoSchema = z.strictObject({
+  ...tradeReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const movementDtoSchema = movementReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const movementDtoSchema = z.strictObject({
+  ...movementReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const huntingPartyDtoSchema = huntingPartyReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const huntingPartyDtoSchema = z.strictObject({
+  ...huntingPartyReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const gatheringExpeditionDtoSchema = gatheringExpeditionReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const gatheringExpeditionDtoSchema = z.strictObject({
+  ...gatheringExpeditionReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const scoutingDtoSchema = scoutingReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const scoutingDtoSchema = z.strictObject({
+  ...scoutingReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const unitResearchDtoSchema = unitResearchReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const unitResearchDtoSchema = z.strictObject({
+  ...unitResearchReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const unitImprovementDtoSchema = unitImprovementReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const unitImprovementDtoSchema = z.strictObject({
+  ...unitImprovementReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const villageFoundedDtoSchema = villageFoundedReportSchema
-  .omit({ tags: true })
-  .extend(reportStateDtoSchema.shape);
+const villageFoundedDtoSchema = z.strictObject({
+  ...villageFoundedReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
-const scheduledConstructionCancellationDtoSchema =
-  scheduledConstructionCancellationReportSchema
-    .omit({ tags: true })
-    .extend(reportStateDtoSchema.shape);
+const scheduledConstructionCancellationDtoSchema = z.strictObject({
+  ...scheduledConstructionCancellationReportSchema.omit({ tags: true }).shape,
+  ...reportStateDtoSchema.shape,
+});
 
 export const battleReportSummaryDtoSchema = battleDtoSchema.omit({
   battle: true,

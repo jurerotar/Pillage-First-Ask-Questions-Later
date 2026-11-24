@@ -25,18 +25,18 @@ export const baseHeroAuctionListingDtoSchema = z.strictObject({
   price: z.number().int().positive(),
 });
 
-export const heroAuctionBuyListingDtoSchema =
-  baseHeroAuctionListingDtoSchema.extend({
-    expiresAt: z.number(),
-  });
+export const heroAuctionBuyListingDtoSchema = z.strictObject({
+  ...baseHeroAuctionListingDtoSchema.shape,
+  expiresAt: z.number(),
+});
 
-export const heroAuctionSellListingDtoSchema =
-  baseHeroAuctionListingDtoSchema.extend({
-    sellsAt: z.number(),
-  });
+export const heroAuctionSellListingDtoSchema = z.strictObject({
+  ...baseHeroAuctionListingDtoSchema.shape,
+  sellsAt: z.number(),
+});
 
-export const heroAuctionHistoryEntryDtoSchema =
-  baseHeroAuctionListingDtoSchema.extend({
-    type: z.enum(['buy', 'sell']),
-    completedAt: z.number(),
-  });
+export const heroAuctionHistoryEntryDtoSchema = z.strictObject({
+  ...baseHeroAuctionListingDtoSchema.shape,
+  type: z.enum(['buy', 'sell']),
+  completedAt: z.number(),
+});

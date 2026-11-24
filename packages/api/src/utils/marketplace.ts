@@ -26,22 +26,24 @@ const marketplaceVillageSchema = z.strictObject({
   tribe: tribeSchema,
 });
 
-const marketplaceVillageMerchantStatsSchema = marketplaceVillageSchema.extend({
+const marketplaceVillageMerchantStatsSchema = z.strictObject({
+  ...marketplaceVillageSchema.shape,
   marketplaceLevel: z.number(),
   usedMerchantAmount: z.number(),
   effectsJson: z.string(),
 });
 
-const marketplaceVillageWithTargetSchema = marketplaceVillageSchema.extend({
+const marketplaceVillageWithTargetSchema = z.strictObject({
+  ...marketplaceVillageSchema.shape,
   targetVillageId: z.number().nullable(),
   targetVillageTileId: tileIdSchema.nullable(),
 });
 
-const marketplaceVillageMerchantStatsWithTargetSchema =
-  marketplaceVillageMerchantStatsSchema.extend({
-    targetVillageId: z.number().nullable(),
-    targetVillageTileId: tileIdSchema.nullable(),
-  });
+const marketplaceVillageMerchantStatsWithTargetSchema = z.strictObject({
+  ...marketplaceVillageMerchantStatsSchema.shape,
+  targetVillageId: z.number().nullable(),
+  targetVillageTileId: tileIdSchema.nullable(),
+});
 
 const getTargetVillageFromRow = (row: {
   targetVillageId: number | null;

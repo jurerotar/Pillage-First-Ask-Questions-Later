@@ -8,7 +8,8 @@ export const farmListDtoSchema = z.strictObject({
   targetCount: z.number(),
 });
 
-export const farmListDetailsDtoSchema = farmListDtoSchema.extend({
+export const farmListDetailsDtoSchema = z.strictObject({
+  ...farmListDtoSchema.shape,
   tileIds: z.array(tileIdSchema),
 });
 

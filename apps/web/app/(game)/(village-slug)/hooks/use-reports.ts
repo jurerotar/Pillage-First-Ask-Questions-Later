@@ -2,10 +2,7 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import type {
-  ReportListingDto,
-  ReportScope,
-} from '@pillage-first/types/dtos/report';
+import type { ReportScope } from '@pillage-first/types/dtos/report';
 import type { BaseReport, ReportTag } from '@pillage-first/types/models/report';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
@@ -66,7 +63,7 @@ export const useReports = (scope: ReportScope = 'global') => {
     onSuccess: async (_data, { reportIds }, _onMutateResult, context) => {
       const deletedReportIds = new Set(reportIds);
 
-      context.client.setQueriesData<ReportListingDto[]>(
+      context.client.setQueriesData<typeof reports>(
         {
           queryKey: [reportListingsCacheKey],
           predicate: ({ queryKey }) =>

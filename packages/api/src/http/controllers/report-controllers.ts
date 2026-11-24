@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import {
+  type ReportDto,
+  type ReportListingDto,
   reportDtoSchema,
   reportFilterNameByScope,
   reportListingDtoSchema,
@@ -73,7 +75,7 @@ export const getReports = createController('/reports', {
     }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, context: { playerId }, query }) => {
+})(({ database, context: { playerId }, query }): ReportListingDto[] => {
   const scope = query.scope ?? 'global';
 
   const rows = database.selectObjects({
@@ -112,15 +114,21 @@ export const getTileReports = createController('/tiles/:tileId/reports', {
     path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, context: { playerId }, path: { tileId } }) => {
-  const rows = database.selectObjects({
-    sql: selectTileReportListingsQuery,
-    bind: { $tile_id: tileId, $player_id: playerId },
-    schema: getReportListingsRowSchema,
-  });
+})(
+  ({
+    database,
+    context: { playerId },
+    path: { tileId },
+  }): ReportListingDto[] => {
+    const rows = database.selectObjects({
+      sql: selectTileReportListingsQuery,
+      bind: { $tile_id: tileId, $player_id: playerId },
+      schema: getReportListingsRowSchema,
+    });
 
-  return rows.map(mapReportListingRowToDto);
-});
+    return rows.map(mapReportListingRowToDto);
+  },
+);
 
 export const getReport = createController('/reports/:reportId', {
   summary: 'Get report by id',
@@ -130,7 +138,7 @@ export const getReport = createController('/reports/:reportId', {
     }),
   },
   response: reportDtoSchema.nullable(),
-})(({ database, path: { reportId } }) => {
+})(({ database, path: { reportId } }): ReportDto | null => {
   const reportInfo = database.selectObject({
     sql: selectReportTypeQuery,
     bind: { $report_id: reportId },

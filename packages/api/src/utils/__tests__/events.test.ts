@@ -2841,7 +2841,10 @@ describe('events utils', () => {
           database.selectObject({
             sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
             bind: { $tile_id: tileId },
-            schema: resourcesSchema.extend({ updated_at: z.number() }),
+            schema: z.strictObject({
+              ...resourcesSchema.shape,
+              updated_at: z.number(),
+            }),
           }),
         ).toStrictEqual({ ...resources, updated_at: now });
         expect(

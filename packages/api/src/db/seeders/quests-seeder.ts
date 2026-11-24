@@ -4,6 +4,7 @@ import {
   globalQuests,
   newVillageQuestsFactory,
 } from '@pillage-first/game-assets/quests';
+import type { QuestId } from '@pillage-first/types/models/quest';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -45,7 +46,13 @@ export const questsSeeder = (database: DbFacade, playerId: number): void => {
     },
   )!;
 
-  const questsToSeed = [];
+  const questsToSeed: [
+    questId: QuestId,
+    playerId: number,
+    completedAt: null,
+    collectedAt: null,
+    villageId: number | null,
+  ][] = [];
 
   const villageQuests = newVillageQuestsFactory(
     playerStartingVillageId,

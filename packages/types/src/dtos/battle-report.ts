@@ -15,15 +15,19 @@ const reportUnitSchema = z.strictObject({
   amountBandaged: battleUnitSchema.shape.amountBandaged.nullable(),
 });
 
-const reportParticipantSchema = battleParticipantSchema.extend({
-  troops: battleTroopsSchema.extend({
+const reportParticipantSchema = z.strictObject({
+  ...battleParticipantSchema.shape,
+  troops: z.strictObject({
+    ...battleTroopsSchema.shape,
     units: z.array(reportUnitSchema).nullable(),
   }),
 });
 
-export const battleReportBattleDtoSchema = battleSchema.extend({
+export const battleReportBattleDtoSchema = z.strictObject({
+  ...battleSchema.shape,
   attacker: reportParticipantSchema,
-  defender: reportParticipantSchema.extend({
+  defender: z.strictObject({
+    ...reportParticipantSchema.shape,
     reinforcements: z.array(reportParticipantSchema),
   }),
   outcome: z.strictObject({

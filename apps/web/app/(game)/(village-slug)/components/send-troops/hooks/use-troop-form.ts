@@ -32,7 +32,7 @@ export type TroopFormOptions<T extends FieldValues> = {
 const defaultTroopFormUnits: { unitId: Unit['id']; amount: number }[] = [];
 
 export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
-  schema: z.ZodType<T>,
+  schema: z.core.$ZodType<T>,
   options: TroopFormOptions<T>,
 ) => {
   const {

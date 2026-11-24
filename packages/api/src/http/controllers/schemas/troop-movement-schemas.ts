@@ -6,12 +6,11 @@ import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { troopSchema } from '@pillage-first/types/models/troop';
 
-export const getTileTroopMovementsRowSchema = tileTroopMovementDtoSchema.extend(
-  {
-    originCoordinates: jsonCoordinatesSchema,
-    targetCoordinates: jsonCoordinatesSchema,
-  },
-);
+export const getTileTroopMovementsRowSchema = z.strictObject({
+  ...tileTroopMovementDtoSchema.shape,
+  originCoordinates: jsonCoordinatesSchema,
+  targetCoordinates: jsonCoordinatesSchema,
+});
 
 export const troopMovementValidationBodySchema = z
   .strictObject({

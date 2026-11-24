@@ -71,13 +71,15 @@ export const battleReportSummarySchema = z.strictObject({
   movementType: z.enum(['raid', 'attack']),
 });
 
-export const battleReportSchema = baseReportSchema.extend({
+export const battleReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('battle'),
   summary: battleReportSummarySchema,
   battle: battleReportBattleDtoSchema,
 });
 
-export const adventureReportSchema = baseReportSchema.extend({
+export const adventureReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('adventure'),
   summary: z.strictObject({
     originPlayerName: z.string(),
@@ -93,7 +95,8 @@ export const adventureReportSchema = baseReportSchema.extend({
   healthAfter: z.number(),
 });
 
-export const tradeReportSchema = baseReportSchema.extend({
+export const tradeReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('trade'),
   summary: z.strictObject({
     originPlayerName: z.string(),
@@ -130,7 +133,8 @@ export const movementReportUnitSchema = z.strictObject({
   amount: z.int(),
 });
 
-export const movementReportSchema = baseReportSchema.extend({
+export const movementReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('movement'),
   summary: movementReportSummarySchema,
   movement: z.strictObject({
@@ -153,14 +157,16 @@ const expeditionUnitSchema = z.strictObject({
   amount: z.int().positive(),
 });
 
-export const huntingPartyReportSchema = baseReportSchema.extend({
+export const huntingPartyReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('huntingParty'),
   summary: expeditionReportSummarySchema,
   tribe: z.literal('nature'),
   units: z.array(expeditionUnitSchema),
 });
 
-export const gatheringExpeditionReportSchema = baseReportSchema.extend({
+export const gatheringExpeditionReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('gatheringExpedition'),
   summary: expeditionReportSummarySchema,
   tribe: tribeSchema,
@@ -195,12 +201,14 @@ const scoutingAttackerTroopsSchema = z.strictObject({
   ),
 });
 
-const scoutingReinforcementSchema = scoutingTroopsSchema.extend({
+const scoutingReinforcementSchema = z.strictObject({
+  ...scoutingTroopsSchema.shape,
   player: z.strictObject({ name: z.string(), slug: z.string() }),
   village: z.strictObject({ name: z.string(), coordinates: coordinatesSchema }),
 });
 
-export const scoutingReportSchema = baseReportSchema.extend({
+export const scoutingReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('scouting'),
   summary: scoutingReportSummarySchema,
   scouting: z
@@ -210,7 +218,8 @@ export const scoutingReportSchema = baseReportSchema.extend({
       successful: z.boolean(),
       target: z.enum(['resources', 'defensiveStructures']),
       attacker: scoutingAttackerTroopsSchema,
-      defender: scoutingTroopsSchema.extend({
+      defender: z.strictObject({
+        ...scoutingTroopsSchema.shape,
         reinforcements: z.array(scoutingReinforcementSchema),
       }),
       resources: resourceBundleSchema.nullable(),
@@ -238,20 +247,23 @@ const unitReportSummarySchema = z.strictObject({
   villageCoordinates: coordinatesSchema,
 });
 
-export const unitResearchReportSchema = baseReportSchema.extend({
+export const unitResearchReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('unitResearch'),
   summary: unitReportSummarySchema,
   unitId: unitIdSchema,
 });
 
-export const unitImprovementReportSchema = baseReportSchema.extend({
+export const unitImprovementReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('unitImprovement'),
   summary: unitReportSummarySchema,
   unitId: unitIdSchema,
   level: z.int().positive(),
 });
 
-export const villageFoundedReportSchema = baseReportSchema.extend({
+export const villageFoundedReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
   type: z.literal('villageFounded'),
   summary: z.strictObject({
     originName: z.string(),
@@ -310,16 +322,16 @@ const scheduledConstructionCancellationReasonDetailSchema =
     }),
   ]);
 
-export const scheduledConstructionCancellationReportSchema =
-  baseReportSchema.extend({
-    type: z.literal('scheduledConstructionCancellation'),
-    summary: unitReportSummarySchema,
-    buildingId: buildingIdSchema,
-    buildingFieldId: z.int(),
-    level: z.int().positive(),
-    reason: scheduledConstructionCancellationReasonSchema,
-    reasonDetail: scheduledConstructionCancellationReasonDetailSchema,
-  });
+export const scheduledConstructionCancellationReportSchema = z.strictObject({
+  ...baseReportSchema.shape,
+  type: z.literal('scheduledConstructionCancellation'),
+  summary: unitReportSummarySchema,
+  buildingId: buildingIdSchema,
+  buildingFieldId: z.int(),
+  level: z.int().positive(),
+  reason: scheduledConstructionCancellationReasonSchema,
+  reasonDetail: scheduledConstructionCancellationReasonDetailSchema,
+});
 
 export const reportSchema = z
   .discriminatedUnion('type', [

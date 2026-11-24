@@ -52,10 +52,8 @@ export type TroopTrainingDurationEffectId = Extract<
   | 'hospitalTrainingDuration'
 >;
 
-export type ResourceProductionEffectId = Extract<
-  EffectId,
-  'woodProduction' | 'clayProduction' | 'ironProduction' | 'wheatProduction'
->;
+export type ResourceProductionEffectId = EffectId &
+  ('woodProduction' | 'clayProduction' | 'ironProduction' | 'wheatProduction');
 
 export const effectScopeSchema = z
   .enum(['global', 'local', 'server'])

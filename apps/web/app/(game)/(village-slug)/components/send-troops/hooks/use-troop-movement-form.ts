@@ -18,7 +18,7 @@ type MovementValidationType =
 
 type UseTroopMovementFormOptions<T extends FieldValues & BaseTroopFormValues> =
   {
-    schema: z.ZodType<T>;
+    schema: z.core.$ZodType<T>;
     formOptions: TroopFormOptions<T>;
     getMovementValidationType: (data: T) => MovementValidationType;
     getEventType: (data: T) => SendTroopsEventType;

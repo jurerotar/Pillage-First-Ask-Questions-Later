@@ -137,7 +137,8 @@ export const battleParticipantSchema = z.strictObject({
   troops: battleTroopsSchema,
 });
 
-export const battleDefenderSchema = battleParticipantSchema.extend({
+export const battleDefenderSchema = z.strictObject({
+  ...battleParticipantSchema.shape,
   reinforcements: z.array(battleParticipantSchema),
 });
 

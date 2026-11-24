@@ -45,24 +45,28 @@ export const getHeroInventorySchema = z
   })
   .meta({ id: 'GetHeroInventoryRow' });
 
-const baseHeroAuctionListingRowSchema = baseHeroAuctionListingDtoSchema
-  .omit({ itemId: true })
-  .extend({ item_id: baseHeroAuctionListingDtoSchema.shape.itemId });
+const baseHeroAuctionListingRowSchema = z.strictObject({
+  ...baseHeroAuctionListingDtoSchema.omit({ itemId: true }).shape,
+  item_id: baseHeroAuctionListingDtoSchema.shape.itemId,
+});
 
-export const getHeroAuctionBuyListingSchema = baseHeroAuctionListingRowSchema
-  .extend({
+export const getHeroAuctionBuyListingSchema = z
+  .strictObject({
+    ...baseHeroAuctionListingRowSchema.shape,
     expires_at: z.number(),
   })
   .meta({ id: 'GetHeroAuctionBuyListingRow' });
 
-export const getHeroAuctionSellListingSchema = baseHeroAuctionListingRowSchema
-  .extend({
+export const getHeroAuctionSellListingSchema = z
+  .strictObject({
+    ...baseHeroAuctionListingRowSchema.shape,
     sells_at: z.number(),
   })
   .meta({ id: 'GetHeroAuctionSellListingRow' });
 
-export const getHeroAuctionHistoryEntrySchema = baseHeroAuctionListingRowSchema
-  .extend({
+export const getHeroAuctionHistoryEntrySchema = z
+  .strictObject({
+    ...baseHeroAuctionListingRowSchema.shape,
     type: z.enum(['buy', 'sell']),
     completed_at: z.number(),
   })
