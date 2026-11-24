@@ -1,3 +1,10 @@
+## Version 0.4.86
+
+#### Nov 24, 2026
+
+- [UIUXImprovement] Village and global quest cards now show progress toward the current milestone, such as
+  **19/20** hero adventures.
+
 ## Version 0.4.85
 
 #### Nov 23, 2026

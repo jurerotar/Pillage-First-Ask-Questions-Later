@@ -7,6 +7,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import {
   currentVillageCacheKey,
   eventsCacheKey,
+  questsCacheKey,
   scheduledBuildingUpgradesCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
@@ -64,6 +65,7 @@ export const useScheduledBuildingUpgrades = () => {
     },
     onSuccess: async (_data, _variables, _onMutateResult, context) => {
       await invalidateQueries(context, [
+        [questsCacheKey, currentVillage.id],
         [scheduledBuildingUpgradesCacheKey, currentVillage.id],
         [eventsCacheKey, 'buildingLevelChange', currentVillage.id],
         [currentVillageCacheKey, currentVillage.slug],
@@ -89,6 +91,7 @@ export const useScheduledBuildingUpgrades = () => {
     },
     onSuccess: async (_data, _variables, _onMutateResult, context) => {
       await invalidateQueries(context, [
+        [questsCacheKey, currentVillage.id],
         [scheduledBuildingUpgradesCacheKey, currentVillage.id],
         [eventsCacheKey, 'buildingLevelChange', currentVillage.id],
         [currentVillageCacheKey, currentVillage.slug],

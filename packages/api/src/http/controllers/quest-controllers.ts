@@ -11,6 +11,7 @@ import {
 } from '@pillage-first/utils/guards/quest';
 import {
   collectQuestQuery,
+  questCatchableAnimalIds,
   selectCollectableQuestCountQuery,
   selectVillageQuestsQuery,
 } from '../../queries/quest-queries';
@@ -25,7 +26,7 @@ import { mapQuestRowToDto } from './mappers/quest-mapper';
 import { getQuestsRowSchema } from './schemas/quest-schemas';
 
 export const getQuests = createController('/me/quests', {
-  summary: 'Get village quests',
+  summary: 'Get village and global quests with progress',
   requestParams: {
     query: z.strictObject({
       villageId: z.coerce.number(),
@@ -38,6 +39,7 @@ export const getQuests = createController('/me/quests', {
     bind: {
       $village_id: villageId,
       $player_id: playerId,
+      $unit_ids: questCatchableAnimalIds,
     },
     schema: getQuestsRowSchema,
   });

@@ -367,7 +367,7 @@ export const newVillageQuestsFactory = (
   villageId: Village['id'],
   tribe: PlayableTribe,
   resourceFieldComposition: ResourceFieldComposition,
-): Omit<VillageQuest, 'collectedAt' | 'completedAt'>[] => {
+): (VillageQuestDefinition & { villageId: Village['id'] })[] => {
   const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
     ['romans', 'ROMAN_WALL'],
     ['gauls', 'GAUL_WALL'],

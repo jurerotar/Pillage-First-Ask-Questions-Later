@@ -7,6 +7,7 @@ import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import { completeGatheredResourceQuestsQuery } from '../../queries/quest-queries';
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportCapturedAnimalsTable from '../schemas/battle-report-captured-animals-schema.sql?raw';
@@ -24,6 +25,8 @@ import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
+import createEnemyCasualtyTotalsTable from '../schemas/history-tables/enemy-casualty-totals-schema.sql?raw';
+import createGatheringResourceTotalsTable from '../schemas/history-tables/gathering-resource-totals-schema.sql?raw';
 import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
 import createOasisCaptureFailureReasonIdsTable from '../schemas/lookup-tables/oasis-capture-failure-reason-ids-schema.sql?raw';
@@ -949,6 +952,66 @@ export const upgradeDb = (
           DROP TRIGGER IF EXISTS reports_prune_oldest_before_insert;
           ${createReportRetentionTriggers}
         `,
+      });
+    });
+  });
+
+  migrate('0.4.86', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({ sql: createEnemyCasualtyTotalsTable });
+      tx.execMulti({ sql: createGatheringResourceTotalsTable });
+
+      // A completed milestone and retained expeditions strictly after it form
+      // a lower bound. Keep whichever bound preserves the most known loot.
+      tx.exec({
+        sql: `
+          WITH retained_expeditions AS (
+            SELECT v.player_id, r.timestamp,
+              ger.loot_wood + ger.loot_clay + ger.loot_iron + ger.loot_wheat AS amount
+            FROM gathering_expedition_reports ger
+              JOIN reports r ON r.id = ger.report_id
+              JOIN villages v ON v.id = r.village_id
+          )
+          INSERT INTO gathering_resource_totals (player_id, amount)
+          SELECT player_id, MAX(amount)
+          FROM (
+            SELECT player_id, SUM(amount) AS amount
+            FROM retained_expeditions
+            GROUP BY player_id
+
+            UNION ALL
+
+            SELECT q.player_id,
+              CAST(substr(q.quest_id, length('gatheredResourceCount-') + 1) AS INTEGER)
+              + COALESCE((
+                SELECT SUM(re.amount)
+                FROM retained_expeditions re
+                WHERE re.player_id = q.player_id AND re.timestamp > q.completed_at
+              ), 0)
+            FROM quests q
+            WHERE q.village_id IS NULL AND q.completed_at IS NOT NULL
+              AND q.quest_id GLOB 'gatheredResourceCount-[0-9]*'
+          )
+          GROUP BY player_id
+          HAVING MAX(amount) > 0
+          ON CONFLICT (player_id) DO UPDATE SET
+            amount = MAX(gathering_resource_totals.amount, EXCLUDED.amount);
+        `,
+      });
+
+      // A retry must not count the same reports again from newly completed milestones.
+      const latestExpeditionAt = tx.selectValue({
+        sql: `
+          SELECT COALESCE(MAX(r.timestamp), 0)
+          FROM gathering_expedition_reports ger
+          JOIN reports r ON r.id = ger.report_id;
+        `,
+        schema: z.number(),
+      })!;
+
+      tx.exec({
+        sql: completeGatheredResourceQuestsQuery,
+        bind: { $completed_at: Math.max(Date.now(), latestExpeditionAt) },
       });
     });
   });

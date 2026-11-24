@@ -5,6 +5,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import {
   currentVillageCacheKey,
   eventsCacheKey,
+  questsCacheKey,
   scheduledBuildingUpgradesCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
@@ -24,6 +25,7 @@ export const useCancelConstruction = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
+        [questsCacheKey, currentVillage.id],
         [eventsCacheKey, 'buildingLevelChange', currentVillage.id],
         [scheduledBuildingUpgradesCacheKey, currentVillage.id],
         [currentVillageCacheKey, currentVillage.slug],

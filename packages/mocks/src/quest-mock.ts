@@ -27,4 +27,5 @@ export const questMock: Quest = {
   villageId: villageMock.id,
   completedAt: null,
   collectedAt: null,
+  progress: 0,
 };

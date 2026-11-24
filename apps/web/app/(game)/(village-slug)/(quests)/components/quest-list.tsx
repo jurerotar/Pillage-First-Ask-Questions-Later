@@ -137,7 +137,7 @@ const QuestListItem = ({
   const { t } = useTranslation();
   const isCollectable = isQuestCollectable(quest);
   const isDone = isCollectable || questGroup.allCollected;
-  const { title, description } = getQuestTexts(quest.id, t);
+  const { title, description, count: target } = getQuestTexts(quest.id, t);
 
   const rewards = getQuestRewards(quest.id);
 
@@ -180,7 +180,12 @@ const QuestListItem = ({
               />
             )}
           </div>
-          <Text>{description}</Text>
+          <Text>
+            {description}{' '}
+            <span className="inline-block font-semibold tabular-nums">
+              {isDone ? target : Math.min(quest.progress, target)}/{target}
+            </span>
+          </Text>
           <QuestProgressMeter
             label={t('Quest progress')}
             stages={getQuestProgressStages(questGroup.quests)}

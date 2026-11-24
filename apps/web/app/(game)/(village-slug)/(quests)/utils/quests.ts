@@ -111,6 +111,7 @@ export const getQuestTexts = (id: Quest['id'], t: TFunction) => {
   }
 
   return {
+    count,
     title: t(`QUESTS.${capitalizedQuestGroupId}.NAME`, {
       count,
       asset,

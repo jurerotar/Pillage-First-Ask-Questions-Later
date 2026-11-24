@@ -30,6 +30,12 @@ const resolveGatherersHutGatheringTrip: Resolver<
 
   const loot = calculateGatherersHutGatheringResources(sentTroopAmount);
 
+  let totalGathered = 0;
+
+  for (const amount of loot) {
+    totalGathered += amount;
+  }
+
   addTroops(database, troops);
 
   const village = database.selectObject({
@@ -47,6 +53,19 @@ const resolveGatherersHutGatheringTrip: Resolver<
   })!;
 
   addResourceSiteResourcesAt(database, village.tile_id, resolvesAt, loot);
+
+  database.exec({
+    sql: `
+      INSERT INTO gathering_resource_totals (player_id, amount)
+      VALUES ($player_id, $amount)
+      ON CONFLICT (player_id) DO UPDATE SET
+        amount = gathering_resource_totals.amount + EXCLUDED.amount;
+    `,
+    bind: {
+      $player_id: village.player_id,
+      $amount: totalGathered,
+    },
+  });
 
   insertGatheringExpeditionReport(database, {
     villageId,

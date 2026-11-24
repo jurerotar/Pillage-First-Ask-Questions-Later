@@ -43,7 +43,7 @@ export const useQuests = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [questsCacheKey, currentVillage.id],
+        [questsCacheKey],
         [collectableQuestCountCacheKey],
         [currentVillageCacheKey],
         [heroCacheKey],

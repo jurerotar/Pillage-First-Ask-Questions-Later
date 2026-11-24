@@ -20,10 +20,7 @@ import {
   selectVillageTileIdQuery,
 } from '../../../queries/village-queries';
 import { requireVillageBuildingLevel } from '../../../utils/buildings';
-import {
-  assessQueuedTroopCountByIdQuestCompletion,
-  assessQueuedTroopCountQuestCompletion,
-} from '../../../utils/quests';
+import { assessQueuedTroopCountQuestCompletion } from '../../../utils/quests';
 import {
   getWoundedTroopAmountAt,
   materializeWoundedTroopsAt,
@@ -109,14 +106,7 @@ export const troopTrainingEventResolver = defineEventResolver<'troopTraining'>(
 
       const playerId = getVillagePlayerId(database, villageId);
 
-      assessQueuedTroopCountQuestCompletion(database, now, playerId);
-
-      assessQueuedTroopCountByIdQuestCompletion(
-        database,
-        unitId,
-        now,
-        playerId,
-      );
+      assessQueuedTroopCountQuestCompletion(database, unitId, now, playerId);
     };
 
     return {
