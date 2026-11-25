@@ -180,8 +180,9 @@ const QuestListItem = ({
               />
             )}
           </div>
-          <Text>
-            {description}{' '}
+          <Text>{description}</Text>
+          <Text className="text-muted-foreground text-sm">
+            {t('Progress')}{' '}
             <span className="inline-block font-semibold tabular-nums">
               {isDone ? target : Math.min(quest.progress, target)}/{target}
             </span>
