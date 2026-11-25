@@ -513,6 +513,11 @@
       "NAME_other": "Hunter's Lodges",
       "DESCRIPTION": "The Hunter's Lodge organizes hunting parties in nearby oasis. Captured animals are brought back to your village to serve as reinforcements. Higher levels of this building allow hunters to capture stronger animals. Hunters also manufacture traps you can use with your Hero to capture animals yourself."
     },
+    "STONEMASON": {
+      "NAME": "Stonemason",
+      "NAME_other": "Stonemasons",
+      "DESCRIPTION": "The Stonemason adds 5% building durability per level in this village."
+    },
     "EMBASSY": {
       "NAME": "Embassy",
       "NAME_other": "Embassies",

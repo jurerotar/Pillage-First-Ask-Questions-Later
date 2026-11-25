@@ -2,8 +2,10 @@
 
 #### Nov 24, 2026
 
-- [UIUXImprovement] Village and global quest cards now show progress toward the current milestone, such as
-  **19/20** hero adventures.
+- [Feature] Added the Stonemason building. Stonemason increases the durability against siege attacks for the buildings
+  in the village it's built in.
+- [UIUXImprovement] Village and global quest cards now show progress toward the current milestone, such as **19/20**
+  hero adventures.
 
 ## Version 0.4.85
 

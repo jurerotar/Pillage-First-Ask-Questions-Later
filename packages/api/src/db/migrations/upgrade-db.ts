@@ -28,6 +28,7 @@ import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-lis
 import createEnemyCasualtyTotalsTable from '../schemas/history-tables/enemy-casualty-totals-schema.sql?raw';
 import createGatheringResourceTotalsTable from '../schemas/history-tables/gathering-resource-totals-schema.sql?raw';
 import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
+import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
 import createOasisCaptureFailureReasonIdsTable from '../schemas/lookup-tables/oasis-capture-failure-reason-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
@@ -1014,6 +1015,41 @@ export const upgradeDb = (
         bind: { $completed_at: Math.max(Date.now(), latestExpeditionAt) },
       });
     });
+
+    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+
+    try {
+      db.transaction((tx) => {
+        tx.execMulti({
+          sql: `
+            CREATE TEMP TABLE building_ids_backup AS SELECT id, building FROM building_ids;
+            DROP TABLE building_ids;
+
+            ${createBuildingIdsTable}
+
+            INSERT INTO building_ids (id, building)
+            SELECT id, building FROM building_ids_backup;
+            DROP TABLE building_ids_backup;
+
+            INSERT INTO building_ids (building) VALUES ('STONEMASON')
+            ON CONFLICT (building) DO NOTHING;
+          `,
+        });
+        tx.exec({
+          sql: `
+            INSERT INTO bookmarks (village_id, building_id, tab_name)
+            SELECT v.id, bi.id, 'default'
+            FROM villages v
+            CROSS JOIN building_ids bi
+            WHERE v.player_id = $player_id AND bi.building = 'STONEMASON'
+            ON CONFLICT (village_id, building_id) DO NOTHING;
+          `,
+          bind: { $player_id: PLAYER_ID },
+        });
+      });
+    } finally {
+      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+    }
   });
 
   // If all migrations passed, bump it to current version
