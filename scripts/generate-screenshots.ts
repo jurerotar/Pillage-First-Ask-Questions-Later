@@ -8,21 +8,13 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { basename, extname, join } from 'node:path';
+import { join } from 'node:path';
 import { chromium, type Page } from '@playwright/test';
 import sharp from 'sharp';
 
 const APP_URL = process.env.APP_URL || 'http://localhost:5173';
-const ASSETS_DIR = join(process.cwd(), '.github', 'assets');
+const LANDING_ASSETS_DIR = join(process.cwd(), '.github', 'assets', 'landing');
 const LANDING_DIR = join(process.cwd(), 'apps', 'web', 'public', 'landing');
-const SCREENSHOT_BASE_NAMES = [
-  'image-1',
-  'image-2',
-  'image-3',
-  'image-4',
-  'image-5',
-];
-const THEMES = ['light', 'dark'];
 const PAGE_READY_TIMEOUT_MS = 60_000;
 const PAGE_SETTLE_MS = 5000;
 
@@ -33,22 +25,16 @@ const timestamp = new Date()
   .split('.')[0]
   .slice(0, 14); // YYYYMMDDHHMMSS
 
-const losslessOptimize = async (filePath: string) => {
-  console.log(`Optimizing JPEG ${filePath}...`);
-  const buffer = readFileSync(filePath);
-  const optimizedBuffer = await sharp(buffer)
-    .jpeg({ mozjpeg: true, quality: 90 })
-    .toBuffer();
-  writeFileSync(filePath, optimizedBuffer);
-};
+const saveScreenshot = async (page: Page, name: string) => {
+  const screenshot = sharp(await page.screenshot({ type: 'png' }));
 
-const convertToAvif = async (filePath: string) => {
-  const avifPath = join(
-    ASSETS_DIR,
-    `${basename(filePath, extname(filePath))}.avif`,
-  );
-  console.log(`Converting ${filePath} to AVIF ${avifPath}...`);
-  await sharp(filePath).avif({ quality: 60, lossless: false }).toFile(avifPath);
+  for (const width of [240, 480, 720]) {
+    await screenshot
+      .clone()
+      .resize({ width })
+      .avif({ quality: 85, chromaSubsampling: '4:4:4' })
+      .toFile(join(LANDING_ASSETS_DIR, `${name}-${width}.avif`));
+  }
 };
 
 const waitForPageReady = async (page: Page) => {
@@ -96,62 +82,39 @@ const generateScreenshotsForTheme = async (page: Page, themeSuffix = '') => {
     .locator('[data-building-field-id="1"]')
     .waitFor({ state: 'visible', timeout: PAGE_READY_TIMEOUT_MS });
   console.log(`Taking resources screenshot${suffix}...`);
-  await page.screenshot({
-    path: join(ASSETS_DIR, `image-1${suffix}-${timestamp}.jpg`),
-    type: 'jpeg',
-    quality: 90,
-    fullPage: false,
-  });
+  await saveScreenshot(page, `image-1${suffix}-${timestamp}`);
 
   // Navigate to Village
   console.log(`Navigating to Village${suffix}...`);
   const villageUrl = page.url().replace('/resources', '/village/38');
   await gotoAndWaitForPageReady(page, villageUrl);
   console.log(`Taking village screenshot${suffix}...`);
-  await page.screenshot({
-    path: join(ASSETS_DIR, `image-2${suffix}-${timestamp}.jpg`),
-    type: 'jpeg',
-    quality: 90,
-  });
+  await saveScreenshot(page, `image-2${suffix}-${timestamp}`);
 
   // Navigate to Map
   console.log(`Navigating to Map${suffix}...`);
   const mapUrl = page.url().replace('/village/38', '/map');
   await gotoAndWaitForPageReady(page, mapUrl);
   console.log(`Taking map screenshot${suffix}...`);
-  await page.screenshot({
-    path: join(ASSETS_DIR, `image-3${suffix}-${timestamp}.jpg`),
-    type: 'jpeg',
-    quality: 90,
-  });
+  await saveScreenshot(page, `image-3${suffix}-${timestamp}`);
 
   // Navigate to /village
   console.log(`Navigating to /village${suffix}...`);
   const villageOverviewUrl = page.url().replace('/map', '/village');
   await gotoAndWaitForPageReady(page, villageOverviewUrl);
   console.log(`Taking village screenshot${suffix}...`);
-  await page.screenshot({
-    path: join(ASSETS_DIR, `image-4${suffix}-${timestamp}.jpg`),
-    type: 'jpeg',
-    quality: 90,
-  });
+  await saveScreenshot(page, `image-4${suffix}-${timestamp}`);
 
   // Navigate to Statistics
   console.log(`Navigating to /statistics${suffix}...`);
   const statisticsUrl = page.url().replace('/village', '/statistics');
   await gotoAndWaitForPageReady(page, statisticsUrl);
   console.log(`Taking statistics screenshot${suffix}...`);
-  await page.screenshot({
-    path: join(ASSETS_DIR, `image-5${suffix}-${timestamp}.jpg`),
-    type: 'jpeg',
-    quality: 90,
-  });
+  await saveScreenshot(page, `image-5${suffix}-${timestamp}`);
 };
 
 const generateScreenshots = async () => {
-  if (!existsSync(ASSETS_DIR)) {
-    mkdirSync(ASSETS_DIR, { recursive: true });
-  }
+  mkdirSync(LANDING_ASSETS_DIR, { recursive: true });
 
   const browser = await chromium.launch();
   const context = await browser.newContext({
@@ -209,56 +172,27 @@ const generateScreenshots = async () => {
     await browser.close();
   }
 
-  const filesToProcess = SCREENSHOT_BASE_NAMES.flatMap((baseName) =>
-    THEMES.map((theme) =>
-      join(ASSETS_DIR, `${baseName}-${theme}-${timestamp}.jpg`),
+  // Publish the landing sizes before updating the timestamp consumed by the app.
+  const publishedFiles = new Set(
+    readdirSync(LANDING_ASSETS_DIR).filter(
+      (file) => file.includes(`-${timestamp}-`) && file.endsWith('.avif'),
     ),
   );
-  const missingScreenshots = filesToProcess.filter((file) => !existsSync(file));
-
-  if (missingScreenshots.length > 0) {
-    throw new Error(
-      `Screenshot generation was incomplete. Missing:\n${missingScreenshots.join('\n')}`,
-    );
-  }
-
-  // Optimize generated images
-  console.log('Optimizing and converting images...');
-  for (const file of filesToProcess) {
-    await losslessOptimize(file);
-    await convertToAvif(file);
-  }
-
-  // Publish both formats before updating the timestamp consumed by the app.
   mkdirSync(LANDING_DIR, { recursive: true });
-  const generatedFiles = readdirSync(ASSETS_DIR).filter(
-    (file) =>
-      file.includes(timestamp) &&
-      (file.endsWith('.jpg') || file.endsWith('.avif')),
-  );
-  for (const file of generatedFiles) {
-    copyFileSync(join(ASSETS_DIR, file), join(LANDING_DIR, file));
+  for (const file of publishedFiles) {
+    copyFileSync(join(LANDING_ASSETS_DIR, file), join(LANDING_DIR, file));
   }
 
   // Only remove the old set after the complete new set has been saved and converted.
   console.log('Cleaning up old screenshots...');
-  const existingFiles = readdirSync(ASSETS_DIR);
-  for (const file of existingFiles) {
-    if (
-      (file.endsWith('.jpg') || file.endsWith('.avif')) &&
-      !file.includes(timestamp)
-    ) {
-      unlinkSync(join(ASSETS_DIR, file));
-    }
-  }
-  const existingLandingFiles = readdirSync(LANDING_DIR);
-  for (const file of existingLandingFiles) {
-    if (
-      file.startsWith('image-') &&
-      (file.endsWith('.jpg') || file.endsWith('.avif')) &&
-      !file.includes(timestamp)
-    ) {
-      unlinkSync(join(LANDING_DIR, file));
+  for (const directory of [LANDING_ASSETS_DIR, LANDING_DIR]) {
+    for (const file of readdirSync(directory)) {
+      if (
+        /^(?:image-|mobile-).*\.(?:avif|jpg)$/u.test(file) &&
+        !publishedFiles.has(file)
+      ) {
+        unlinkSync(join(directory, file));
+      }
     }
   }
 
@@ -270,19 +204,9 @@ const generateScreenshots = async () => {
   const readmePath = join(process.cwd(), 'README.md');
   if (existsSync(readmePath)) {
     let readmeContent = readFileSync(readmePath, 'utf8');
-    // Map old names or timestamped names to new sequential names with timestamp
-    // image-1: resources, image-2: village, image-3: map
     readmeContent = readmeContent.replaceAll(
-      /\/image-3(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/gu,
-      `/image-3$1-${timestamp}.$4`,
-    );
-    readmeContent = readmeContent.replaceAll(
-      /\/image-2(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/gu,
-      `/image-2$1-${timestamp}.$4`,
-    );
-    readmeContent = readmeContent.replaceAll(
-      /\/image-1(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/gu,
-      `/image-1$1-${timestamp}.$4`,
+      /\/landing\/image-([1-3])-(light|dark)-\d{14}-(240|480|720)\.avif/gu,
+      `/landing/image-$1-$2-${timestamp}-$3.avif`,
     );
 
     writeFileSync(readmePath, readmeContent);

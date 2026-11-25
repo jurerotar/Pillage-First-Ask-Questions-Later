@@ -1,6 +1,12 @@
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  rmSync,
+} from 'node:fs';
+import { copyFile, mkdir, readdir, stat, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
-import { existsSync, mkdirSync, copyFileSync, readdirSync, rmSync, unlinkSync } from 'node:fs';
-import { copyFile, mkdir, readdir, stat } from 'node:fs/promises';
 
 export const clearDirectory = async (path: string) => {
   if (existsSync(path)) {
@@ -8,7 +14,10 @@ export const clearDirectory = async (path: string) => {
   }
 };
 
-export const copyFolderSync = async (source: string, dest: string): Promise<void> => {
+export const copyFolderSync = async (
+  source: string,
+  dest: string,
+): Promise<void> => {
   try {
     // Ensure the destination directory exists, if not, create it
     await mkdir(dest, { recursive: true });
@@ -72,28 +81,24 @@ const installFaviconAndLogos = async () => {
 };
 
 const copyLandingScreenshots = async () => {
-  const sourceDir = '.github/assets';
-  const destDir = 'apps/web/public/landing';
+  const sourceDir = '.github/assets/landing';
+  const outputDir = 'apps/web/public/landing';
+  const screenshotFiles = new Set(
+    (await readdir(sourceDir)).filter((file) => file.endsWith('.avif')),
+  );
 
-  if (!existsSync(destDir)) {
-    mkdirSync(destDir, { recursive: true });
+  await mkdir(outputDir, { recursive: true });
+
+  for (const file of screenshotFiles) {
+    await copyFile(join(sourceDir, file), join(outputDir, file));
   }
 
-  // Clear destination directory to remove old files
-  const existingDestFiles = readdirSync(destDir);
-  for (const file of existingDestFiles) {
-    if (file.startsWith('mobile-') || file.startsWith('image-')) {
-      // We only want to clear the screenshots we manage
-      unlinkSync(join(destDir, file));
-    }
-  }
-
-  const sourceFiles = readdirSync(sourceDir);
-  for (const file of sourceFiles) {
-    if ((file.startsWith('mobile-') || file.startsWith('image-')) && (file.endsWith('.jpg') || file.endsWith('.avif'))) {
-      const src = join(sourceDir, file);
-      const dest = join(destDir, file);
-      copyFileSync(src, dest);
+  for (const file of await readdir(outputDir)) {
+    if (
+      /^(?:image-|mobile-).*\.(?:avif|jpg)$/u.test(file) &&
+      !screenshotFiles.has(file)
+    ) {
+      await unlink(join(outputDir, file));
     }
   }
 };

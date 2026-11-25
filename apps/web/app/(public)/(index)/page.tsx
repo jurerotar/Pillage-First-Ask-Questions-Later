@@ -41,6 +41,9 @@ const screenshots = [
   },
 ];
 
+const screenshotSizes =
+  '(min-width: 80rem) 15rem, (min-width: 64rem) calc(20vw - 1rem), 15rem';
+
 const LandingScreenshotsSection = () => {
   const { uiColorScheme } = use(CookieContext);
 
@@ -50,29 +53,33 @@ const LandingScreenshotsSection = () => {
     <section className="bg-background pt-4 lg:pt-8">
       <div className="max-w-7xl px-2 mx-auto">
         <div className="flex flex-row overflow-x-auto lg:grid lg:grid-cols-5 gap-4 pb-4 lg:pb-0 scrollbar-hide snap-x snap-mandatory">
-          {screenshots.map((screenshot) => (
-            <div
-              key={screenshot.base}
-              className="min-w-60 lg:min-w-0 snap-center"
-            >
-              <Link to="/game-worlds/create">
-                <picture>
-                  <source
-                    srcSet={`/landing/${screenshot.base}-${uiColorScheme}-${timestamp}.avif`}
-                    type="image/avif"
-                  />
+          {screenshots.map((screenshot) => {
+            const path = `/landing/${screenshot.base}-${uiColorScheme}-${timestamp}`;
+
+            return (
+              <div
+                key={screenshot.base}
+                className="w-60 shrink-0 lg:w-auto snap-center"
+              >
+                <Link to="/game-worlds/create">
                   <img
-                    src={`/landing/${screenshot.base}-${uiColorScheme}-${timestamp}.jpg`}
+                    src={`${path}-240.avif`}
+                    srcSet={`
+                      ${path}-240.avif 240w,
+                      ${path}-480.avif 480w,
+                      ${path}-720.avif 720w
+                    `}
+                    sizes={screenshotSizes}
                     alt={screenshot.alt}
                     width={1170}
                     height={2100}
                     className="block rounded-lg border border-border w-full h-auto"
                     loading="lazy"
                   />
-                </picture>
-              </Link>
-            </div>
-          ))}
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

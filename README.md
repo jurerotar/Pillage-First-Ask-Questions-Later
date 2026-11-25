@@ -2,24 +2,30 @@
 
 <p align="center">
   <picture>
-    <source srcset="/.github/assets/image-3-dark-20261029222021.avif" media="(prefers-color-scheme: dark)" type="image/avif">
-    <source srcset="/.github/assets/image-3-dark-20261029222021.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
-    <source srcset="/.github/assets/image-3-light-20261029222021.avif" type="image/avif">
-    <img src="/.github/assets/image-3-light-20261029222021.jpg" width="30%">
+    <source media="(prefers-color-scheme: dark) and (min-width: 1200px)" srcset="/.github/assets/landing/image-3-dark-20261125220816-720.avif">
+    <source media="(prefers-color-scheme: dark) and (min-width: 768px)" srcset="/.github/assets/landing/image-3-dark-20261125220816-480.avif">
+    <source media="(prefers-color-scheme: dark)" srcset="/.github/assets/landing/image-3-dark-20261125220816-240.avif">
+    <source media="(min-width: 1200px)" srcset="/.github/assets/landing/image-3-light-20261125220816-720.avif">
+    <source media="(min-width: 768px)" srcset="/.github/assets/landing/image-3-light-20261125220816-480.avif">
+    <img src="/.github/assets/landing/image-3-light-20261125220816-240.avif" width="30%" alt="Map view">
   </picture>
   &nbsp;
   <picture>
-    <source srcset="/.github/assets/image-2-dark-20261029222021.avif" media="(prefers-color-scheme: dark)" type="image/avif">
-    <source srcset="/.github/assets/image-2-dark-20261029222021.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
-    <source srcset="/.github/assets/image-2-light-20261029222021.avif" type="image/avif">
-    <img src="/.github/assets/image-2-light-20261029222021.jpg" width="30%">
+    <source media="(prefers-color-scheme: dark) and (min-width: 1200px)" srcset="/.github/assets/landing/image-2-dark-20261125220816-720.avif">
+    <source media="(prefers-color-scheme: dark) and (min-width: 768px)" srcset="/.github/assets/landing/image-2-dark-20261125220816-480.avif">
+    <source media="(prefers-color-scheme: dark)" srcset="/.github/assets/landing/image-2-dark-20261125220816-240.avif">
+    <source media="(min-width: 1200px)" srcset="/.github/assets/landing/image-2-light-20261125220816-720.avif">
+    <source media="(min-width: 768px)" srcset="/.github/assets/landing/image-2-light-20261125220816-480.avif">
+    <img src="/.github/assets/landing/image-2-light-20261125220816-240.avif" width="30%" alt="Village view">
   </picture>
   &nbsp;
   <picture>
-    <source srcset="/.github/assets/image-1-dark-20261029222021.avif" media="(prefers-color-scheme: dark)" type="image/avif">
-    <source srcset="/.github/assets/image-1-dark-20261029222021.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
-    <source srcset="/.github/assets/image-1-light-20261029222021.avif" type="image/avif">
-    <img src="/.github/assets/image-1-light-20261029222021.jpg" width="30%">
+    <source media="(prefers-color-scheme: dark) and (min-width: 1200px)" srcset="/.github/assets/landing/image-1-dark-20261125220816-720.avif">
+    <source media="(prefers-color-scheme: dark) and (min-width: 768px)" srcset="/.github/assets/landing/image-1-dark-20261125220816-480.avif">
+    <source media="(prefers-color-scheme: dark)" srcset="/.github/assets/landing/image-1-dark-20261125220816-240.avif">
+    <source media="(min-width: 1200px)" srcset="/.github/assets/landing/image-1-light-20261125220816-720.avif">
+    <source media="(min-width: 768px)" srcset="/.github/assets/landing/image-1-light-20261125220816-480.avif">
+    <img src="/.github/assets/landing/image-1-light-20261125220816-240.avif" width="30%" alt="Resources view">
   </picture>
 </p>
 
