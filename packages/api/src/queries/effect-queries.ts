@@ -1,47 +1,24 @@
-// Filter effect names after selecting tile-local rows; keep global/server scope lookups separate.
-export const selectAllRelevantEffectsQuery = `
-  WITH relevant_effects AS (
-    SELECT * FROM effects
-    WHERE tile_id = $tile_id
-    UNION ALL
-    SELECT * FROM effects
-    WHERE effect_id IN (SELECT id FROM effect_ids)
-      AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'global')
-      AND tile_id IS NOT $tile_id
-    UNION ALL
-    SELECT * FROM effects
-    WHERE effect_id IN (SELECT id FROM effect_ids)
-      AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'server')
-      AND tile_id IS NOT $tile_id
-  )
-  SELECT ei.effect AS id, e.value, et.type, es.scope, eso.source,
-    e.tile_id AS tileId, e.source_specifier AS sourceSpecifier
-  FROM relevant_effects e
-    CROSS JOIN effect_ids ei ON ei.id = e.effect_id
+// Keep tile lookups and nonlocal scope lookups separate so each can use its
+// own index. IS NOT also includes nonlocal effects with a NULL tile.
+const nonlocalScopes = `SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server')`;
+const villageTile = '(SELECT tile_id FROM villages WHERE id = $village_id)';
+
+const effectAttributes = `
     JOIN effect_type_ids et ON et.id = e.type_id
     JOIN effect_scope_ids es ON es.id = e.scope_id
-    JOIN effect_source_ids eso ON eso.id = e.source_id;
+    JOIN effect_source_ids eso ON eso.id = e.source_id
 `;
 
-export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
-  WITH relevant_effects AS (
-    SELECT * FROM effects
-    WHERE tile_id = $tile_id
-    UNION ALL
-    SELECT * FROM effects
-    WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect IN ('warehouseCapacity', 'granaryCapacity', 'woodProduction',
-      'clayProduction', 'ironProduction', 'wheatProduction', 'unitWheatConsumption'))
-      AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'global')
-      AND tile_id IS NOT $tile_id
-    UNION ALL
-    SELECT * FROM effects
-    WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect IN ('warehouseCapacity', 'granaryCapacity', 'woodProduction',
-      'clayProduction', 'ironProduction', 'wheatProduction', 'unitWheatConsumption'))
-      AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'server')
-      AND tile_id IS NOT $tile_id
-  )
+const effectLookup = `
+  FROM relevant_effects e
+    CROSS JOIN (SELECT id, effect AS effect_name FROM effect_ids) ei ON ei.id = e.effect_id
+    ${effectAttributes}
+`;
+
+// Return one JSON value to avoid reading every field of every row across WASM.
+const effectJson = `
   SELECT json_group_array(json_object(
-    'id', ei.effect,
+    'id', effect_name,
     'value', e.value,
     'type', et.type,
     'scope', es.scope,
@@ -49,63 +26,74 @@ export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
     'tileId', e.tile_id,
     'sourceSpecifier', e.source_specifier
   ))
-  FROM relevant_effects e
-    CROSS JOIN effect_ids ei ON ei.id = e.effect_id
-    JOIN effect_type_ids et ON et.id = e.type_id
-    JOIN effect_scope_ids es ON es.id = e.scope_id
-    JOIN effect_source_ids eso ON eso.id = e.source_id
-  WHERE ei.effect IN ('warehouseCapacity', 'granaryCapacity', 'woodProduction',
-      'clayProduction', 'ironProduction', 'wheatProduction', 'unitWheatConsumption');
+`;
+
+export const selectAllRelevantEffectsQuery = `
+  WITH relevant_effects AS MATERIALIZED (
+    SELECT * FROM effects WHERE tile_id = $tile_id
+    UNION ALL
+    SELECT * FROM effects
+    WHERE scope_id IN (${nonlocalScopes}) AND tile_id IS NOT $tile_id
+  )
+  ${effectJson}
+  ${effectLookup};
+`;
+
+const resourceEffectIds = `
+  SELECT id FROM effect_ids WHERE effect IN (
+    'warehouseCapacity', 'granaryCapacity', 'woodProduction', 'clayProduction',
+    'ironProduction', 'wheatProduction', 'unitWheatConsumption'
+  )
+`;
+
+export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
+  WITH relevant_effects AS (
+    SELECT * FROM effects
+    WHERE tile_id = $tile_id AND effect_id IN (${resourceEffectIds})
+    UNION ALL
+    SELECT * FROM effects
+    WHERE scope_id IN (${nonlocalScopes}) AND tile_id IS NOT $tile_id
+      AND effect_id IN (${resourceEffectIds})
+  )
+  ${effectJson}
+  ${effectLookup};
 `;
 
 export const selectAllRelevantEffectsByIdQuery = `
   WITH relevant_effects AS (
     SELECT * FROM effects
-    WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+    WHERE tile_id = ${villageTile}
+      AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effect_id)
     UNION ALL
     SELECT * FROM effects
-    WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect = $effect_id)
-      AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'global')
-      AND tile_id IS NOT (SELECT tile_id FROM villages WHERE id = $village_id)
-    UNION ALL
-    SELECT * FROM effects
-    WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect = $effect_id)
-      AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'server')
-      AND tile_id IS NOT (SELECT tile_id FROM villages WHERE id = $village_id)
+    WHERE scope_id IN (${nonlocalScopes}) AND tile_id IS NOT ${villageTile}
+      AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effect_id)
   )
-  SELECT ei.effect AS id, e.value, et.type, es.scope, eso.source,
-    e.tile_id AS tileId, e.source_specifier AS sourceSpecifier
-  FROM relevant_effects e
-    CROSS JOIN effect_ids ei ON ei.id = e.effect_id
-    JOIN effect_type_ids et ON et.id = e.type_id
-    JOIN effect_scope_ids es ON es.id = e.scope_id
-    JOIN effect_source_ids eso ON eso.id = e.source_id
-  WHERE ei.effect = $effect_id;
+  ${effectJson}
+  ${effectLookup};
 `;
 
 export const selectUnitSpeedRelevantEffectsQuery = `
-  WITH relevant_effects AS (
-    SELECT * FROM effects
-    WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+  WITH wanted_effects AS NOT MATERIALIZED (
+    SELECT id, effect AS effect_name FROM effect_ids
+    WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields')
+  ), relevant_effects AS (
+    SELECT e.*, wanted.effect_name
+    FROM wanted_effects wanted
+      CROSS JOIN effects e
+    WHERE e.tile_id = ${villageTile} AND e.effect_id = wanted.id
     UNION ALL
-    SELECT * FROM effects
-    WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields'))
-      AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'global')
-      AND tile_id IS NOT (SELECT tile_id FROM villages WHERE id = $village_id)
-    UNION ALL
-    SELECT * FROM effects
-    WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields'))
-      AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'server')
-      AND tile_id IS NOT (SELECT tile_id FROM villages WHERE id = $village_id)
+    SELECT e.*, wanted.effect_name
+    FROM effect_scope_ids scopes
+      CROSS JOIN wanted_effects wanted
+      CROSS JOIN effects e
+    WHERE scopes.scope IN ('global', 'server')
+      AND e.scope_id = scopes.id AND e.effect_id = wanted.id
+      AND e.tile_id IS NOT ${villageTile}
   )
-  SELECT ei.effect AS id, e.value, et.type, es.scope, eso.source,
-    e.tile_id AS tileId, e.source_specifier AS sourceSpecifier
+  ${effectJson}
   FROM relevant_effects e
-    CROSS JOIN effect_ids ei ON ei.id = e.effect_id
-    JOIN effect_type_ids et ON et.id = e.type_id
-    JOIN effect_scope_ids es ON es.id = e.scope_id
-    JOIN effect_source_ids eso ON eso.id = e.source_id
-  WHERE ei.effect IN ('unitSpeed', 'unitSpeedAfter20Fields');
+    ${effectAttributes};
 `;
 
 export const selectWheatProductionEffectIdQuery = `
@@ -148,10 +136,8 @@ export const updatePopulationEffectQuery = `
   UPDATE effects
   SET
     value = value - ($value)
-  FROM effect_ids ei
   WHERE
-    effects.effect_id = ei.id
-    AND ei.effect = 'wheatProduction'
+    effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
     AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
     AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
     AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
@@ -163,10 +149,8 @@ export const updateBuildingEffectQuery = `
   UPDATE effects
   SET
     value = $value
-  FROM effect_ids ei
   WHERE
-    effects.effect_id = ei.id
-    AND ei.effect = $effect_id
+    effect_id = (SELECT id FROM effect_ids WHERE effect = $effect_id)
     AND tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
     AND type_id = (SELECT id FROM effect_type_ids WHERE type = $type)
     AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
@@ -268,15 +252,7 @@ export const updateWheatProductionByTroopsAndTileIdEffectQuery = `
   SET
     value = value + $increase_amount
   WHERE
-    -- Check the name for tile-local candidates rather than searching every tile by effect_id.
-    EXISTS (
-      SELECT 1
-      FROM
-        effect_ids
-      WHERE
-        id = effects.effect_id
-        AND effect = 'wheatProduction'
-    )
+    effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
     AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
     AND tile_id = $tile_id;
 `;

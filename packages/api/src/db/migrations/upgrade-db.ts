@@ -1,10 +1,14 @@
 import { z } from 'zod';
+import { itemsMap } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
+import { calculateHealthRegenerationInterval } from '@pillage-first/game-assets/utils/hero';
 import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import { completeGatheredResourceQuestsQuery } from '../../queries/quest-queries';
+import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportCapturedAnimalsTable from '../schemas/battle-report-captured-animals-schema.sql?raw';
 import createBattleReportConquestsTable from '../schemas/battle-report-conquests-schema.sql?raw';
@@ -21,7 +25,11 @@ import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
+import createEnemyCasualtyTotalsTable from '../schemas/history-tables/enemy-casualty-totals-schema.sql?raw';
+import createGatheringResourceTotalsTable from '../schemas/history-tables/gathering-resource-totals-schema.sql?raw';
 import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
+import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
+import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
 import createOasisCaptureFailureReasonIdsTable from '../schemas/lookup-tables/oasis-capture-failure-reason-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
@@ -45,6 +53,7 @@ import { oasisCaptureFailureReasonIdsSeeder } from '../seeders/oasis-capture-fai
 import { villageConquestFailureReasonIdsSeeder } from '../seeders/village-conquest-failure-reason-ids-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
+import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
 const indexesMissedBySingleStatementExec = [
@@ -139,22 +148,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.64', (db) => {
-    db.exec({
-      sql: `
-        DELETE
-        FROM
-          world_items
-        WHERE
-          item_id IN (1026, 1027, 1028, 1029);
-      `,
-    });
-
-    db.exec({
-      sql: 'ALTER TABLE map_filters DROP COLUMN should_show_treasure_icons;',
-    });
-  });
 
   migrate('0.4.66', (db) => {
     db.exec({
@@ -763,14 +756,306 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.84', (db) => {
+    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+
+    try {
+      db.transaction((tx) => {
+        tx.execMulti({
+          sql: `
+            DROP INDEX IF EXISTS idx_effects_tile_id;
+            DROP INDEX IF EXISTS idx_effects_tile_effect_scope_spec;
+            DROP INDEX IF EXISTS idx_effects_resource_site_resources;
+          `,
+        });
+
+        tx.execMulti({ sql: createEffectsIndexes });
+      });
+
+      db.transaction((tx) => {
+        tx.execMulti({
+          sql: `
+            CREATE TEMP TABLE building_durability_effect_ids_backup AS SELECT id, effect FROM effect_ids;
+            DROP TABLE effect_ids;
+          `,
+        });
+
+        tx.execMulti({ sql: createEffectIdsTable });
+
+        tx.execMulti({
+          sql: `
+            INSERT INTO effect_ids (id, effect)
+            SELECT id, effect
+            FROM building_durability_effect_ids_backup;
+
+            DROP TABLE building_durability_effect_ids_backup;
+
+            INSERT INTO effect_ids (effect)
+            VALUES ('buildingDurability')
+            ON CONFLICT (effect) DO NOTHING;
+          `,
+        });
+
+        const batches = tx.selectObjects({
+          sql: `
+            SELECT
+              id,
+              type,
+              village_id,
+              starts_at,
+              duration,
+              meta,
+              JSON_EXTRACT(meta, '$.cageAmount') AS amount
+            FROM
+              events
+            WHERE
+              type IN ('animalCageProduction', 'trapperCageProduction')
+              AND JSON_EXTRACT(meta, '$.cageAmount') IS NOT NULL;
+          `,
+          schema: z.strictObject({
+            id: z.number(),
+            type: z.string(),
+            village_id: z.number().nullable(),
+            starts_at: z.number(),
+            duration: z.number(),
+            meta: z.string(),
+            amount: z.int().positive(),
+          }),
+        });
+
+        for (const batch of batches) {
+          // Divide the saved batch duration rather than recalculating it from
+          // today's speed/settings. The last cage keeps the original deadline.
+          tx.exec({
+            sql: `
+              WITH RECURSIVE cages(i) AS (
+                SELECT 0
+                UNION ALL
+                SELECT i + 1
+                FROM cages
+                WHERE i + 1 < $amount
+              )
+              INSERT INTO events (type, village_id, starts_at, duration, meta)
+              SELECT
+                $type,
+                $village_id,
+                $starts_at + CAST(1.0 * $duration * i / $amount AS INTEGER),
+                CAST(1.0 * $duration * (i + 1) / $amount AS INTEGER)
+                  - CAST(1.0 * $duration * i / $amount AS INTEGER),
+                JSON_SET(JSON_REMOVE($meta, '$.cageAmount'),
+                  '$.amount', $amount, '$.batchId', $batch_id)
+              FROM
+                cages;
+            `,
+            bind: {
+              $type: batch.type,
+              $village_id: batch.village_id,
+              $starts_at: batch.starts_at,
+              $duration: batch.duration,
+              $meta: batch.meta,
+              $amount: batch.amount,
+              $batch_id: `legacy-cages-${batch.id}`,
+            },
+          });
+
+          tx.exec({
+            sql: 'DELETE FROM events WHERE id = $id;',
+            bind: { $id: batch.id },
+          });
+        }
+
+        // Keep removed item IDs recoverable without exposing them to inventory consumers.
+        tx.exec({
+          sql: `
+            CREATE TABLE IF NOT EXISTS legacy_hero_inventory (
+              hero_id INTEGER NOT NULL REFERENCES heroes (id) ON DELETE CASCADE,
+              item_id INTEGER NOT NULL,
+              amount INTEGER NOT NULL CHECK (amount > 0),
+              PRIMARY KEY (hero_id, item_id)
+            ) STRICT, WITHOUT ROWID;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            INSERT INTO legacy_hero_inventory (hero_id, item_id, amount)
+            SELECT hero_id, item_id, amount
+            FROM hero_inventory
+            WHERE item_id NOT IN (SELECT value FROM json_each($item_ids));
+          `,
+          bind: { $item_ids: JSON.stringify([...itemsMap.keys()]) },
+        });
+
+        tx.exec({
+          sql: `
+            DELETE FROM hero_inventory
+            WHERE (hero_id, item_id) IN (
+              SELECT hero_id, item_id
+              FROM legacy_hero_inventory
+            );
+          `,
+        });
+
+        tx.exec({
+          sql: 'ALTER TABLE heroes ADD COLUMN next_health_regeneration_at INTEGER;',
+        });
+
+        const nextLegacyTick = tx.selectValue({
+          sql: "SELECT MIN(resolves_at) FROM events WHERE type = 'heroHealthRegeneration';",
+          schema: z.number().nullable(),
+        });
+
+        const now = Date.now();
+
+        const injuredHeroes = tx.selectObjects({
+          sql: `
+            SELECT heroes.id, player_id, health_regeneration, servers.speed
+            FROM heroes CROSS JOIN servers
+            WHERE health BETWEEN 1 AND 99 AND health_regeneration > 0;
+          `,
+          schema: z.strictObject({
+            id: z.number(),
+            player_id: z.number(),
+            health_regeneration: z.number(),
+            speed: z.number(),
+          }),
+        });
+
+        for (const hero of injuredHeroes) {
+          const interval = calculateHealthRegenerationInterval(
+            hero.health_regeneration,
+            hero.speed,
+          );
+          tx.exec({
+            sql: 'UPDATE heroes SET next_health_regeneration_at = $next_at WHERE id = $hero_id;',
+            bind: {
+              $hero_id: hero.id,
+              $next_at:
+                (hero.player_id === PLAYER_ID ? nextLegacyTick : null) ??
+                now + interval,
+            },
+          });
+        }
+
+        tx.exec({
+          sql: "DELETE FROM events WHERE type = 'heroHealthRegeneration';",
+        });
+      });
+    } finally {
+      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+    }
+  });
+
+  migrate('0.4.85', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({
+        sql: `
+          DROP TRIGGER IF EXISTS reports_prune_oldest_before_insert;
+          ${createReportRetentionTriggers}
+        `,
+      });
+    });
+  });
+
+  migrate('0.4.86', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({ sql: createEnemyCasualtyTotalsTable });
+      tx.execMulti({ sql: createGatheringResourceTotalsTable });
+
+      // A completed milestone and retained expeditions strictly after it form
+      // a lower bound. Keep whichever bound preserves the most known loot.
+      tx.exec({
+        sql: `
+          WITH retained_expeditions AS (
+            SELECT v.player_id, r.timestamp,
+              ger.loot_wood + ger.loot_clay + ger.loot_iron + ger.loot_wheat AS amount
+            FROM gathering_expedition_reports ger
+              JOIN reports r ON r.id = ger.report_id
+              JOIN villages v ON v.id = r.village_id
+          )
+          INSERT INTO gathering_resource_totals (player_id, amount)
+          SELECT player_id, MAX(amount)
+          FROM (
+            SELECT player_id, SUM(amount) AS amount
+            FROM retained_expeditions
+            GROUP BY player_id
+
+            UNION ALL
+
+            SELECT q.player_id,
+              CAST(substr(q.quest_id, length('gatheredResourceCount-') + 1) AS INTEGER)
+              + COALESCE((
+                SELECT SUM(re.amount)
+                FROM retained_expeditions re
+                WHERE re.player_id = q.player_id AND re.timestamp > q.completed_at
+              ), 0)
+            FROM quests q
+            WHERE q.village_id IS NULL AND q.completed_at IS NOT NULL
+              AND q.quest_id GLOB 'gatheredResourceCount-[0-9]*'
+          )
+          GROUP BY player_id
+          HAVING MAX(amount) > 0
+          ON CONFLICT (player_id) DO UPDATE SET
+            amount = MAX(gathering_resource_totals.amount, EXCLUDED.amount);
+        `,
+      });
+
+      // A retry must not count the same reports again from newly completed milestones.
+      const latestExpeditionAt = tx.selectValue({
+        sql: `
+          SELECT COALESCE(MAX(r.timestamp), 0)
+          FROM gathering_expedition_reports ger
+          JOIN reports r ON r.id = ger.report_id;
+        `,
+        schema: z.number(),
+      })!;
+
+      tx.exec({
+        sql: completeGatheredResourceQuestsQuery,
+        bind: { $completed_at: Math.max(Date.now(), latestExpeditionAt) },
+      });
+    });
+
+    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+
+    try {
+      db.transaction((tx) => {
+        tx.execMulti({
+          sql: `
+            CREATE TEMP TABLE building_ids_backup AS SELECT id, building FROM building_ids;
+            DROP TABLE building_ids;
+
+            ${createBuildingIdsTable}
+
+            INSERT INTO building_ids (id, building)
+            SELECT id, building FROM building_ids_backup;
+            DROP TABLE building_ids_backup;
+
+            INSERT INTO building_ids (building) VALUES ('STONEMASON')
+            ON CONFLICT (building) DO NOTHING;
+          `,
+        });
+        tx.exec({
+          sql: `
+            INSERT INTO bookmarks (village_id, building_id, tab_name)
+            SELECT v.id, bi.id, 'default'
+            FROM villages v
+            CROSS JOIN building_ids bi
+            WHERE v.player_id = $player_id AND bi.building = 'STONEMASON'
+            ON CONFLICT (village_id, building_id) DO NOTHING;
+          `,
+          bind: { $player_id: PLAYER_ID },
+        });
+      });
+    } finally {
+      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+    }
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({
       sql: `PRAGMA user_version=${targetDatabaseVersion};`,
     });
   }
-
-  database.exec({
-    sql: 'VACUUM;',
-  });
 };

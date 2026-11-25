@@ -8,11 +8,10 @@ import {
   createTroopMovementFindNewVillageEventMock,
 } from '@pillage-first/mocks/event';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
-import {
-  buildingDestructionResolver,
-  buildingLevelChangeResolver,
-} from '../../http/events/resolvers/building-resolvers';
-import { findNewVillageMovementResolver } from '../../http/events/resolvers/troop-movement-resolver';
+import { buildingDestructionResolver } from '../../http/events/resolvers/building-destruction-resolver';
+import { buildingLevelChangeResolver } from '../../http/events/resolvers/building-level-change-resolver';
+import { findNewVillageMovementResolver } from '../../http/events/resolvers/troop-movement-find-new-village-resolver';
+import { createEvents } from '../create-event';
 import {
   calculatePlayerCulturePointsProduction,
   updatePlayerCulturePointsAt,
@@ -110,14 +109,16 @@ test('building changes preserve fractional accrual and settle at the event times
     };
 
     if (change === 'destruction') {
-      buildingDestructionResolver(
+      buildingDestructionResolver.resolve(
         database,
         createBuildingDestructionEventMock(args),
+        createEvents,
       );
     } else {
-      buildingLevelChangeResolver(
+      buildingLevelChangeResolver.resolve(
         database,
         createBuildingLevelChangeEventMock(args),
+        createEvents,
       );
     }
 
@@ -185,7 +186,7 @@ test('new village production starts at founding, without changing earlier accrua
 
   const before = calculatePlayerCulturePointsProduction(database);
 
-  findNewVillageMovementResolver(
+  findNewVillageMovementResolver.resolve(
     database,
     createTroopMovementFindNewVillageEventMock({
       villageId,
@@ -194,6 +195,7 @@ test('new village production starts at founding, without changing earlier accrua
       startsAt: start,
       duration: DAY / 2,
     }),
+    createEvents,
   );
 
   const after = calculatePlayerCulturePointsProduction(database);

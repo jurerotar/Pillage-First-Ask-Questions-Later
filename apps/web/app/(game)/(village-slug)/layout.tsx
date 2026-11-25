@@ -61,7 +61,7 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
+import { useUnreadReportCount } from 'app/(game)/(village-slug)/hooks/use-unread-report-count';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 import { CurrentVillageComputedEffectsProvider } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-provider';
@@ -69,6 +69,7 @@ import { CurrentVillageLiveResourcesProvider } from 'app/(game)/(village-slug)/p
 import { GameLayoutContext } from 'app/(game)/(village-slug)/providers/game-layout-context';
 import { GameLayoutProvider } from 'app/(game)/(village-slug)/providers/game-layout-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
+import { GameStartupContentReady } from 'app/(game)/components/game-startup-splash';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
@@ -115,8 +116,8 @@ const Counter = ({ counter }: CounterProps) => {
 };
 
 const ReportsCounter = () => {
-  const { reports } = useReports('unread');
-  return <Counter counter={reports.length} />;
+  const count = useUnreadReportCount();
+  return <Counter counter={count} />;
 };
 
 const AdventurePointsCounter = () => {
@@ -545,7 +546,7 @@ const MapNavigationItem = () => {
       data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       data-tooltip-content={t('Map')}
       to="map"
-      prefetch="render"
+      prefetch="intent"
     >
       <TbMap2 className="text-3xl" />
     </NavigationMainItem>
@@ -773,7 +774,7 @@ const TopNavigation = ({
               </Suspense>
               <VillageOverviewDesktopItem />
             </div>
-            <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
+            <nav className="pointer-events-none flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1 [&_a]:pointer-events-auto">
               <ul className="hidden lg:flex gap-3 justify-center items-center">
                 <li>
                   <ReportsNavigationItem />
@@ -1071,6 +1072,7 @@ const GameLayout = memo<Route.ComponentProps>(
                   <TroopMovements />
                   <Suspense fallback={<PageFallback />}>
                     <Outlet />
+                    <GameStartupContentReady />
                   </Suspense>
                   <ConstructionQueue />
                   <TroopList />

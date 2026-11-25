@@ -8,7 +8,8 @@ import { resolveEvent } from '../resolve-event';
 import type { SchedulerDataSource } from './scheduler';
 
 const getPastEventIdsSchema = z.number();
-export const COMMIT_BATCH_SIZE = 64;
+const FETCH_BATCH_SIZE = 64;
+export const COMMIT_BATCH_SIZE = 1_024;
 
 const getNextEventSchema = z.strictObject({
   id: z.number(),
@@ -21,8 +22,8 @@ export const createSchedulerDataSource = (
   return {
     getPastEventIds: (now: number) => {
       return database.selectValues({
-        sql: 'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at, id;',
-        bind: { $now: now },
+        sql: 'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at, id LIMIT $limit;',
+        bind: { $now: now, $limit: FETCH_BATCH_SIZE },
         schema: getPastEventIdsSchema,
       });
     },
@@ -79,12 +80,17 @@ export const createSchedulerDataSource = (
               notifications.push(notification);
             }
 
-            if (failure) {
+            if (failure || count + 1 === COMMIT_BATCH_SIZE) {
               break;
             }
 
             // Advance lazily so cancellation/rescan checks happen after each event.
-            next = iterator.next();
+            try {
+              next = iterator.next();
+            } catch (error) {
+              failure = { error };
+              break;
+            }
           }
         });
 
@@ -100,6 +106,10 @@ export const createSchedulerDataSource = (
 
       while (!next.done) {
         resolveBatch();
+        if (!next.done) {
+          // A full batch commits before the next lookup or event is pulled.
+          next = iterator.next();
+        }
       }
     },
   };

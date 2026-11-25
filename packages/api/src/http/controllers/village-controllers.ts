@@ -1,17 +1,16 @@
 import { z } from 'zod';
 import { occupiableOasisDtoSchema } from '@pillage-first/types/dtos/oasis';
 import {
+  rearrangeBuildingFieldsDtoSchema,
   villageBySlugDtoSchema,
   villageCulturePointsDtoSchema,
 } from '@pillage-first/types/dtos/village';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { gatherersHutExpeditionsSchema } from '@pillage-first/types/models/gatherers-hut-expeditions';
 import {
   createRearrangeSourceFieldsTableQuery,
   deleteRearrangedBuildingFieldsQuery,
   dropRearrangeSourceFieldsTableQuery,
   insertRearrangedBuildingFieldsQuery,
-  selectDuplicateRearrangeSourceFieldCountQuery,
   selectInvalidRearrangeSourceFieldCountQuery,
   selectOccupiableOasisInRangeQuery,
   selectVillageBySlugQuery,
@@ -156,13 +155,7 @@ export const rearrangeBuildingFields = createController(
         villageId: z.coerce.number(),
       }),
     },
-    requestBody: z.array(
-      z.strictObject({
-        buildingFieldId: z.number(),
-        buildingId: buildingIdSchema.nullable(),
-        sourceBuildingFieldId: z.number().nullable(),
-      }),
-    ),
+    requestBody: rearrangeBuildingFieldsDtoSchema,
   },
 )(({ database, path: { villageId }, body: updates }) => {
   database.transaction(() => {
@@ -187,18 +180,6 @@ export const rearrangeBuildingFields = createController(
 
     if (invalidSourceFieldCount > 0) {
       throw new Error('Invalid rearranged building source field');
-    }
-
-    const duplicateSourceFieldCount = database.selectValue({
-      sql: selectDuplicateRearrangeSourceFieldCountQuery,
-      bind: {
-        $updates: JSON.stringify(updates),
-      },
-      schema: z.number(),
-    })!;
-
-    if (duplicateSourceFieldCount > 0) {
-      throw new Error('Duplicate rearranged building source field');
     }
 
     database.exec({

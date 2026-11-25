@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Effect } from './effect';
+import type { ResourceBundle } from './resource';
 import type { Tribe } from './tribe';
 
 export type BuildingEffect = {
@@ -99,6 +100,7 @@ export const buildingIdSchema = z
     'TREASURY',
     'GATHERERS_HUT',
     'HUNTERS_LODGE',
+    'STONEMASON',
   ])
   .meta({ id: 'BuildingId' });
 
@@ -125,7 +127,7 @@ export type Building = {
   buildingDurationReduction: number;
   effects: (tribe: Tribe) => BuildingEffect[];
   buildingRequirements: BuildingRequirement[];
-  baseBuildingCost: number[];
+  baseBuildingCost: ResourceBundle;
   category: BuildingCategory;
   buildingCostCoefficient: number;
   maxLevel: number;

@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { resourcesSchema } from './resource';
 
+export const tradeRouteIntervalCheck = z.refine<{
+  intervalHours: number;
+  intervalMinutes: number;
+}>(
+  ({ intervalHours, intervalMinutes }) =>
+    intervalHours * 60 + intervalMinutes > 0,
+  { message: 'Interval must be at least 1 minute', path: ['intervalMinutes'] },
+);
+
 export const tradeRouteScheduleSchema = z
   .strictObject({
     startHour: z.number().int().min(0).max(23),
@@ -8,14 +17,7 @@ export const tradeRouteScheduleSchema = z
     intervalHours: z.number().int().min(0),
     intervalMinutes: z.number().int().min(0).max(59).default(0),
   })
-  .refine(
-    ({ intervalHours, intervalMinutes }) =>
-      intervalHours * 60 + intervalMinutes > 0,
-    {
-      message: 'Interval must be at least 1 minute',
-      path: ['intervalMinutes'],
-    },
-  );
+  .check(tradeRouteIntervalCheck);
 
 export const tradeRouteSchema = z.strictObject({
   id: z.number(),

@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import {
+  type ReportDto,
+  type ReportListingDto,
+  reportDtoSchema,
   reportFilterNameByScope,
   reportListingDtoSchema,
   reportScopeSchema,
 } from '@pillage-first/types/dtos/report';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
-import {
-  reportSchema,
-  reportTagSchema,
-} from '@pillage-first/types/models/report';
+import { reportTagSchema } from '@pillage-first/types/models/report';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -30,6 +30,7 @@ import {
   selectTradeReportQuery,
   selectUnitImprovementReportQuery,
   selectUnitResearchReportQuery,
+  selectUnreadReportCountQuery,
   selectVillageFoundedReportQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
@@ -61,6 +62,7 @@ import {
   tradeReportRowSchema,
   unitImprovementReportRowSchema,
   unitResearchReportRowSchema,
+  unreadReportCountSchema,
   villageFoundedReportRowSchema,
 } from './schemas/report-schemas';
 
@@ -73,7 +75,7 @@ export const getReports = createController('/reports', {
     }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, context: { playerId }, query }) => {
+})(({ database, context: { playerId }, query }): ReportListingDto[] => {
   const scope = query.scope ?? 'global';
 
   const rows = database.selectObjects({
@@ -90,21 +92,43 @@ export const getReports = createController('/reports', {
   return rows.map(mapReportListingRowToDto);
 });
 
+export const getUnreadReportCount = createController('/reports/unread-count', {
+  summary: 'Get the count of reports matching the unread report filters',
+  response: unreadReportCountSchema,
+})(({ database, context: { playerId } }) => {
+  return database.selectValue({
+    sql: selectUnreadReportCountQuery,
+    bind: {
+      $player_id: playerId,
+      $village_id: null,
+      $scope: 'unread',
+      $filter_name: reportFilterNameByScope.unread,
+    },
+    schema: unreadReportCountSchema,
+  })!;
+});
+
 export const getTileReports = createController('/tiles/:tileId/reports', {
   summary: 'Get the latest player battle and scouting reports targeting a tile',
   requestParams: {
     path: z.strictObject({ tileId: z.coerce.number().pipe(tileIdSchema) }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, context: { playerId }, path: { tileId } }) => {
-  const rows = database.selectObjects({
-    sql: selectTileReportListingsQuery,
-    bind: { $tile_id: tileId, $player_id: playerId },
-    schema: getReportListingsRowSchema,
-  });
+})(
+  ({
+    database,
+    context: { playerId },
+    path: { tileId },
+  }): ReportListingDto[] => {
+    const rows = database.selectObjects({
+      sql: selectTileReportListingsQuery,
+      bind: { $tile_id: tileId, $player_id: playerId },
+      schema: getReportListingsRowSchema,
+    });
 
-  return rows.map(mapReportListingRowToDto);
-});
+    return rows.map(mapReportListingRowToDto);
+  },
+);
 
 export const getReport = createController('/reports/:reportId', {
   summary: 'Get report by id',
@@ -113,8 +137,8 @@ export const getReport = createController('/reports/:reportId', {
       reportId: z.coerce.number(),
     }),
   },
-  response: reportSchema.nullable(),
-})(({ database, path: { reportId } }) => {
+  response: reportDtoSchema.nullable(),
+})(({ database, path: { reportId } }): ReportDto | null => {
   const reportInfo = database.selectObject({
     sql: selectReportTypeQuery,
     bind: { $report_id: reportId },

@@ -88,6 +88,6 @@ export const batchInsert = (
       sql += ')';
     }
 
-    database.exec({ sql: `${sql};` });
+    database.execMulti({ sql: `${sql};` });
   }
 };

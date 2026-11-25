@@ -3,13 +3,15 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createTrapperCageProductionEventMock } from '@pillage-first/mocks/event';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
-import { insertEvents } from '../../../../utils/events';
+import { insertEvents } from '../../../../utils/insert-events';
 import * as notifications from '../../../../worker/notification-port';
 import { resolveEvent } from '../../resolve-event';
+import { resetSchedulerForTesting, scheduleNextEvent } from '../scheduler';
 import {
   COMMIT_BATCH_SIZE,
   createSchedulerDataSource,
 } from '../scheduler-data-source';
+import { triggerKick } from '../scheduler-signal';
 
 vi.mock('../../resolve-event', () => ({ resolveEvent: vi.fn() }));
 
@@ -19,6 +21,7 @@ const message = (
 ): EventApiNotificationEvent => ({
   ...createTrapperCageProductionEventMock({
     id,
+    batchId: `test-batch-${id}`,
     villageId: 1,
     startsAt: 1000,
     duration: 1000,
@@ -149,6 +152,66 @@ test('getPastEventIds orders by resolution time, then ID', async () => {
     third,
     first,
   ]);
+});
+
+test('rescans inside the transaction and resolves an inserted follow-up before the rest', async () => {
+  using context = await setup();
+  using _clock = vi.spyOn(Date, 'now').mockReturnValue(4000);
+  const { database, resolver, source } = context;
+  using transaction = vi.spyOn(database, 'transaction');
+
+  insertEvents(
+    database,
+    Array.from({ length: 65 }, (_, index) =>
+      createTrapperCageProductionEventMock({
+        villageId: 1,
+        startsAt: index === 0 ? 0 : 2000,
+        duration: 1000,
+      }),
+    ),
+  );
+
+  const ids = database.selectValues({
+    sql: 'SELECT id FROM events ORDER BY resolves_at, id;',
+    schema: z.number(),
+  });
+  const [first, ...remaining] = ids;
+  expect(source.getPastEventIds(Date.now())).toStrictEqual(ids.slice(0, 64));
+
+  let followUpId: number | undefined;
+  resolver.mockImplementation((tx, id) => {
+    tx.exec({ sql: 'DELETE FROM events WHERE id = $id;', bind: { $id: id } });
+    if (id === first) {
+      insertEvents(tx, [
+        createTrapperCageProductionEventMock({
+          villageId: 1,
+          startsAt: 1000,
+          duration: 1000,
+        }),
+      ]);
+      followUpId = tx.selectValue({
+        sql: 'SELECT id FROM events WHERE resolves_at = 2000;',
+        schema: z.number(),
+      });
+      triggerKick();
+    }
+  });
+
+  resetSchedulerForTesting();
+  try {
+    scheduleNextEvent(source);
+  } finally {
+    resetSchedulerForTesting();
+  }
+
+  expect(followUpId).toBeTypeOf('number');
+  expect(resolver.mock.calls.map(([, id]) => id)).toStrictEqual([
+    first,
+    followUpId,
+    ...remaining,
+  ]);
+  expect(source.getPastEventIds(Date.now())).toStrictEqual([]);
+  expect(transaction).toHaveBeenCalledTimes(1);
 });
 
 test('getNextEvent returns the earliest strictly future event', async () => {
@@ -355,6 +418,20 @@ test('consumes event IDs lazily between resolutions', async () => {
   context.source.resolveEvents(ids());
 
   expect(context.resolvedIds()).toStrictEqual([1, 2]);
+});
+
+test('commits the resolved prefix when a rescan fails', async () => {
+  using context = await setup();
+  const failure = new Error('Overdue event lookup failed');
+
+  function* ids() {
+    yield 1;
+    throw failure;
+  }
+
+  expect(() => context.source.resolveEvents(ids())).toThrow(failure);
+  expect(context.resolvedIds()).toStrictEqual([1]);
+  expect(context.post).toHaveBeenCalledExactlyOnceWith(message(1));
 });
 
 test('rolls back the failing event while retaining the successful prefix', async () => {

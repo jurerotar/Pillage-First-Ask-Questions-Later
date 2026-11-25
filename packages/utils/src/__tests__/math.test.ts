@@ -3,7 +3,7 @@ import {
   calculateDistanceBetweenPoints,
   calculateProgressPercentage,
   randomInt,
-  roundTo5,
+  roundToN,
   roundToNDecimalPoints,
 } from '../math';
 
@@ -51,13 +51,18 @@ describe('math utils', () => {
     });
   });
 
-  describe(roundTo5, () => {
+  describe(roundToN, () => {
     test('should round to the nearest 5', () => {
-      expect(roundTo5(2)).toBe(0);
-      expect(roundTo5(3)).toBe(5);
-      expect(roundTo5(7)).toBe(5);
-      expect(roundTo5(8)).toBe(10);
-      expect(roundTo5(12.5)).toBe(15);
+      expect(roundToN(2, 5)).toBe(0);
+      expect(roundToN(3, 5)).toBe(5);
+      expect(roundToN(7, 5)).toBe(5);
+      expect(roundToN(8, 5)).toBe(10);
+      expect(roundToN(12.5, 5)).toBe(15);
+    });
+
+    test('preserves combat decimal', () => {
+      expect(roundToN(26, 10)).toBe(30);
+      expect(roundToN(-7.5, 5)).toBe(-5);
     });
   });
 

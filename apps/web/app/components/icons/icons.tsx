@@ -464,6 +464,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   ),
   defence: (props) => <PillageFirstDefence {...props} />,
   defenceBonus: (props) => <PillageFirstDefence {...props} />,
+  buildingDurability: (props) => <PillageFirstDefence {...props} />,
   residenceTrainingDuration: (props) => <LuClock {...props} />,
   barracksTrainingDuration: (props) => <LuClock {...props} />,
   greatBarracksTrainingDuration: (props) => <LuClock {...props} />,

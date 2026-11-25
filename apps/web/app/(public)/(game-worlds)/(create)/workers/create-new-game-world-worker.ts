@@ -1,8 +1,4 @@
-import type {
-  OpfsSAHPoolDatabase,
-  SAHPoolUtil,
-  Sqlite3Static,
-} from '@sqlite.org/sqlite-wasm';
+import type { OpfsSAHPoolDatabase, SAHPoolUtil } from '@sqlite.org/sqlite-wasm';
 import { migrateAndSeed } from '@pillage-first/api/db';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
@@ -31,7 +27,6 @@ export type CreateNewGameWorldWorkerResponse =
       stack?: string;
     };
 
-let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
 let database: OpfsSAHPoolDatabase | null = null;
 let dbFacade: DbFacade | null = null;
@@ -46,7 +41,7 @@ globalThis.addEventListener(
         '@sqlite.org/sqlite-wasm'
       );
 
-      sqlite3 ??= await sqlite3InitModule();
+      const sqlite3 = await sqlite3InitModule();
 
       const opfsSahPoolOptions: OpfsSahPoolOptions = {
         directory: `/pillage-first-ask-questions-later/${server.slug}`,
@@ -59,16 +54,18 @@ globalThis.addEventListener(
 
       dbFacade = createDbFacade(database);
 
-      dbFacade.exec({
+      dbFacade.execMulti({
         sql: `
-        PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};
-        PRAGMA locking_mode=EXCLUSIVE;
-        PRAGMA foreign_keys=OFF;
-        PRAGMA journal_mode=OFF;
-        PRAGMA synchronous=OFF;
-        PRAGMA temp_store=MEMORY;
-        PRAGMA cache_size=-20000;
-      `,
+          -- Set the page size before the first write to the new database.
+          PRAGMA page_size = 16384;
+          PRAGMA locking_mode = EXCLUSIVE;
+          PRAGMA foreign_keys = OFF;
+          PRAGMA journal_mode = DELETE;
+          PRAGMA synchronous = FULL;
+          PRAGMA temp_store = MEMORY;
+          PRAGMA cache_size = -16384;
+          PRAGMA user_version = ${encodeAppVersionToDatabaseUserVersion(env.VERSION)};
+        `,
       });
 
       migrateAndSeed(dbFacade, server, () => {
@@ -99,4 +96,5 @@ globalThis.addEventListener(
       globalThis.close();
     }
   },
+  { once: true },
 );

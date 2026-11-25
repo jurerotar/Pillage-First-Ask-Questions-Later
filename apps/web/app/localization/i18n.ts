@@ -11,6 +11,7 @@ await use(initReactI18next).init({
   lng: 'en-US',
   debug: false,
   fallbackLng: 'en-US',
+  returnEmptyString: true,
   load: 'currentOnly',
   defaultNS: 'app',
   supportedLngs: locales,

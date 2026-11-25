@@ -12,7 +12,7 @@ import {
   selectPlayerIdByVillageIdQuery,
   updateResourceSiteResourcesByTileIdToValuesQuery,
 } from '../queries/village-queries';
-import { apiEffectSchema } from './zod/effect-schemas';
+import { apiEffectsJsonSchema } from './zod/effect-schemas';
 
 export const demolishBuilding = (
   database: DbFacade,
@@ -74,14 +74,10 @@ type CalculateResourceSiteResourcesAtReturn = {
   previousUpdatedAt: number;
 };
 
-const resourceSiteStateSchema = resourcesSchema.extend({
+const resourceSiteStateSchema = z.strictObject({
+  ...resourcesSchema.shape,
   last_updated_at: z.number(),
 });
-
-const resourceSiteEffectsSchema = z
-  .string()
-  .transform((value) => JSON.parse(value))
-  .pipe(z.array(apiEffectSchema));
 
 export const getVillageTileId = (
   database: DbFacade,
@@ -113,7 +109,7 @@ export const calculateResourceSiteResourcesAt = (
     bind: {
       $tile_id: tileId,
     },
-    schema: resourceSiteEffectsSchema,
+    schema: apiEffectsJsonSchema,
   })!;
 
   const { total: warehouseCapacity } = calculateComputedEffect(

@@ -1,12 +1,17 @@
 import { z } from 'zod';
 import { getQuestRewards } from '@pillage-first/game-assets/utils/quests';
-import { questIdSchema, questSchema } from '@pillage-first/types/models/quest';
+import {
+  type Quest,
+  questIdSchema,
+  questSchema,
+} from '@pillage-first/types/models/quest';
 import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
 import {
   collectQuestQuery,
+  questCatchableAnimalIds,
   selectCollectableQuestCountQuery,
   selectVillageQuestsQuery,
 } from '../../queries/quest-queries';
@@ -21,19 +26,20 @@ import { mapQuestRowToDto } from './mappers/quest-mapper';
 import { getQuestsRowSchema } from './schemas/quest-schemas';
 
 export const getQuests = createController('/me/quests', {
-  summary: 'Get village quests',
+  summary: 'Get village and global quests with progress',
   requestParams: {
     query: z.strictObject({
       villageId: z.coerce.number(),
     }),
   },
   response: z.array(questSchema),
-})(({ database, context: { playerId }, query: { villageId } }) => {
+})(({ database, context: { playerId }, query: { villageId } }): Quest[] => {
   const rows = database.selectObjects({
     sql: selectVillageQuestsQuery,
     bind: {
       $village_id: villageId,
       $player_id: playerId,
+      $unit_ids: questCatchableAnimalIds,
     },
     schema: getQuestsRowSchema,
   });

@@ -2,15 +2,13 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import type {
-  ReportListingDto,
-  ReportScope,
-} from '@pillage-first/types/dtos/report';
+import type { ReportScope } from '@pillage-first/types/dtos/report';
 import type { BaseReport, ReportTag } from '@pillage-first/types/models/report';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   reportListingsCacheKey,
   reportsCacheKey,
+  unreadReportCountQueryKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -65,8 +63,12 @@ export const useReports = (scope: ReportScope = 'global') => {
     onSuccess: async (_data, { reportIds }, _onMutateResult, context) => {
       const deletedReportIds = new Set(reportIds);
 
-      context.client.setQueriesData<ReportListingDto[]>(
-        { queryKey: [reportListingsCacheKey] },
+      context.client.setQueriesData<typeof reports>(
+        {
+          queryKey: [reportListingsCacheKey],
+          predicate: ({ queryKey }) =>
+            queryKey[1] !== unreadReportCountQueryKey,
+        },
         (reports = []) => {
           return reports.filter((report) => !deletedReportIds.has(report.id));
         },

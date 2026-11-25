@@ -8,25 +8,86 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import {
   createBuildingLevelChangeEventMock,
+  createGatherersHutGatheringTripEventMock,
   createHuntersLodgeHuntEventMock,
 } from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { selectGatheredResourceCountQuery } from '../../../../queries/quest-queries';
+import { createEvents } from '../../../../utils/create-event';
 import {
+  assessBattleQuestCompletion,
   assessCaptureAnimalCountByIdQuestCompletion,
   assessCaptureAnimalKindCountQuestCompletion,
-  assessGatheredResourceCountQuestCompletion,
 } from '../../../../utils/quests';
-import {
-  insertGatheringExpeditionReport,
-  insertReport,
-} from '../../../../utils/report';
-import { buildingLevelChangeResolver } from '../building-resolvers';
-import { huntersLodgeHuntResolver } from '../hunters-lodge-resolvers';
+import { insertReport } from '../../../../utils/report';
+import { buildingLevelChangeResolver } from '../building-level-change-resolver';
+import { gatherersHutGatheringTripResolver } from '../gatherers-hut-gathering-trip-resolver';
+import { huntersLodgeHuntResolver } from '../hunters-lodge-hunt-resolver';
+
+test('completes overall and per-unit battle quests at their own casualty milestones', async () => {
+  using database = await prepareTestDatabase();
+
+  const otherPlayerId = database.selectValue({
+    sql: 'SELECT id FROM players WHERE id <> $player_id LIMIT 1;',
+    bind: { $player_id: PLAYER_ID },
+    schema: z.int(),
+  })!;
+
+  database.exec({
+    sql: "INSERT INTO quests (player_id, quest_id) VALUES ($player_id, 'killCount-10');",
+    bind: { $player_id: otherPlayerId },
+  });
+
+  const getCompletion = (questId: string, playerId = PLAYER_ID) =>
+    database.selectValue({
+      sql: `
+        SELECT completed_at FROM quests
+        WHERE player_id = $player_id AND quest_id = $quest_id AND village_id IS NULL;
+      `,
+      bind: { $player_id: playerId, $quest_id: questId },
+      schema: z.int().nullable(),
+    });
+
+  assessBattleQuestCompletion(database, 1, PLAYER_ID);
+
+  expect(getCompletion('killCount-10')).toBeNull();
+
+  database.exec({
+    sql: `
+      INSERT INTO enemy_casualty_totals (player_id, unit_id, amount)
+      SELECT $player_id, id, CASE unit WHEN 'PHALANX' THEN 6 ELSE 4 END
+      FROM unit_ids WHERE unit IN ('PHALANX', 'LEGIONNAIRE');
+    `,
+    bind: { $player_id: PLAYER_ID },
+  });
+
+  assessBattleQuestCompletion(database, 2, PLAYER_ID);
+
+  expect(getCompletion('killCount-10')).toBe(2);
+  expect(getCompletion('unitKillCount-PHALANX-10')).toBeNull();
+
+  database.exec({
+    sql: `
+      UPDATE enemy_casualty_totals SET amount = 10
+      WHERE player_id = $player_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'PHALANX');
+    `,
+    bind: { $player_id: PLAYER_ID },
+  });
+
+  assessBattleQuestCompletion(database, 3, PLAYER_ID);
+  assessBattleQuestCompletion(database, 4, PLAYER_ID);
+
+  expect(getCompletion('killCount-10')).toBe(2);
+  expect(getCompletion('unitKillCount-PHALANX-10')).toBe(3);
+  expect(getCompletion('unitKillCount-LEGIONNAIRE-10')).toBeNull();
+  expect(getCompletion('killCount-50')).toBeNull();
+  expect(getCompletion('killCount-10', otherPlayerId)).toBeNull();
+});
 
 const resolveHunt = (database: DbFacade, timestamp: number) =>
-  huntersLodgeHuntResolver(
+  huntersLodgeHuntResolver.resolve(
     database,
     createHuntersLodgeHuntEventMock({
       id: timestamp,
@@ -36,6 +97,7 @@ const resolveHunt = (database: DbFacade, timestamp: number) =>
       resolvesAt: timestamp,
       huntingPartyLevel: 5,
     }),
+    createEvents,
   );
 
 describe('quest completion on building level up', () => {
@@ -80,7 +142,7 @@ describe('quest completion on building level up', () => {
       previousLevel: 0,
     });
 
-    buildingLevelChangeResolver(database, mockEvent);
+    buildingLevelChangeResolver.resolve(database, mockEvent, createEvents);
 
     // 4. Check if quest is completed
     const finalQuest = database.selectValue({
@@ -161,7 +223,7 @@ describe('quest completion on building level up', () => {
       previousLevel: 0,
     });
 
-    buildingLevelChangeResolver(database, mockEvent);
+    buildingLevelChangeResolver.resolve(database, mockEvent, createEvents);
 
     // 5. Check if quest is completed
     const finalQuest = database.selectValue({
@@ -334,51 +396,84 @@ describe('quest completion on building level up', () => {
     expect(completion()).toBe(3);
   });
 
-  test('should complete gathered resource quest from total gathered loot', async () => {
-    using database = await prepareTestDatabase();
-    const villageId = 1;
-    const timestamp = 4000;
-    const village = database.selectObject({
-      sql: `
-        SELECT v.tile_id, p.tribe_id
-        FROM villages v
-        JOIN players p ON p.id = v.player_id
-        WHERE v.id = $village_id;
-      `,
-      bind: { $village_id: villageId },
-      schema: z.strictObject({
-        tile_id: tileIdSchema,
-        tribe_id: z.number(),
-      }),
-    })!;
+  test.each(['deletion', 'retention'])(
+    'should keep gathering progress after report %s',
+    async (removal) => {
+      using database = await prepareTestDatabase();
 
-    insertGatheringExpeditionReport(database, {
-      villageId,
-      timestamp,
-      villageTileId: village.tile_id,
-      tribeId: village.tribe_id,
-      loot: [25, 25, 25, 25],
-      units: [
-        {
-          unitId: 'PHALANX',
-          amount: 25,
-        },
-      ],
-    });
+      const villageId = 1;
 
-    assessGatheredResourceCountQuestCompletion(database, timestamp, PLAYER_ID);
+      const tileId = database.selectValue({
+        sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+        bind: { $village_id: villageId },
+        schema: tileIdSchema,
+      })!;
 
-    const completedQuest = database.selectValue({
-      sql: `
-        SELECT completed_at
-        FROM quests
-        WHERE
-          village_id IS NULL
-          AND quest_id = 'gatheredResourceCount-100';
-      `,
-      schema: z.number().nullable(),
-    });
+      const resolveExpedition = (resolvesAt: number, amount: number) =>
+        gatherersHutGatheringTripResolver.resolve(
+          database,
+          createGatherersHutGatheringTripEventMock({
+            villageId,
+            resolvesAt,
+            troops: [
+              { unitId: 'PHALANX', amount, tileId, sourceTileId: tileId },
+            ],
+          }),
+          createEvents,
+        );
 
-    expect(completedQuest).toBe(timestamp);
-  });
+      const getProgress = () =>
+        database.selectValue({
+          sql: selectGatheredResourceCountQuery,
+          bind: { $player_id: PLAYER_ID },
+          schema: z.number(),
+        });
+
+      const getCompletion = () =>
+        database.selectValue({
+          sql: "SELECT completed_at FROM quests WHERE quest_id = 'gatheredResourceCount-100';",
+          schema: z.number().nullable(),
+        });
+
+      const getReportCount = () =>
+        database.selectValue({
+          sql: 'SELECT COUNT(*) FROM gathering_expedition_reports;',
+          schema: z.number(),
+        });
+
+      resolveExpedition(1, 24);
+
+      expect(getReportCount()).toBe(1);
+      expect(getProgress()).toBe(96);
+      expect(getCompletion()).toBeNull();
+
+      if (removal === 'deletion') {
+        database.exec({ sql: 'DELETE FROM reports;' });
+      } else {
+        seedTestAdventureReports(database, villageId, 999, 2, 0);
+
+        insertReport(database, {
+          villageId,
+          timestamp: 3,
+          type: 'adventure',
+          outcome: 'heroAdventure',
+          tags: [],
+        });
+      }
+
+      expect(getReportCount()).toBe(0);
+      expect(getProgress()).toBe(96);
+
+      database.exec({
+        sql: "INSERT INTO report_generation_settings (player_id, filter) VALUES ($player_id, 'gatheringExpedition');",
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      resolveExpedition(4, 1);
+
+      expect(getReportCount()).toBe(0);
+      expect(getProgress()).toBe(100);
+      expect(getCompletion()).toBe(4);
+    },
+  );
 });

@@ -36,7 +36,7 @@ apps & packages:
 - **apps**
 -
 - [web](/apps/web/README.md) (frontend client)
-- [remote-api](/apps/remote-api/README.md) (API for bug reports and one-time game world sharing)
+- [remote-api](/apps/remote-api/README.md) (API for bug reports and game world sharing)
 
 * **packages**
 *

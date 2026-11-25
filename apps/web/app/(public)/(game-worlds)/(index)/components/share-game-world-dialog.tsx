@@ -95,7 +95,7 @@ export const ShareGameWorldDialog = ({
               <>
                 Game world is ready to share. Open the link or scan the QR code
                 on another device to import it. Anyone with the link can import
-                it once. The uploaded copy is deleted after import or 24 hours.
+                it for 24 hours after the upload completes.
               </>
             ) : (
               <>
@@ -209,8 +209,10 @@ export const ShareGameWorldDialog = ({
           </div>
         ) : (
           <Button
+            className="justify-self-end"
             disabled={isUploading}
             onClick={() => share()}
+            size="fit"
           >
             {isUploading
               ? 'Uploading game world...'

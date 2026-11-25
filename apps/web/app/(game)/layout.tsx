@@ -11,17 +11,15 @@ import {
   type ShouldRevalidateFunction,
 } from 'react-router';
 import type { ToasterProps } from 'sonner';
-import type { Server } from '@pillage-first/types/models/server';
 import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { GameStartupSplash } from 'app/(game)/components/game-startup-splash';
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
-import {
-  ApiProvider,
-  ApiProviderFallback,
-} from 'app/(game)/providers/api-provider';
-import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
+import { getGameWorldListing } from 'app/(public)/(game-worlds)/utils/game-world-listing';
 import { HeadLinks } from 'app/components/head-links';
+import { ThemedDocument } from 'app/components/themed-document';
 import { Toaster } from 'app/components/ui/toaster';
 import { pushGameWorldOpened } from 'app/instrumentation/product-events';
 import { loadAppTranslations } from 'app/localization/loaders/app';
@@ -31,16 +29,6 @@ import { CookieProvider } from 'app/providers/cookie-provider';
 export { ErrorBoundary } from 'app/(game)/error-boundary';
 
 const addGameWorldAttributesToFaro = (serverSlug: string): void => {
-  const getGameWorldListing = (): Server[] => {
-    try {
-      return JSON.parse(
-        window.localStorage.getItem(availableServerCacheKey) ?? '[]',
-      );
-    } catch {
-      return [];
-    }
-  };
-
   const gameWorld = getGameWorldListing().find(({ slug }) => {
     return slug === serverSlug;
   });
@@ -51,13 +39,14 @@ const addGameWorldAttributesToFaro = (serverSlug: string): void => {
 
   pushGameWorldOpened(gameWorld);
 
+  const { lastOpenedAt: _lastOpenedAt, ...gameWorldAttributes } = gameWorld;
   const session = faro.api.getSession();
 
   faro.api.setSession({
     ...session,
     attributes: {
       ...session?.attributes,
-      gameWorld: JSON.stringify(gameWorld),
+      gameWorld: JSON.stringify(gameWorldAttributes),
     },
   });
 };
@@ -100,7 +89,7 @@ const LayoutContent = memo<Route.ComponentProps>(
     const { sessionId } = loaderData;
 
     const { i18n } = useTranslation();
-    const { uiColorScheme, skinVariant, timeOfDay } = use(CookieContext);
+    const { skinVariant, timeOfDay } = use(CookieContext);
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
     const [queryClient] = useState<QueryClient>(() => {
@@ -140,37 +129,37 @@ const LayoutContent = memo<Route.ComponentProps>(
     }, [serverSlug, sessionId]);
 
     return (
-      <html
+      <ThemedDocument
         lang={i18n.language}
         className={clsx(
-          uiColorScheme,
           `skin-variant-${skinVariant}`,
           `time-of-day-${timeOfDay}`,
         )}
+        head={
+          <>
+            <HeadLinks />
+            <Links />
+          </>
+        }
+        bodyClassName="bg-background text-foreground transition-colors"
       >
-        <head>
-          <HeadLinks />
-          <Links />
-        </head>
-        <body className="bg-background text-foreground transition-colors">
-          <QueryClientProvider client={queryClient}>
-            <Suspense fallback={<ApiProviderFallback />}>
-              <div className="api-provider-splash-content">
-                <ApiProvider serverSlug={serverSlug}>
-                  <Outlet />
-                  <Notifier serverSlug={serverSlug} />
-                </ApiProvider>
-              </div>
+        <QueryClientProvider client={queryClient}>
+          <GameStartupSplash key={serverSlug}>
+            <Suspense fallback={null}>
+              <ApiProvider serverSlug={serverSlug}>
+                <Outlet />
+                <Notifier serverSlug={serverSlug} />
+              </ApiProvider>
             </Suspense>
-            <Toaster
-              position={toasterPosition}
-              closeButton
-            />
-          </QueryClientProvider>
-          <ScrollRestoration />
-          <Scripts />
-        </body>
-      </html>
+          </GameStartupSplash>
+          <Toaster
+            position={toasterPosition}
+            closeButton
+          />
+        </QueryClientProvider>
+        <ScrollRestoration />
+        <Scripts />
+      </ThemedDocument>
     );
   },
   (prev, next) => {

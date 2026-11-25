@@ -193,7 +193,7 @@ export const CreateNewGameWorldForm = () => {
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
     onError: (_, { server }) => {
-      void deleteGameWorldData({ server });
+      deleteGameWorldData({ server });
     },
   });
 

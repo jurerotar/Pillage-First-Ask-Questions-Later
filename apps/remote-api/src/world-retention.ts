@@ -6,7 +6,8 @@ export const sharedWorldLifetimeMs = 24 * 60 * 60 * 1000;
 
 export const isWorldUploadExpired = (upload: Upload): boolean =>
   upload.worldId !== null &&
-  upload.createdAt + sharedWorldLifetimeMs <= Date.now();
+  (upload.completedAt ?? upload.createdAt) + sharedWorldLifetimeMs <=
+    Date.now();
 
 export const cleanupExpiredWorlds = async (
   config: AppConfig,

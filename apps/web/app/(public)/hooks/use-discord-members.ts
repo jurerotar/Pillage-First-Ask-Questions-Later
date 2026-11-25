@@ -18,7 +18,7 @@ export const useDiscordMembers = () => {
       return discordMembersSchema.parse(await response.json());
     },
     placeholderData: {
-      memberCount: 364,
+      memberCount: 474,
     },
   });
 };

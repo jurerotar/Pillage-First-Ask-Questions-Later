@@ -92,9 +92,12 @@ export type QuestRequirement =
 
 const matcherSchema = z.enum(['oneOf', 'every']);
 
-const villageQuestIdSchema = z.union([
-  z.templateLiteral([matcherSchema, '-', buildingIdSchema, '-', z.number()]),
-  z.templateLiteral([matcherSchema, '-resourceFields-', z.number()]),
+const villageQuestIdSchema = z.templateLiteral([
+  matcherSchema,
+  '-',
+  buildingIdSchema,
+  '-',
+  z.number(),
 ]);
 
 const globalQuestIdSchema = z.union([
@@ -126,10 +129,16 @@ const baseQuestSchema = z.strictObject({
   scope: z.enum(['village', 'global']),
   collectedAt: z.number().nullable(),
   completedAt: z.number().nullable(),
+  progress: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe('Current level or count toward the quest milestone.'),
 });
 
-const villageQuestsSchema = baseQuestSchema
-  .extend({
+const villageQuestsSchema = z
+  .strictObject({
+    ...baseQuestSchema.shape,
     id: villageQuestIdSchema,
     scope: z.literal('village'),
     villageId: z.number(),
@@ -138,8 +147,9 @@ const villageQuestsSchema = baseQuestSchema
 
 export type VillageQuest = z.infer<typeof villageQuestsSchema>;
 
-const globalQuestsSchema = baseQuestSchema
-  .extend({
+const globalQuestsSchema = z
+  .strictObject({
+    ...baseQuestSchema.shape,
     id: globalQuestIdSchema,
     scope: z.literal('global'),
   })

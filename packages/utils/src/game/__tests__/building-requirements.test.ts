@@ -84,6 +84,110 @@ const getAssessedRequirementsByType = (
 
 describe('building-requirements', () => {
   describe.each([
+    { buildingId: 'BREWERY', level: 20, needsWarehouse: false },
+    { buildingId: 'GATHERERS_HUT', level: 3, needsWarehouse: true },
+    { buildingId: 'MARKETPLACE', level: 1, needsWarehouse: true },
+  ] as const)(
+    '$buildingId storage prerequisites',
+    ({ buildingId, level, needsWarehouse }) => {
+      const assess = (
+        levels: Map<Building['id'], number>,
+        tribe: AssessBuildingRequirementsArgs['tribe'] = 'teutons',
+        queue: Building['id'][] = [],
+      ) =>
+        assessBuildingRequirements({
+          building: getBuildingDefinition(buildingId),
+          tribe,
+          maxLevelByBuildingId: levels,
+          buildingIdsInQueue: new Set(queue),
+        });
+
+      const createLevels = () =>
+        new Map<Building['id'], number>([
+          ['MAIN_BUILDING', 3],
+          ['RALLY_POINT', 10],
+          ['WAREHOUSE', level],
+          ['GRANARY', level],
+        ]);
+
+      test.each([
+        ['WAREHOUSE', 'GRANARY'],
+        ['WAREHOUSE', 'GREAT_GRANARY'],
+        ['GREAT_WAREHOUSE', 'GRANARY'],
+        ['GREAT_WAREHOUSE', 'GREAT_GRANARY'],
+      ] as const)('accepts %s and %s', (warehouseId, granaryId) => {
+        const levels = createLevels();
+
+        levels.delete('WAREHOUSE');
+        levels.delete('GRANARY');
+        levels.set(warehouseId, level);
+        levels.set(granaryId, level);
+
+        expect(assess(levels).canBuild).toBe(true);
+      });
+
+      test('requires each storage category at the minimum level', () => {
+        const storagePairs = [
+          ['GRANARY', 'GREAT_GRANARY'],
+          ...(needsWarehouse
+            ? ([['WAREHOUSE', 'GREAT_WAREHOUSE']] as const)
+            : []),
+        ] as const;
+
+        for (const [regularId, greatId] of storagePairs) {
+          const levels = createLevels();
+
+          levels.delete(regularId);
+
+          expect(assess(levels).canBuild).toBe(false);
+
+          levels.set(greatId, level - 1);
+
+          expect(assess(levels).canBuild).toBe(false);
+
+          levels.set(regularId, level - 1);
+
+          expect(assess(levels).canBuild).toBe(false);
+
+          levels.set(greatId, level);
+
+          expect(assess(levels).canBuild).toBe(true);
+        }
+      });
+
+      test('queued great storage cannot replace completed storage', () => {
+        const levels = createLevels();
+
+        levels.delete('GRANARY');
+
+        expect(assess(levels, 'teutons', ['GREAT_GRANARY']).canBuild).toBe(
+          false,
+        );
+      });
+
+      test('still enforces non-storage prerequisites and building limits', () => {
+        const levels = createLevels();
+
+        if (buildingId === 'BREWERY') {
+          expect(assess(levels, 'gauls').canBuild).toBe(false);
+
+          levels.set('RALLY_POINT', 9);
+        } else {
+          levels.set('MAIN_BUILDING', 2);
+        }
+
+        expect(assess(levels).canBuild).toBe(false);
+
+        const existingLevels = createLevels();
+
+        existingLevels.set(buildingId, 20);
+
+        expect(assess(existingLevels).canBuild).toBe(false);
+      });
+    },
+  );
+
+  describe.each([
     ['GREAT_WAREHOUSE', 'WAREHOUSE'],
     ['GREAT_GRANARY', 'GRANARY'],
   ] as const)(
@@ -98,9 +202,11 @@ describe('building-requirements', () => {
         const levels = new Map<Building['id'], number>([
           ['MAIN_BUILDING', mainBuildingLevel],
         ]);
+
         if (regularLevel !== undefined) {
           levels.set(regularBuildingId, regularLevel);
         }
+
         if (greatLevel !== undefined) {
           levels.set(greatBuildingId, greatLevel);
         }
@@ -119,6 +225,7 @@ describe('building-requirements', () => {
 
       test('allows another instance after regular storage is demolished', () => {
         const result = assessStorage(undefined, 20);
+
         expect(result.canBuild).toBe(true);
         expect(getAssessedRequirementByType('or', result).fulfilled).toBe(true);
       });

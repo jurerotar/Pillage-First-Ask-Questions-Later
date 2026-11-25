@@ -6,28 +6,12 @@ import type {
   GameEventType,
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import type { EventCreationArgs } from '../http/events/resolver';
+import { getEventResolver } from '../http/events/resolver-registry';
 import { triggerKick } from '../http/events/scheduler/scheduler-signal';
 import { selectNextEventQuery } from '../queries/event-queries';
 import { postWorkerMessage } from '../worker/notification-port';
-import {
-  getEventCost,
-  getEventDuration,
-  getEventResourceSubtractionTimestamp,
-  getEventStartTime,
-  insertEvents,
-  runEventCreationSideEffects,
-  validateEventCreationPrerequisites,
-} from './events';
 import { getVillageTileId, subtractResourceSiteResourcesAt } from './village';
-
-type CreateNewEventsArgs<T extends GameEventType> = Omit<
-  GameEvent<T>,
-  'id' | 'resolvesAt' | 'startsAt' | 'duration'
-> & {
-  amount?: number;
-  startsAt?: number;
-  duration?: number;
-};
 
 const createEventsSchema = z.strictObject({
   id: z.number(),
@@ -36,24 +20,27 @@ const createEventsSchema = z.strictObject({
 
 export const createEvents = <T extends GameEventType>(
   database: DbFacade,
-  args: CreateNewEventsArgs<T>,
+  args: EventCreationArgs<T>,
 ) => {
-  createEventDtoSchema.parse(args);
+  const parsedArgs = createEventDtoSchema.parse(args);
 
-  const sampleEvent = args as GameEvent<T>;
-  let { startsAt, duration } = args;
-  const amount = args?.amount ?? 1;
+  let { startsAt, duration } = parsedArgs;
+  const now = Date.now();
 
-  validateEventCreationPrerequisites(database, sampleEvent);
+  const resolver = getEventResolver(parsedArgs.type).create(
+    database,
+    parsedArgs,
+  );
 
-  const eventCost = getEventCost(database, sampleEvent);
+  resolver.validate(now);
+
+  const eventCost = resolver.cost();
 
   if (eventCost.some((cost) => cost > 0)) {
-    startsAt ??= getEventStartTime(database, sampleEvent);
-    const eventResourceSubtractionTimestamp =
-      getEventResourceSubtractionTimestamp(database, sampleEvent, startsAt);
+    startsAt ??= resolver.startTime();
+    const eventResourceSubtractionTimestamp = resolver.chargeAt(startsAt);
 
-    const { villageId } = sampleEvent;
+    const { villageId } = parsedArgs;
     const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
 
     subtractResourceSiteResourcesAt(
@@ -75,26 +62,8 @@ export const createEvents = <T extends GameEventType>(
     );
   }
 
-  startsAt ??= getEventStartTime(database, sampleEvent);
-
-  duration ??= Math.ceil(getEventDuration(database, sampleEvent, startsAt));
-
-  const events: GameEvent<T>[] = Array.from({ length: amount });
-
-  for (let i = 0; i < amount; i += 1) {
-    events[i] = {
-      ...args,
-      startsAt: startsAt + i * duration,
-      duration,
-      resolvesAt: startsAt + i * duration + duration,
-    } as GameEvent<T>;
-  }
-
-  const earliestEvent = events.at(0)!;
-
-  const now = Date.now();
-  const newResolvesAt = events.map((e) => e.startsAt + e.duration);
-  const earliestNewResolvesAt = earliestEvent.startsAt + earliestEvent.duration;
+  startsAt ??= resolver.startTime();
+  duration ??= Math.ceil(resolver.duration(startsAt));
 
   // read current next event BEFORE we insert, using the same "now" snapshot
   const currentNext = database.selectObject({
@@ -103,24 +72,23 @@ export const createEvents = <T extends GameEventType>(
     schema: createEventsSchema,
   });
 
-  insertEvents(database, events);
-  runEventCreationSideEffects(database, events);
+  const events = resolver.insert(startsAt, duration, now);
+  const [earliestEvent] = events;
 
   postWorkerMessage({
     eventKey: 'event:created',
-    ...events[0],
+    ...(earliestEvent as GameEvent),
     // Creating events doesn't require this, because cache invalidation is already done by the frontend
     affectedVillageIds: [],
     affectedTileIds: [],
   } satisfies EventApiNotificationEvent);
 
-  // Determine if any created events should already be resolved
-  const createdImmediate = newResolvesAt.some((r) => r <= now);
+  const createdImmediate = events.some((event) => event.resolvesAt <= now);
 
   if (
     createdImmediate ||
     !currentNext ||
-    earliestNewResolvesAt < currentNext.resolvesAt
+    earliestEvent.resolvesAt < currentNext.resolvesAt
   ) {
     triggerKick();
   }

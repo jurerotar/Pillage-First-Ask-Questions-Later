@@ -25,19 +25,22 @@ const targetSchema = z.strictObject({
   y: z.number().int().optional(),
 });
 
-const troopFormRefinementOptions = [
-  {
-    check: (data: { units: { selected: number; available: number }[] }) =>
-      data.units.some((u) => u.selected > 0),
-    message: 'At least 1 troop must be selected',
-    path: ['units'],
-  },
-  {
-    check: (data: { units: { selected: number; available: number }[] }) =>
-      data.units.every((u) => u.selected <= u.available),
-    message: 'Selected units cannot exceed available count',
-    path: ['units'],
-  },
+type TroopSelectionForRefinement = {
+  units: { selected: number; available: number }[];
+};
+
+export const troopFormChecks = [
+  z.refine<TroopSelectionForRefinement>(
+    ({ units }) => units.some((unit) => unit.selected > 0),
+    { message: 'At least 1 troop must be selected', path: ['units'] },
+  ),
+  z.refine<TroopSelectionForRefinement>(
+    ({ units }) => units.every((unit) => unit.selected <= unit.available),
+    {
+      message: 'Selected units cannot exceed available count',
+      path: ['units'],
+    },
+  ),
 ];
 
 export const baseTroopFormSchema = z
@@ -45,8 +48,7 @@ export const baseTroopFormSchema = z
     units: z.array(unitSelectionSchema),
     target: targetSchema,
   })
-  .refine(troopFormRefinementOptions[0].check, troopFormRefinementOptions[0])
-  .refine(troopFormRefinementOptions[1].check, troopFormRefinementOptions[1]);
+  .check(...troopFormChecks);
 
 export const foundNewVillageFormSchema = baseTroopFormSchema
   .refine(
@@ -80,9 +82,12 @@ export const foundNewVillageFormSchema = baseTroopFormSchema
     },
   );
 
-export const reinforcementRelocationFormSchema = baseTroopFormSchema.extend({
-  action: z.enum(['reinforcement', 'relocation']),
-});
+export const reinforcementRelocationFormSchema = z
+  .strictObject({
+    ...baseTroopFormSchema.shape,
+    action: z.enum(['reinforcement', 'relocation']),
+  })
+  .check(...troopFormChecks);
 
 export const scoutingTargetSchema = z.enum([
   'resources',
@@ -96,12 +101,15 @@ export const catapultTargetSchema = z.union([
   z.literal('random'),
 ]);
 
-export const attackOrRaidFormSchema = baseTroopFormSchema.extend({
-  action: z.enum(['attack', 'raid']),
-  scoutingTarget: scoutingTargetSchema.optional(),
-  catapultTargets: z.array(catapultTargetSchema).max(2).optional(),
-  heroOasisAnimalAction: heroOasisAnimalActionSchema.optional(),
-});
+export const attackOrRaidFormSchema = z
+  .strictObject({
+    ...baseTroopFormSchema.shape,
+    action: z.enum(['attack', 'raid']),
+    scoutingTarget: scoutingTargetSchema.optional(),
+    catapultTargets: z.array(catapultTargetSchema).max(2).optional(),
+    heroOasisAnimalAction: heroOasisAnimalActionSchema.optional(),
+  })
+  .check(...troopFormChecks);
 
 export type UnitSelection = z.infer<typeof unitSelectionSchema>;
 export type BaseTroopFormValues = z.infer<typeof baseTroopFormSchema>;

@@ -22,12 +22,14 @@ export const calculateCurrentAmount = ({
 }: CalculateCurrentAmountArgs): CalculateCurrentAmountReturn => {
   const deltaMs = Math.max(0, timestamp - lastUpdatedAt);
   const timeSinceLastUpdateInSeconds = Math.floor(deltaMs / 1000);
+  // Capacity may have fallen since the last update, including with no production.
+  const storedAmount = Math.min(lastKnownResourceAmount, storageCapacity);
 
   if (hourlyProduction === 0) {
     return {
       timeSinceLastUpdateInSeconds,
       secondsForResourceGeneration: Number.POSITIVE_INFINITY,
-      currentAmount: lastKnownResourceAmount,
+      currentAmount: storedAmount,
       lastEffectiveUpdate: lastUpdatedAt,
     };
   }
@@ -41,7 +43,7 @@ export const calculateCurrentAmount = ({
 
   const sign = hourlyProduction < 0 ? -1 : 1;
   const delta = producedResources * sign;
-  const calculatedCurrentAmount = lastKnownResourceAmount + delta;
+  const calculatedCurrentAmount = storedAmount + delta;
 
   const currentAmount =
     sign < 0

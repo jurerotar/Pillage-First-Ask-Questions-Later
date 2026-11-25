@@ -18,10 +18,10 @@ import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useCageProductionQueue } from 'app/(game)/(village-slug)/hooks/use-cage-production-queue';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
@@ -45,7 +45,7 @@ import { useTrapperCageStats } from './use-trapper-cage-stats';
 
 const TrapperCageProductionQueue = () => {
   const { t } = useTranslation();
-  const { eventsByType } = useEventsByType('trapperCageProduction');
+  const { batches } = useCageProductionQueue('trapperCageProduction');
 
   return (
     <OverflowContainer>
@@ -55,12 +55,13 @@ const TrapperCageProductionQueue = () => {
             <TableHeaderCell>{t('Item')}</TableHeaderCell>
             <TableHeaderCell>{t('Amount')}</TableHeaderCell>
             <TableHeaderCell>{t('Ready in')}</TableHeaderCell>
+            <TableHeaderCell>{t('Next in')}</TableHeaderCell>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {eventsByType.length > 0 &&
-            eventsByType.map((event) => (
-              <TableRow key={event.id}>
+          {batches.length > 0 &&
+            batches.map((event) => (
+              <TableRow key={event.batchId}>
                 <TableCell>
                   <span className="inline-flex gap-2 items-center">
                     <Icon
@@ -70,15 +71,18 @@ const TrapperCageProductionQueue = () => {
                     {t('Trapper cages')}
                   </span>
                 </TableCell>
-                <TableCell>{formatNumber(event.cageAmount)}</TableCell>
+                <TableCell>{formatNumber(event.amount)}</TableCell>
                 <TableCell>
                   <Countdown endsAt={event.resolvesAt} />
                 </TableCell>
+                <TableCell>
+                  <Countdown endsAt={event.nextAt} />
+                </TableCell>
               </TableRow>
             ))}
-          {eventsByType.length === 0 && (
+          {batches.length === 0 && (
             <TableRow>
-              <TableCell colSpan={3}>
+              <TableCell colSpan={4}>
                 <Text>{t('No Trapper cages are currently being built')}</Text>
               </TableCell>
             </TableRow>
@@ -96,16 +100,14 @@ export const TrapperCages = () => {
   const { serverSpeed } = useServer();
   const { total: trapperCapacity } = useComputedEffect('trapperCapacity');
   const { trapperCageStats } = useTrapperCageStats();
-  const { eventsByType } = useEventsByType('trapperCageProduction');
+  const { queuedAmount: queuedCageAmount } = useCageProductionQueue(
+    'trapperCageProduction',
+  );
   const { createEvent } = useCreateEvent('trapperCageProduction');
   const { developerSettings } = useDeveloperSettings();
   const { isFreeUnitTrainingEnabled, isInstantUnitTrainingEnabled } =
     developerSettings;
 
-  let queuedCageAmount = 0;
-  for (const event of eventsByType) {
-    queuedCageAmount += event.cageAmount;
-  }
   const remainingCapacity = Math.max(
     0,
     trapperCapacity - trapperCageStats.total - queuedCageAmount,
@@ -133,7 +135,8 @@ export const TrapperCages = () => {
     form.reset();
 
     createEvent({
-      cageAmount: amount,
+      amount,
+      batchId: globalThis.crypto.randomUUID(),
       cachesToClearImmediately: [[currentVillageCacheKey, currentVillage.slug]],
     });
   };

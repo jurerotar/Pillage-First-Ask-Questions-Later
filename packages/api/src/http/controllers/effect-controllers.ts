@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { apiEffectDtoSchema } from '@pillage-first/types/dtos/effect';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { selectAllRelevantEffectsQuery } from '../../queries/effect-queries';
-import { apiEffectSchema } from '../../utils/zod/effect-schemas';
+import { apiEffectsJsonSchema } from '../../utils/zod/effect-schemas';
 import { createController } from '../controller';
 
 export const getTileEffects = createController('/tiles/:tileId/effects', {
@@ -14,11 +14,11 @@ export const getTileEffects = createController('/tiles/:tileId/effects', {
   },
   response: z.array(apiEffectDtoSchema),
 })(({ database, path: { tileId } }) => {
-  return database.selectObjects({
+  return database.selectValue({
     sql: selectAllRelevantEffectsQuery,
     bind: {
       $tile_id: tileId,
     },
-    schema: apiEffectSchema,
-  });
+    schema: apiEffectsJsonSchema,
+  })!;
 });

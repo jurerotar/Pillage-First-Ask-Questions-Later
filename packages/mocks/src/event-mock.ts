@@ -147,15 +147,6 @@ export const createHeroRevivalEventMock = (
   });
 };
 
-export const createHeroHealthRegenerationEventMock = (
-  overrides: Partial<GameEvent<'heroHealthRegeneration'>> = {},
-): GameEvent<'heroHealthRegeneration'> => {
-  return createGameEventMock('heroHealthRegeneration', {
-    villageId: null,
-    ...overrides,
-  });
-};
-
 export const createLoyaltyIncreaseEventMock = (
   overrides: Partial<GameEvent<'loyaltyIncrease'>> = {},
 ): GameEvent<'loyaltyIncrease'> => {
@@ -201,7 +192,8 @@ export const createTrapperCageProductionEventMock = (
   overrides: Partial<GameEvent<'trapperCageProduction'>> = {},
 ): GameEvent<'trapperCageProduction'> => {
   return createGameEventMock('trapperCageProduction', {
-    cageAmount: 1,
+    batchId: globalThis.crypto.randomUUID(),
+    amount: 1,
     ...overrides,
   });
 };
@@ -210,7 +202,8 @@ export const createAnimalCageProductionEventMock = (
   overrides: Partial<GameEvent<'animalCageProduction'>> = {},
 ): GameEvent<'animalCageProduction'> => {
   return createGameEventMock('animalCageProduction', {
-    cageAmount: 1,
+    batchId: globalThis.crypto.randomUUID(),
+    amount: 1,
     ...overrides,
   });
 };

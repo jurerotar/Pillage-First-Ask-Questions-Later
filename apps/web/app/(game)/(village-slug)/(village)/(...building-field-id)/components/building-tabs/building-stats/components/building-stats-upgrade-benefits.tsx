@@ -30,6 +30,7 @@ import {
 } from 'app/components/ui/table';
 
 const increasingPercentageBuildingEffects = new Set<Effect['id']>([
+  'buildingDurability',
   'merchantCapacity',
   'unitSpeedAfter20Fields',
   'woodProduction',

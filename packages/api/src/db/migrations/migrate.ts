@@ -45,6 +45,8 @@ import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?r
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
+import createEnemyCasualtyTotalsTable from '../schemas/history-tables/enemy-casualty-totals-schema.sql?raw';
+import createGatheringResourceTotalsTable from '../schemas/history-tables/gathering-resource-totals-schema.sql?raw';
 import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
 import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
@@ -226,7 +228,7 @@ export const migrateAndSeed = (
 
     // Tiles
     db.execMulti({ sql: createTilesTable });
-    tilesSeeder(db, server);
+    const oasisBonuses = tilesSeeder(db, server);
     db.execMulti({ sql: createTilesIndexes });
 
     // Loyalties
@@ -239,7 +241,7 @@ export const migrateAndSeed = (
 
     // Oasis bonuses
     db.execMulti({ sql: createOasisBonusesTable });
-    oasisSeeder(db, server);
+    oasisSeeder(db, oasisBonuses);
     db.execMulti({ sql: createOasisBonusesIndexes });
 
     onProgress?.();
@@ -248,7 +250,9 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createPlayersTable });
     playersSeeder(db, server);
     db.execMulti({ sql: createPlayersIndexes });
+    db.execMulti({ sql: createEnemyCasualtyTotalsTable });
     db.execMulti({ sql: createHuntingCaptureHistoryTable });
+    db.execMulti({ sql: createGatheringResourceTotalsTable });
 
     // Player faction reputations
     db.execMulti({ sql: createFactionReputationTable });
@@ -347,8 +351,10 @@ export const migrateAndSeed = (
     // Building fields
     db.execMulti({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
-    occupiedOasisSeeder(db, server);
     db.execMulti({ sql: createBuildingFieldsIndexes });
+
+    // Occupied oasis
+    occupiedOasisSeeder(db, server);
 
     // Trapper cages
     db.execMulti({ sql: createTrapperCagesTable });

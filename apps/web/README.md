@@ -45,6 +45,6 @@ The web app connects directly to [`@pillage-first/remote-api`](../remote-api/REA
 - Set `VITE_API_URL=https://api.pillagefirst.com` in the web environment.
 - Set `ALLOWED_ORIGIN` on the API to the allowed web origins, e.g. `https://pillagefirst.com,http://localhost:5173`.
 - Open `/bugs` to manage reports; sign in with the API server's `API_TOKEN`. Never expose this token through a `VITE_` variable.
-- Use **Share game world** to generate an import link and QR code. Shared worlds are deleted after successful import or 24 hours.
+- Use **Share game world** to generate an import link and QR code. The link supports repeat imports for 24 hours after the upload completes.
 
 For local development, run `npm run dev --workspace=@pillage-first/web`. See the remote API README for server setup and deployment.

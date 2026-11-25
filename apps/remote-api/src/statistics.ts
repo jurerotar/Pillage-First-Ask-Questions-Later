@@ -11,7 +11,6 @@ const counters = [
   'sharedDownloadBytesRequested',
   'reportDownloadsStarted',
   'reportDownloadBytesRequested',
-  'sharedImportsConfirmed',
   'sharedWorldsExpired',
   'reportsSubmitted',
   'reportsClosed',

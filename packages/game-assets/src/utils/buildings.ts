@@ -4,6 +4,10 @@ import type {
 } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { Effect } from '@pillage-first/types/models/effect';
+import {
+  mapResourceBundle,
+  type ResourceBundle,
+} from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Village } from '@pillage-first/types/models/village';
 import { buildingMap } from '../buildings';
@@ -48,11 +52,12 @@ export const calculateTotalPopulationForLevel = (
 export const calculateBuildingCostForLevel = (
   buildingId: Building['id'],
   level: number,
-): number[] => {
+): ResourceBundle => {
   const { buildingCostCoefficient, baseBuildingCost } =
     getBuildingDefinition(buildingId);
 
-  return baseBuildingCost.map(
+  return mapResourceBundle(
+    baseBuildingCost,
     (resource) =>
       Math.ceil((resource * buildingCostCoefficient ** (level - 1)) / 5) * 5,
   );

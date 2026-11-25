@@ -5,12 +5,14 @@ import {
 } from '@pillage-first/game-assets/utils/hero';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import {
-  heroDtoSchema,
   heroInventoryEntryDtoSchema,
   heroLoadoutEntryDtoSchema,
   heroProductionUpdateDtoSchema,
 } from '@pillage-first/types/dtos/hero';
-import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
+import {
+  heroResourceToProduceSchema,
+  heroSchema,
+} from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
@@ -18,6 +20,8 @@ import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { getPlayerHeroAdventureStateAt } from '../../utils/adventures';
 import { createEvents } from '../../utils/create-event';
 import {
+  getHeroHealthStateAt,
+  getNextHeroHealthRegenerationAt,
   updateHeroEquipmentBonuses,
   updateHeroResourceProductionEffects,
 } from '../../utils/hero';
@@ -40,13 +44,15 @@ import {
 
 export const getHero = createController('/me/hero', {
   summary: 'Get hero details',
-  response: heroDtoSchema,
+  response: heroSchema,
 })(({ database, context: { playerId } }) => {
   const row = database.selectObject({
     sql: `
         SELECT
           h.id,
           h.health,
+          h.next_health_regeneration_at,
+          servers.speed AS world_speed,
           h.experience,
           h.base_attack_power,
           h.health_regeneration,
@@ -81,6 +87,7 @@ export const getHero = createController('/me/hero', {
             THEN e.resolves_at + e.duration ELSE e.resolves_at END AS movement_ends_at
         FROM
           heroes h
+            CROSS JOIN servers
             JOIN villages home ON home.id = h.village_id
             JOIN
             hero_selectable_attributes hsa ON h.id = hsa.hero_id
@@ -269,7 +276,10 @@ export const changeHeroAttributes = createController(
         WHERE h.player_id = $player_id
       `,
       bind: { $player_id: playerId },
-      schema: heroProductionUpdateDtoSchema.extend({ villageId: z.number() }),
+      schema: z.strictObject({
+        ...heroProductionUpdateDtoSchema.shape,
+        villageId: z.number(),
+      }),
     })!;
 
     database.transaction(() => {
@@ -403,7 +413,10 @@ export const changeHeroResourceToProduce = createController(
       WHERE h.player_id = $player_id
     `,
     bind: { $player_id: playerId },
-    schema: heroProductionUpdateDtoSchema.extend({ villageId: z.number() }),
+    schema: z.strictObject({
+      ...heroProductionUpdateDtoSchema.shape,
+      villageId: z.number(),
+    }),
   })!;
 
   database.transaction(() => {
@@ -696,21 +709,31 @@ export const useHeroItem = createController('/me/hero/item', 'post', {
 
     if (itemId === 1021) {
       // HEALING_POTION
-      const currentHealth = database.selectValue({
-        sql: 'SELECT health FROM heroes WHERE id = $hero_id',
-        bind: { $hero_id: heroId },
-        schema: z.number(),
-      })!;
+      const now = Date.now();
+      const { health, nextHealthRegenerationAt, interval } =
+        getHeroHealthStateAt(database, heroId, now);
 
-      const healthNeeded = 100 - currentHealth;
+      const healthNeeded = 100 - health;
+
       if (healthNeeded <= 0) {
         return; // Already at full health
       }
+
       itemsToUse = Math.min(amount, healthNeeded);
+      const nextHealth = health + itemsToUse;
 
       database.exec({
-        sql: 'UPDATE heroes SET health = health + $healthToAdd WHERE id = $hero_id',
-        bind: { $hero_id: heroId, $healthToAdd: itemsToUse },
+        sql: 'UPDATE heroes SET health = $health, next_health_regeneration_at = $next_at WHERE id = $hero_id',
+        bind: {
+          $hero_id: heroId,
+          $health: nextHealth,
+          $next_at: getNextHeroHealthRegenerationAt(
+            nextHealth,
+            nextHealthRegenerationAt,
+            interval,
+            now,
+          ),
+        },
       });
     } else if (itemId === 1022) {
       // BOOK_OF_WISDOM

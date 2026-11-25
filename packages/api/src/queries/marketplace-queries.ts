@@ -49,6 +49,23 @@ export const selectMarketplaceVillageWithTargetByTileIdQuery = `
       LEFT JOIN villages target_village ON target_village.tile_id = $target_tile_id;
 `;
 
+const usedMerchantAmount = `
+  COALESCE(
+    (
+      WITH transfers AS MATERIALIZED (
+        SELECT village_id, meta FROM events WHERE type = 'resourceTransfer'
+      )
+      SELECT SUM(CAST(JSON_EXTRACT(meta, '$.merchantAmount') AS INTEGER))
+      FROM transfers
+      WHERE village_id = v.id
+    ),
+    0
+  )
+`;
+
+const merchantCapacityEffectId =
+  "(SELECT id FROM effect_ids WHERE effect = 'merchantCapacity')";
+
 export const selectVillageMerchantStatsByVillageIdQuery = `
   SELECT
     v.id,
@@ -68,20 +85,12 @@ export const selectVillageMerchantStatsByVillageIdQuery = `
       ),
       0
     ) AS marketplaceLevel,
-    COALESCE(
-      (
-        SELECT SUM(CAST(JSON_EXTRACT(e.meta, '$.merchantAmount') AS INTEGER))
-        FROM events e
-        WHERE
-          e.village_id = v.id
-          AND e.type = 'resourceTransfer'
-      ),
-      0
-    ) AS usedMerchantAmount,
+    ${usedMerchantAmount} AS usedMerchantAmount,
     (
       WITH relevant_effects AS (
         SELECT * FROM effects
         WHERE tile_id = v.tile_id
+          AND effect_id = ${merchantCapacityEffectId}
         UNION ALL
         SELECT * FROM effects
         WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect = 'merchantCapacity')
@@ -136,20 +145,12 @@ export const selectVillageMerchantStatsByTileIdQuery = `
       ),
       0
     ) AS marketplaceLevel,
-    COALESCE(
-      (
-        SELECT SUM(CAST(JSON_EXTRACT(e.meta, '$.merchantAmount') AS INTEGER))
-        FROM events e
-        WHERE
-          e.village_id = v.id
-          AND e.type = 'resourceTransfer'
-      ),
-      0
-    ) AS usedMerchantAmount,
+    ${usedMerchantAmount} AS usedMerchantAmount,
     (
       WITH relevant_effects AS (
         SELECT * FROM effects
         WHERE tile_id = v.tile_id
+          AND effect_id = ${merchantCapacityEffectId}
         UNION ALL
         SELECT * FROM effects
         WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect = 'merchantCapacity')
@@ -205,20 +206,12 @@ export const selectVillageMerchantStatsWithTargetByTileIdQuery = `
         ),
         0
       ) AS marketplaceLevel,
-      COALESCE(
-        (
-          SELECT SUM(CAST(JSON_EXTRACT(e.meta, '$.merchantAmount') AS INTEGER))
-          FROM events e
-          WHERE
-            e.village_id = v.id
-            AND e.type = 'resourceTransfer'
-        ),
-        0
-      ) AS usedMerchantAmount,
+      ${usedMerchantAmount} AS usedMerchantAmount,
       (
         WITH relevant_effects AS (
           SELECT * FROM effects
           WHERE tile_id = v.tile_id
+            AND effect_id = ${merchantCapacityEffectId}
           UNION ALL
           SELECT * FROM effects
           WHERE effect_id IN (SELECT id FROM effect_ids WHERE effect = 'merchantCapacity')

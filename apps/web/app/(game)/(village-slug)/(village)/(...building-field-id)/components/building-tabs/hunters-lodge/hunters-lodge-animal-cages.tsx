@@ -17,9 +17,9 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useCageProductionQueue } from 'app/(game)/(village-slug)/hooks/use-cage-production-queue';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
@@ -42,7 +42,7 @@ import { formatTime } from 'app/utils/time';
 
 const AnimalCageProductionQueue = () => {
   const { t } = useTranslation();
-  const { eventsByType } = useEventsByType('animalCageProduction');
+  const { batches } = useCageProductionQueue('animalCageProduction');
 
   return (
     <OverflowContainer>
@@ -52,12 +52,13 @@ const AnimalCageProductionQueue = () => {
             <TableHeaderCell>{t('Item')}</TableHeaderCell>
             <TableHeaderCell>{t('Amount')}</TableHeaderCell>
             <TableHeaderCell>{t('Ready in')}</TableHeaderCell>
+            <TableHeaderCell>{t('Next in')}</TableHeaderCell>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {eventsByType.length > 0 &&
-            eventsByType.map((event) => (
-              <TableRow key={event.id}>
+          {batches.length > 0 &&
+            batches.map((event) => (
+              <TableRow key={event.batchId}>
                 <TableCell>
                   <span className="inline-flex gap-2 items-center">
                     <Icon
@@ -65,19 +66,22 @@ const AnimalCageProductionQueue = () => {
                       type="trapperCapacity"
                     />
                     {t('ITEMS.ANIMAL_CAGE.NAME', {
-                      count: event.cageAmount,
+                      count: event.amount,
                     })}
                   </span>
                 </TableCell>
-                <TableCell>{formatNumber(event.cageAmount)}</TableCell>
+                <TableCell>{formatNumber(event.amount)}</TableCell>
                 <TableCell>
                   <Countdown endsAt={event.resolvesAt} />
                 </TableCell>
+                <TableCell>
+                  <Countdown endsAt={event.nextAt} />
+                </TableCell>
               </TableRow>
             ))}
-          {eventsByType.length === 0 && (
+          {batches.length === 0 && (
             <TableRow>
-              <TableCell colSpan={3}>
+              <TableCell colSpan={4}>
                 <Text>{t('No animal cages are currently being built')}</Text>
               </TableCell>
             </TableRow>
@@ -118,7 +122,8 @@ export const HuntersLodgeAnimalCages = () => {
     form.reset();
 
     createEvent({
-      cageAmount: amount,
+      amount,
+      batchId: globalThis.crypto.randomUUID(),
       cachesToClearImmediately: [[currentVillageCacheKey]],
     });
   };
@@ -144,7 +149,7 @@ export const HuntersLodgeAnimalCages = () => {
         <InformationPopover ariaLabel={t('Animal cages')}>
           <Text>
             {t(
-              'Animal cages are used by your Hero to capture animals from oasis. A full batch is delivered to your hero inventory when production finishes.',
+              'Animal cages are used by your Hero to capture animals from oasis. Each cage is delivered to your hero inventory as it finishes production.',
             )}
           </Text>
         </InformationPopover>

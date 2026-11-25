@@ -1,9 +1,52 @@
+## Version 0.4.86
+
+#### Nov 24, 2026
+
+- [Feature] Added the Stonemason building. Stonemason increases the durability against siege attacks for the buildings
+  in the village it's built in.
+- [UIUXImprovement] Village and global quest cards now show progress toward the current milestone, such as **19/20**
+  hero adventures.
+
+## Version 0.4.85
+
+#### Nov 23, 2026
+
+- [UIUXImprovement] The game world picker now shows when each world was last opened. You can sort by last opened
+  in either direction or by name, and filter by map size, speed, and tribe.
+- [Performance] When opening a game world, the loading animation should now disappear about 15% faster.
+- [Performance] Further optimized the offline catch-up mechanism. It now processes more events per database transaction,
+  reducing startup time. During testing, this resulted in ~ 70-80% faster game world start up times for very large game
+  worlds.
+- [Performance] Reduced database work when processing trade routes and pruning old, unarchived reports. Removed
+  unnecessary SQL queries and sped up trade route lookups by ~ 40%.
+
+## Version 0.4.84
+
+#### Nov 17, 2026
+
+- [UIUXImprovement] Added training durations for the full queue.
+- [TechnicalImprovement] Added support for building durability effect for upcoming siege modifiers.
+- [TechnicalImprovement] Hero health regeneration now uses elapsed time in place of recurring scheduled events.
+- [TechnicalImprovement] You will no longer have to wait for whole batch to finish when producing Gaul Traps and Animal
+  Cages. Instead, each trap and cage will now become available as soon as it completes its individual production.
+- [Performance] Removed some unnecessary SQL queries when resolving trade routes.
+- [Performance] New game worlds generate faster and use less memory.
+- [Performance] Reduced browser memory usage when exporting a game world.
+- [Performance] Improved database queries for gameplay effects, including resource production and troop movement speed.
+- [BugFix] Fixed training screens showing Academy requirements for troops that were already researched.
+- [BugFix] Fixed resources exceeding the new storage capacity after downgrading or demolishing a Warehouse, Granary,
+  Great Warehouse, or Great Granary.
+- [BugFix] Fixed an issue where trade routes could leave players without their resources in certain scenarios.
+- [BugFix] Fixed the Discord button on desktop so it responds to clicks.
+- [BugFix] Fixed unhandled errors when exporting, duplicating, or deleting a game world.
+
 ## Version 0.4.83
 
 #### Nov 15, 2026
 
 - [Feature] Added report generation settings to references, allowing you to choose which report types to generate across
   all your villages.
+- [Feature] Shared game worlds will now persist for 24 hours.
 - [UIUXImprovement] Expanded battle reports with hero health and experience, detailed siege results, loyalty changes,
   conquest outcomes, rescued troops, captured animals and stolen items.
 - [UIUXImprovement] Grouped automatic navigation preferences into a dedicated settings popover.

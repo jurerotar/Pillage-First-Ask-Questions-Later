@@ -74,12 +74,11 @@ export const getSharedWorldPreview = async (
 
 export const downloadSharedWorld = async (
   worldId: string,
-  token: string,
   onProgress: (progress: TransferProgress) => void,
 ): Promise<ArrayBuffer> => {
   const response = await remoteRequest(
     `/api/game-worlds/${encodeURIComponent(worldId)}/download`,
-    { method: 'POST', headers: { authorization: `Bearer ${token}` } },
+    { method: 'POST' },
   );
   const size = Number(
     response.headers.get('x-world-size') ??

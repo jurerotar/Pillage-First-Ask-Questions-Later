@@ -8,7 +8,6 @@ import {
 } from 'react-icons/fa6';
 import { IoCopyOutline } from 'react-icons/io5';
 import { Link } from 'react-router';
-import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import {
   encodeAppVersionToDatabaseUserVersion,
@@ -16,6 +15,7 @@ import {
 } from '@pillage-first/utils/version';
 import { ShareGameWorldDialog } from 'app/(public)/(game-worlds)/(index)/components/share-game-world-dialog';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import type { GameWorldListingEntry } from 'app/(public)/(game-worlds)/utils/game-world-listing';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Badge } from 'app/components/ui/badge';
@@ -29,11 +29,12 @@ import { useIntl } from 'app/hooks/use-intl';
 import { daysSince } from 'app/utils/time';
 
 type ServerCardProps = {
-  server: Server;
+  server: GameWorldListingEntry;
 };
 
 export const ServerCard = ({ server }: ServerCardProps) => {
   const intl = useIntl();
+  const lastOpened = server.lastOpenedAt ? new Date(server.lastOpenedAt) : null;
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const {
@@ -112,7 +113,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void exportGameWorld({ server });
+                exportGameWorld({ server });
               }}
             >
               {isExportGameWorldPending ? (
@@ -130,7 +131,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void duplicateGameWorld({ server });
+                duplicateGameWorld({ server });
               }}
             >
               {isDuplicateGameWorldPending ? (
@@ -148,7 +149,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void deleteGameWorld({ server });
+                deleteGameWorld({ server });
               }}
             >
               {isDeleteGameWorldPending ? (
@@ -194,6 +195,21 @@ export const ServerCard = ({ server }: ServerCardProps) => {
           <Text className="font-medium">Created:</Text>
           <Text>{timeSinceCreation}</Text>
         </span>
+        {lastOpened && (
+          <span className="flex gap-2">
+            <Text
+              as="span"
+              className="font-medium"
+            >
+              Last opened:
+            </Text>
+            <Text as="span">
+              <time dateTime={lastOpened.toISOString()}>
+                {daysSince(lastOpened.getTime(), intl)}
+              </time>
+            </Text>
+          </span>
+        )}
       </div>
       {shouldDisplayGameWorldOutdatedAlert && (
         <Alert variant="error">

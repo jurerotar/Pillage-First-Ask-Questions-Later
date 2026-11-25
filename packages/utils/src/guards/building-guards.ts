@@ -7,7 +7,7 @@ const healingTroopTrainingBuildings = new Set<Building['id']>([
 
 export const isHealingTroopTrainingBuilding = (
   buildingId: string,
-): buildingId is Extract<Building['id'], 'HOSPITAL' | 'ASCLEPEION'> => {
+): buildingId is Building['id'] & ('HOSPITAL' | 'ASCLEPEION') => {
   return healingTroopTrainingBuildings.has(buildingId as Building['id']);
 };
 

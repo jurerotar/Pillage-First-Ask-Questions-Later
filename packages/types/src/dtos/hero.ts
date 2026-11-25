@@ -1,36 +1,10 @@
 import { z } from 'zod';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
-import { heroResourceToProduceSchema, heroStatusSchema } from '../models/hero';
 import { heroLoadoutSlotSchema } from '../models/hero-loadout';
 
 export const heroProductionUpdateDtoSchema = z.strictObject({
   tileId: tileIdSchema,
   villageSlug: z.string(),
-});
-
-export const heroDtoSchema = z.strictObject({
-  id: z.number(),
-  stats: z.strictObject({
-    health: z.number(),
-    experience: z.number(),
-    attackPower: z.number(),
-    healthRegeneration: z.number(),
-    damageReduction: z.number(),
-    experienceModifier: z.number(),
-    speed: z.number(),
-    natarianAttackBonus: z.number(),
-    attackBonus: z.number(),
-    defenceBonus: z.number(),
-  }),
-  selectableAttributes: z.strictObject({
-    attackPower: z.number(),
-    resourceProduction: z.number(),
-    attackBonus: z.number(),
-    defenceBonus: z.number(),
-  }),
-  villageId: z.number(),
-  resourceToProduce: heroResourceToProduceSchema,
-  status: heroStatusSchema,
 });
 
 export const heroLoadoutEntryDtoSchema = z.strictObject({
@@ -51,18 +25,18 @@ export const baseHeroAuctionListingDtoSchema = z.strictObject({
   price: z.number().int().positive(),
 });
 
-export const heroAuctionBuyListingDtoSchema =
-  baseHeroAuctionListingDtoSchema.extend({
-    expiresAt: z.number(),
-  });
+export const heroAuctionBuyListingDtoSchema = z.strictObject({
+  ...baseHeroAuctionListingDtoSchema.shape,
+  expiresAt: z.number(),
+});
 
-export const heroAuctionSellListingDtoSchema =
-  baseHeroAuctionListingDtoSchema.extend({
-    sellsAt: z.number(),
-  });
+export const heroAuctionSellListingDtoSchema = z.strictObject({
+  ...baseHeroAuctionListingDtoSchema.shape,
+  sellsAt: z.number(),
+});
 
-export const heroAuctionHistoryEntryDtoSchema =
-  baseHeroAuctionListingDtoSchema.extend({
-    type: z.enum(['buy', 'sell']),
-    completedAt: z.number(),
-  });
+export const heroAuctionHistoryEntryDtoSchema = z.strictObject({
+  ...baseHeroAuctionListingDtoSchema.shape,
+  type: z.enum(['buy', 'sell']),
+  completedAt: z.number(),
+});

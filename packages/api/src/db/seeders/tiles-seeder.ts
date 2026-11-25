@@ -17,7 +17,10 @@ import {
   seededRandomIntFromInterval,
 } from '@pillage-first/utils/random';
 import { batchInsert } from '../utils/batch-insert';
-import { generateOasisBonusesForTiles } from '../utils/oasis-bonus-generator';
+import {
+  type GeneratedOasisBonus,
+  generateOasisBonusesForTiles,
+} from '../utils/oasis-bonus-generator';
 
 type TileModel = {
   id: number;
@@ -312,7 +315,7 @@ const guaranteedCropperTargets: [ResourceFieldComposition, number][] = [
 const applyGuaranteedCropperCompositions = (
   server: Server,
   tiles: TileModel[],
-): TileModel[] => {
+): GeneratedOasisBonus[] => {
   const freeTiles: TileModel[] = [];
   const oasisBonusSourceTiles: { id: number; oasis_graphics: number }[] = [];
   const freeTilesByCoordinates = new Map<`${number}-${number}`, TileModel>();
@@ -342,10 +345,12 @@ const applyGuaranteedCropperCompositions = (
     });
   }
 
-  for (const { tileId, resource, bonus } of generateOasisBonusesForTiles(
+  // Tiles are in ascending ID order, which determines the seeded bonus rolls.
+  const oasisBonuses = generateOasisBonusesForTiles(
     server,
     oasisBonusSourceTiles,
-  )) {
+  );
+  for (const { tileId, resource, bonus } of oasisBonuses) {
     if (resource !== 'wheat' || bonus !== 50) {
       continue;
     }
@@ -396,21 +401,23 @@ const applyGuaranteedCropperCompositions = (
     }
   }
 
-  return tiles;
+  return oasisBonuses;
 };
 
-export const tilesSeeder = (database: DbFacade, server: Server): void => {
+export const tilesSeeder = (
+  database: DbFacade,
+  server: Server,
+): GeneratedOasisBonus[] => {
   const emptyTiles = generateGrid(server);
   const tilesWithShapedOasisFields = generateShapedOasisFields(
     server,
     emptyTiles,
   );
-  const tilesWithSingleOasisAndFreeTileTypes =
-    assignOasisAndFreeTileComposition(server, tilesWithShapedOasisFields);
-  const tilesWithGuaranteedCroppers = applyGuaranteedCropperCompositions(
+  const tiles = assignOasisAndFreeTileComposition(
     server,
-    tilesWithSingleOasisAndFreeTileTypes,
+    tilesWithShapedOasisFields,
   );
+  const oasisBonuses = applyGuaranteedCropperCompositions(server, tiles);
 
   const rfcRows = database.selectObjects({
     sql: 'SELECT resource_field_composition, id FROM resource_field_composition_ids;',
@@ -436,7 +443,7 @@ export const tilesSeeder = (database: DbFacade, server: Server): void => {
     tileTypeRows.map((t) => [t.type, t.id]),
   );
 
-  const rows = tilesWithGuaranteedCroppers.map((tile) => {
+  const rows = tiles.map((tile) => {
     const { id, x, y, type, resource_field_composition, oasis_graphics } = tile;
 
     const rfcId = type === 'free' ? rfcs[resource_field_composition!] : null;
@@ -457,4 +464,6 @@ export const tilesSeeder = (database: DbFacade, server: Server): void => {
     ],
     rows,
   );
+
+  return oasisBonuses;
 };

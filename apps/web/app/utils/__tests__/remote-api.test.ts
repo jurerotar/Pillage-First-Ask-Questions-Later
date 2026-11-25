@@ -196,11 +196,7 @@ test.each([true, false])(
 
     vi.stubGlobal('fetch', fetch);
 
-    const buffer = await downloadSharedWorld(
-      'shared-world',
-      'download-token',
-      onProgress,
-    );
+    const buffer = await downloadSharedWorld('shared-world', onProgress);
 
     expect([...new Uint8Array(buffer)]).toStrictEqual([1, 2, 3, 4, 5]);
     expect(onProgress.mock.calls.map(([progress]) => progress)).toStrictEqual([
@@ -243,7 +239,7 @@ test('throttles download updates while keeping progress monotonic and reporting 
     ),
   );
 
-  await downloadSharedWorld('shared-world', 'download-token', onProgress);
+  await downloadSharedWorld('shared-world', onProgress);
 
   const loaded = onProgress.mock.calls.map(([progress]) => progress.loaded);
 
@@ -272,7 +268,7 @@ test('uses the original file size for progress when the response is compressed',
     ),
   );
 
-  await downloadSharedWorld('shared-world', 'download-token', onProgress);
+  await downloadSharedWorld('shared-world', onProgress);
 
   expect(onProgress).toHaveBeenLastCalledWith({ loaded: 100, total: 100 });
 });
@@ -286,7 +282,7 @@ test('propagates a failed download stream instead of importing partial bytes', a
 
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(stream)));
 
-  await expect(
-    downloadSharedWorld('shared-world', 'download-token', vi.fn()),
-  ).rejects.toThrow('Download interrupted');
+  await expect(downloadSharedWorld('shared-world', vi.fn())).rejects.toThrow(
+    'Download interrupted',
+  );
 });
