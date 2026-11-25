@@ -1612,6 +1612,29 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1775,
   },
   {
+    id: 'STONEMASON',
+    category: 'infrastructure',
+    populationCoefficient: 2,
+    culturePointsCoefficient: 1,
+    effects: () => [
+      {
+        effectId: 'buildingDurability',
+        valuesPerLevel: Array.from(
+          { length: 21 },
+          (_, level) => 1 + level / 20,
+        ),
+        type: 'bonus',
+      },
+    ],
+    buildingRequirements: [{ id: 1, type: 'amount', amount: 1 }],
+    baseBuildingCost: [250, 300, 150, 100],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 4200,
+    buildingDurationReduction: 1875,
+  },
+  {
     id: 'GREAT_GRANARY',
     category: 'infrastructure',
     populationCoefficient: 1,

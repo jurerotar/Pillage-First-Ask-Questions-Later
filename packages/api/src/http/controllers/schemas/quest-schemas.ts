@@ -8,5 +8,6 @@ export const getQuestsRowSchema = z
     collected_at: z.number().nullable(),
     completed_at: z.number().nullable(),
     village_id: z.number().nullable(),
+    progress: z.int().nonnegative(),
   })
   .meta({ id: 'GetQuestsRow' });

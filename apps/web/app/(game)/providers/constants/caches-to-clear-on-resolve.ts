@@ -49,6 +49,7 @@ export const cachesToClearOnResolve: Handlers = {
     return [
       [currentVillageCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
+        [questsCacheKey, villageId],
         [eventsCacheKey, 'buildingConstruction', villageId],
         [eventsCacheKey, 'buildingLevelChange', villageId],
       ]),
@@ -73,6 +74,7 @@ export const cachesToClearOnResolve: Handlers = {
       [currentVillageCacheKey],
       [effectsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
+        [questsCacheKey, villageId],
         [eventsCacheKey, 'buildingDestruction', villageId],
       ]),
     ];

@@ -8,5 +8,6 @@ export const mapQuestRowToDto = (row: z.infer<typeof getQuestsRowSchema>) =>
     scope: row.scope,
     collectedAt: row.collected_at,
     completedAt: row.completed_at,
+    progress: row.progress,
     ...(row.village_id !== null && { villageId: row.village_id }),
   });

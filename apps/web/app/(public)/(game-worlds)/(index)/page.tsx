@@ -29,23 +29,36 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 
-type SortOrder = 'lastOpenedDesc' | 'lastOpenedAsc' | 'name';
+type SortOrder =
+  | 'lastOpenedDesc'
+  | 'lastOpenedAsc'
+  | 'createdDesc'
+  | 'createdAsc'
+  | 'name';
 
 const compareWorlds = (
   first: GameWorldListingEntry,
   second: GameWorldListingEntry,
   sortOrder: SortOrder,
 ) => {
-  if (sortOrder !== 'name' && first.lastOpenedAt !== second.lastOpenedAt) {
-    if (first.lastOpenedAt === undefined) {
-      return 1;
+  if (sortOrder !== 'name') {
+    const sortByCreation =
+      sortOrder === 'createdAsc' || sortOrder === 'createdDesc';
+    const timestamp = sortByCreation ? 'createdAt' : 'lastOpenedAt';
+    const firstTime = first[timestamp];
+    const secondTime = second[timestamp];
+
+    if (firstTime !== secondTime) {
+      if (firstTime === undefined) {
+        return 1;
+      }
+      if (secondTime === undefined) {
+        return -1;
+      }
+      const ascending =
+        sortOrder === 'createdAsc' || sortOrder === 'lastOpenedAsc';
+      return ascending ? firstTime - secondTime : secondTime - firstTime;
     }
-    if (second.lastOpenedAt === undefined) {
-      return -1;
-    }
-    return sortOrder === 'lastOpenedAsc'
-      ? first.lastOpenedAt - second.lastOpenedAt
-      : second.lastOpenedAt - first.lastOpenedAt;
   }
 
   return first.name.localeCompare(second.name, undefined, {
@@ -124,6 +137,8 @@ const MyGameWorldsPage = () => {
                 <SelectContent>
                   <SelectItem value="lastOpenedDesc">Last opened ↓</SelectItem>
                   <SelectItem value="lastOpenedAsc">Last opened ↑</SelectItem>
+                  <SelectItem value="createdDesc">Created ↓</SelectItem>
+                  <SelectItem value="createdAsc">Created ↑</SelectItem>
                   <SelectItem value="name">A–Z</SelectItem>
                 </SelectContent>
               </Select>

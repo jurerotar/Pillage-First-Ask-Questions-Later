@@ -6,6 +6,7 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
 import { selectVillageEventExistsByTypeQuery } from '../../../queries/event-queries';
+import { completeCelebrationQuestsQuery } from '../../../queries/quest-queries';
 import {
   getVillageBuildingLevel,
   requireVillageBuildingLevel,
@@ -133,19 +134,8 @@ export const culturePointsCelebrationResolver =
         });
 
         database.exec({
-          sql: `
-            UPDATE quests
-            SET
-              completed_at = $timestamp
-            WHERE
-              completed_at IS NULL
-              AND village_id IS NULL
-              AND quest_id GLOB 'celebrationCount-*'
-              AND CAST(substr(quest_id, length('celebrationCount-') + 1) AS INTEGER)
-              <= (SELECT celebrations_held FROM culture_points WHERE player_id = $player_id)
-              AND player_id = $player_id;
-          `,
-          bind: { $timestamp: startsAt, $player_id: playerId },
+          sql: completeCelebrationQuestsQuery,
+          bind: { $completed_at: startsAt, $player_id: playerId },
         });
       },
     }),

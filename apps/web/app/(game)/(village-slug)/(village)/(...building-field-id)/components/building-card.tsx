@@ -287,6 +287,7 @@ const BuildingScheduledConstructionConfirmationDialog = ({
 };
 
 const increasingPercentageBuildingEffects = new Set<Effect['id']>([
+  'buildingDurability',
   'merchantCapacity',
   'unitSpeedAfter20Fields',
   'woodProduction',

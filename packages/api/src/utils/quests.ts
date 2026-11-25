@@ -1,7 +1,30 @@
-import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { Building } from '@pillage-first/types/models/building';
 import type { NatureUnitId, Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import {
+  completeAdventureQuestsQuery,
+  completeBattleQuestsQuery,
+  completeCaptureAnimalByIdQuestsQuery,
+  completeCaptureAnimalKindQuestsQuery,
+  completeGatheredResourceQuestsQuery,
+  completeQueuedTroopQuestsQuery,
+  questCatchableAnimalIds,
+} from '../queries/quest-queries';
+
+// Call in the same transaction after crediting enemy casualties to the player.
+export const assessBattleQuestCompletion = (
+  database: DbFacade,
+  timestamp: number,
+  playerId: number,
+): void => {
+  database.exec({
+    sql: completeBattleQuestsQuery,
+    bind: {
+      $completed_at: timestamp,
+      $player_id: playerId,
+    },
+  });
+};
 
 export const assessAdventureCountQuestCompletion = (
   database: DbFacade,
@@ -9,24 +32,7 @@ export const assessAdventureCountQuestCompletion = (
   playerId: number,
 ): void => {
   database.exec({
-    sql: `
-      UPDATE quests
-      SET
-        completed_at = $completed_at
-      WHERE
-        player_id = $player_id
-        AND completed_at IS NULL
-        AND quest_id GLOB 'adventureCount-*'
-        AND substr(quest_id, length('adventureCount-') + 1) GLOB '[0-9]*'
-        AND (
-          SELECT COALESCE(MAX(ha.completed), 0)
-          FROM
-            hero_adventures ha
-            JOIN heroes h ON ha.hero_id = h.id
-          WHERE
-            h.player_id = $player_id
-        ) >= CAST(substr(quest_id, LENGTH('adventureCount-') + 1) AS INTEGER);
-    `,
+    sql: completeAdventureQuestsQuery,
     bind: {
       $completed_at: timestamp,
       $player_id: playerId,
@@ -36,92 +42,12 @@ export const assessAdventureCountQuestCompletion = (
 
 export const assessQueuedTroopCountQuestCompletion = (
   database: DbFacade,
-  timestamp: number,
-  playerId: number,
-): void => {
-  database.exec({
-    sql: `
-      UPDATE quests
-      SET
-        completed_at = $completed_at
-      WHERE
-        player_id = $player_id
-        AND completed_at IS NULL
-        AND village_id IS NULL
-        AND quest_id LIKE 'queuedTroopCount-%'
-        AND substr(quest_id, length('queuedTroopCount-') + 1) GLOB '[0-9]*'
-        AND (
-          (
-            SELECT COALESCE(SUM(uth.amount), 0)
-            FROM
-              unit_training_history uth
-              JOIN villages v ON uth.village_id = v.id
-            WHERE
-              v.player_id = $player_id
-          )
-          +
-          (
-            SELECT COUNT(*)
-            FROM
-              events e
-              JOIN villages v ON e.village_id = v.id
-            WHERE
-              e.type = 'troopTraining'
-              AND v.player_id = $player_id
-          )
-        ) >= CAST(substr(quest_id, LENGTH('queuedTroopCount-') + 1) AS INTEGER);
-    `,
-    bind: {
-      $completed_at: timestamp,
-      $player_id: playerId,
-    },
-  });
-};
-
-export const assessQueuedTroopCountByIdQuestCompletion = (
-  database: DbFacade,
   unitId: Unit['id'],
   timestamp: number,
   playerId: number,
 ): void => {
   database.exec({
-    sql: `
-      UPDATE quests
-      SET
-        completed_at = $completed_at
-      WHERE
-        player_id = $player_id
-        AND completed_at IS NULL
-        AND village_id IS NULL
-        AND quest_id LIKE 'queuedTroopCountById-' || $unit_id || '-%'
-        AND substr(quest_id, length('queuedTroopCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
-        AND (
-          (
-            SELECT COALESCE(SUM(uth.amount), 0)
-            FROM
-              unit_training_history uth
-              JOIN unit_ids ui ON uth.unit_id = ui.id
-              JOIN villages v ON uth.village_id = v.id
-            WHERE
-              v.player_id = $player_id
-              AND ui.unit = $unit_id
-          )
-          +
-          (
-            SELECT COUNT(*)
-            FROM
-              events e
-              JOIN villages v ON e.village_id = v.id
-            WHERE
-              e.type = 'troopTraining'
-              AND v.player_id = $player_id
-              AND JSON_EXTRACT(e.meta, '$.unitId') = $unit_id
-          )
-        ) >= CAST(
-          substr(quest_id, length('queuedTroopCountById-' || $unit_id || '-') + 1)
-          AS INTEGER
-        );
-    `,
+    sql: completeQueuedTroopQuestsQuery,
     bind: {
       $completed_at: timestamp,
       $unit_id: unitId,
@@ -137,33 +63,11 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
   playerId: number,
 ): void => {
   database.exec({
-    sql: `
-      UPDATE quests
-      SET
-        completed_at = $completed_at
-      WHERE
-        player_id = $player_id
-        AND completed_at IS NULL
-        AND village_id IS NULL
-        AND quest_id GLOB $quest_pattern
-        AND substr(quest_id, length('captureAnimalCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
-        AND (
-          SELECT COALESCE(SUM(hch.amount), 0)
-          FROM
-            hunting_capture_history hch
-            JOIN unit_ids ui ON ui.id = hch.unit_id
-          WHERE
-            hch.player_id = $player_id
-            AND ui.unit = $unit_id
-        ) >= CAST(
-          substr(quest_id, length('captureAnimalCountById-' || $unit_id || '-') + 1)
-          AS INTEGER
-        );
-    `,
+    sql: completeCaptureAnimalByIdQuestsQuery,
     bind: {
       $completed_at: timestamp,
       $unit_id: unitId,
-      $quest_pattern: `captureAnimalCountById-${unitId}-*`,
+      $quest_pattern: `captureAnimalCountById-${unitId}-[0-9]*`,
       $player_id: playerId,
     },
   });
@@ -175,39 +79,11 @@ export const assessCaptureAnimalKindCountQuestCompletion = (
   playerId: number,
 ): void => {
   database.exec({
-    sql: `
-      UPDATE quests
-      SET
-        completed_at = $completed_at
-      WHERE
-        player_id = $player_id
-        AND completed_at IS NULL
-        AND village_id IS NULL
-        AND quest_id GLOB 'captureAnimalKindCount-*'
-        AND substr(quest_id, length('captureAnimalKindCount-') + 1) GLOB '[0-9]*'
-        AND (
-          SELECT COUNT(*)
-          FROM (
-            SELECT ui.unit
-            FROM
-              hunting_capture_history hch
-              JOIN unit_ids ui ON ui.id = hch.unit_id
-            WHERE
-              hch.player_id = $player_id
-              AND ui.unit IN (
-                SELECT value
-                FROM
-                  json_each($unit_ids)
-              )
-            GROUP BY ui.unit
-            HAVING SUM(hch.amount) > 0
-          )
-        ) >= CAST(substr(quest_id, LENGTH('captureAnimalKindCount-') + 1) AS INTEGER);
-    `,
+    sql: completeCaptureAnimalKindQuestsQuery,
     bind: {
       $completed_at: timestamp,
       $player_id: playerId,
-      $unit_ids: JSON.stringify(getHunterLodgeCatchableAnimals(5)),
+      $unit_ids: questCatchableAnimalIds,
     },
   });
 };
@@ -218,34 +94,7 @@ export const assessGatheredResourceCountQuestCompletion = (
   playerId: number,
 ): void => {
   database.exec({
-    sql: `
-      UPDATE quests
-      SET
-        completed_at = $completed_at
-      WHERE
-        player_id = $player_id
-        AND completed_at IS NULL
-        AND village_id IS NULL
-        AND quest_id GLOB 'gatheredResourceCount-*'
-        AND substr(quest_id, length('gatheredResourceCount-') + 1) GLOB '[0-9]*'
-        AND (
-          SELECT COALESCE(
-            SUM(
-              ger.loot_wood +
-              ger.loot_clay +
-              ger.loot_iron +
-              ger.loot_wheat
-            ),
-            0
-          )
-          FROM
-            gathering_expedition_reports ger
-            JOIN reports r ON r.id = ger.report_id
-            JOIN villages v ON v.id = r.village_id
-          WHERE
-            v.player_id = $player_id
-        ) >= CAST(substr(quest_id, LENGTH('gatheredResourceCount-') + 1) AS INTEGER);
-    `,
+    sql: `${completeGatheredResourceQuestsQuery} AND q.player_id = $player_id;`,
     bind: {
       $completed_at: timestamp,
       $player_id: playerId,

@@ -100,6 +100,7 @@ export const buildingIdSchema = z
     'TREASURY',
     'GATHERERS_HUT',
     'HUNTERS_LODGE',
+    'STONEMASON',
   ])
   .meta({ id: 'BuildingId' });
 
