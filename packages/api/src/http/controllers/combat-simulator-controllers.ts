@@ -1,16 +1,16 @@
 import {
-  type CombatSimulatorReportDto,
-  combatSimulatorReportDtoSchema,
-} from '@pillage-first/types/dtos/combat-simulator';
-import { combatSimulatorStateSchema } from '@pillage-first/types/models/combat-simulator';
+  type CombatDto,
+  combatDtoSchema,
+  combatRequestDtoSchema,
+} from '@pillage-first/types/dtos/combat';
 import { createController } from '../controller';
 import { mapUnits } from './mappers/combat-simulator-mapper';
 
 export const simulateCombat = createController('/combat-simulator', 'query', {
   summary: 'Preview a combat simulator report',
-  requestBody: combatSimulatorStateSchema,
-  response: combatSimulatorReportDtoSchema,
-})(({ body }): CombatSimulatorReportDto => {
+  requestBody: combatRequestDtoSchema,
+  response: combatDtoSchema,
+})(({ body }): CombatDto => {
   const { combatMode, playerRole, attacker, defender } = body;
 
   // Placeholder report: combat resolution will be added later.

@@ -1,6 +1,6 @@
-import type { CombatSimulatorTroop } from '@pillage-first/types/models/combat-simulator';
+import type { CombatTroop } from '@pillage-first/types/models/combat';
 
-export const mapUnits = (troops: CombatSimulatorTroop[]) =>
+export const mapUnits = (troops: CombatTroop[]) =>
   troops.map(({ unitId, amount }) => ({
     unitId,
     amountBefore: amount,

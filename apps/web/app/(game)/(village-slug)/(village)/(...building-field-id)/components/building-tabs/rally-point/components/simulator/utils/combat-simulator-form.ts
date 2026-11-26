@@ -4,16 +4,19 @@ import {
 } from '@pillage-first/game-assets/utils/hero';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import type {
-  CombatSimulatorHeroStats,
-  CombatSimulatorParticipant,
-  CombatSimulatorReinforcement,
-  CombatSimulatorState,
-} from '@pillage-first/types/models/combat-simulator';
+  CombatHeroStats,
+  CombatInput,
+  CombatParticipant,
+} from '@pillage-first/types/models/combat';
 import type {
   HeroItem,
   HeroItemSlot,
 } from '@pillage-first/types/models/hero-item';
 import type { Tribe } from '@pillage-first/types/models/tribe';
+
+type CombatSimulatorRequest = CombatInput & {
+  playerRole: 'attacker' | 'defender';
+};
 
 export type CombatSimulatorHeroItemSlot = Extract<
   HeroItemSlot,
@@ -34,31 +37,32 @@ type WithHeroFormValues<T> = Omit<T, 'heroStats'> & {
 };
 
 export type CombatSimulatorFormParticipant<TVillage> = WithHeroFormValues<
-  CombatSimulatorParticipant<TVillage>
+  CombatParticipant & { village: TVillage }
 >;
 
-export type CombatSimulatorFormReinforcement =
-  WithHeroFormValues<CombatSimulatorReinforcement>;
+export type CombatSimulatorFormReinforcement = WithHeroFormValues<
+  CombatInput['defender']['reinforcements'][number]
+>;
 
 export type CombatSimulatorFormDefender = Omit<
-  WithHeroFormValues<CombatSimulatorState['defender']>,
+  WithHeroFormValues<CombatInput['defender']>,
   'reinforcements'
 > & {
   reinforcements: CombatSimulatorFormReinforcement[];
 };
 
 export type CombatSimulatorFormState = Omit<
-  CombatSimulatorState,
+  CombatSimulatorRequest,
   'attacker' | 'defender'
 > & {
-  attacker: WithHeroFormValues<CombatSimulatorState['attacker']>;
+  attacker: WithHeroFormValues<CombatInput['attacker']>;
   defender: CombatSimulatorFormDefender;
 };
 
 export const calculateSimulatorHeroStats = (
   tribe: Tribe,
   values: CombatSimulatorHeroFormValues,
-): CombatSimulatorHeroStats => {
+): CombatHeroStats => {
   const equippedItems: HeroItem[] = [];
 
   for (const [slot, itemId] of Object.entries(values.itemIdsBySlot)) {
@@ -90,7 +94,7 @@ export const calculateSimulatorHeroStats = (
 
 export const toCombatSimulatorRequest = (
   state: CombatSimulatorFormState,
-): CombatSimulatorState => ({
+): CombatSimulatorRequest => ({
   ...state,
   attacker: {
     ...state.attacker,

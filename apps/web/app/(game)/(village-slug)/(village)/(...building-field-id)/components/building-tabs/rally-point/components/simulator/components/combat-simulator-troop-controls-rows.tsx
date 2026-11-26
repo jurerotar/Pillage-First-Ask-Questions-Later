@@ -6,7 +6,7 @@ import {
   getUnitsByTribeWithHero,
   isSmithyUpgradeableUnit,
 } from '@pillage-first/game-assets/utils/units';
-import type { CombatSimulatorTroop } from '@pillage-first/types/models/combat-simulator';
+import type { CombatTroop } from '@pillage-first/types/models/combat';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import { UnitTableUnitIcons } from 'app/(game)/components/unit-table';
@@ -18,8 +18,8 @@ type CombatSimulatorTroopControlsRowsProps = {
   id: string;
   tribe: Tribe;
   includeHero?: boolean;
-  troops: CombatSimulatorTroop[];
-  onTroopsChange: (troops: CombatSimulatorTroop[]) => void;
+  troops: CombatTroop[];
+  onTroopsChange: (troops: CombatTroop[]) => void;
   onSmithyImprovementLevelChange: (
     unitId: UnitId,
     smithyImprovementLevel: number,
@@ -27,7 +27,7 @@ type CombatSimulatorTroopControlsRowsProps = {
 };
 
 const updateTroopAmount = (
-  troops: CombatSimulatorTroop[],
+  troops: CombatTroop[],
   unitId: UnitId,
   amount: number,
 ) => {

@@ -12,8 +12,8 @@
     "directory": "packages/types"
   },
   "exports": {
-    "./dtos/combat-simulator": {
-      "default": "./src/dtos/combat-simulator.ts"
+    "./dtos/combat": {
+      "default": "./src/dtos/combat.ts"
     },
     "./models/trade-route": {
       "default": "./src/models/trade-route.ts"
@@ -78,8 +78,8 @@
     "./models/building": {
       "default": "./src/models/building.ts"
     },
-    "./models/combat-simulator": {
-      "default": "./src/models/combat-simulator.ts"
+    "./models/combat": {
+      "default": "./src/models/combat.ts"
     },
     "./models/developer-settings": {
       "default": "./src/models/developer-settings.ts"

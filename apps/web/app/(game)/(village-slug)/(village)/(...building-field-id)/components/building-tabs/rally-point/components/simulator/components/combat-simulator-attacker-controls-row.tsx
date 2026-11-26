@@ -1,7 +1,7 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuArrowDownUp, LuBeer, LuEraser } from 'react-icons/lu';
-import type { CombatSimulatorMode } from '@pillage-first/types/models/combat-simulator';
+import type { CombatMode } from '@pillage-first/types/models/combat';
 import {
   PLAYABLE_TRIBES,
   type PlayableTribe,
@@ -76,7 +76,7 @@ export const CombatSimulatorAttackerControlsRow = ({
                     className="flex items-center gap-2 mr-2 text-sm font-normal"
                     value={state.combatMode}
                     onValueChange={(value) => {
-                      setCombatMode(value as CombatSimulatorMode);
+                      setCombatMode(value as CombatMode);
                     }}
                   >
                     <div className="flex items-center gap-2">

@@ -1,59 +1,19 @@
 import { z } from 'zod';
-import { type Player, playerSchema } from './player';
-import { type Tribe, tribeSchema } from './tribe';
-import type { TroopLike } from './troop';
+import {
+  battleHeroOutcomeSchema,
+  battleSchema,
+  battleTroopsSchema,
+} from './battle';
+import { playerSchema } from './player';
+import { tribeSchema } from './tribe';
 import { unitIdSchema } from './unit';
-import { type Village, villageSchema } from './village';
+import { villageSchema } from './village';
 
-export type CombatSimulatorHeroStats = z.infer<
-  typeof combatSimulatorHeroStatsSchema
->;
-
-export type CombatSimulatorTroop = TroopLike & {
-  smithyImprovementLevel: number;
-};
-
-export type CombatSimulatorMode = 'attack' | 'raid';
-export type CombatSimulatorPlayerRole = 'attacker' | 'defender';
-
-export type CombatSimulatorAttackerVillage = {
-  /** Village-based Brewery level: 0 means no active celebration; a positive level means an active celebration. */
-  breweryLevel: number;
-};
-
-export type CombatSimulatorDefenderVillage = {
-  wallLevel: number;
-  residenceLevel: number;
-  trapCount: number;
-};
-
-export type CombatSimulatorParticipant<TVillage> = {
-  /** Null means a hypothetical owner; null owners must not share hero bonuses. */
-  ownerId: Player['id'] | null;
-  /** Origin village of this contingent, not the village being defended. */
-  homeVillageId: Village['id'] | null;
-  tribe: Tribe;
-  troops: CombatSimulatorTroop[];
-  heroStats: CombatSimulatorHeroStats;
-  village: TVillage;
-};
-
-export type CombatSimulatorAttacker =
-  CombatSimulatorParticipant<CombatSimulatorAttackerVillage>;
-
-export type CombatSimulatorReinforcement =
-  CombatSimulatorState['defender']['reinforcements'][number];
-
-export type CombatSimulatorDefender =
-  CombatSimulatorParticipant<CombatSimulatorDefenderVillage> & {
-    reinforcements: CombatSimulatorReinforcement[];
-  };
-
-export type CombatSimulatorState = z.infer<typeof combatSimulatorStateSchema>;
+export const combatModeSchema = z.enum(['attack', 'raid']);
 
 const improvementLevelSchema = z.int().min(0).max(20);
 
-export const combatSimulatorTroopSchema = z
+const combatTroopSchema = z
   .strictObject({
     unitId: unitIdSchema,
     amount: z.int().nonnegative(),
@@ -64,7 +24,7 @@ export const combatSimulatorTroopSchema = z
     path: ['amount'],
   });
 
-export const combatSimulatorHeroStatsSchema = z.strictObject({
+export const combatHeroStatsSchema = z.strictObject({
   health: z.int().min(1).max(100),
   // Effective values include equipment bonuses; the engine must not add them again.
   attackPower: z.int().nonnegative(),
@@ -77,37 +37,70 @@ export const combatSimulatorHeroStatsSchema = z.strictObject({
   mounted: z.boolean(),
 });
 
-const participantSchema = z.strictObject({
+export const combatParticipantSchema = z.strictObject({
   // Database player/village IDs; null denotes an unassigned simulator identity.
   ownerId: playerSchema.shape.id.int().positive().nullable(),
   homeVillageId: villageSchema.shape.id.int().positive().nullable(),
   tribe: tribeSchema,
-  troops: z.array(combatSimulatorTroopSchema),
+  troops: z.array(combatTroopSchema),
   // Stats only apply when this contingent includes a HERO troop.
-  heroStats: combatSimulatorHeroStatsSchema,
+  heroStats: combatHeroStatsSchema,
 });
 
-export const combatSimulatorStateSchema = z
-  .strictObject({
-    combatMode: z.enum(['attack', 'raid']),
-    playerRole: z.enum(['attacker', 'defender']),
-    attacker: z.strictObject({
-      ...participantSchema.shape,
-      village: z.strictObject({
-        // Village-based bonus; a positive level implies an active celebration.
-        breweryLevel: improvementLevelSchema,
+const combatParticipantResultSchema = z.strictObject({
+  ...battleTroopsSchema.omit({ id: true }).shape,
+  hero: battleHeroOutcomeSchema.omit({ heroId: true }).nullable(),
+});
+
+export const combatAttackerVillageSchema = z.strictObject({
+  // A positive Brewery level implies an active celebration.
+  breweryLevel: improvementLevelSchema,
+});
+
+export const combatDefenderVillageSchema = z.strictObject({
+  wallLevel: z.int().nonnegative(),
+  residenceLevel: z.int().nonnegative(),
+  trapCount: z.int().nonnegative(),
+});
+
+export const combatResultSchema = z.strictObject({
+  ...battleSchema.omit({ id: true }).shape,
+  attacker: combatParticipantResultSchema,
+  defender: z.strictObject({
+    ...combatParticipantResultSchema.shape,
+    reinforcements: z.array(
+      z.strictObject({
+        ...combatParticipantResultSchema.shape,
+        id: z.string(),
       }),
+    ),
+  }),
+});
+
+export type CombatHeroStats = z.infer<typeof combatHeroStatsSchema>;
+export type CombatMode = z.infer<typeof combatModeSchema>;
+export type CombatParticipant = z.infer<typeof combatParticipantSchema>;
+export type CombatResult = z.infer<typeof combatResultSchema>;
+export type CombatTroop = z.infer<typeof combatTroopSchema>;
+
+export const combatInputSchema = z
+  .strictObject({
+    combatMode: combatModeSchema,
+    attacker: z.strictObject({
+      ...combatParticipantSchema.shape,
+      village: combatAttackerVillageSchema,
     }),
     defender: z.strictObject({
-      ...participantSchema.shape,
-      village: z.strictObject({
-        wallLevel: improvementLevelSchema,
-        residenceLevel: improvementLevelSchema,
-        trapCount: z.int().min(0).max(10_000),
+      ...combatParticipantSchema.shape,
+      village: combatDefenderVillageSchema.extend({
+        wallLevel: combatDefenderVillageSchema.shape.wallLevel.max(20),
+        residenceLevel:
+          combatDefenderVillageSchema.shape.residenceLevel.max(20),
+        trapCount: combatDefenderVillageSchema.shape.trapCount.max(10_000),
       }),
       reinforcements: z.array(
         z.strictObject({
-          ...participantSchema.shape,
+          ...combatParticipantSchema.shape,
           id: z.string(),
           village: z.undefined().optional(),
         }),
@@ -115,7 +108,7 @@ export const combatSimulatorStateSchema = z
     }),
   })
   .superRefine(({ attacker, defender }, ctx) => {
-    const heroOwners = new Set<Player['id']>();
+    const heroOwners = new Set<number>();
     const participants = [
       { participant: attacker, path: ['attacker'] },
       { participant: defender, path: ['defender'] },
@@ -157,3 +150,5 @@ export const combatSimulatorStateSchema = z
       heroOwners.add(participant.ownerId);
     }
   });
+
+export type CombatInput = z.infer<typeof combatInputSchema>;

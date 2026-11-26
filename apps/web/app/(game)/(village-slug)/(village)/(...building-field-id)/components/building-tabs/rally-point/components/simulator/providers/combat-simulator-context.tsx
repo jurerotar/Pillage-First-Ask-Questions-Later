@@ -1,8 +1,8 @@
 import { createContext } from 'react';
 import type {
-  CombatSimulatorMode,
-  CombatSimulatorTroop,
-} from '@pillage-first/types/models/combat-simulator';
+  CombatMode,
+  CombatTroop,
+} from '@pillage-first/types/models/combat';
 import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import type {
@@ -13,12 +13,12 @@ import type {
 
 export type CombatSimulatorContextValue = {
   state: CombatSimulatorFormState;
-  setCombatMode: (combatMode: CombatSimulatorMode) => void;
+  setCombatMode: (combatMode: CombatMode) => void;
   swapPlayerRole: () => void;
   setAttackerTribe: (tribe: PlayableTribe) => void;
   setDefenderTribe: (tribe: Tribe) => void;
-  setAttackerTroops: (troops: CombatSimulatorTroop[]) => void;
-  setDefenderTroops: (troops: CombatSimulatorTroop[]) => void;
+  setAttackerTroops: (troops: CombatTroop[]) => void;
+  setDefenderTroops: (troops: CombatTroop[]) => void;
   setAttackerSmithyImprovementLevel: (
     unitId: UnitId,
     smithyImprovementLevel: number,
@@ -45,7 +45,7 @@ export type CombatSimulatorContextValue = {
   ) => void;
   setDefenderReinforcementTroops: (
     reinforcementId: CombatSimulatorFormReinforcement['id'],
-    troops: CombatSimulatorTroop[],
+    troops: CombatTroop[],
   ) => void;
   setDefenderReinforcementSmithyImprovementLevel: (
     reinforcementId: CombatSimulatorFormReinforcement['id'],
