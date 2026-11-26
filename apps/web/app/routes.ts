@@ -16,6 +16,22 @@ export default [
       '(public)/(frequently-asked-questions)/page.tsx',
     ),
     route('latest-updates', '(public)/(latest-updates)/page.tsx'),
+    ...prefix('wiki', [
+      layout('(public)/(wiki)/layout.tsx', [
+        index('(public)/(wiki)/(index)/page.tsx'),
+        route('introduction', '(public)/(wiki)/(introduction)/page.tsx'),
+        route('interactions', '(public)/(wiki)/(interactions)/page.tsx'),
+        route('game-worlds', '(public)/(wiki)/(game-worlds)/page.tsx'),
+        route('villages', '(public)/(wiki)/(villages)/page.tsx'),
+        route('resources', '(public)/(wiki)/(resources)/page.tsx'),
+        route('buildings', '(public)/(wiki)/(buildings)/page.tsx'),
+        route('troops', '(public)/(wiki)/(troops)/page.tsx'),
+        route('hero', '(public)/(wiki)/(hero)/page.tsx'),
+        route('map', '(public)/(wiki)/(map)/page.tsx'),
+        route('quests', '(public)/(wiki)/(quests)/page.tsx'),
+        route('reports', '(public)/(wiki)/(reports)/page.tsx'),
+      ]),
+    ]),
     ...prefix('game-worlds', [
       index('(public)/(game-worlds)/(index)/page.tsx'),
       route('create', '(public)/(game-worlds)/(create)/page.tsx'),
