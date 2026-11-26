@@ -10,9 +10,9 @@ import {
   getUnitsByTribeWithHero,
 } from '@pillage-first/game-assets/utils/units';
 import type {
-  CombatSimulatorMode,
-  CombatSimulatorTroop,
-} from '@pillage-first/types/models/combat-simulator';
+  CombatMode,
+  CombatTroop,
+} from '@pillage-first/types/models/combat';
 import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
@@ -44,10 +44,7 @@ const heroItemSlots = new Set<CombatSimulatorHeroItemSlot>([
   'torso',
 ]);
 
-const createEmptyTroops = (
-  tribe: Tribe,
-  includeHero = true,
-): CombatSimulatorTroop[] => {
+const createEmptyTroops = (tribe: Tribe, includeHero = true): CombatTroop[] => {
   const units = includeHero
     ? getUnitsByTribeWithHero(tribe)
     : getUnitsByTribe(tribe);
@@ -67,9 +64,7 @@ const clampInteger = (value: number, min: number, max: number) => {
   return Math.max(min, Math.min(max, Math.trunc(value)));
 };
 
-const normalizeTroops = (
-  troops: CombatSimulatorTroop[],
-): CombatSimulatorTroop[] => {
+const normalizeTroops = (troops: CombatTroop[]): CombatTroop[] => {
   return troops.map((troop) => ({
     ...troop,
     amount: clampInteger(troop.amount, 0, Number.MAX_SAFE_INTEGER),
@@ -97,10 +92,10 @@ const normalizeHeroStats = (
 };
 
 const setTroopSmithyImprovementLevel = (
-  troops: CombatSimulatorTroop[],
+  troops: CombatTroop[],
   unitId: UnitId,
   smithyImprovementLevel: number,
-): CombatSimulatorTroop[] => {
+): CombatTroop[] => {
   return troops.map((troop) => {
     if (troop.unitId === unitId) {
       return {
@@ -113,20 +108,20 @@ const setTroopSmithyImprovementLevel = (
   });
 };
 
-const getHeroAmount = (troops: CombatSimulatorTroop[]) => {
+const getHeroAmount = (troops: CombatTroop[]) => {
   return troops.find((troop) => troop.unitId === 'HERO')?.amount ?? 0;
 };
 
 const setHeroAmount = (
-  troops: CombatSimulatorTroop[],
+  troops: CombatTroop[],
   amount: number,
-): CombatSimulatorTroop[] => {
+): CombatTroop[] => {
   return troops.map((troop) =>
     troop.unitId === 'HERO' ? { ...troop, amount } : troop,
   );
 };
 
-const removeHeroTroop = (troops: CombatSimulatorTroop[]) => {
+const removeHeroTroop = (troops: CombatTroop[]) => {
   return troops.filter((troop) => troop.unitId !== 'HERO');
 };
 
@@ -195,7 +190,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     createInitialCombatSimulatorState(initialTribe),
   );
 
-  const setCombatMode = useCallback((combatMode: CombatSimulatorMode) => {
+  const setCombatMode = useCallback((combatMode: CombatMode) => {
     setState((prevState) => ({
       ...prevState,
       combatMode,
@@ -292,14 +287,14 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
-  const setAttackerTroops = useCallback((troops: CombatSimulatorTroop[]) => {
+  const setAttackerTroops = useCallback((troops: CombatTroop[]) => {
     setState((prevState) => ({
       ...prevState,
       attacker: { ...prevState.attacker, troops: normalizeTroops(troops) },
     }));
   }, []);
 
-  const setDefenderTroops = useCallback((troops: CombatSimulatorTroop[]) => {
+  const setDefenderTroops = useCallback((troops: CombatTroop[]) => {
     setState((prevState) => ({
       ...prevState,
       defender: { ...prevState.defender, troops: normalizeTroops(troops) },
@@ -516,7 +511,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
   const setDefenderReinforcementTroops = useCallback(
     (
       reinforcementId: CombatSimulatorFormReinforcement['id'],
-      troops: CombatSimulatorTroop[],
+      troops: CombatTroop[],
     ) => {
       updateReinforcement(reinforcementId, (reinforcement) => ({
         ...reinforcement,

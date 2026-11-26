@@ -10,7 +10,7 @@ import {
   GiShield,
 } from 'react-icons/gi';
 import { items } from '@pillage-first/game-assets/items';
-import type { CombatSimulatorTroop } from '@pillage-first/types/models/combat-simulator';
+import type { CombatTroop } from '@pillage-first/types/models/combat';
 import type {
   HeroEquipmentItem,
   HeroItem,
@@ -251,7 +251,7 @@ export const CombatSimulatorHeroStatsControlsRow = ({
   onHeroStatsChange,
 }: {
   participantRole: 'attacker' | 'defender';
-  troops: CombatSimulatorTroop[];
+  troops: CombatTroop[];
   heroStats: CombatSimulatorHeroFormValues;
   onHeroStatsChange: (heroStats: CombatSimulatorHeroFormValues) => void;
 }) => {

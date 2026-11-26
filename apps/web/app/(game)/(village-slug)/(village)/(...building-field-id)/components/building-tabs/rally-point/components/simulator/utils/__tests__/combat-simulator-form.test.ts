@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { getItemByName } from '@pillage-first/game-assets/utils/items';
-import { combatSimulatorReportDtoSchema } from '@pillage-first/types/dtos/combat-simulator';
 import { battleHeroOutcomeSchema } from '@pillage-first/types/models/battle';
-import { combatSimulatorStateSchema } from '@pillage-first/types/models/combat-simulator';
+import {
+  combatInputSchema,
+  combatResultSchema,
+} from '@pillage-first/types/models/combat';
 import {
   type CombatSimulatorFormState,
   type CombatSimulatorHeroFormValues,
@@ -72,16 +74,20 @@ describe('simulator hero normalization', () => {
         ],
       },
     };
-    const request = combatSimulatorStateSchema.parse(
-      toCombatSimulatorRequest(form),
-    );
+    const { playerRole, ...combatInput } = toCombatSimulatorRequest(form);
+    const request = combatInputSchema.parse(combatInput);
+
+    expect(playerRole).toBe('defender');
     expect(request.attacker.heroStats.attackPower).toBe(1400);
     expect(request.defender.heroStats.defenceBonus).toBe(200);
     expect(request.defender.reinforcements[0].heroStats.attackPower).toBe(1180);
     expect(request.attacker.heroStats).not.toHaveProperty('strength');
     expect(request.attacker.heroStats).not.toHaveProperty('itemIdsBySlot');
     expect(form.attacker.heroStats).toEqual(heroValues);
-    expect(combatSimulatorStateSchema.safeParse(form).success).toBe(false);
+    expect(
+      combatInputSchema.safeParse({ ...combatInput, attacker: form.attacker })
+        .success,
+    ).toBe(false);
   });
 });
 
@@ -92,7 +98,7 @@ describe('simulator hero outcomes', () => {
     experienceGained: 10,
     consumables: [],
   };
-  const battle = combatSimulatorReportDtoSchema.shape.battle.shape;
+  const battle = combatResultSchema.shape;
 
   test('allows hero outcomes without IDs on both sides and reinforcements', () => {
     for (const schema of [

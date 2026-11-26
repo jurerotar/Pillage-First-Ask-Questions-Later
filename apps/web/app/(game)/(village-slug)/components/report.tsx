@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
-import type { CombatSimulatorReportDto } from '@pillage-first/types/dtos/combat-simulator';
+import type { CombatDto } from '@pillage-first/types/dtos/combat';
 import type { ReportDto as ReportType } from '@pillage-first/types/dtos/report';
 import { formatNumber } from '@pillage-first/utils/format';
 import { calculateBattleUnitCasualties } from '@pillage-first/utils/game/combat';
@@ -65,7 +65,7 @@ type UnitResearchReport = Extract<ReportType, { type: 'unitResearch' }>;
 type VillageFoundedReport = Extract<ReportType, { type: 'villageFounded' }>;
 
 type ReportContextState = {
-  report: ReportType | CombatSimulatorReportDto;
+  report: ReportType | CombatDto;
 };
 
 const ReportContext = createContext<ReportContextState>(
@@ -73,7 +73,7 @@ const ReportContext = createContext<ReportContextState>(
 );
 
 type ReportProps = {
-  report: ReportType | CombatSimulatorReportDto;
+  report: ReportType | CombatDto;
 };
 
 export const Report = ({
@@ -125,7 +125,7 @@ export const ReportHeader = ({ actions }: ReportHeaderProps) => {
 type BattleTableParticipant = {
   troops: Pick<
     | BattleReport['battle']['attacker']['troops']
-    | CombatSimulatorReportDto['battle']['attacker'],
+    | CombatDto['battle']['attacker'],
     'tribe' | 'units' | 'hero'
   >;
   player?: BattleReport['battle']['attacker']['player'];
@@ -182,7 +182,7 @@ export const BattleParticipantTable = ({
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext);
 
-  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const report = _report as BattleReport | CombatDto;
   const { loot, totalCarryCapacity } = report.battle.outcome;
   const { troops, player, village } = participant;
 
@@ -509,7 +509,7 @@ const BattleInformationRow = ({
 
 export const BattleReportTables = () => {
   const { report: _report } = use(ReportContext);
-  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const report = _report as BattleReport | CombatDto;
   const participants =
     'playerRole' in report
       ? {
@@ -583,7 +583,7 @@ export const BattleStatisticsTable = () => {
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext);
 
-  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const report = _report as BattleReport | CombatDto;
   const { statistics } = report.battle;
   const { attacker, defender } = statistics;
 
