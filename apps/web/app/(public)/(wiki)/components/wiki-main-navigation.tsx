@@ -2,7 +2,7 @@ import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import { Text } from 'app/components/text';
-import { wikiPages } from '../wiki-pages';
+import { wikiTopics } from '../wiki-topics';
 
 export const WikiMainNavigation = ({
   showTitle = true,
@@ -40,11 +40,11 @@ export const WikiMainNavigation = ({
             {t('Wiki')}
           </Link>
         </li>
-        {wikiPages.map((page) => {
-          const to = `/wiki/${page.slug}`;
+        {Object.entries(wikiTopics).map(([slug, { title }]) => {
+          const to = `/wiki/${slug}`;
 
           return (
-            <li key={page.slug}>
+            <li key={slug}>
               <Link
                 to={to}
                 className={clsx(
@@ -54,7 +54,7 @@ export const WikiMainNavigation = ({
                     : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                 )}
               >
-                {page.title}
+                {title}
               </Link>
             </li>
           );

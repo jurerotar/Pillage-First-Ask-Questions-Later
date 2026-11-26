@@ -1,0 +1,36 @@
+import { WikiSteps } from '../components/wiki-steps';
+
+## What is a game world?
+
+A game world is a single persistent map. When you create one, the game generates tiles, oases, NPC players and their starting villages from the settings you picked. That layout stays stable for the life of the world.
+
+Each world has its own clock, speed and save data. You can keep multiple worlds around at the same time without them interfering with each other.
+
+## Where is it stored?
+
+Game worlds are local saves stored on your device. Your progress is saved when you close the tab or lose your connection.
+
+## Move a save to another device
+
+<WikiSteps>
+  <li>
+    On the original device, open the world’s actions menu (⋮) on the
+    game worlds page and select <strong>Export game world</strong>.
+  </li>
+  <li>
+    Copy the downloaded <code>.sqlite3</code> file to the other
+    device.
+  </li>
+  <li>
+    On that device, open the game worlds page and choose{' '}
+    <strong>Import existing game state</strong>.
+  </li>
+  <li>
+    Click <strong>Select .sqlite3 file to import</strong> and pick the
+    file. The game opens the world once the import finishes.
+  </li>
+</WikiSteps>
+
+## Speed matters
+
+World speed changes how quickly construction, training, hero adventures and troop movements finish. Faster worlds compress the waiting. Slower worlds make each decision feel more deliberate.

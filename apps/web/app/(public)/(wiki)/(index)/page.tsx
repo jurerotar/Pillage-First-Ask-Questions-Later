@@ -1,33 +1,10 @@
-import { useTranslation } from 'react-i18next';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
-import { WikiIndexContent } from '../wiki-pages';
+import { WikiArticlePage } from '../components/wiki-article-page';
+import WikiMdx from './wiki.mdx';
 
-const WikiIndexPage = () => {
-  const { t } = useTranslation('public');
-
-  return (
-    <>
-      <title>{t('{{title}} | Pillage First!', { title: 'Wiki' })}</title>
-      <div className="flex flex-col gap-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink to="/">{t('Home')}</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>{t('Wiki')}</BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <WikiIndexContent />
-      </div>
-    </>
-  );
-};
+const WikiIndexPage = () => (
+  <WikiArticlePage>
+    <WikiMdx />
+  </WikiArticlePage>
+);
 
 export default WikiIndexPage;

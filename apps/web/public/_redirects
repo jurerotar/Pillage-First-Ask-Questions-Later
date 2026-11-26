@@ -9,6 +9,20 @@
 /design-system/icons              /design-system/icons/index.html                 200
 /not-found                        /not-found/index.html                           404!
 
+# === Wiki pages ===
+/wiki                             /wiki/index.html                                200
+/wiki/introduction                /wiki/introduction/index.html                   200
+/wiki/game-worlds                 /wiki/game-worlds/index.html                    200
+/wiki/villages                    /wiki/villages/index.html                       200
+/wiki/resources                   /wiki/resources/index.html                      200
+/wiki/buildings                   /wiki/buildings/index.html                      200
+/wiki/troops                      /wiki/troops/index.html                         200
+/wiki/hero                        /wiki/hero/index.html                           200
+/wiki/map                         /wiki/map/index.html                            200
+/wiki/quests                      /wiki/quests/index.html                         200
+/wiki/reports                     /wiki/reports/index.html                        200
+/wiki/interactions                /wiki/buildings                                 301!
+
 # === Bug report routes ===
 /bugs                             /bugs/index.html                                200
 /bugs/*                           /__spa-fallback.html                                200
