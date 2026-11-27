@@ -4,15 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   CULTURE_POINTS_CELEBRATION_COSTS,
-  CULTURE_POINTS_CELEBRATION_LIMITS,
   calculateCulturePointsCelebrationDuration,
+  calculateCulturePointsCelebrationReward,
 } from '@pillage-first/game-assets/utils/culture-points';
 import type { CulturePointsCelebrationType } from '@pillage-first/types/models/celebration';
 import { formatNumber } from '@pillage-first/utils/format';
-import { useCelebrationErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/town-hall/hooks/use-celebration-error-bag';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useActiveCelebration } from 'app/(game)/(village-slug)/hooks/use-active-celebration';
 import { useCulturePoints } from 'app/(game)/(village-slug)/hooks/use-culture-points';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
@@ -78,13 +80,11 @@ export const CelebrationCard = ({
     ? [0, 0, 0, 0]
     : CULTURE_POINTS_CELEBRATION_COSTS[celebrationType];
 
-  const limit = CULTURE_POINTS_CELEBRATION_LIMITS[celebrationType];
-
-  const reward = Math.min(
+  const reward = calculateCulturePointsCelebrationReward(
+    celebrationType,
     celebrationType === 'small'
       ? culturePoints.currentVillageCulturePointsProduction
       : culturePoints.playerCulturePointsProduction,
-    limit,
   );
 
   const duration = isInstantCelebrationsEnabled
@@ -95,11 +95,10 @@ export const CelebrationCard = ({
         serverSpeed,
       });
 
-  const { errorBag, isDisabled } = useCelebrationErrorBag({
-    celebrationType,
-    townHallLevel,
-    cost,
-  });
+  const { hasEnoughResources, errorBag } = useResourceAvailability(cost);
+  const activeCelebration = useActiveCelebration();
+  const isLargeCelebrationLocked =
+    celebrationType === 'large' && townHallLevel < 10;
 
   const celebrationName =
     celebrationType === 'small'
@@ -165,12 +164,29 @@ export const CelebrationCard = ({
       <section className="flex flex-col gap-2">
         <Button
           size="fit"
-          disabled={isDisabled || isPending}
+          disabled={
+            isPending ||
+            !!activeCelebration ||
+            isLargeCelebrationLocked ||
+            !hasEnoughResources
+          }
           onClick={() => startCelebration()}
         >
           {t('Start celebration')}
         </Button>
-        <ErrorBag errorBag={errorBag} />
+        <ErrorBag
+          errorBag={[
+            isLargeCelebrationLocked &&
+              t('Large celebrations require Town Hall level 10.'),
+            ...errorBag,
+            activeCelebration && (
+              <span key="celebration-cooldown">
+                {t('Another celebration can start in')}{' '}
+                <Countdown endsAt={activeCelebration.endsAt} />
+              </span>
+            ),
+          ]}
+        />
       </section>
     </article>
   );

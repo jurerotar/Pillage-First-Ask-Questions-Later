@@ -16,10 +16,20 @@ export const CULTURE_POINTS_CELEBRATION_COSTS = {
   large: [29_700, 33_250, 32_000, 6700],
 } satisfies Record<CulturePointsCelebrationType, ResourceBundle>;
 
-export const CULTURE_POINTS_CELEBRATION_LIMITS = {
+const CULTURE_POINTS_CELEBRATION_LIMITS = {
   small: 500,
   large: 2000,
 } satisfies Record<CulturePointsCelebrationType, number>;
+
+export const calculateCulturePointsCelebrationReward = (
+  celebrationType: CulturePointsCelebrationType,
+  dailyProduction: number,
+): number => {
+  return Math.min(
+    dailyProduction,
+    CULTURE_POINTS_CELEBRATION_LIMITS[celebrationType],
+  );
+};
 
 const CULTURE_POINTS_CELEBRATION_BASE_DURATIONS = {
   small: 24 * 60 * 60 * 1000,

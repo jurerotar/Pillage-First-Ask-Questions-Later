@@ -48,32 +48,29 @@ test('celebrations complete global milestones on start and preserve completion t
       }),
     );
 
-    const completed = database.selectValue({
+    const completed = database.selectObjects({
       sql: `
-        SELECT
-          json_group_array(json_array(quest_id, completed_at))
-        FROM (
-          SELECT
-            quest_id,
-            completed_at
-          FROM
-            quests
-          WHERE
-            quest_id GLOB 'celebrationCount-*'
-          ORDER BY
-            quest_id
-        );
+        SELECT quest_id, completed_at
+        FROM quests
+        WHERE quest_id GLOB 'celebrationCount-*'
+        ORDER BY quest_id;
       `,
-      schema: z.string(),
+      schema: z.strictObject({
+        quest_id: z.string(),
+        completed_at: z.number().nullable(),
+      }),
     });
 
     const expected = questIds.map((questId) => {
       const milestone = Number(questId.split('-')[1]);
 
-      return [questId, milestone <= count ? milestone : null];
+      return {
+        quest_id: questId,
+        completed_at: milestone <= count ? milestone : null,
+      };
     });
 
-    expect(completed).toBe(JSON.stringify(expected));
+    expect(completed).toStrictEqual(expected);
   }
 });
 

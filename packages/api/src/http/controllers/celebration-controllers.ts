@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   CULTURE_POINTS_CELEBRATION_COSTS,
   calculateCulturePointsCelebrationDuration,
+  calculateCulturePointsCelebrationReward,
 } from '@pillage-first/game-assets/utils/culture-points';
 import { culturePointsCelebrationTypeSchema } from '@pillage-first/types/models/celebration';
 import { speedSchema } from '@pillage-first/types/models/server';
@@ -10,8 +11,8 @@ import { completeCelebrationQuestsQuery } from '../../queries/quest-queries';
 import { requireVillageBuildingLevel } from '../../utils/buildings';
 import {
   addPlayerCulturePoints,
-  calculateCulturePointsCelebrationReward,
   calculatePlayerCulturePointsProduction,
+  calculateVillageCulturePointsProduction,
 } from '../../utils/culture-points';
 import {
   getVillagePlayerId,
@@ -154,10 +155,10 @@ export const startVillageCelebration = createController(
 
       const production = calculatePlayerCulturePointsProduction(tx, playerId);
       const reward = calculateCulturePointsCelebrationReward(
-        tx,
-        villageId,
         celebrationType,
-        production,
+        celebrationType === 'small'
+          ? calculateVillageCulturePointsProduction(tx, villageId)
+          : production,
       );
 
       addPlayerCulturePoints(tx, reward, now, playerId, production);

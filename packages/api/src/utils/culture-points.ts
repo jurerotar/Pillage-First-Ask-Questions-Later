@@ -1,12 +1,10 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
-  CULTURE_POINTS_CELEBRATION_LIMITS,
   calculateCulturePointsForBuildingField,
   calculateCulturePointsRequirementForVillageCount,
 } from '@pillage-first/game-assets/utils/culture-points';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
-import type { CulturePointsCelebrationType } from '@pillage-first/types/models/celebration';
 import { culturePointsRequirementSpeedSchema } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
@@ -149,26 +147,6 @@ export const addPlayerCulturePoints = (
       $player_id: playerId,
     },
   });
-};
-
-export const calculateCulturePointsCelebrationReward = (
-  database: DbFacade,
-  villageId: number,
-  celebrationType: CulturePointsCelebrationType,
-  playerProduction: number,
-): number => {
-  let production: number;
-
-  if (celebrationType === 'small') {
-    production = calculateVillageCulturePointsProduction(database, villageId);
-  } else {
-    production = playerProduction;
-  }
-
-  return Math.min(
-    production,
-    CULTURE_POINTS_CELEBRATION_LIMITS[celebrationType],
-  );
 };
 
 export const getPlayerCulturePointsRequirementContext = (
