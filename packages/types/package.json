@@ -78,6 +78,9 @@
     "./models/building": {
       "default": "./src/models/building.ts"
     },
+    "./models/celebration": {
+      "default": "./src/models/celebration.ts"
+    },
     "./models/combat": {
       "default": "./src/models/combat.ts"
     },

@@ -92,16 +92,6 @@ type TradeRouteEvent = {
   tradeRouteId: number;
 };
 
-export const culturePointsCelebrationTypeSchema = z.enum(['small', 'large']);
-
-export type CulturePointsCelebrationType = z.infer<
-  typeof culturePointsCelebrationTypeSchema
->;
-
-type CulturePointsCelebrationEvent = {
-  celebrationType: CulturePointsCelebrationType;
-};
-
 export type TroopMovementEventType = Extract<
   GameEventType,
   | 'troopMovementReinforcements'
@@ -161,7 +151,6 @@ export const gameEventTypeSchema = z.enum([
   'huntersLodgeHunt',
   'gatherersHutGatheringTrip',
   'heroRevival',
-  'culturePointsCelebration',
   'resourceTransfer',
   'tradeRoute',
 ]);
@@ -199,7 +188,6 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopMovementOasisOccupation: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementAdventure: BaseTroopMovementEvent & VillageGameEvent;
   heroRevival: VillageGameEvent;
-  culturePointsCelebration: CulturePointsCelebrationEvent & VillageGameEvent;
   resourceTransfer: BaseMerchantMovementEvent & VillageGameEvent;
   tradeRoute: TradeRouteEvent & VillageGameEvent;
 }[T];

@@ -19,6 +19,10 @@ export const culturePointsRequirementSpeedSchema = z
   .union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)])
   .meta({ id: 'CulturePointsRequirementSpeed' });
 
+export type CulturePointsRequirementSpeed = z.infer<
+  typeof culturePointsRequirementSpeedSchema
+>;
+
 export const serverDbSchema = z
   .strictObject({
     id: z.string(),

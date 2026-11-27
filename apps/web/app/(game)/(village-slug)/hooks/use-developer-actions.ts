@@ -15,6 +15,7 @@ import {
   heroInventoryCacheKey,
   heroLoadoutCacheKey,
   loyaltyCacheKey,
+  villageCelebrationCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
@@ -61,8 +62,18 @@ export const useDeveloperActions = () => {
         },
       });
     },
-    onSuccess: async (_, _args, _onMutateResult, context) => {
-      await invalidateQueries(context, [[developerSettingsCacheKey]]);
+    onSuccess: async (
+      _,
+      { developerSettingName },
+      _onMutateResult,
+      context,
+    ) => {
+      await invalidateQueries(context, [
+        [developerSettingsCacheKey],
+        ...(developerSettingName === 'isInstantCelebrationsEnabled'
+          ? [[villageCelebrationCacheKey]]
+          : []),
+      ]);
     },
   });
 

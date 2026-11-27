@@ -1,31 +1,36 @@
+import { useMutation } from '@tanstack/react-query';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   CULTURE_POINTS_CELEBRATION_COSTS,
   CULTURE_POINTS_CELEBRATION_LIMITS,
-  type CulturePointsCelebrationType,
   calculateCulturePointsCelebrationDuration,
 } from '@pillage-first/game-assets/utils/culture-points';
+import type { CulturePointsCelebrationType } from '@pillage-first/types/models/celebration';
 import { formatNumber } from '@pillage-first/utils/format';
 import { useCelebrationErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/town-hall/hooks/use-celebration-error-bag';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useCulturePoints } from 'app/(game)/(village-slug)/hooks/use-culture-points';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import {
+  collectableQuestCountCacheKey,
   culturePointsCacheKey,
   currentVillageCacheKey,
   playersCacheKey,
+  questsCacheKey,
+  villageCelebrationCacheKey,
 } from 'app/(game)/constants/query-keys';
+import { ApiContext } from 'app/(game)/providers/api-context';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import { invalidateQueries } from 'app/utils/react-query';
 import { formatTime } from 'app/utils/time';
 
 type CelebrationCardProps = {
@@ -42,8 +47,29 @@ export const CelebrationCard = ({
   const { currentVillage } = useCurrentVillage();
   const { culturePoints } = useCulturePoints();
   const { developerSettings } = useDeveloperSettings();
-  const { createEvent } = useCreateEvent('culturePointsCelebration');
+  const { apiClient } = use(ApiContext);
   const liveResources = use(CurrentVillageLiveResourcesSnapshotContext);
+
+  const { mutate: startCelebration, isPending } = useMutation({
+    mutationFn: () => {
+      return apiClient.post('/villages/:villageId/celebration', {
+        path: { villageId: currentVillage.id },
+        body: { celebrationType },
+      });
+    },
+    onSuccess: async (_, _args, _result, context) => {
+      await invalidateQueries(context, [
+        [villageCelebrationCacheKey, currentVillage.id],
+        [culturePointsCacheKey],
+        [currentVillageCacheKey, currentVillage.slug],
+        [playersCacheKey],
+        [questsCacheKey],
+        [collectableQuestCountCacheKey],
+      ]);
+
+      toast.success(t('Celebration started'));
+    },
+  });
 
   const { isFreeCelebrationsEnabled, isInstantCelebrationsEnabled } =
     developerSettings;
@@ -139,24 +165,8 @@ export const CelebrationCard = ({
       <section className="flex flex-col gap-2">
         <Button
           size="fit"
-          disabled={isDisabled}
-          onClick={() => {
-            createEvent(
-              {
-                celebrationType,
-                cachesToClearImmediately: [
-                  [culturePointsCacheKey],
-                  [currentVillageCacheKey, currentVillage.slug],
-                  [playersCacheKey],
-                ],
-              },
-              {
-                onSuccess: () => {
-                  toast.success(t('Celebration started'));
-                },
-              },
-            );
-          }}
+          disabled={isDisabled || isPending}
+          onClick={() => startCelebration()}
         >
           {t('Start celebration')}
         </Button>

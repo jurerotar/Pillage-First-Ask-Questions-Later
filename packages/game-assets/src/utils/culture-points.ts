@@ -1,12 +1,11 @@
 import type { Building } from '@pillage-first/types/models/building';
+import type { CulturePointsCelebrationType } from '@pillage-first/types/models/celebration';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
-import type { Server } from '@pillage-first/types/models/server';
+import type {
+  CulturePointsRequirementSpeed,
+  Server,
+} from '@pillage-first/types/models/server';
 import { calculateTotalCulturePointsForLevel } from './buildings';
-
-export type CulturePointsCelebrationType = 'small' | 'large';
-
-export type CulturePointsRequirementSpeed =
-  Server['configuration']['culturePointsRequirementSpeed'];
 
 const CULTURE_POINTS_REQUIREMENT_BASE = 2000;
 const CULTURE_POINTS_REQUIREMENT_GROWTH = 1.4;

@@ -121,7 +121,13 @@ export const updateDeveloperSettings = createController(
         break;
       }
       case 'isInstantCelebrationsEnabled': {
-        eventTypes = ['culturePointsCelebration'];
+        database.exec({
+          sql: `
+            UPDATE villages
+            SET celebration_type = NULL, celebration_ends_at = NULL
+            WHERE celebration_ends_at IS NOT NULL;
+          `,
+        });
         break;
       }
       case 'isInstantHeroReviveEnabled': {

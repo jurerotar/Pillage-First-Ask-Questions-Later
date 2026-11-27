@@ -2,11 +2,11 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   CULTURE_POINTS_CELEBRATION_LIMITS,
-  type CulturePointsCelebrationType,
   calculateCulturePointsForBuildingField,
   calculateCulturePointsRequirementForVillageCount,
 } from '@pillage-first/game-assets/utils/culture-points';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import type { CulturePointsCelebrationType } from '@pillage-first/types/models/celebration';
 import { culturePointsRequirementSpeedSchema } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 

@@ -3,6 +3,10 @@ import {
   getBookmarks,
   updateBookmark,
 } from './controllers/bookmark-controllers';
+import {
+  getVillageCelebration,
+  startVillageCelebration,
+} from './controllers/celebration-controllers';
 import { simulateCombat } from './controllers/combat-simulator-controllers';
 import {
   adjustCulturePoints,
@@ -235,6 +239,8 @@ export const apiRoutes = [
   // Villages
   createRoute(getVillageBySlug),
   createRoute(getVillageCulturePoints),
+  createRoute(getVillageCelebration),
+  createRoute(startVillageCelebration),
   createRoute(getVillageStorage),
   createRoute(getGatherersHutExpeditions),
   createRoute(getStationedTroopsByTile),

@@ -4,7 +4,6 @@ import { buildingIdSchema } from '../models/building';
 import { effectIdSchema } from '../models/effect';
 import {
   catapultTargetsSchema,
-  culturePointsCelebrationTypeSchema,
   gameEventTypeSchema,
   heroOasisAnimalActionSchema,
   scoutingTargetSchema,
@@ -169,11 +168,6 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('heroRevival'),
       ...villageEventSchema,
-    }),
-    z.strictObject({
-      type: z.literal('culturePointsCelebration'),
-      ...villageEventSchema,
-      celebrationType: culturePointsCelebrationTypeSchema,
     }),
     z.strictObject({
       type: z.literal('resourceTransfer'),

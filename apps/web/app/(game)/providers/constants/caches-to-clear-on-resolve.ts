@@ -278,14 +278,4 @@ export const cachesToClearOnResolve: Handlers = {
       ]),
     ];
   },
-  culturePointsCelebration: ({ affectedVillageIds }) => {
-    return [
-      [culturePointsCacheKey],
-      ...affectedVillageIds.map((villageId) => [
-        eventsCacheKey,
-        'culturePointsCelebration',
-        villageId,
-      ]),
-    ];
-  },
 };

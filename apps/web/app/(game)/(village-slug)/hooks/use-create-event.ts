@@ -46,8 +46,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
     ) => {
       await invalidateQueries(context, [
         ...cachesToClearImmediately,
-        ...(eventType === 'troopTraining' ||
-        eventType === 'culturePointsCelebration'
+        ...(eventType === 'troopTraining'
           ? [[questsCacheKey], [collectableQuestCountCacheKey]]
           : []),
         [eventsCacheKey, eventType, currentVillage.id],

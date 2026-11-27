@@ -1059,7 +1059,35 @@ export const upgradeDb = (
           ALTER TABLE loyalties ADD COLUMN next_loyalty_increase_at INTEGER NOT NULL;
           DROP TRIGGER IF EXISTS loyalties_delete_capped_entries_after_update;
           DELETE FROM events WHERE type = 'loyaltyIncrease';
+
+          ALTER TABLE villages ADD COLUMN celebration_type TEXT CHECK (celebration_type IN ('small', 'large'));
+          ALTER TABLE villages ADD COLUMN celebration_ends_at INTEGER
+            CHECK ((celebration_type IS NULL) = (celebration_ends_at IS NULL));
         `,
+      });
+
+      tx.exec({
+        sql: `
+          WITH active_celebrations AS (
+            SELECT village_id, json_extract(meta, '$.celebrationType') AS celebration_type,
+              resolves_at,
+              ROW_NUMBER() OVER (PARTITION BY village_id ORDER BY resolves_at DESC, id DESC) AS rank
+            FROM events
+            WHERE type = 'culturePointsCelebration' AND resolves_at > $now
+              AND village_id IS NOT NULL
+              AND json_extract(meta, '$.celebrationType') IN ('small', 'large')
+          )
+          UPDATE villages
+          SET celebration_type = active_celebrations.celebration_type,
+            celebration_ends_at = active_celebrations.resolves_at
+          FROM active_celebrations
+          WHERE villages.id = active_celebrations.village_id AND active_celebrations.rank = 1;
+        `,
+        bind: { $now: Date.now() },
+      });
+
+      tx.exec({
+        sql: "DELETE FROM events WHERE type = 'culturePointsCelebration';",
       });
     });
   });

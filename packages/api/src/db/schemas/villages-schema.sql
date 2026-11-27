@@ -5,6 +5,8 @@ CREATE TABLE villages
   slug TEXT,
   tile_id INTEGER NOT NULL,
   player_id INTEGER NOT NULL,
+  celebration_type TEXT CHECK (celebration_type IN ('small', 'large')),
+  celebration_ends_at INTEGER CHECK ((celebration_type IS NULL) = (celebration_ends_at IS NULL)),
 
   UNIQUE (tile_id),
 

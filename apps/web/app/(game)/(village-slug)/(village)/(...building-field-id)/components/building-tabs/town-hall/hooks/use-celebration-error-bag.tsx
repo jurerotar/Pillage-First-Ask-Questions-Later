@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CulturePointsCelebrationType } from '@pillage-first/game-assets/utils/culture-points';
+import type { CulturePointsCelebrationType } from '@pillage-first/types/models/celebration';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { useActiveCelebration } from 'app/(game)/(village-slug)/hooks/use-active-celebration';
 
 type UseCelebrationErrorBagArgs = {
   celebrationType: CulturePointsCelebrationType;
@@ -19,11 +19,7 @@ export const useCelebrationErrorBag = ({
   const { t } = useTranslation();
   const { hasEnoughResources, errorBag: resourceErrors } =
     useResourceAvailability(cost);
-  const { eventsByType: celebrationEvents } = useEventsByType(
-    'culturePointsCelebration',
-  );
-
-  const activeCelebration = celebrationEvents[0];
+  const activeCelebration = useActiveCelebration();
   const isLargeCelebrationLocked =
     celebrationType === 'large' && townHallLevel < 10;
 
@@ -39,7 +35,7 @@ export const useCelebrationErrorBag = ({
     errorBag.push(
       <span key="celebration-cooldown">
         {t('Another celebration can start in')}{' '}
-        <Countdown endsAt={activeCelebration.resolvesAt} />
+        <Countdown endsAt={activeCelebration.endsAt} />
       </span>,
     );
   }

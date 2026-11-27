@@ -4,7 +4,6 @@ import { animalCageProductionResolver } from './resolvers/animal-cage-production
 import { buildingConstructionResolver } from './resolvers/building-construction-resolver';
 import { buildingDestructionResolver } from './resolvers/building-destruction-resolver';
 import { buildingLevelChangeResolver } from './resolvers/building-level-change-resolver';
-import { culturePointsCelebrationResolver } from './resolvers/culture-points-celebration-resolver';
 import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-gathering-trip-resolver';
 import { heroRevivalResolver } from './resolvers/hero-revival-resolver';
 import { huntersLodgeHuntResolver } from './resolvers/hunters-lodge-hunt-resolver';
@@ -41,7 +40,6 @@ const gameEventResolvers: GameEventResolverMap = {
   troopMovementOasisOccupation: oasisOccupationMovementResolver,
   troopMovementAdventure: adventureMovementResolver,
   heroRevival: heroRevivalResolver,
-  culturePointsCelebration: culturePointsCelebrationResolver,
   unitResearch: unitResearchResolver,
   unitImprovement: unitImprovementResolver,
   animalCageProduction: animalCageProductionResolver,
