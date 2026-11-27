@@ -6,13 +6,18 @@ import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
 } from '../../utils/zod/event-schemas';
-import { postWorkerMessage } from '../../worker/notification-port';
+import {
+  areWorkerNotificationsEnabled,
+  postWorkerMessage,
+} from '../../worker/notification-port';
 import { getEventResolver } from './resolver-registry';
 
 export const resolveEvent = (
   database: DbFacade,
   eventId: GameEvent['id'],
-  notify: (event: EventApiNotificationEvent) => void = postWorkerMessage,
+  notify:
+    | ((event: EventApiNotificationEvent) => void)
+    | null = areWorkerNotificationsEnabled() ? postWorkerMessage : null,
 ): void => {
   const eventRow = database.selectObject({
     sql: `
@@ -38,14 +43,14 @@ export const resolveEvent = (
       event.type,
     ).resolve(database, event, createEvents);
 
-    notify({
+    notify?.({
       eventKey: 'event:success',
       ...event,
       affectedVillageIds,
       affectedTileIds,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
-    notify({
+    notify?.({
       eventKey: 'event:error',
       ...event,
       affectedVillageIds: [],

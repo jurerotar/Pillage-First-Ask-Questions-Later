@@ -119,6 +119,9 @@ test('publishes the resolver affected villages and tiles on success', async () =
 test('uses the worker notification port when no notifier is supplied', async () => {
   using database = await prepareTestDatabase();
   const { event } = setup(database);
+  using _enabled = vi
+    .spyOn(notifications, 'areWorkerNotificationsEnabled')
+    .mockReturnValue(true);
   using post = vi
     .spyOn(notifications, 'postWorkerMessage')
     .mockReturnValue(undefined);
@@ -131,6 +134,30 @@ test('uses the worker notification port when no notifier is supplied', async () 
     affectedVillageIds: [1],
     affectedTileIds: [],
   });
+});
+
+test('skips the worker success notification when posting is disabled', async () => {
+  using database = await prepareTestDatabase();
+  const { event, resolver } = setup(database);
+  using post = vi.spyOn(notifications, 'postWorkerMessage');
+
+  resolveEvent(database, event.id);
+
+  expect(resolver).toHaveBeenCalledOnce();
+  expect(post).not.toHaveBeenCalled();
+});
+
+test('rethrows resolver errors without notifying when posting is disabled', async () => {
+  using database = await prepareTestDatabase();
+  const { event, resolver } = setup(database);
+  const error = new Error('Resolver failed');
+  resolver.mockImplementation(() => {
+    throw error;
+  });
+  using post = vi.spyOn(notifications, 'postWorkerMessage');
+
+  expect(() => resolveEvent(database, event.id)).toThrow(error);
+  expect(post).not.toHaveBeenCalled();
 });
 
 test('uses the supplied notifier instead of the worker port', async () => {

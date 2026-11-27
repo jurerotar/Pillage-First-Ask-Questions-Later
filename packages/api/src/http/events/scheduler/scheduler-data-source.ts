@@ -3,7 +3,10 @@ import type { EventApiNotificationEvent } from '@pillage-first/types/api-events'
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectNextEventQuery } from '../../../queries/event-queries';
-import { postWorkerMessage } from '../../../worker/notification-port';
+import {
+  areWorkerNotificationsEnabled,
+  postWorkerMessage,
+} from '../../../worker/notification-port';
 import { resolveEvent } from '../resolve-event';
 import type { SchedulerDataSource } from './scheduler';
 
@@ -46,6 +49,7 @@ export const createSchedulerDataSource = (
       let next = iterator.next();
 
       const resolveBatch = () => {
+        const shouldNotify = areWorkerNotificationsEnabled();
         const notifications: EventApiNotificationEvent[] = [];
         let failure: { error: unknown } | undefined;
 
@@ -60,9 +64,13 @@ export const createSchedulerDataSource = (
             tx.exec({ sql: 'SAVEPOINT scheduler_event;' });
 
             try {
-              resolveEvent(tx, next.value, (event) => {
-                notification = event;
-              });
+              const notifier = shouldNotify
+                ? (event: EventApiNotificationEvent) => {
+                    notification = event;
+                  }
+                : null;
+
+              resolveEvent(tx, next.value, notifier);
 
               tx.exec({ sql: 'RELEASE scheduler_event;' });
             } catch (error) {

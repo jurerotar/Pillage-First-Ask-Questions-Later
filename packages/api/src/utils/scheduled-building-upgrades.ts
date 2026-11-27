@@ -24,7 +24,10 @@ import {
   selectNextScheduledBuildingUpgradeQuery,
   selectScheduledBuildingUpgradesQuery,
 } from '../queries/scheduled-building-upgrades-queries';
-import { postWorkerMessage } from '../worker/notification-port';
+import {
+  areWorkerNotificationsEnabled,
+  postWorkerMessage,
+} from '../worker/notification-port';
 import {
   assertBuildingConstructionRequirementsAreMet,
   assessBuildingConstructionRequirements,
@@ -138,6 +141,10 @@ const postScheduledConstructionCancelledNotification = (
   reason: ScheduledBuildingConstructionCancellationReason,
   reasonDetail: ScheduledConstructionCancellationReasonDetail,
 ): void => {
+  if (!areWorkerNotificationsEnabled()) {
+    return;
+  }
+
   postWorkerMessage({
     eventKey: 'scheduled-building-construction:cancelled',
     villageId: scheduledUpgrade.villageId,

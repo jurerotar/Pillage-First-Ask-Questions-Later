@@ -10,6 +10,10 @@ export const setShouldPostNotifications = (value: boolean): void => {
   shouldPostNotifications = value;
 };
 
+export const areWorkerNotificationsEnabled = (): boolean => {
+  return shouldPostNotifications;
+};
+
 export const postWorkerMessage = (
   message: unknown,
   options?: { force?: boolean },

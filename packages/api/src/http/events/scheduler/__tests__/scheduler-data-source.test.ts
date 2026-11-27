@@ -54,6 +54,9 @@ const setup = async () => {
   const post = vi
     .spyOn(notifications, 'postWorkerMessage')
     .mockReturnValue(undefined);
+  const notificationsEnabled = vi
+    .spyOn(notifications, 'areWorkerNotificationsEnabled')
+    .mockReturnValue(true);
 
   const source = createSchedulerDataSource(database);
 
@@ -83,10 +86,12 @@ const setup = async () => {
     source,
     resolver,
     post,
+    notificationsEnabled,
     resolvedIds,
     failOn,
     [Symbol.dispose]: () => {
       post.mockRestore();
+      notificationsEnabled.mockRestore();
       database.close();
     },
   };
@@ -374,6 +379,24 @@ test('batch notifications are published only after commit', async () => {
   context.source.resolveEvents([1, 2]);
 
   expect(context.post).toHaveBeenCalledTimes(2);
+});
+
+test('resolves a batch without collecting notifications when posting is disabled', async () => {
+  using context = await setup();
+  context.notificationsEnabled.mockReturnValue(false);
+  const error = new Error('Resolver failed');
+  context.failOn(2, error);
+
+  expect(() => context.source.resolveEvents([1, 2])).toThrow(error);
+
+  expect(
+    context.resolver.mock.calls.map(([, id, notify]) => [id, notify]),
+  ).toStrictEqual([
+    [1, null],
+    [2, null],
+  ]);
+  expect(context.resolvedIds()).toStrictEqual([1]);
+  expect(context.post).not.toHaveBeenCalled();
 });
 
 test('publishes each batch before resolving the next batch', async () => {

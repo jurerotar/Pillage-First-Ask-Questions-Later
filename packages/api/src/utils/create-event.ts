@@ -10,7 +10,10 @@ import type { EventCreationArgs } from '../http/events/resolver';
 import { getEventResolver } from '../http/events/resolver-registry';
 import { triggerKick } from '../http/events/scheduler/scheduler-signal';
 import { selectNextEventQuery } from '../queries/event-queries';
-import { postWorkerMessage } from '../worker/notification-port';
+import {
+  areWorkerNotificationsEnabled,
+  postWorkerMessage,
+} from '../worker/notification-port';
 import { getVillageTileId, subtractResourceSiteResourcesAt } from './village';
 
 const createEventsSchema = z.strictObject({
@@ -75,13 +78,15 @@ export const createEvents = <T extends GameEventType>(
   const events = resolver.insert(startsAt, duration, now);
   const [earliestEvent] = events;
 
-  postWorkerMessage({
-    eventKey: 'event:created',
-    ...(earliestEvent as GameEvent),
-    // Creating events doesn't require this, because cache invalidation is already done by the frontend
-    affectedVillageIds: [],
-    affectedTileIds: [],
-  } satisfies EventApiNotificationEvent);
+  if (areWorkerNotificationsEnabled()) {
+    postWorkerMessage({
+      eventKey: 'event:created',
+      ...(earliestEvent as GameEvent),
+      // Creating events doesn't require this, because cache invalidation is already done by the frontend
+      affectedVillageIds: [],
+      affectedTileIds: [],
+    } satisfies EventApiNotificationEvent);
+  }
 
   const createdImmediate = events.some((event) => event.resolvesAt <= now);
 

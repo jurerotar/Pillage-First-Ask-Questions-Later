@@ -76,6 +76,9 @@ describe('scheduled building upgrades', () => {
     'reports unmet %s alternatives as one OR group',
     async (buildingId, regularBuildingId) => {
       using database = await prepareTestDatabase();
+      using _enabled = vi
+        .spyOn(notificationPort, 'areWorkerNotificationsEnabled')
+        .mockReturnValue(true);
       using postWorkerMessage = vi.spyOn(notificationPort, 'postWorkerMessage');
       const villageId = 1;
       const buildingFieldId = 37;
@@ -141,6 +144,9 @@ describe('scheduled building upgrades', () => {
 
   test('uses a JSON-safe unlimited amount in cancellation reports and notifications', async () => {
     using database = await prepareTestDatabase();
+    using _enabled = vi
+      .spyOn(notificationPort, 'areWorkerNotificationsEnabled')
+      .mockReturnValue(true);
     using postWorkerMessage = vi.spyOn(notificationPort, 'postWorkerMessage');
     const villageId = 1;
     const buildingFieldId = 38;
@@ -637,6 +643,7 @@ describe('scheduled building upgrades', () => {
 
   test('removes an unaffordable upgrade and all dependent levels', async () => {
     using database = await prepareTestDatabase();
+    using postWorkerMessage = vi.spyOn(notificationPort, 'postWorkerMessage');
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -745,6 +752,7 @@ describe('scheduled building upgrades', () => {
       level: field.level + 1,
       reason: 'missing-resources',
     });
+    expect(postWorkerMessage).not.toHaveBeenCalled();
   });
 
   test('removes an invalid head candidate and promotes the next candidate', async () => {
