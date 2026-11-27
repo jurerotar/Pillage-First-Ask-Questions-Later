@@ -1,4 +1,5 @@
 import type {
+  BindableValue,
   OpfsSAHPoolDatabase,
   Sqlite3Static,
   SqlValue,
@@ -15,6 +16,13 @@ export type OpfsSahPoolOptions = Parameters<
 >[0];
 
 type PreparedStatement = ReturnType<OpfsSAHPoolDatabase['prepare']>;
+type QueryBind = NonNullable<ExecQueryArgs['bind']>;
+
+type CachedStatement = {
+  statement: PreparedStatement;
+  parameterIndexes: Map<string, number>;
+  exposed: boolean;
+};
 
 const parseArray = <T extends z.core.$ZodType>(
   schema: T,
@@ -23,13 +31,7 @@ const parseArray = <T extends z.core.$ZodType>(
   return z.array(schema).parse(values);
 };
 
-const createPreparedStatementCache = (): Map<string, PreparedStatement> => {
-  return new Map<string, PreparedStatement>();
-};
-
-const clearBindingsAfterExecution = (
-  statement: PreparedStatement,
-): PreparedStatement => {
+const clearBindingsAfterExecution = (statement: PreparedStatement): void => {
   const reset = statement.reset.bind(statement);
   const stepReset = statement.stepReset.bind(statement);
 
@@ -41,8 +43,34 @@ const clearBindingsAfterExecution = (
       reset(true);
     }
   };
+};
 
-  return statement;
+const bindStatement = (
+  { statement, parameterIndexes }: CachedStatement,
+  bind: QueryBind,
+): void => {
+  const values: BindableValue[] = [];
+
+  for (const name of Object.keys(bind) as (keyof QueryBind)[]) {
+    let index = parameterIndexes.get(name);
+
+    if (index === undefined) {
+      index = statement.getParamIndex(name);
+
+      if (!index) {
+        // Let SQLite report invalid parameter names using its normal binding path.
+        statement.bind(bind);
+        return;
+      }
+
+      parameterIndexes.set(name, index);
+    }
+
+    values[index - 1] = bind[name];
+  }
+
+  // Sparse entries skip omitted parameters, which were cleared at reset.
+  statement.bind(values.length > 0 ? values : bind);
 };
 
 export type DbFacade = {
@@ -89,21 +117,23 @@ export const createDbFacade = (
     throw new Error('Database serialization is not available in this context.');
   },
 ): DbFacade => {
-  const preparedStatementCache = createPreparedStatementCache();
+  const preparedStatementCache = new Map<string, CachedStatement>();
 
-  const getStatement = (sql: string): PreparedStatement => {
-    const statement = preparedStatementCache.get(sql);
-
-    if (!statement) {
-      const preparedStatement = clearBindingsAfterExecution(
-        database.prepare(sql),
-      );
-      preparedStatementCache.set(sql, preparedStatement);
-
-      return preparedStatement;
+  const getStatement = (sql: string): CachedStatement => {
+    const cached = preparedStatementCache.get(sql);
+    if (cached) {
+      return cached;
     }
 
-    return statement;
+    const prepared: CachedStatement = {
+      statement: database.prepare(sql),
+      parameterIndexes: new Map(),
+      exposed: false,
+    };
+
+    preparedStatementCache.set(sql, prepared);
+
+    return prepared;
   };
 
   const runStatement = <Result>({
@@ -111,15 +141,17 @@ export const createDbFacade = (
     bind,
     execute,
   }: RunStatementArgs<Result>): Result => {
-    const statement = getStatement(sql);
-
-    statement.reset(true);
-
-    if (bind) {
-      statement.bind(bind);
+    const cached = getStatement(sql);
+    const { statement } = cached;
+    // A caller holding a raw statement may have bound or stepped it directly.
+    if (cached.exposed) {
+      statement.reset(true);
     }
 
     try {
+      if (bind) {
+        bindStatement(cached, bind);
+      }
       return execute(statement);
     } finally {
       statement.reset(true);
@@ -131,7 +163,7 @@ export const createDbFacade = (
       runStatement({
         sql,
         bind,
-        execute: (statement) => statement.stepReset(),
+        execute: (statement) => statement.step(),
       });
     },
 
@@ -143,20 +175,8 @@ export const createDbFacade = (
       const value = runStatement({
         sql,
         bind,
-        execute: (statement) => {
-          const isDataAvailable = statement.step();
-
-          if (!isDataAvailable) {
-            statement.reset();
-
-            return;
-          }
-
-          const value = statement.get(0);
-          statement.reset();
-
-          return value;
-        },
+        execute: (statement) =>
+          statement.step() ? statement.get(0) : undefined,
       });
 
       if (value === undefined) {
@@ -177,8 +197,6 @@ export const createDbFacade = (
             values.push(statement.get(0));
           }
 
-          statement.reset();
-
           return values;
         },
       });
@@ -190,20 +208,8 @@ export const createDbFacade = (
       const row = runStatement({
         sql,
         bind,
-        execute: (statement) => {
-          const isDataAvailable = statement.step();
-
-          if (isDataAvailable) {
-            const row = statement.get({});
-            statement.reset();
-
-            return row;
-          }
-
-          statement.reset();
-
-          return;
-        },
+        execute: (statement) =>
+          statement.step() ? statement.get({}) : undefined,
       });
 
       if (row !== undefined) {
@@ -222,8 +228,6 @@ export const createDbFacade = (
           while (statement.step()) {
             rows.push(statement.get({}));
           }
-          statement.reset();
-
           return rows;
         },
       });
@@ -232,10 +236,12 @@ export const createDbFacade = (
     },
 
     prepare: ({ sql }) => {
-      return runStatement({
-        sql,
-        execute: (statement) => statement,
-      });
+      const cached = getStatement(sql);
+      if (!cached.exposed) {
+        clearBindingsAfterExecution(cached.statement);
+        cached.exposed = true;
+      }
+      return cached.statement.reset(true);
     },
 
     transaction: (callback: (db: DbFacade) => void): void => {
@@ -247,8 +253,8 @@ export const createDbFacade = (
     serialize,
 
     close: (): void => {
-      for (const [key, stmt] of preparedStatementCache) {
-        stmt.finalize();
+      for (const [key, { statement }] of preparedStatementCache) {
+        statement.finalize();
         preparedStatementCache.delete(key);
       }
     },
