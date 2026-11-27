@@ -15,6 +15,7 @@ import {
   validateDowngrade,
 } from '../../../utils/buildings';
 import { updatePlayerCulturePointsAt } from '../../../utils/culture-points';
+import { materializeLoyaltyAt } from '../../../utils/loyalty';
 import { updateOasisEffectsForVillage } from '../../../utils/oasis';
 import {
   demolishBuilding,
@@ -31,6 +32,10 @@ const resolveBuildingDestruction: Resolver<GameEvent<'buildingDestruction'>> = (
   const { buildingFieldId, villageId, buildingId, previousLevel, resolvesAt } =
     args;
   const tileId = getVillageTileId(database, villageId);
+
+  if (buildingId === 'RESIDENCE') {
+    materializeLoyaltyAt(database, tileId, resolvesAt);
+  }
 
   updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 

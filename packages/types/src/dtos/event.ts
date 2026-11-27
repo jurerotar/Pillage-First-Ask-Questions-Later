@@ -35,11 +35,6 @@ const villageEventSchema = {
   ...optionalTimingSchema,
 };
 
-const globalEventSchema = {
-  villageId: z.null(),
-  ...optionalTimingSchema,
-};
-
 const buildingEventSchema = {
   ...villageEventSchema,
   buildingFieldId: z.int().positive(),
@@ -174,10 +169,6 @@ export const createEventDtoSchema = z
     z.strictObject({
       type: z.literal('heroRevival'),
       ...villageEventSchema,
-    }),
-    z.strictObject({
-      type: z.literal('loyaltyIncrease'),
-      ...globalEventSchema,
     }),
     z.strictObject({
       type: z.literal('culturePointsCelebration'),

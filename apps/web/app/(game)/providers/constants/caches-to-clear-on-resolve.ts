@@ -55,11 +55,18 @@ export const cachesToClearOnResolve: Handlers = {
       ]),
     ];
   },
-  buildingLevelChange: ({ affectedVillageIds }) => {
+  buildingLevelChange: ({
+    affectedVillageIds,
+    affectedTileIds,
+    buildingId,
+  }) => {
     return [
       [culturePointsCacheKey],
       [currentVillageCacheKey],
       [effectsCacheKey],
+      ...(buildingId === 'RESIDENCE'
+        ? affectedTileIds.map((tileId) => [loyaltyCacheKey, tileId])
+        : []),
       ...affectedVillageIds.flatMap((villageId) => [
         [questsCacheKey, villageId],
         [collectableQuestCountCacheKey, villageId],
@@ -68,11 +75,18 @@ export const cachesToClearOnResolve: Handlers = {
       ]),
     ];
   },
-  buildingDestruction: ({ affectedVillageIds }) => {
+  buildingDestruction: ({
+    affectedVillageIds,
+    affectedTileIds,
+    buildingId,
+  }) => {
     return [
       [culturePointsCacheKey],
       [currentVillageCacheKey],
       [effectsCacheKey],
+      ...(buildingId === 'RESIDENCE'
+        ? affectedTileIds.map((tileId) => [loyaltyCacheKey, tileId])
+        : []),
       ...affectedVillageIds.flatMap((villageId) => [
         [questsCacheKey, villageId],
         [eventsCacheKey, 'buildingDestruction', villageId],
@@ -229,9 +243,6 @@ export const cachesToClearOnResolve: Handlers = {
         [eventsCacheKey, 'heroRevival', villageId],
       ]),
     ];
-  },
-  loyaltyIncrease: () => {
-    return [[loyaltyCacheKey]];
   },
   gatherersHutGatheringTrip: ({ affectedVillageIds, affectedTileIds }) => {
     return [

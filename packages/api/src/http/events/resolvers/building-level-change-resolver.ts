@@ -16,6 +16,7 @@ import {
   validateDowngrade,
 } from '../../../utils/buildings';
 import { updatePlayerCulturePointsAt } from '../../../utils/culture-points';
+import { materializeLoyaltyAt } from '../../../utils/loyalty';
 import { updateOasisEffectsForVillage } from '../../../utils/oasis';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
 import { promoteNextScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
@@ -41,6 +42,10 @@ const resolveBuildingLevelChange: Resolver<GameEvent<'buildingLevelChange'>> = (
   } = args;
 
   const tileId = getVillageTileId(database, villageId);
+
+  if (buildingId === 'RESIDENCE') {
+    materializeLoyaltyAt(database, tileId, resolvesAt);
+  }
 
   updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 

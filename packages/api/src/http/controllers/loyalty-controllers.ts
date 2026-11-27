@@ -13,5 +13,5 @@ export const getTileLoyalty = createController('/tiles/:tileId/loyalty', {
   },
   response: tileLoyaltyDtoSchema,
 })(({ database, path: { tileId } }) => {
-  return { loyalty: getLoyalty(database, tileId) };
+  return getLoyalty(database, tileId);
 });

@@ -8,7 +8,6 @@ import { culturePointsCelebrationResolver } from './resolvers/culture-points-cel
 import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-gathering-trip-resolver';
 import { heroRevivalResolver } from './resolvers/hero-revival-resolver';
 import { huntersLodgeHuntResolver } from './resolvers/hunters-lodge-hunt-resolver';
-import { loyaltyIncreaseResolver } from './resolvers/loyalty-increase-resolver';
 import { resourceTransferResolver } from './resolvers/resource-transfer-resolver';
 import { tradeRouteResolver } from './resolvers/trade-route-resolver';
 import { trapperCageProductionResolver } from './resolvers/trapper-cage-production-resolver';
@@ -42,7 +41,6 @@ const gameEventResolvers: GameEventResolverMap = {
   troopMovementOasisOccupation: oasisOccupationMovementResolver,
   troopMovementAdventure: adventureMovementResolver,
   heroRevival: heroRevivalResolver,
-  loyaltyIncrease: loyaltyIncreaseResolver,
   culturePointsCelebration: culturePointsCelebrationResolver,
   unitResearch: unitResearchResolver,
   unitImprovement: unitImprovementResolver,

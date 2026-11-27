@@ -147,7 +147,6 @@ import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
-import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
 import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 
 export const migrateAndSeed = (
@@ -406,6 +405,5 @@ export const migrateAndSeed = (
 
     setupGlobalWriteTriggers(db);
     setupHistoryTriggers(db);
-    setupLoyaltyTriggers(db);
   });
 };

@@ -6,10 +6,9 @@ import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
-import { createEvents } from '../../utils/create-event';
 import { addPlayerCulturePoints } from '../../utils/culture-points';
 import { onHeroDeath } from '../../utils/hero';
-import { adjustLoyalty, createLoyaltyIncreaseEvent } from '../../utils/loyalty';
+import { adjustLoyalty } from '../../utils/loyalty';
 import {
   addResourceSiteResourcesAt,
   getVillageTileId,
@@ -390,5 +389,4 @@ export const adjustVillageLoyalty = createController(
   },
 )(({ database, path: { tileId }, body: { amount } }) => {
   adjustLoyalty(database, tileId, amount);
-  createLoyaltyIncreaseEvent(createEvents, database);
 });

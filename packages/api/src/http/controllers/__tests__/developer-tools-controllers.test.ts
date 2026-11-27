@@ -18,6 +18,7 @@ import {
 import { tileIdSchema } from '@pillage-first/types/models/tile';
 import { calculatePlayerCulturePointsProduction } from '../../../utils/culture-points';
 import { insertEvents } from '../../../utils/insert-events';
+import { getLoyalty } from '../../../utils/loyalty';
 import {
   cancelScheduling,
   resetSchedulerForTesting,
@@ -76,47 +77,59 @@ describe('developer-tools-controllers', () => {
   });
 
   describe(adjustVillageLoyalty, () => {
-    test('should create the first loyaltyIncrease event when loyalty is adjusted', async () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(1_000_000);
+    test('settles elapsed loyalty ticks before applying another adjustment', async () => {
+      using database = await prepareTestDatabase();
 
-      try {
-        using database = await prepareTestDatabase();
-        const tileId = database.selectValue({
-          sql: 'SELECT tile_id FROM villages WHERE id = 1',
-          schema: tileIdSchema,
-        })!;
+      database.exec({
+        sql: 'UPDATE servers SET created_at = 1000, speed = 2;',
+      });
 
-        const eventCountBefore = database.selectValue({
-          sql: "SELECT COUNT(*) FROM events WHERE type = 'loyaltyIncrease';",
-          schema: z.number(),
-        });
+      const tileId = database.selectValue({
+        sql: 'SELECT tile_id FROM villages WHERE id = 1;',
+        schema: tileIdSchema,
+      })!;
 
-        expect(eventCountBefore).toBe(0);
+      const firstTick = 1_801_000;
+      using clock = vi.spyOn(Date, 'now').mockReturnValue(firstTick - 1);
 
+      const adjust = (amount: number) => {
         adjustVillageLoyalty(
           database,
           createControllerArgs<'/developer/tiles/:tileId/loyalty', 'patch'>({
             path: { tileId },
-            body: { amount: -10 },
+            body: { amount },
           }),
         );
+      };
 
-        const event = database.selectObject({
-          sql: "SELECT type, starts_at AS startsAt FROM events WHERE type = 'loyaltyIncrease' LIMIT 1;",
-          schema: z.strictObject({
-            type: z.string(),
-            startsAt: z.number(),
-          }),
-        })!;
+      adjust(-10);
 
-        expect(event).toStrictEqual({
-          type: 'loyaltyIncrease',
-          startsAt: 1_000_000,
-        });
-      } finally {
-        vi.useRealTimers();
-      }
+      expect(getLoyalty(database, tileId)).toMatchObject({
+        loyalty: 90,
+        nextLoyaltyIncreaseAt: firstTick,
+      });
+
+      clock.mockReturnValue(firstTick);
+      const { loyaltyIncreaseAmount } = getLoyalty(database, tileId);
+      adjust(-10);
+
+      expect(getLoyalty(database, tileId)).toMatchObject({
+        loyalty: 80 + loyaltyIncreaseAmount,
+        nextLoyaltyIncreaseAt: 3_601_000,
+      });
+
+      adjust(100);
+
+      expect(getLoyalty(database, tileId)).toMatchObject({
+        loyalty: 100,
+        nextLoyaltyIncreaseAt: null,
+      });
+      expect(
+        database.selectValue({
+          sql: "SELECT COUNT(*) FROM events WHERE type = 'loyaltyIncrease';",
+          schema: z.int(),
+        }),
+      ).toBe(0);
     });
   });
 

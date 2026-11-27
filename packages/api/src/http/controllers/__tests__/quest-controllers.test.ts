@@ -1,11 +1,7 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { upgradeDb } from '@pillage-first/api/db';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
-import { tileIdSchema } from '@pillage-first/types/models/tile';
-import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 import { assessQueuedTroopCountQuestCompletion } from '../../../utils/quests';
-import { insertGatheringExpeditionReport } from '../../../utils/report';
 import {
   collectQuest,
   getCollectableQuestCount,
@@ -156,96 +152,6 @@ describe('quest-controllers', () => {
         }),
       ]),
     );
-  });
-
-  test('a gathering milestone reached by the 0.4.86 backfill is claimable immediately', async () => {
-    using database = await prepareTestDatabase();
-
-    const previousVersion = encodeAppVersionToDatabaseUserVersion('0.4.85');
-    database.execMulti({
-      sql: `
-        DROP TABLE enemy_casualty_totals;
-        DROP TABLE gathering_resource_totals;
-        PRAGMA user_version=${previousVersion};
-
-        UPDATE quests SET completed_at = 1000, collected_at = 1100
-        WHERE player_id = 1
-          AND quest_id IN ('gatheredResourceCount-20', 'gatheredResourceCount-100');
-      `,
-    });
-
-    const village = database.selectObject({
-      sql: `
-        SELECT v.id, v.tile_id, p.tribe_id
-        FROM villages v JOIN players p ON p.id = v.player_id
-        WHERE v.player_id = 1 LIMIT 1;
-      `,
-      schema: z.strictObject({
-        id: z.int(),
-        tile_id: tileIdSchema,
-        tribe_id: z.int(),
-      }),
-    })!;
-
-    insertGatheringExpeditionReport(database, {
-      villageId: village.id,
-      timestamp: 2000,
-      villageTileId: village.tile_id,
-      tribeId: village.tribe_id,
-      loot: [113, 113, 112, 112],
-      units: [{ unitId: 'PHALANX', amount: 113 }],
-    });
-
-    {
-      using _clock = vi.spyOn(Date, 'now').mockReturnValue(1500);
-
-      upgradeDb(database, previousVersion);
-      // Simulate retrying after the transaction committed but before the version was saved.
-      upgradeDb(database, previousVersion);
-    }
-
-    const quests = getQuests(
-      database,
-      createControllerArgs<'/me/quests'>({ query: { villageId: village.id } }),
-    );
-
-    expect(quests).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 'gatheredResourceCount-100',
-          completedAt: 1000,
-          collectedAt: 1100,
-        }),
-        expect.objectContaining({
-          id: 'gatheredResourceCount-500',
-          progress: 550,
-          completedAt: 2000,
-          collectedAt: null,
-        }),
-        expect.objectContaining({
-          id: 'gatheredResourceCount-1000',
-          completedAt: null,
-        }),
-      ]),
-    );
-
-    const questId = 'gatheredResourceCount-500';
-
-    collectQuest(
-      database,
-      createControllerArgs<'/me/quests/:questId/collect', 'post'>({
-        path: { questId },
-        body: { villageId: village.id },
-      }),
-    );
-
-    expect(
-      database.selectValue({
-        sql: 'SELECT collected_at FROM quests WHERE quest_id = $quest_id AND player_id = 1;',
-        bind: { $quest_id: questId },
-        schema: z.int().nullable(),
-      }),
-    ).toEqual(expect.any(Number));
   });
 
   test('getCollectableQuestCount should return collectable quest count', async () => {

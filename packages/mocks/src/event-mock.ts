@@ -147,15 +147,6 @@ export const createHeroRevivalEventMock = (
   });
 };
 
-export const createLoyaltyIncreaseEventMock = (
-  overrides: Partial<GameEvent<'loyaltyIncrease'>> = {},
-): GameEvent<'loyaltyIncrease'> => {
-  return createGameEventMock('loyaltyIncrease', {
-    villageId: null,
-    ...overrides,
-  });
-};
-
 export const createUnitImprovementEventMock = (
   overrides: Partial<GameEvent<'unitImprovement'>> = {},
 ): GameEvent<'unitImprovement'> => {

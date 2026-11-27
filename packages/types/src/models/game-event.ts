@@ -17,10 +17,6 @@ type BaseGameEvent = {
   villageId: Village['id'] | null;
 };
 
-type GlobalGameEvent = Omit<BaseGameEvent, 'villageId'> & {
-  villageId: null;
-};
-
 type VillageGameEvent = Omit<BaseGameEvent, 'villageId'> & {
   villageId: Village['id'];
 };
@@ -165,7 +161,6 @@ export const gameEventTypeSchema = z.enum([
   'huntersLodgeHunt',
   'gatherersHutGatheringTrip',
   'heroRevival',
-  'loyaltyIncrease',
   'culturePointsCelebration',
   'resourceTransfer',
   'tradeRoute',
@@ -204,7 +199,6 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopMovementOasisOccupation: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementAdventure: BaseTroopMovementEvent & VillageGameEvent;
   heroRevival: VillageGameEvent;
-  loyaltyIncrease: GlobalGameEvent;
   culturePointsCelebration: CulturePointsCelebrationEvent & VillageGameEvent;
   resourceTransfer: BaseMerchantMovementEvent & VillageGameEvent;
   tradeRoute: TradeRouteEvent & VillageGameEvent;

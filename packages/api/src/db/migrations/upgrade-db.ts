@@ -1052,6 +1052,18 @@ export const upgradeDb = (
     }
   });
 
+  migrate('0.4.87', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({
+        sql: `
+          ALTER TABLE loyalties ADD COLUMN next_loyalty_increase_at INTEGER NOT NULL;
+          DROP TRIGGER IF EXISTS loyalties_delete_capped_entries_after_update;
+          DELETE FROM events WHERE type = 'loyaltyIncrease';
+        `,
+      });
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({
