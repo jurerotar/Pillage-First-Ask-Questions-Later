@@ -17,20 +17,19 @@ const getAdventurePointBaseFrequencyHours = (serverAgeMs: number): number => {
 };
 
 /**
- * Calculates adventure point increase frequency based on server duration and speed.
+ * Calculates adventure point increase frequency based on the world's age in game time.
  *
  * - If server duration is less than 1 week: 1 point every 8 hours
  * - If server duration is between 1 week and 1 month: 1 point every 16 hours
  * - From 1 month onwards: 1 point every 24 hours
  *
- * All values are for 1x servers and scale with server speed.
- * The result is returned in milliseconds.
+ * The result is returned in real-time milliseconds.
  */
 export const calculateAdventurePointIncreaseEventDuration = (
   createdAt: number,
   serverSpeed: Server['configuration']['speed'],
 ): number => {
-  const serverAgeMs = Date.now() - new Date(createdAt).getTime();
+  const serverAgeMs = (Date.now() - createdAt) * serverSpeed;
   const baseFrequencyHours = getAdventurePointBaseFrequencyHours(serverAgeMs);
 
   return Math.trunc((baseFrequencyHours / serverSpeed) * HOUR_IN_MS);
@@ -69,11 +68,12 @@ const getAdventurePointIncreaseSchedule = (
   const firstPhaseDuration = Math.trunc((8 / serverSpeed) * HOUR_IN_MS);
   const secondPhaseDuration = Math.trunc((16 / serverSpeed) * HOUR_IN_MS);
   const thirdPhaseDuration = Math.trunc((24 / serverSpeed) * HOUR_IN_MS);
-  const secondPhaseStartAt = createdAt + WEEK_IN_MS;
+  const secondPhaseStartAt = createdAt + WEEK_IN_MS / serverSpeed;
+  const secondPhaseLength = (MONTH_IN_MS - WEEK_IN_MS) / serverSpeed;
+  // Let the last 16-hour interval finish if it crosses the month boundary.
   const thirdPhaseStartAt =
     secondPhaseStartAt +
-    Math.ceil((MONTH_IN_MS - WEEK_IN_MS) / secondPhaseDuration) *
-      secondPhaseDuration;
+    Math.ceil(secondPhaseLength / secondPhaseDuration) * secondPhaseDuration;
 
   return {
     firstPhaseDuration,
