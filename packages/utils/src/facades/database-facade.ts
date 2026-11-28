@@ -1,5 +1,4 @@
 import type {
-  BindableValue,
   OpfsSAHPoolDatabase,
   Sqlite3Static,
   SqlValue,
@@ -16,11 +15,9 @@ export type OpfsSahPoolOptions = Parameters<
 >[0];
 
 type PreparedStatement = ReturnType<OpfsSAHPoolDatabase['prepare']>;
-type QueryBind = NonNullable<ExecQueryArgs['bind']>;
 
 type CachedStatement = {
   statement: PreparedStatement;
-  parameterIndexes: Map<string, number>;
   exposed: boolean;
 };
 
@@ -43,34 +40,6 @@ const clearBindingsAfterExecution = (statement: PreparedStatement): void => {
       reset(true);
     }
   };
-};
-
-const bindStatement = (
-  { statement, parameterIndexes }: CachedStatement,
-  bind: QueryBind,
-): void => {
-  const values: BindableValue[] = [];
-
-  for (const name of Object.keys(bind) as (keyof QueryBind)[]) {
-    let index = parameterIndexes.get(name);
-
-    if (index === undefined) {
-      index = statement.getParamIndex(name);
-
-      if (!index) {
-        // Let SQLite report invalid parameter names using its normal binding path.
-        statement.bind(bind);
-        return;
-      }
-
-      parameterIndexes.set(name, index);
-    }
-
-    values[index - 1] = bind[name];
-  }
-
-  // Sparse entries skip omitted parameters, which were cleared at reset.
-  statement.bind(values.length > 0 ? values : bind);
 };
 
 export type DbFacade = {
@@ -127,7 +96,6 @@ export const createDbFacade = (
 
     const prepared: CachedStatement = {
       statement: database.prepare(sql),
-      parameterIndexes: new Map(),
       exposed: false,
     };
 
@@ -150,7 +118,7 @@ export const createDbFacade = (
 
     try {
       if (bind) {
-        bindStatement(cached, bind);
+        statement.bind(bind);
       }
       return execute(statement);
     } finally {
