@@ -21,7 +21,6 @@ import {
   encodeAppVersionToDatabaseUserVersion,
   isSupportedDatabaseUserVersion,
 } from '@pillage-first/utils/version';
-import { upgradeDb } from '../db';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
@@ -109,8 +108,9 @@ export const openWorkerDatabase = async (
     })!;
 
     databaseVersion = version;
+    const currentVersion = encodeAppVersionToDatabaseUserVersion(env.VERSION);
 
-    if (version > encodeAppVersionToDatabaseUserVersion(env.VERSION)) {
+    if (version > currentVersion) {
       throw new OutdatedAppVersionError();
     }
 
@@ -118,7 +118,10 @@ export const openWorkerDatabase = async (
       throw new OutdatedDatabaseSchemaError();
     }
 
-    upgradeDb(dbFacade, version);
+    if (version !== currentVersion) {
+      const { upgradeDb } = await import('../db/migrations/upgrade-db');
+      upgradeDb(dbFacade, version);
+    }
 
     return dbFacade;
   } catch (error) {
